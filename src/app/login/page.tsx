@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import { istOidcAktiv, oidcAnzeigename } from '@/auth'
+import { FarbschemaUmschalter } from '@/components/farbschema-umschalter'
 import { Markenzeichen } from '@/components/markenzeichen'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { versionKurz } from '@/lib/version'
@@ -67,12 +68,15 @@ export default async function LoginSeite({
           </CardContent>
         </Card>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          Zugänge werden von der IT-Administration vergeben.
-          <span className="mt-1 block tabular-nums opacity-70">
-            {versionKurz()}
-          </span>
-        </p>
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <FarbschemaUmschalter mitBeschriftung className="text-muted-foreground" />
+          <p className="text-center text-xs text-muted-foreground">
+            Zugänge werden von der IT-Administration vergeben.
+            <span className="mt-1 block tabular-nums opacity-70">
+              {versionKurz()}
+            </span>
+          </p>
+        </div>
       </div>
     </main>
   )

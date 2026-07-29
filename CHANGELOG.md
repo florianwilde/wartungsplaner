@@ -18,6 +18,25 @@ Noch keine Änderungen.
 
 ---
 
+## [1.3.5] – 2026-07-29
+
+### Hinzugefügt
+
+- **Dunkles Farbschema.** Umschaltbar zwischen *Hell*, *Dunkel* und
+  *Systemvorgabe* – in der Kopfzeile und bereits auf der Anmeldeseite.
+  - Die Auswahl liegt in einem Cookie, damit der Server sie schon beim Rendern
+    kennt. Ein Skript im Seitenkopf setzt das Schema vor dem ersten Zeichnen,
+    sodass die helle Fassung nicht kurz aufblitzt.
+  - Bei *Systemvorgabe* folgt die Anwendung der Einstellung des Geräts, auch
+    wenn diese im laufenden Betrieb wechselt.
+  - Die Farben leiten sich weiterhin aus den Markenfarben ab; die Primärfarbe
+    wird für dunklen Grund automatisch aufgehellt.
+- Das unter *Erscheinungsbild* hinterlegte **Logo für dunklen Hintergrund**
+  wird jetzt verwendet und per CSS umgeschaltet. Bisher war es zwar
+  speicherbar, blieb aber ungenutzt.
+
+---
+
 ## [1.3.0] – 2026-07-29
 
 ### Hinzugefügt
@@ -182,7 +201,8 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.3.0...main
+[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.3.5...main
+[1.3.5]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.3.5
 [1.3.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.3.0
 [1.2.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.2.0
 [1.1.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.1.0

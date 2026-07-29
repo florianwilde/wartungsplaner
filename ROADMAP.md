@@ -17,6 +17,7 @@ Umgesetzte Fassungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
 | ✅ **1.1.0** | Corporate Design, konfigurierbares Erscheinungsbild, Versionierung mit Änderungsverlauf, Update-Skript |
 | ✅ **1.2.0** | E-Mail-Benachrichtigungen, Sicherheitshärtung (CSP, CSRF, Brute-Force-Schutz), Roadmap und Sicherheitsdokumentation |
 | ✅ **1.3.0** | Import und Export von Kategorien, Aufgaben und Benutzern mit Vorschau |
+| ✅ **1.3.5** | Dunkles Farbschema mit Umschalter und Systemvorgabe |
 
 ---
 
@@ -56,6 +57,26 @@ Fachbereichen außerhalb der Anwendung.
 
 ---
 
+## 1.3.5 – Dunkles Farbschema ✅
+
+**Warum:** Prüfungen finden oft abends oder im abgedunkelten Serverraum statt.
+Ein dunkles Schema ist dort keine Spielerei, sondern eine Frage der
+Augenbelastung.
+
+- Umschaltung zwischen **Hell**, **Dunkel** und **Systemvorgabe** – in der
+  Kopfzeile und bereits auf der Anmeldeseite
+- Auswahl in einem Cookie, damit der Server sie schon beim Rendern kennt;
+  ein kleines Skript im Seitenkopf verhindert das Aufblitzen der hellen
+  Fassung
+- Bei „Systemvorgabe“ folgt die Anwendung der Einstellung des Geräts, auch
+  wenn diese im laufenden Betrieb wechselt
+- Alle Farben leiten sich aus den Markenfarben ab; die Primärfarbe wird für
+  dunklen Grund automatisch aufgehellt
+- Das hinterlegte **Logo für dunklen Hintergrund** wird jetzt tatsächlich
+  verwendet und per CSS umgeschaltet
+
+---
+
 ## 1.4.0 – Passkeys für die lokale Anmeldung 📋
 
 **Warum:** Passwörter sind der schwächste Punkt der internen Benutzerverwaltung.
@@ -88,6 +109,71 @@ Nachweise. Heute ist das Layout fest im Code hinterlegt.
 - Seitenformat und Ausrichtung (A4 hoch/quer) je Vorlage
 - Logo in den PDF-Kopf auch aus SVG-Dateien (heute nur PNG und JPG)
 
+### Dashboard: Zeithorizont wählbar
+
+- Die Liste „Nächste Fälligkeiten“ zeigt heute stets die nächsten zwölf
+  Einträge. Künftig lässt sich einstellen, ob **alle** offenen Fälligkeiten
+  erscheinen oder nur die der **nächsten Woche**, der **nächsten 30 Tage**
+  oder eines frei gewählten Zeitraums.
+- Die Auswahl bleibt je Person gespeichert.
+
+---
+
+## 1.6.0 – Nachweismodul für Reviews und Regelprüfungen 📋
+
+**Warum:** Bei Reviews entsteht der Nachweis heute außerhalb der Anwendung –
+als Word-Datei, Tabelle oder E-Mail-Verlauf – und wird anschließend hochgeladen.
+Der eigentliche Prüfvorgang bleibt damit unstrukturiert, und die Qualität der
+Nachweise hängt daran, wie sorgfältig jemand ein Dokument ausfüllt. Das Modul
+führt den Vorgang in der Anwendung durch und erzeugt den Nachweis daraus.
+
+### Nachweise strukturiert erfassen
+
+- **Prüfbögen je Aufgabe**: eine Aufgabe erhält eine Vorlage mit Prüfpunkten
+  (Frage, erwartetes Ergebnis, Antwortart: erfüllt / nicht erfüllt / entfällt,
+  Freitext, Zahl, Datum)
+- Typische Bögen für die wiederkehrenden Fälle:
+  - **Rezertifizierung von Berechtigungen** – Liste je Person oder Gruppe mit
+    Entscheidung „belassen / entziehen / ändern“ je Zeile
+  - **Restore-Test** – geprüfte Systeme, Start- und Endzeit, Vollständigkeit,
+    Stichproben
+  - **Zutrittsberechtigungen** – Transponder, Person, Entscheidung
+  - **Regelprüfung** (Firewall, Patchstand, Zertifikate) – Regel bzw. System,
+    Befund, Maßnahme
+- Zeilen lassen sich aus einer CSV-Datei übernehmen (etwa ein AD-Export), damit
+  niemand hunderte Einträge abtippt
+- Zwischenspeichern: ein umfangreiches Review muss nicht in einem Zug fertig
+  werden
+
+### Vier-Augen-Prinzip
+
+- Je Aufgabe einstellbar, ob ein Nachweis **gegengezeichnet** werden muss
+- Ablauf: *erfassen* → *zur Prüfung vorgelegt* → *gegengezeichnet* oder
+  *zurückgewiesen mit Begründung*
+- Die gegenzeichnende Person darf nicht die erfassende sein – die Anwendung
+  setzt das durch
+- Erst nach der Gegenzeichnung gilt der Nachweis als gültig und die zugehörige
+  Fälligkeit als vollständig erledigt
+- Jeder Schritt mit Person und Zeitpunkt im Audit-Log
+
+### Ergebnis
+
+- Aus dem ausgefüllten Bogen entsteht ein **PDF-Nachweis** mit Kopfdaten,
+  allen Prüfpunkten, Befunden, Unterschriftenfeldern beider Personen und
+  Prüfsumme
+- Der Nachweis wird **automatisch als Anhang an der Durchführung hinterlegt** –
+  mit SHA-256 wie jeder andere Nachweis, damit die Nachweiskette geschlossen
+  bleibt
+- Zusätzlich einzeln **herunterladbar**
+- Nicht erfüllte Prüfpunkte lassen sich mit einem Griff in **Abweichungen**
+  überführen, statt sie erneut zu erfassen
+
+### Abgrenzung
+
+Das Modul ersetzt nicht den Datei-Upload: Wo ein Nachweis außerhalb entsteht
+(Screenshot, Herstellerprotokoll), bleibt der Upload der richtige Weg. Beides
+steht nebeneinander.
+
 ---
 
 ## Danach geplant
@@ -97,9 +183,6 @@ Nachweise. Heute ist das Layout fest im Code hinterlegt.
 - 📋 **Nachweis-Export als Archiv** – ein ZIP mit allen Nachweisen eines
   Zeitraums plus Prüfsummenliste. Das ist es, was eine prüfende Person
   tatsächlich mitnehmen möchte.
-- 📋 **Vier-Augen-Prinzip je Aufgabe** – eine Durchführung wird erst nach
-  Gegenzeichnung durch eine zweite Person gültig. Für kritische Prüfungen
-  häufig gefordert.
 - 📋 **Aufbewahrungsfristen und Archivierung** – derzeit wächst der Bestand
   unbegrenzt. Nötig sind definierte Fristen und ein Archivstatus statt einer
   Löschung.

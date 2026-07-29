@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react'
 
+import { FarbschemaUmschalter } from '@/components/farbschema-umschalter'
 import { cn } from '@/lib/utils'
 
 export type NavigationsEintrag = {
@@ -79,7 +80,8 @@ export function Hauptnavigation({
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1">
+          <FarbschemaUmschalter />
           <div className="hidden md:block">{benutzerBereich}</div>
           <button
             type="button"
