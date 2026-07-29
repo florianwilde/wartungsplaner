@@ -240,6 +240,10 @@ model Finding {
 /// Append-only: Einträge werden ausschließlich eingefügt, niemals geändert
 /// oder gelöscht. Zusätzlich per Datenbank-Trigger abgesichert
 /// (siehe Migration "audit_log_append_only").
+///
+/// `onDelete: Restrict` ist bewusst gewählt: Benutzer mit Protokolleinträgen
+/// dürfen nicht gelöscht werden, weil auch ein Nullsetzen der Referenz eine
+/// Änderung am Protokoll wäre. Ausgeschiedene Personen werden deaktiviert.
 model AuditLog {
   id          String   @id @default(cuid())
   userId      String?
@@ -249,7 +253,7 @@ model AuditLog {
   entityId    String?
   payloadJson Json?
 
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@index([timestamp])
   @@index([entityType, entityId])
