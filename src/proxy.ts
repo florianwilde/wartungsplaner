@@ -50,15 +50,12 @@ export default auth((request) => {
     return NextResponse.redirect(ziel)
   }
 
-  // Angemeldet, aber Passwortwechsel erzwungen: alles außer der
-  // Wechselseite und dem Abmelden umleiten.
-  if (
-    request.auth?.user?.mustChangePassword &&
-    pfad !== '/passwort-aendern' &&
-    !istOeffentlich
-  ) {
-    return NextResponse.redirect(new URL('/passwort-aendern', ursprung))
-  }
+  // Ein erzwungener Passwortwechsel wird bewusst NICHT hier geprüft:
+  // Das Sitzungs-Cookie kann veraltet sein (es wird erst beim nächsten
+  // Schreibvorgang neu ausgestellt), was nach einer Passwortänderung zu einer
+  // Weiterleitungsschleife führen würde. Die Prüfung erfolgt stattdessen
+  // serverseitig in `erforderlicherBenutzer()` gegen den aktuellen
+  // Datenbankstand.
 
   if (angemeldet && pfad === '/login') {
     return NextResponse.redirect(new URL('/', ursprung))

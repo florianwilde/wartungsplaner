@@ -12,6 +12,7 @@ next-env.d.ts
 # Produktion / Docker
 uploads/
 pgdata/
+backups/
 
 # Umgebungsvariablen (niemals committen!)
 .env

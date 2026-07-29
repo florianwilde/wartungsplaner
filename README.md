@@ -1,93 +1,447 @@
-# wartungsplaner
+# Wartungsplaner
 
+Interne Webanwendung zur Planung und revisionssicheren Nachweisführung
+wiederkehrender IT-Prüf- und Wartungsaufgaben – zum Beispiel Restore-Tests,
+Reviews von Zugriffs- und Zutrittsberechtigungen, Patch-Status-Kontrollen oder
+der jährliche USV-Test.
 
+Die Anwendung erzeugt aus hinterlegten Intervallen automatisch Fälligkeiten,
+protokolliert jede Durchführung unveränderlich mit Datei-Nachweisen und
+SHA-256-Prüfsumme, verfolgt Abweichungen bis zum Abschluss und erstellt
+auditfertige Reports als PDF und Excel.
 
-## Getting started
+---
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Inhalt
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- [Funktionsumfang](#funktionsumfang)
+- [Rollen und Berechtigungen](#rollen-und-berechtigungen)
+- [Fälligkeitslogik](#fälligkeitslogik)
+- [Installation mit Docker Compose](#installation-mit-docker-compose)
+- [Konfiguration (.env)](#konfiguration-env)
+- [Anmeldung über SSO (OIDC)](#anmeldung-über-sso-oidc)
+- [Erste Schritte nach der Installation](#erste-schritte-nach-der-installation)
+- [Datensicherung und Wiederherstellung](#datensicherung-und-wiederherstellung)
+- [Betrieb](#betrieb)
+- [Entwicklung](#entwicklung)
+- [Technischer Aufbau](#technischer-aufbau)
 
-## Add your files
+---
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## Funktionsumfang
+
+| Bereich | Beschreibung |
+| --- | --- |
+| **Dashboard** (`/`) | Kacheln für Überfällig, Diese Woche fällig, Offen gesamt und Offene Abweichungen; Liste der nächsten Fälligkeiten mit direktem Erledigen-Dialog; Ampel je Kategorie |
+| **Aufgaben** (`/tasks`) | Liste mit Filtern nach Kategorie, Verantwortlichem, Status und Kritikalität sowie Volltextsuche |
+| **Aufgaben-Detail** (`/tasks/[id]`) | Stammdaten, Prüfanleitung in Markdown, offene Fälligkeiten und vollständige Historie aller Durchführungen inklusive Nachweisen |
+| **Erledigen-Dialog** | Ergebnis, Kommentar, Mehrfach-Upload von Nachweisen und Anlegen von Abweichungen in einem Schritt |
+| **Abweichungen** (`/findings`) | Liste mit Status, Schweregrad und Frist; Bearbeiten und Schließen mit Maßnahmenkommentar |
+| **Kalender** (`/calendar`) | Monatsansicht aller Fälligkeiten mit farbcodierten Kategorien |
+| **Reports** (`/reports`) | Vier Auswertungen als PDF und Excel, jeweils mit Zeitraum- und Kategorienfilter |
+| **Administration** (`/admin`) | Benutzerverwaltung, Kategorien und lesende, filterbare Audit-Log-Ansicht |
+
+### Reports
+
+1. **Compliance-Übersicht** – Erfüllungsgrad gesamt und je Kategorie
+   (pünktlich / verspätet / offen / überfällig / ausgesetzt)
+2. **Aufgabenhistorie** – je Aufgabe alle Durchführungen mit Datum, Person,
+   Ergebnis und Anhangsliste inklusive SHA-256
+3. **Abweichungsbericht** – alle Abweichungen mit Status und Maßnahmen
+4. **Fälligkeitsvorschau** – kommende Prüfungen der nächsten X Monate
+
+Jeder Report trägt im Kopf Anwendungsname, Zeitraum, Kategorienfilter sowie
+Erstellungsdatum und erstellende Person; PDF-Berichte zusätzlich eine
+Seitenzählung („Seite X von Y“). Jeder Abruf wird im Audit-Log protokolliert.
+
+### Revisionssicherheit
+
+- Abgeschlossene Durchführungen und ihre Nachweise sind **unveränderlich**.
+  Korrekturen erfolgen ausschließlich als neuer, protokollierter Vorgang.
+- Zu jeder hochgeladenen Datei wird eine **SHA-256-Prüfsumme** gespeichert und
+  in der Oberfläche sowie in den Reports ausgewiesen.
+- Das **Audit-Log ist append only**: Es wird nicht nur von der Anwendung so
+  behandelt, sondern zusätzlich per Datenbank-Trigger abgesichert – `UPDATE`
+  und `DELETE` auf der Tabelle `AuditLog` werden von PostgreSQL abgewiesen.
+- Benutzer werden **nie gelöscht, sondern deaktiviert**, damit alle
+  Protokolleinträge dauerhaft zuordenbar bleiben.
+- Beim Ergebnis *Abweichung* muss mindestens eine Abweichung erfasst werden;
+  bei Aufgaben mit Nachweispflicht mindestens eine Datei.
+
+---
+
+## Rollen und Berechtigungen
+
+| Rolle | Rechte |
+| --- | --- |
+| **ADMIN** (Administrator) | Vollzugriff: Aufgaben und Kategorien pflegen, Benutzer verwalten, Fälligkeiten aussetzen, Audit-Log einsehen, alles aus EDITOR |
+| **EDITOR** (Bearbeiter) | Fälligkeiten erledigen, Nachweise hochladen, Abweichungen anlegen, bearbeiten und schließen; Reports abrufen |
+| **AUDITOR** (Auditor) | Strikt lesender Zugriff auf alle Daten inklusive Reports; keine schreibende Aktion |
+
+Die Prüfung erfolgt serverseitig in jeder Seite und jeder Server Action, nicht
+nur in der Oberfläche.
+
+---
+
+## Fälligkeitslogik
+
+- Beim Anlegen einer aktiven Aufgabe entsteht die **erste Fälligkeit zum
+  Startdatum**.
+- Nach der Erledigung ergibt sich die nächste Fälligkeit
+  - bei `FIXED` (fester Rhythmus) aus **letzter Soll-Fälligkeit + Intervall** –
+    eine verspätete Erledigung verschiebt den Takt also nicht,
+  - bei `AFTER_COMPLETION` aus **Erledigungsdatum + Intervall**.
+- Ein **täglicher Hintergrundjob** setzt Fälligkeiten mit
+  `dueDate + graceDays < heute` auf *überfällig* und stellt sicher, dass jede
+  aktive Aufgabe genau eine unerledigte Fälligkeit besitzt.
+- Ab `dueDate - leadTimeDays` erscheint eine Fälligkeit auf dem Dashboard als
+  *bald fällig*.
+- Intervalle: täglich, wöchentlich, monatlich, vierteljährlich, halbjährlich,
+  jährlich sowie „alle N Tage“. Bei monatsbasierten Intervallen wird auf den
+  letzten Tag des Zielmonats begrenzt (31.01. + 1 Monat = 28./29.02.).
+
+Die gesamte Logik liegt als reine, systemzeitfreie Funktionen in
+[`src/lib/scheduling.ts`](src/lib/scheduling.ts) und
+[`src/lib/dates.ts`](src/lib/dates.ts) und ist mit Vitest abgedeckt
+(Schaltjahre, Monatsenden, Sommer-/Winterzeitwechsel, Karenz- und
+Vorlauftage).
+
+Alle Datums- und Zeitangaben beziehen sich auf die Zeitzone **Europe/Berlin**.
+
+---
+
+## Installation mit Docker Compose
+
+**Voraussetzungen:** Docker und Docker Compose. Weitere Software wird nicht
+benötigt – Node.js, PostgreSQL und alle Abhängigkeiten stecken im Stack.
+
+```bash
+git clone https://github.com/florianwilde/wartungsplaner.git
+cd wartungsplaner
+
+# 1. Konfiguration anlegen
+cp .env.example .env
+
+# 2. Geheimnisse setzen (siehe nächster Abschnitt)
+#    - POSTGRES_PASSWORD
+#    - AUTH_SECRET      (openssl rand -base64 32)
+#    - SEED_ADMIN_PASSWORD
+#    - APP_URL / AUTH_URL auf die tatsächliche Adresse setzen
+nano .env
+
+# 3. Stack starten
+docker compose up -d --build
+
+# 4. Log verfolgen, bis "Ready" erscheint
+docker compose logs -f app
+```
+
+Die Anwendung ist anschließend unter der in `APP_PORT` konfigurierten Adresse
+erreichbar (Standard: <http://localhost:3000>).
+
+Beim ersten Start geschieht automatisch:
+
+1. Warten auf die Datenbank,
+2. `prisma migrate deploy` (alle Migrationen inklusive des
+   Audit-Log-Triggers),
+3. der Seed – **nur wenn die Datenbank noch keinen Benutzer enthält**. Bestehende
+   Daten werden dadurch niemals überschrieben.
+
+Der Seed legt an: den Administrator, sechs Kategorien (Backup & Restore,
+Berechtigungen, Zutritt, Infrastruktur, Sicherheit, Dokumentation) und elf
+realistische Beispielaufgaben mit ausformulierten Prüfanleitungen.
+
+### Der Stack im Überblick
+
+| Service | Beschreibung |
+| --- | --- |
+| `app` | Next.js im Production-Build (Multi-Stage-Dockerfile, Standalone-Ausgabe, unprivilegierter Benutzer), Healthcheck auf `/api/health` |
+| `db` | `postgres:16` mit Healthcheck (`pg_isready`); der Port ist nur an `127.0.0.1` gebunden |
+
+| Volume | Inhalt |
+| --- | --- |
+| `pgdata` | PostgreSQL-Datenverzeichnis |
+| `uploads` | Hochgeladene Nachweise (im Container unter `/app/uploads`) |
+
+---
+
+## Konfiguration (.env)
+
+Alle Einstellungen werden über die Datei `.env` gesetzt; sie ist per
+`.gitignore` vom Repository ausgeschlossen. Als Vorlage dient
+[`.env.example`](.env.example). Nichts ist im Quelltext hartkodiert.
+
+### Pflichtangaben
+
+| Variable | Bedeutung |
+| --- | --- |
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Zugangsdaten der Datenbank. Der App-Container bildet seine Verbindungs-URL daraus selbst. |
+| `AUTH_SECRET` | Geheimnis für die Session-Cookies. Erzeugen mit `openssl rand -base64 32`. **Muss** vor dem Produktivbetrieb geändert werden. |
+| `APP_URL`, `AUTH_URL` | Öffentlich erreichbare Basis-URL ohne abschließenden Slash, z. B. `https://wartungsplaner.firma.de`. |
+| `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | Zugang des per Seed angelegten Administrators. Das Passwort muss beim ersten Login geändert werden. |
+
+### Weitere Einstellungen
+
+| Variable | Standard | Bedeutung |
+| --- | --- | --- |
+| `APP_PORT` | `3000` | Port auf dem Host |
+| `POSTGRES_PORT` | `5432` | Postgres-Port auf dem Host (nur `127.0.0.1`) |
+| `TZ` | `Europe/Berlin` | Zeitzone von Anwendung und Datenbank |
+| `AUTH_TRUST_HOST` | `true` | Hinter einem Reverse Proxy auf `true` lassen |
+| `UPLOAD_DIR` | `/app/uploads` | Ablage der Nachweise im Container |
+| `CRON_ENABLED` | `true` | Täglichen Hintergrundjob aktivieren |
+| `CRON_SCHEDULE` | `15 2 * * *` | Zeitplan des Jobs (Europe/Berlin) |
+| `CRON_TOKEN` | leer | Wenn gesetzt, kann der Job zusätzlich per HTTP ausgelöst werden |
+
+> **Hinweis zu `DATABASE_URL`:** Die Variable in der `.env` richtet sich an
+> Werkzeuge, die *vom Host aus* laufen (`prisma migrate`, `pg_dump`, `psql`) und
+> zeigt deshalb auf `localhost`. Der App-Container bildet seine eigene URL mit
+> dem Servicenamen `db` (siehe `docker-compose.yml`). Sonderzeichen im Passwort
+> müssen in der URL kodiert werden (`@` wird zu `%40`).
+
+---
+
+## Anmeldung über SSO (OIDC)
+
+Neben der internen Benutzerverwaltung (E-Mail und Passwort, bcrypt-Hash)
+unterstützt die Anwendung einen generischen OIDC-Provider, der zu Microsoft
+Entra ID, Keycloak und vergleichbaren Identity Providern kompatibel ist.
+
+SSO wird **nur aktiviert, wenn alle drei Variablen gesetzt sind**. Erst dann
+erscheint der zusätzliche Anmeldeknopf auf der Login-Seite; ohne Konfiguration
+bleibt die Anwendung mit reiner Passwortanmeldung voll nutzbar.
+
+```dotenv
+OIDC_ISSUER=https://login.microsoftonline.com/<tenant-id>/v2.0
+OIDC_CLIENT_ID=<client-id>
+OIDC_CLIENT_SECRET=<client-secret>
+OIDC_NAME=Unternehmens-SSO          # Beschriftung des Anmeldeknopfs
+OIDC_SCOPES=openid profile email    # Standard reicht in der Regel
+```
+
+Beispiel für Keycloak:
+
+```dotenv
+OIDC_ISSUER=https://keycloak.firma.de/realms/<realm>
+```
+
+**Redirect-URI beim Identity Provider eintragen:**
 
 ```
-cd existing_repo
-git remote add origin https://github.com/florianwilde/wartungsplaner.git
-git branch -M main
-git push -uf origin main
+<APP_URL>/api/auth/callback/oidc
 ```
 
-## Integrate with your tools
+**Verhalten beim ersten SSO-Login:**
 
-- [ ] [Set up project integrations](https://github.com/florianwilde/wartungsplaner/-/settings/integrations)
+- Existiert bereits ein Konto mit derselben E-Mail-Adresse, wird die Anmeldung
+  damit verknüpft; die vorhandene Rolle bleibt erhalten.
+- Andernfalls wird ein neues Konto mit der Rolle **AUDITOR** (nur lesend)
+  angelegt. Ein Administrator passt die Rolle anschließend unter
+  `/admin/benutzer` an.
+- Deaktivierte Konten können sich auch über SSO nicht anmelden.
 
-## Collaborate with your team
+Konten ohne lokales Passwort (reine SSO-Konten) lassen sich in der
+Benutzerverwaltung gezielt anlegen.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+---
 
-## Test and Deploy
+## Erste Schritte nach der Installation
 
-Use the built-in continuous integration in GitLab.
+1. Unter `APP_URL` mit `SEED_ADMIN_EMAIL` und `SEED_ADMIN_PASSWORD` anmelden.
+2. Das Startpasswort ändern – die Anwendung erzwingt das vor dem ersten Zugriff.
+3. Unter **Administration → Benutzer** die Kolleginnen und Kollegen anlegen
+   (Rolle *Bearbeiter* für die ausführende IT, *Auditor* für Revision und
+   Geschäftsführung).
+4. Unter **Administration → Kategorien** die Gliederung an die eigene
+   Organisation anpassen.
+5. Unter **Aufgaben** die Beispielaufgaben prüfen: Verantwortliche zuweisen,
+   Intervalle, Vorlauf- und Karenztage anpassen, nicht benötigte Aufgaben
+   deaktivieren und eigene ergänzen.
+6. Das Dashboard zeigt danach den aktuellen Stand; der tägliche Job hält die
+   Fälligkeiten fortlaufend aktuell.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+---
 
-***
+## Datensicherung und Wiederherstellung
 
-# Editing this README
+Zu sichern sind **zwei** Dinge: die Datenbank und das Upload-Volume. Ein Backup
+ohne die Nachweisdateien wäre für ein Audit wertlos.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### Sicherung
 
-## Suggestions for a good README
+```bash
+# 1. Datenbank
+docker compose exec -T db pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc \
+  > wartungsplaner-db-$(date +%F).dump
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+# 2. Nachweise aus dem Upload-Volume
+docker run --rm \
+  -v wartungsplaner_uploads:/daten:ro \
+  -v "$(pwd)":/sicherung \
+  alpine tar czf /sicherung/wartungsplaner-uploads-$(date +%F).tar.gz -C /daten .
 
-## Name
-Choose a self-explaining name for your project.
+# 3. Zusätzlich die .env sichern (enthält AUTH_SECRET und Zugangsdaten)
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Als Cron-Eintrag auf dem Host, täglich um 01:30 Uhr:
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+```cron
+30 1 * * * cd /opt/wartungsplaner && ./backup.sh >> /var/log/wartungsplaner-backup.log 2>&1
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### Wiederherstellung
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```bash
+# Datenbank
+docker compose up -d db
+docker compose exec -T db pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+  --clean --if-exists < wartungsplaner-db-2026-07-29.dump
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+# Nachweise
+docker run --rm \
+  -v wartungsplaner_uploads:/daten \
+  -v "$(pwd)":/sicherung \
+  alpine sh -c "tar xzf /sicherung/wartungsplaner-uploads-2026-07-29.tar.gz -C /daten"
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+docker compose up -d
+```
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+> Prüfen Sie die Wiederherstellung regelmäßig – am besten als eigene Aufgabe im
+> Wartungsplaner. Die Beispielaufgabe „Restore-Test ERP-System“ ist eine
+> passende Vorlage.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+---
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## Betrieb
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Täglicher Hintergrundjob
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Der Job läuft im App-Container (node-cron, Standard 02:15 Uhr Europe/Berlin) und
+wird beim Start der Anwendung registriert. Er setzt überfällige Fälligkeiten und
+zieht fehlende offene Fälligkeiten nach. Jeder Lauf erzeugt einen
+Audit-Eintrag (`CRON_RUN`) und ist idempotent.
 
-## License
-For open source projects, say how it is licensed.
+Optional lässt er sich zusätzlich per HTTP auslösen – etwa aus einem zentralen
+Scheduler. Dazu `CRON_TOKEN` setzen und neu starten:
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```bash
+curl -X POST -H "Authorization: Bearer <CRON_TOKEN>" \
+  https://wartungsplaner.firma.de/api/cron
+```
+
+Ohne gesetztes `CRON_TOKEN` ist der Endpunkt nicht ansprechbar.
+
+### Healthcheck
+
+`GET /api/health` prüft die Datenbankverbindung und liefert bei Erfolg
+`{"status":"ok","datenbank":"erreichbar"}` (sonst HTTP 503). Der Compose-Stack
+nutzt den Endpunkt für den Container-Healthcheck.
+
+### Datei-Uploads
+
+- Erlaubte Dateitypen: `pdf`, `png`, `jpg`, `txt`, `log`, `csv`, `xlsx`, `docx`
+- Maximale Größe: 25 MB je Datei
+- Ablage im Volume unter `JJJJ/MM/<uuid>.<endung>`; in der Datenbank stehen nur
+  Metadaten inklusive SHA-256
+- Der Download läuft über die Anwendung (`/api/attachments/<id>`), erfordert eine
+  Anmeldung und wird protokolliert
+
+### Aktualisierung
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+Migrationen werden beim Start automatisch angewendet. Vorher sichern.
+
+### Reverse Proxy
+
+Hinter nginx oder Traefik `AUTH_TRUST_HOST=true` setzen und `APP_URL`/`AUTH_URL`
+auf die öffentliche HTTPS-Adresse zeigen lassen. Die Weiterleitungen der
+Anwendung werten `X-Forwarded-Host` und `X-Forwarded-Proto` aus.
+
+---
+
+## Entwicklung
+
+**Voraussetzungen:** Node.js 22 oder neuer, Docker (für PostgreSQL).
+
+```bash
+npm install
+cp .env.example .env          # DATABASE_URL auf localhost belassen
+
+docker compose up -d db       # nur die Datenbank
+npx prisma migrate dev        # Schema anlegen
+npm run db:seed               # Beispieldaten
+
+npm run dev                   # http://localhost:3000
+```
+
+### Skripte
+
+| Befehl | Wirkung |
+| --- | --- |
+| `npm run dev` | Entwicklungsserver |
+| `npm run build` | Prisma-Client erzeugen und Production-Build |
+| `npm start` | Production-Server starten |
+| `npm run typecheck` | TypeScript prüfen |
+| `npm test` | Unit-Tests (Vitest) |
+| `npm run test:watch` | Unit-Tests im Watch-Modus |
+| `npm run test:integration` | Integrationstest gegen die laufende Datenbank |
+| `npm run db:migrate` | Migration erzeugen und anwenden |
+| `npm run db:deploy` | Migrationen anwenden (Produktion) |
+| `npm run db:seed` | Seed ausführen |
+| `npm run db:studio` | Prisma Studio |
+
+### Tests
+
+- **Unit-Tests** (`npm test`) decken die gesamte Intervall- und
+  Fälligkeitslogik, die Datumsfunktionen und die Upload-Validierung ab –
+  einschließlich Schaltjahren, Monatsenden und Zeitumstellung.
+- **Integrationstest** (`npm run test:integration`) prüft gegen eine echte
+  PostgreSQL-Instanz den Erledigen-Vorgang: Folgetermine in beiden
+  Planungsmodi, Unveränderlichkeit abgeschlossener Durchführungen,
+  Nachweispflicht, Abweichungspflicht, ausgesetzte Fälligkeiten, die
+  Audit-Protokollierung und den Tagesabgleich. Er legt eigene Testdaten an und
+  räumt sie wieder auf.
+
+---
+
+## Technischer Aufbau
+
+| Baustein | Verwendung |
+| --- | --- |
+| Next.js 16 (App Router) mit TypeScript | Oberfläche und Server Actions |
+| Prisma ORM mit PostgreSQL 16 | Datenmodell und Migrationen |
+| Auth.js v5 | Credentials- und OIDC-Provider, Session-Cookies |
+| Tailwind CSS 4 + shadcn/ui | Oberfläche, vollständig auf Deutsch |
+| pdfkit / exceljs | Serverseitige Report-Erzeugung |
+| node-cron | Täglicher Hintergrundjob |
+| Vitest | Unit-Tests |
+
+### Verzeichnisse
+
+```
+prisma/          Schema, Migrationen, Seed
+scripts/         Integrationstest
+src/app/         Seiten und API-Routen (Route-Gruppe "(app)" = angemeldeter Bereich)
+src/components/  Wiederverwendbare Bausteine, ui/ enthält die shadcn-Primitiven
+src/lib/         Reine Logik: Fälligkeiten, Datum, Rollen, Audit, Uploads
+src/server/      Datenbanknahe Dienste, Server Actions und Report-Erzeugung
+```
+
+Zentrale Dateien:
+
+- [`src/lib/scheduling.ts`](src/lib/scheduling.ts) – Fälligkeitslogik (rein, getestet)
+- [`src/server/faelligkeiten.ts`](src/server/faelligkeiten.ts) – Tagesabgleich und Folgetermine
+- [`src/server/durchfuehrung-service.ts`](src/server/durchfuehrung-service.ts) – Erledigen-Vorgang mit allen Fachregeln
+- [`src/lib/rbac.ts`](src/lib/rbac.ts) / [`src/lib/session.ts`](src/lib/session.ts) – Rollen und serverseitige Prüfung
+- [`src/lib/audit.ts`](src/lib/audit.ts) – Audit-Protokollierung
+- [`src/proxy.ts`](src/proxy.ts) – Zugriffskontrolle vor dem Rendern
+
+---
+
+## Lizenz
+
+Interne Anwendung. Alle Rechte vorbehalten.
