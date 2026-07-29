@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
-import { ClipboardCheck } from 'lucide-react'
 
 import { istOidcAktiv, oidcAnzeigename } from '@/auth'
+import { Markenzeichen } from '@/components/markenzeichen'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { versionKurz } from '@/lib/version'
+import { holeBranding } from '@/server/branding'
 import { LoginFormular } from './login-formular'
 
 export const metadata: Metadata = { title: 'Anmelden' }
@@ -24,6 +26,7 @@ export default async function LoginSeite({
   searchParams: Promise<{ weiter?: string; fehler?: string; error?: string }>
 }) {
   const params = await searchParams
+  const branding = await holeBranding()
   const weiter = params.weiter?.startsWith('/') ? params.weiter : '/'
   const fehlerSchluessel = params.fehler ?? params.error
   const fehlertext = fehlerSchluessel
@@ -34,18 +37,13 @@ export default async function LoginSeite({
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-12">
       <div className="w-full max-w-md">
-        <div className="mb-6 flex items-center justify-center gap-2.5">
-          <span className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <ClipboardCheck className="size-5" />
-          </span>
-          <span className="text-xl font-semibold tracking-tight">
-            Wartungsplaner
-          </span>
+        <div className="mb-8 flex justify-center">
+          <Markenzeichen branding={branding} className="h-14 max-w-[280px]" />
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Anmeldung</CardTitle>
+            <CardTitle>Anmeldung bei {branding.appName}</CardTitle>
             <CardDescription>
               Interne Anwendung zur Planung und zum Nachweis wiederkehrender
               IT-Prüf- und Wartungsaufgaben.
@@ -71,6 +69,9 @@ export default async function LoginSeite({
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Zugänge werden von der IT-Administration vergeben.
+          <span className="mt-1 block tabular-nums opacity-70">
+            {versionKurz()}
+          </span>
         </p>
       </div>
     </main>

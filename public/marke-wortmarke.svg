@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-label="Hofmann">
+  <title>Hofmann</title>
+  <defs>
+    <linearGradient id="wortmarkeVerlauf" x1="18%" y1="8%" x2="72%" y2="96%">
+      <stop offset="0%" stop-color="#2f9bd8" />
+      <stop offset="55%" stop-color="#217fbd" />
+      <stop offset="100%" stop-color="#175a8c" />
+    </linearGradient>
+  </defs>
+
+  <g fill="none" stroke="url(#wortmarkeVerlauf)" stroke-width="21">
+    <circle
+      cx="60"
+      cy="60"
+      r="42"
+      stroke-dasharray="228 36"
+      stroke-dashoffset="17"
+      transform="rotate(-118 60 60)"
+    />
+  </g>
+  <path d="M 46 8 L 74 20 L 46 34 Z" fill="url(#wortmarkeVerlauf)" />
+
+  <!--
+    Ersatz-Wortmarke mit systemeigener Schrift. Fuer eine typografisch exakte
+    Wiedergabe laedt die Administration unter /admin/erscheinungsbild die
+    Originaldatei hoch; diese ersetzt dann dieses Standardlogo.
+  -->
+  <text
+    x="150"
+    y="78"
+    font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-size="54"
+    font-weight="400"
+    letter-spacing="9"
+    fill="#2e2e2e"
+  >HOFMANN</text>
+</svg>

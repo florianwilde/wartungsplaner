@@ -28,14 +28,18 @@ function neueMappe(kopf: ReportKopf): ExcelJS.Workbook {
   mappe.lastModifiedBy = kopf.erstelltVon
   mappe.created = kopf.erstelltAm
   mappe.modified = kopf.erstelltAm
-  mappe.title = `Wartungsplaner – ${kopf.titel}`
+  if (kopf.organisation) mappe.company = kopf.organisation
+  mappe.title = `${kopf.anwendung} – ${kopf.titel}`
   return mappe
 }
 
 /** Schreibt den Kopfblock und liefert die erste freie Zeilennummer. */
 function schreibeKopf(blatt: ExcelJS.Worksheet, kopf: ReportKopf): number {
   const zeilen: [string, string][] = [
-    ['Anwendung', 'Wartungsplaner'],
+    ['Anwendung', kopf.anwendung],
+    ...(kopf.organisation
+      ? ([['Organisation', kopf.organisation]] as [string, string][])
+      : []),
     ['Bericht', kopf.titel],
     [
       'Zeitraum',
@@ -44,6 +48,9 @@ function schreibeKopf(blatt: ExcelJS.Worksheet, kopf: ReportKopf): number {
     ['Kategorien', kopf.kategorienText],
     ['Erstellt am', formatDateTime(kopf.erstelltAm)],
     ['Erstellt von', kopf.erstelltVon],
+    ...(kopf.fussnote
+      ? ([['Hinweis', kopf.fussnote]] as [string, string][])
+      : []),
   ]
 
   zeilen.forEach(([bezeichnung, wert], index) => {

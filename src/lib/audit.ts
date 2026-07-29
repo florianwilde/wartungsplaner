@@ -42,6 +42,8 @@ export const AUDIT_AKTIONEN = {
   FINDING_CLOSED: 'Abweichung geschlossen',
   REPORT_GENERATED: 'Report erzeugt',
   CRON_RUN: 'Täglicher Job ausgeführt',
+  BRANDING_UPDATED: 'Erscheinungsbild geändert',
+  BRANDING_RESET: 'Erscheinungsbild zurückgesetzt',
 } as const
 
 export type AuditAktion = keyof typeof AUDIT_AKTIONEN

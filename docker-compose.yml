@@ -25,6 +25,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # Wird von update.sh gesetzt; ohne Angabe bleibt der Commit leer.
+        GIT_COMMIT: ${GIT_COMMIT:-}
     container_name: wartungsplaner-app
     restart: unless-stopped
     depends_on:

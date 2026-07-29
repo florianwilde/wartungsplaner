@@ -68,11 +68,13 @@ export const config = {
   matcher: [
     /*
      * Alles außer:
-     * - /api/auth  (Anmeldeendpunkte von Auth.js)
-     * - /api/cron  (per Token abgesicherter Hintergrundjob)
-     * - /api/health(Healthcheck des Containers)
+     * - /api/auth    (Anmeldeendpunkte von Auth.js)
+     * - /api/cron    (per Token abgesicherter Hintergrundjob)
+     * - /api/health  (Healthcheck des Containers)
+     * - /api/branding(Logo und Favicon; werden bereits auf der Anmeldeseite
+     *                 gebraucht und dürfen deshalb keine Sitzung verlangen)
      * - Next.js-interne Pfade und statische Dateien
      */
-    '/((?!api/auth|api/cron|api/health|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+    '/((?!api/auth|api/cron|api/health|api/branding|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],
 }

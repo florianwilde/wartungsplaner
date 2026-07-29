@@ -21,6 +21,9 @@ auditfertige Reports als PDF und Excel.
 - [Konfiguration (.env)](#konfiguration-env)
 - [Anmeldung über SSO (OIDC)](#anmeldung-über-sso-oidc)
 - [Erste Schritte nach der Installation](#erste-schritte-nach-der-installation)
+- [Erscheinungsbild anpassen](#erscheinungsbild-anpassen)
+- [Aktualisierung](#aktualisierung)
+- [Versionierung und Änderungsverlauf](#versionierung-und-änderungsverlauf)
 - [Datensicherung und Wiederherstellung](#datensicherung-und-wiederherstellung)
 - [Betrieb](#betrieb)
 - [Entwicklung](#entwicklung)
@@ -39,7 +42,7 @@ auditfertige Reports als PDF und Excel.
 | **Abweichungen** (`/findings`) | Liste mit Status, Schweregrad und Frist; Bearbeiten und Schließen mit Maßnahmenkommentar |
 | **Kalender** (`/calendar`) | Monatsansicht aller Fälligkeiten mit farbcodierten Kategorien |
 | **Reports** (`/reports`) | Vier Auswertungen als PDF und Excel, jeweils mit Zeitraum- und Kategorienfilter |
-| **Administration** (`/admin`) | Benutzerverwaltung, Kategorien und lesende, filterbare Audit-Log-Ansicht |
+| **Administration** (`/admin`) | Benutzerverwaltung, Kategorien, Erscheinungsbild, Systemübersicht und lesende, filterbare Audit-Log-Ansicht |
 
 ### Reports
 
@@ -257,8 +260,129 @@ Benutzerverwaltung gezielt anlegen.
 5. Unter **Aufgaben** die Beispielaufgaben prüfen: Verantwortliche zuweisen,
    Intervalle, Vorlauf- und Karenztage anpassen, nicht benötigte Aufgaben
    deaktivieren und eigene ergänzen.
-6. Das Dashboard zeigt danach den aktuellen Stand; der tägliche Job hält die
+6. Unter **Administration → Erscheinungsbild** das Logo hochladen und die
+   Farben feinjustieren (siehe nächster Abschnitt).
+7. Das Dashboard zeigt danach den aktuellen Stand; der tägliche Job hält die
    Fälligkeiten fortlaufend aktuell.
+
+---
+
+## Erscheinungsbild anpassen
+
+Unter **Administration → Erscheinungsbild** lassen sich Farben, Logos und
+Bezeichnungen ohne Neustart ändern. Die Änderung wirkt sofort für alle
+Benutzer und wird im Audit-Log protokolliert.
+
+| Einstellung | Wirkung |
+| --- | --- |
+| **Anwendungsname** | Kopfzeile, Browsertitel, Report-Kopf |
+| **Organisation** | Fußzeile der Anwendung, Kopf und Fuß der Reports, Dateieigenschaften der Exporte |
+| **Primärfarbe** | Schaltflächen, Links, Hervorhebungen, Trennlinie im PDF-Kopf |
+| **Akzentfarbe** | Verläufe und sekundäre Hervorhebungen |
+| **Logo (hell / dunkel)** | Kopfzeile, Anmeldeseite und – bei PNG/JPG – Kopf der PDF-Reports |
+| **Browsersymbol** | Symbol im Browsertab |
+| **Report-Fußzeile** | Freitext, z. B. „Vertraulich – nur zur internen Verwendung“ |
+
+**Auslieferungszustand:** Die Anwendung startet im Corporate Design der
+Beispiel GmbH – Markenfarben `#1b7cb5` (Primär) und `#2f9bd8` (Akzent),
+abgeleitet aus der Bildmarke, sowie ein mitgeliefertes Logo als SVG.
+
+> **Für ein typografisch exaktes Logo** laden Sie die Originaldatei hoch. Das
+> mitgelieferte SVG ist eine Nachbildung; der Schriftzug nutzt eine
+> Systemschrift und trifft die Hausschrift daher nicht exakt.
+
+Hinweise:
+
+- **Dateiformate:** svg, png, jpg, webp, ico – maximal 2 MB je Datei.
+- **PDF-Reports** können nur PNG und JPG einbetten. Ist ein SVG hinterlegt,
+  erscheint im Report-Kopf statt des Logos der Anwendungsname. Laden Sie für
+  die Reports zusätzlich eine PNG-Fassung hoch.
+- **Kontrast:** Die Oberfläche prüft die gewählte Primärfarbe gegen
+  WCAG 2.1 Stufe AA (4,5:1) und warnt, wenn Schaltflächen schlecht lesbar
+  würden. Die Schriftfarbe darauf wird automatisch passend gewählt.
+- **Dunkles Farbschema:** Die Primärfarbe wird dafür automatisch aufgehellt,
+  damit sie auf dunklem Grund kontrastreich bleibt.
+- **Zurücksetzen** stellt Farben, Bezeichnungen und Logos in einem Schritt auf
+  den Auslieferungszustand zurück.
+
+---
+
+## Aktualisierung
+
+Für das Update des laufenden Stacks liegt das Skript `update.sh` bei. Es führt
+Sicherung, `git pull`, Neubau, Migrationen und Neustart in einem Durchgang aus
+und prüft danach, ob die Anwendung wieder betriebsbereit ist.
+
+```bash
+cd /opt/wartungsplaner
+./update.sh
+```
+
+Ablauf im Einzelnen:
+
+1. **Voraussetzungen prüfen** – Git-Repository, laufender Docker-Dienst,
+   vorhandene `.env`. Liegen **lokale Änderungen** vor, bricht das Skript ab,
+   statt sie zu überschreiben.
+2. **Sicherung** von Datenbank, Nachweisen und Konfiguration (`backup.sh`).
+3. **`git pull --ff-only`** – bewusst ohne automatischen Merge. Sind die
+   Historien auseinandergelaufen, bricht das Update ab und der Stack läuft
+   unverändert weiter. Die neuen Commits werden aufgelistet.
+4. **Neubau** des App-Images; der Git-Commit wird als Build-Argument in die
+   Anwendung übernommen und ist später unter *Administration → System*
+   sichtbar.
+5. **Neustart**; die Migrationen wendet der Container beim Start selbst an.
+6. **Warten auf den Healthcheck** und Ausgabe der neuen Fassung. Meldet der
+   Container einen Fehler, zeigt das Skript die letzten Protokollzeilen und
+   den passenden Rollback-Befehl.
+
+| Option | Wirkung |
+| --- | --- |
+| *(ohne)* | Sicherung, `git pull`, Neubau, Neustart |
+| `--ohne-sicherung` | überspringt die Sicherung (nicht empfohlen) |
+| `--nur-neubau` | ohne `git pull`, nur Image neu bauen und neu starten |
+| `--branch <name>` | auf einen anderen Branch wechseln, z. B. `stable` |
+| `--help` | Kurzhilfe |
+
+**Rückweg bei Problemen:**
+
+```bash
+git checkout <alter-commit>
+./update.sh --nur-neubau --ohne-sicherung
+```
+
+Betrifft das Problem die Datenbank, zusätzlich die Sicherung einspielen
+(siehe [Datensicherung](#datensicherung-und-wiederherstellung)). Beachten Sie,
+dass ein Rückschritt auf eine ältere Fassung bereits angewendete Migrationen
+nicht rückgängig macht.
+
+---
+
+## Versionierung und Änderungsverlauf
+
+Die Fassung steht in der `package.json` und wird zur Bauzeit in die Anwendung
+übernommen. Sie ist sichtbar
+
+- in der Fußzeile jeder Seite und auf der Anmeldeseite,
+- unter **Administration → System** samt Git-Commit und Build-Zeitpunkt,
+- im Healthcheck: `curl http://localhost:3000/api/health`.
+
+Die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
+Alle Änderungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert; derselbe
+Text erscheint auch in der Anwendung unter *Administration → System*.
+
+**Beim Veröffentlichen einer neuen Fassung:**
+
+```bash
+# 1. Version anheben und Änderungsverlauf ergänzen
+npm version 1.2.0 --no-git-tag-version
+$EDITOR CHANGELOG.md
+
+# 2. Commit und Tag
+git add package.json package-lock.json CHANGELOG.md
+git commit -m "chore: fassung 1.2.0"
+git tag -a v1.2.0 -m "Fassung 1.2.0"
+git push && git push --tags
+```
 
 ---
 
@@ -346,15 +470,6 @@ nutzt den Endpunkt für den Container-Healthcheck.
 - Der Download läuft über die Anwendung (`/api/attachments/<id>`), erfordert eine
   Anmeldung und wird protokolliert
 
-### Aktualisierung
-
-```bash
-git pull
-docker compose up -d --build
-```
-
-Migrationen werden beim Start automatisch angewendet. Vorher sichern.
-
 ### Reverse Proxy
 
 Hinter nginx oder Traefik `AUTH_TRUST_HOST=true` setzen und `APP_URL`/`AUTH_URL`
@@ -431,9 +546,19 @@ src/lib/         Reine Logik: Fälligkeiten, Datum, Rollen, Audit, Uploads
 src/server/      Datenbanknahe Dienste, Server Actions und Report-Erzeugung
 ```
 
+Skripte im Projektverzeichnis:
+
+| Datei | Zweck |
+| --- | --- |
+| [`update.sh`](update.sh) | Stack aktualisieren (Sicherung, `git pull`, Neubau, Neustart) |
+| [`backup.sh`](backup.sh) | Datenbank, Nachweise und Konfiguration sichern |
+| [`docker-entrypoint.sh`](docker-entrypoint.sh) | Start im Container: warten, migrieren, ggf. seeden |
+
 Zentrale Dateien:
 
 - [`src/lib/scheduling.ts`](src/lib/scheduling.ts) – Fälligkeitslogik (rein, getestet)
+- [`src/lib/farben.ts`](src/lib/farben.ts) – Farbableitung und Kontrastprüfung (rein, getestet)
+- [`src/lib/branding.ts`](src/lib/branding.ts) / [`src/server/branding.ts`](src/server/branding.ts) – Erscheinungsbild
 - [`src/server/faelligkeiten.ts`](src/server/faelligkeiten.ts) – Tagesabgleich und Folgetermine
 - [`src/server/durchfuehrung-service.ts`](src/server/durchfuehrung-service.ts) – Erledigen-Vorgang mit allen Fachregeln
 - [`src/lib/rbac.ts`](src/lib/rbac.ts) / [`src/lib/session.ts`](src/lib/session.ts) – Rollen und serverseitige Prüfung

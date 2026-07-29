@@ -36,6 +36,11 @@ RUN apk add --no-cache openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Git-Commit des Builds; wird von update.sh bzw. docker-compose übergeben und
+# ist später unter Administration -> System und in /api/health sichtbar.
+ARG GIT_COMMIT=""
+ENV GIT_COMMIT=${GIT_COMMIT}
+
 # Der Prisma-Client wird zur Bauzeit erzeugt. Für `next build` genügt eine
 # syntaktisch gültige DATABASE_URL – es wird keine Verbindung aufgebaut.
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -77,6 +82,9 @@ COPY --from=builder --chown=wartungsplaner:nodejs /app/public ./public
 COPY --from=builder --chown=wartungsplaner:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=wartungsplaner:nodejs /app/src/lib/dates.ts ./src/lib/dates.ts
 COPY --from=builder --chown=wartungsplaner:nodejs /app/tsconfig.json ./tsconfig.json
+
+# 4. Änderungsverlauf – wird unter Administration -> System angezeigt.
+COPY --from=builder --chown=wartungsplaner:nodejs /app/CHANGELOG.md ./CHANGELOG.md
 
 COPY --chown=wartungsplaner:nodejs docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh

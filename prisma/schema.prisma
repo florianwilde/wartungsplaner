@@ -234,6 +234,36 @@ model Finding {
 }
 
 // ---------------------------------------------------------------------------
+// Erscheinungsbild
+// ---------------------------------------------------------------------------
+
+/// Einstellungen zum Erscheinungsbild (Farben, Logos, Bezeichnungen).
+/// Bewusst als einzelner Datensatz mit fester ID "singleton" – es gibt genau
+/// eine Konfiguration je Installation.
+model Branding {
+  id           String  @id @default("singleton")
+  /// Name der Anwendung, erscheint in Kopfzeile, Titel und Reports
+  appName      String  @default("Wartungsplaner")
+  /// Name der Organisation, erscheint im Report-Kopf und in der Fußzeile
+  organisation String  @default("")
+  /// Primärfarbe als Hex (#rrggbb) – Schaltflächen, Links, Hervorhebungen
+  primaryColor String  @default("#1B7CB5")
+  /// Akzentfarbe als Hex (#rrggbb) – Verläufe und sekundäre Hervorhebungen
+  accentColor  String  @default("#2F9BD8")
+  /// Pfade relativ zum Upload-Verzeichnis; leer = mitgeliefertes Standardlogo
+  logoPath     String?
+  logoDarkPath String?
+  faviconPath  String?
+  /// Freitext für die Fußzeile der Reports (z. B. "Vertraulich – nur intern")
+  reportFooter String?
+
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+
+  @@map("Branding")
+}
+
+// ---------------------------------------------------------------------------
 // Revisionssicheres Protokoll
 // ---------------------------------------------------------------------------
 

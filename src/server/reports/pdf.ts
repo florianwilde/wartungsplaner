@@ -58,9 +58,9 @@ async function baueDokument(
     },
     bufferPages: true,
     info: {
-      Title: `Wartungsplaner – ${kopf.titel}`,
+      Title: `${kopf.anwendung} – ${kopf.titel}`,
       Author: kopf.erstelltVon,
-      Creator: 'Wartungsplaner',
+      Creator: kopf.organisation || kopf.anwendung,
       Subject: `Zeitraum ${formatDate(kopf.zeitraum.von)} bis ${formatDate(kopf.zeitraum.bis)}`,
     },
   })
@@ -93,18 +93,33 @@ function zeichneKopfUndFuss(doc: Doc, kopf: ReportKopf) {
     doc.page.margins = { top: 0, bottom: 0, left: RAND.links, right: RAND.rechts }
 
     // --- Kopfzeile ---
-    doc
-      .font('Helvetica-Bold')
-      .fontSize(14)
-      .fillColor(FARBE.text)
-      .text('Wartungsplaner', RAND.links, 34, { lineBreak: false })
+    // Ein hinterlegtes Logo (PNG/JPG) steht links, sonst der Anwendungsname.
+    let textAbstand = 0
+    if (kopf.logoDatei) {
+      try {
+        doc.image(kopf.logoDatei, RAND.links, 26, { fit: [130, 26] })
+        textAbstand = 140
+      } catch (error) {
+        // Beschädigte oder unlesbare Datei darf den Report nicht verhindern.
+        console.error('Logo konnte nicht eingebettet werden:', error)
+      }
+    }
+
+    if (!textAbstand) {
+      doc
+        .font('Helvetica-Bold')
+        .fontSize(14)
+        .fillColor(FARBE.text)
+        .text(kopf.anwendung, RAND.links, 30, { lineBreak: false })
+      textAbstand = 150
+    }
 
     doc
       .font('Helvetica')
       .fontSize(14)
-      .fillColor(FARBE.akzent)
-      .text(kopf.titel, RAND.links + 110, 34, {
-        width: INHALT_BREITE - 110,
+      .fillColor(kopf.markenfarbe)
+      .text(kopf.titel, RAND.links + textAbstand, 30, {
+        width: INHALT_BREITE - textAbstand,
         align: 'right',
         lineBreak: false,
       })
@@ -125,11 +140,12 @@ function zeichneKopfUndFuss(doc: Doc, kopf: ReportKopf) {
         lineBreak: false,
       })
 
+    // Trennlinie in der Markenfarbe
     doc
       .moveTo(RAND.links, 70)
       .lineTo(SEITE.breite - RAND.rechts, 70)
-      .lineWidth(0.5)
-      .strokeColor(FARBE.linie)
+      .lineWidth(1)
+      .strokeColor(kopf.markenfarbe)
       .stroke()
 
     // --- Fußzeile ---
@@ -141,21 +157,38 @@ function zeichneKopfUndFuss(doc: Doc, kopf: ReportKopf) {
       .strokeColor(FARBE.linie)
       .stroke()
 
+    const fussLinks = [
+      kopf.organisation,
+      `Erstellt am ${formatDateTime(kopf.erstelltAm)} von ${kopf.erstelltVon}`,
+    ]
+      .filter(Boolean)
+      .join(' · ')
+
     doc
       .font('Helvetica')
       .fontSize(7.5)
       .fillColor(FARBE.schwach)
-      .text(
-        `Erstellt am ${formatDateTime(kopf.erstelltAm)} von ${kopf.erstelltVon}`,
-        RAND.links,
-        fussY,
-        { width: INHALT_BREITE * 0.7, lineBreak: false },
-      )
+      .text(fussLinks, RAND.links, fussY, {
+        width: INHALT_BREITE * 0.7,
+        lineBreak: false,
+      })
       .text(`Seite ${i + 1} von ${bereich.count}`, RAND.links + INHALT_BREITE * 0.7, fussY, {
         width: INHALT_BREITE * 0.3,
         align: 'right',
         lineBreak: false,
       })
+
+    if (kopf.fussnote) {
+      doc
+        .font('Helvetica-Bold')
+        .fontSize(7)
+        .fillColor(FARBE.schwach)
+        .text(kopf.fussnote, RAND.links, fussY + 10, {
+          width: INHALT_BREITE,
+          align: 'center',
+          lineBreak: false,
+        })
+    }
 
     doc.page.margins = urspruenglicheRaender
   }

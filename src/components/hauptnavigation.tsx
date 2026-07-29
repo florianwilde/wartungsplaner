@@ -6,7 +6,6 @@ import { useState } from 'react'
 import {
   AlertTriangle,
   CalendarDays,
-  ClipboardCheck,
   FileBarChart,
   LayoutDashboard,
   ListChecks,
@@ -40,9 +39,12 @@ function istAktiv(pfad: string, href: string): boolean {
 export function Hauptnavigation({
   eintraege,
   benutzerBereich,
+  markenzeichen,
 }: {
   eintraege: NavigationsEintrag[]
   benutzerBereich: React.ReactNode
+  /** Vom Server gerendertes Logo (siehe `MarkenzeichenKompakt`). */
+  markenzeichen: React.ReactNode
 }) {
   const pfad = usePathname()
   const [offen, setOffen] = useState(false)
@@ -50,13 +52,8 @@ export function Hauptnavigation({
   return (
     <header className="kein-druck sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-4 px-4 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
-          <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <ClipboardCheck className="size-4" />
-          </span>
-          <span className="text-sm font-semibold tracking-tight">
-            Wartungsplaner
-          </span>
+        <Link href="/" className="flex shrink-0 items-center">
+          {markenzeichen}
         </Link>
 
         <nav className="hidden flex-1 items-center gap-0.5 md:flex">

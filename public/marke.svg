@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Bildmarke">
+  <title>Bildmarke</title>
+  <defs>
+    <linearGradient id="markeVerlauf" x1="18%" y1="8%" x2="72%" y2="96%">
+      <stop offset="0%" stop-color="#2f9bd8" />
+      <stop offset="55%" stop-color="#217fbd" />
+      <stop offset="100%" stop-color="#175a8c" />
+    </linearGradient>
+  </defs>
+
+  <!--
+    Offener Ring als Kreislauf-Symbol: Der Spalt oben links und die
+    Pfeilspitze deuten die Wiederkehr an - passend zu wiederkehrenden
+    Pruefungen. Die Farben stammen aus der Bildmarke der Firma Hofmann.
+  -->
+  <g fill="none" stroke="url(#markeVerlauf)" stroke-width="21">
+    <circle
+      cx="60"
+      cy="60"
+      r="42"
+      stroke-dasharray="228 36"
+      stroke-dashoffset="17"
+      transform="rotate(-118 60 60)"
+    />
+  </g>
+
+  <!-- Pfeilspitze am oberen Ende des Bogens -->
+  <path d="M 46 8 L 74 20 L 46 34 Z" fill="url(#markeVerlauf)" />
+</svg>

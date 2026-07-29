@@ -16,6 +16,8 @@ import {
 } from '@/lib/labels'
 import { prisma } from '@/lib/prisma'
 import { erzeugeVorschau, intervallText, warPuenktlich } from '@/lib/scheduling'
+import { holeBranding } from '@/server/branding'
+import { absoluterPfad } from '@/server/dateiablage'
 
 export type ReportTyp =
   | 'compliance'
@@ -49,6 +51,13 @@ export type ReportKopf = {
   erstelltAm: Date
   erstelltVon: string
   kategorienText: string
+  /** Angaben aus dem konfigurierten Erscheinungsbild. */
+  anwendung: string
+  organisation: string
+  markenfarbe: string
+  fussnote: string | null
+  /** Absoluter Pfad zu einer Logodatei (nur PNG/JPG sind einbettbar). */
+  logoDatei: string | null
 }
 
 /** Baut den Filter auf ausgewählte Kategorien (leer = alle). */
@@ -72,12 +81,31 @@ export async function baueKopf(
     kategorienText = kategorien.map((k) => k.name).join(', ') || 'Alle Kategorien'
   }
 
+  const branding = await holeBranding()
+
+  // pdfkit kann ausschließlich PNG und JPEG einbetten. Ein hinterlegtes
+  // SVG-Logo bleibt deshalb der Oberfläche vorbehalten; der Report führt in
+  // dem Fall nur den Namen der Organisation.
+  let logoDatei: string | null = null
+  if (branding.logoPath && /\.(png|jpe?g)$/i.test(branding.logoPath)) {
+    try {
+      logoDatei = absoluterPfad(branding.logoPath)
+    } catch {
+      logoDatei = null
+    }
+  }
+
   return {
     titel: REPORT_TITEL[typ],
     zeitraum,
     erstelltAm: new Date(),
     erstelltVon,
     kategorienText,
+    anwendung: branding.appName,
+    organisation: branding.organisation,
+    markenfarbe: branding.primaryColor,
+    fussnote: branding.reportFooter,
+    logoDatei,
   }
 }
 
