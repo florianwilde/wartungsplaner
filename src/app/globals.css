@@ -1,0 +1,203 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------
+   Farbschema (shadcn/ui-Konvention, OKLCH)
+--------------------------------------------------------------------------- */
+:root {
+  --radius: 0.625rem;
+
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.21 0.02 253);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.02 253);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.02 253);
+  --primary: oklch(0.48 0.15 253);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.01 253);
+  --secondary-foreground: oklch(0.28 0.03 253);
+  --muted: oklch(0.96 0.01 253);
+  --muted-foreground: oklch(0.53 0.02 257);
+  --accent: oklch(0.95 0.02 253);
+  --accent-foreground: oklch(0.28 0.03 253);
+  --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.91 0.01 255);
+  --input: oklch(0.91 0.01 255);
+  --ring: oklch(0.48 0.15 253);
+
+  /* Statusfarben (Ampel) */
+  --status-ok: oklch(0.62 0.16 150);
+  --status-warn: oklch(0.75 0.16 78);
+  --status-danger: oklch(0.58 0.22 27);
+  --status-neutral: oklch(0.6 0.02 257);
+}
+
+.dark {
+  --background: oklch(0.19 0.02 253);
+  --foreground: oklch(0.97 0.01 253);
+  --card: oklch(0.23 0.02 253);
+  --card-foreground: oklch(0.97 0.01 253);
+  --popover: oklch(0.23 0.02 253);
+  --popover-foreground: oklch(0.97 0.01 253);
+  --primary: oklch(0.72 0.13 250);
+  --primary-foreground: oklch(0.19 0.02 253);
+  --secondary: oklch(0.28 0.02 253);
+  --secondary-foreground: oklch(0.97 0.01 253);
+  --muted: oklch(0.28 0.02 253);
+  --muted-foreground: oklch(0.71 0.02 257);
+  --accent: oklch(0.31 0.03 253);
+  --accent-foreground: oklch(0.97 0.01 253);
+  --destructive: oklch(0.65 0.19 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 14%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: oklch(0.6 0.11 250);
+
+  --status-ok: oklch(0.7 0.15 150);
+  --status-warn: oklch(0.8 0.15 78);
+  --status-danger: oklch(0.66 0.19 25);
+  --status-neutral: oklch(0.65 0.02 257);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-status-ok: var(--status-ok);
+  --color-status-warn: var(--status-warn);
+  --color-status-danger: var(--status-danger);
+  --color-status-neutral: var(--status-neutral);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Markdown-Darstellung der Prüfanleitungen */
+  .prosa {
+    line-height: 1.65;
+  }
+  .prosa h1,
+  .prosa h2,
+  .prosa h3 {
+    font-weight: 600;
+    line-height: 1.3;
+    margin-top: 1.25em;
+    margin-bottom: 0.5em;
+  }
+  .prosa h1 {
+    font-size: 1.25rem;
+  }
+  .prosa h2 {
+    font-size: 1.1rem;
+  }
+  .prosa h3 {
+    font-size: 1rem;
+  }
+  .prosa > *:first-child {
+    margin-top: 0;
+  }
+  .prosa p {
+    margin-bottom: 0.75em;
+  }
+  .prosa ul,
+  .prosa ol {
+    margin: 0.5em 0 0.9em 1.35em;
+  }
+  .prosa ul {
+    list-style: disc;
+  }
+  .prosa ol {
+    list-style: decimal;
+  }
+  .prosa li {
+    margin-bottom: 0.25em;
+  }
+  .prosa strong {
+    font-weight: 600;
+  }
+  .prosa code {
+    background: var(--muted);
+    border-radius: var(--radius-sm);
+    padding: 0.1em 0.35em;
+    font-size: 0.875em;
+  }
+  .prosa pre {
+    background: var(--muted);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+    margin-bottom: 0.9em;
+  }
+  .prosa pre code {
+    background: transparent;
+    padding: 0;
+  }
+  .prosa a {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+  .prosa blockquote {
+    border-left: 3px solid var(--border);
+    padding-left: 0.9rem;
+    color: var(--muted-foreground);
+    margin-bottom: 0.9em;
+  }
+  .prosa table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.9em;
+    font-size: 0.9em;
+  }
+  .prosa th,
+  .prosa td {
+    border: 1px solid var(--border);
+    padding: 0.35rem 0.6rem;
+    text-align: left;
+  }
+  .prosa hr {
+    border-top: 1px solid var(--border);
+    margin: 1.25em 0;
+  }
+}
+
+/* Beim Drucken (z. B. Detailseiten) Navigation ausblenden */
+@media print {
+  .kein-druck {
+    display: none !important;
+  }
+}

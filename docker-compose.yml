@@ -1,0 +1,76 @@
+services:
+  db:
+    image: postgres:16
+    container_name: wartungsplaner-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: ${TZ:-Europe/Berlin}
+      PGTZ: ${TZ:-Europe/Berlin}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      # Nur für Backups/Debugging vom Host aus. In Produktion ggf. entfernen.
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wartungsplaner-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Im Compose-Netz ist die Datenbank unter dem Servicenamen "db" erreichbar.
+      # Der Wert wird bewusst hier gebildet, damit DATABASE_URL in der .env auf
+      # "localhost" zeigen kann (für Backups/Prisma-Kommandos vom Host aus).
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_URL: ${AUTH_URL:-http://localhost:3000}
+      AUTH_TRUST_HOST: ${AUTH_TRUST_HOST:-true}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      TZ: ${TZ:-Europe/Berlin}
+      UPLOAD_DIR: ${UPLOAD_DIR:-/app/uploads}
+      CRON_ENABLED: ${CRON_ENABLED:-true}
+      CRON_SCHEDULE: ${CRON_SCHEDULE:-15 2 * * *}
+      CRON_TOKEN: ${CRON_TOKEN:-}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-Start!1234}
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+      OIDC_NAME: ${OIDC_NAME:-Unternehmens-SSO}
+      OIDC_SCOPES: ${OIDC_SCOPES:-openid profile email}
+      NODE_ENV: production
+      PORT: '3000'
+      HOSTNAME: '0.0.0.0'
+    volumes:
+      - uploads:/app/uploads
+    ports:
+      - '${APP_PORT:-3000}:3000'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+volumes:
+  pgdata:
+  uploads:

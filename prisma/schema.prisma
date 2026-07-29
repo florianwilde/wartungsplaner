@@ -1,0 +1,258 @@
+// Wartungsplaner – Datenmodell
+// Dokumentation: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Aufzählungen
+// ---------------------------------------------------------------------------
+
+enum AuthProvider {
+  LOCAL
+  OIDC
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  AUDITOR
+}
+
+enum IntervalType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMIANNUAL
+  ANNUAL
+  EVERY_N_DAYS
+}
+
+enum ScheduleMode {
+  FIXED // fester Rhythmus ab Soll-Fälligkeit
+  AFTER_COMPLETION // ab Erledigungsdatum
+}
+
+enum Criticality {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum OccurrenceStatus {
+  OPEN
+  DONE
+  OVERDUE
+  SUSPENDED
+}
+
+enum ExecutionResult {
+  OK
+  OK_WITH_REMARKS
+  DEVIATION
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum FindingStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+}
+
+// ---------------------------------------------------------------------------
+// Benutzer & Stammdaten
+// ---------------------------------------------------------------------------
+
+model User {
+  id                 String       @id @default(cuid())
+  name               String
+  email              String       @unique
+  /// Leer bei reinen SSO-Konten
+  passwordHash       String?
+  authProvider       AuthProvider @default(LOCAL)
+  role               Role         @default(AUDITOR)
+  active             Boolean      @default(true)
+  /// Erzwingt einen Passwortwechsel beim nächsten Login
+  mustChangePassword Boolean      @default(false)
+  lastLoginAt        DateTime?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  ownedTasks          Task[]        @relation("TaskOwner")
+  executions          Execution[]
+  uploads             Attachment[]
+  responsibleFindings Finding[]     @relation("FindingResponsible")
+  auditLogs           AuditLog[]
+
+  @@index([role])
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  /// Hex-Farbe für Ampel/Badges, z. B. "#2563eb"
+  color     String   @default("#64748b")
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks Task[]
+
+  @@index([sortOrder])
+}
+
+// ---------------------------------------------------------------------------
+// Aufgaben & Fälligkeiten
+// ---------------------------------------------------------------------------
+
+model Task {
+  id             String       @id @default(cuid())
+  title          String
+  description    String?
+  /// Prüfanleitung im Markdown-Format
+  instructionsMd String?
+  categoryId     String
+  ownerId        String
+  intervalType   IntervalType
+  /// Nur bei EVERY_N_DAYS relevant (Anzahl Tage)
+  intervalValue  Int?
+  scheduleMode   ScheduleMode @default(FIXED)
+  /// Datum der ersten Fälligkeit
+  startDate      DateTime     @db.Date
+  /// Vorlaufzeit in Tagen – ab dann gilt die Fälligkeit als "bald fällig"
+  leadTimeDays   Int          @default(7)
+  /// Karenztage – erst danach wird auf ÜBERFÄLLIG gesetzt
+  graceDays      Int          @default(0)
+  evidenceRequired Boolean    @default(false)
+  criticality    Criticality  @default(MEDIUM)
+  /// Freitext-Referenz, z. B. "ISO 27001 A.8.13"
+  auditReference String?
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  owner       User         @relation("TaskOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  occurrences Occurrence[]
+
+  @@index([categoryId])
+  @@index([ownerId])
+  @@index([active])
+}
+
+model Occurrence {
+  id              String           @id @default(cuid())
+  taskId          String
+  dueDate         DateTime         @db.Date
+  status          OccurrenceStatus @default(OPEN)
+  suspendedReason String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  task      Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  execution Execution?
+
+  @@unique([taskId, dueDate])
+  @@index([status])
+  @@index([dueDate])
+}
+
+/// Durchführung einer Fälligkeit. Nach dem Anlegen unveränderlich –
+/// Korrekturen erfolgen ausschließlich als neuer, protokollierter Vorgang.
+model Execution {
+  id           String          @id @default(cuid())
+  occurrenceId String          @unique
+  executedById String
+  executedAt   DateTime        @default(now())
+  result       ExecutionResult
+  comment      String?
+  createdAt    DateTime        @default(now())
+
+  occurrence  Occurrence   @relation(fields: [occurrenceId], references: [id], onDelete: Cascade)
+  executedBy  User         @relation(fields: [executedById], references: [id], onDelete: Restrict)
+  attachments Attachment[]
+  findings    Finding[]
+
+  @@index([executedAt])
+  @@index([result])
+}
+
+/// Datei-Nachweis zu einer Durchführung. Unveränderlich.
+model Attachment {
+  id           String   @id @default(cuid())
+  executionId  String
+  filename     String
+  /// Pfad relativ zum Upload-Verzeichnis
+  storedPath   String
+  mimeType     String
+  sizeBytes    Int
+  /// SHA-256-Prüfsumme des Dateiinhalts (hex)
+  sha256       String
+  uploadedById String
+  uploadedAt   DateTime @default(now())
+
+  execution  Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  uploadedBy User      @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  @@index([executionId])
+  @@index([sha256])
+}
+
+model Finding {
+  id             String        @id @default(cuid())
+  executionId    String
+  title          String
+  description    String?
+  severity       Severity      @default(MEDIUM)
+  responsibleId  String
+  dueDate        DateTime      @db.Date
+  status         FindingStatus @default(OPEN)
+  closedAt       DateTime?
+  closingComment String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  responsible User      @relation("FindingResponsible", fields: [responsibleId], references: [id], onDelete: Restrict)
+
+  @@index([status])
+  @@index([responsibleId])
+  @@index([dueDate])
+}
+
+// ---------------------------------------------------------------------------
+// Revisionssicheres Protokoll
+// ---------------------------------------------------------------------------
+
+/// Append-only: Einträge werden ausschließlich eingefügt, niemals geändert
+/// oder gelöscht. Zusätzlich per Datenbank-Trigger abgesichert
+/// (siehe Migration "audit_log_append_only").
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  timestamp   DateTime @default(now())
+  action      String
+  entityType  String
+  entityId    String?
+  payloadJson Json?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([timestamp])
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([action])
+}
