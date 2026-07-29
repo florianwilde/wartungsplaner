@@ -18,6 +18,7 @@ Umgesetzte Fassungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
 | ✅ **1.2.0** | E-Mail-Benachrichtigungen, Sicherheitshärtung (CSP, CSRF, Brute-Force-Schutz), Roadmap und Sicherheitsdokumentation |
 | ✅ **1.3.0** | Import und Export von Kategorien, Aufgaben und Benutzern mit Vorschau |
 | ✅ **1.3.5** | Dunkles Farbschema mit Umschalter und Systemvorgabe |
+| ✅ **1.4.0** | Anmeldung mit Passkeys (WebAuthn), Kontoseite, Zurücksetzen durch die Administration |
 
 ---
 
@@ -77,7 +78,7 @@ Augenbelastung.
 
 ---
 
-## 1.4.0 – Passkeys für die lokale Anmeldung 📋
+## 1.4.0 – Passkeys für die lokale Anmeldung ✅
 
 **Warum:** Passwörter sind der schwächste Punkt der internen Benutzerverwaltung.
 Passkeys (WebAuthn/FIDO2) beseitigen Phishing und Wiederverwendung, ohne einen

@@ -121,8 +121,11 @@ export const config = {
      * - /api/health  (Healthcheck des Containers)
      * - /api/branding(Logo und Favicon; werden bereits auf der Anmeldeseite
      *                 gebraucht und dürfen deshalb keine Sitzung verlangen)
+     * - /api/passkeys/anmeldung (dient gerade dem Anmelden; die Registrierung
+     *                 unter /api/passkeys/registrierung verlangt weiterhin
+     *                 eine Sitzung und ist bewusst nicht ausgenommen)
      * - Next.js-interne Pfade und statische Dateien
      */
-    '/((?!api/auth|api/cron|api/health|api/branding|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+    '/((?!api/auth|api/cron|api/health|api/branding|api/passkeys/anmeldung|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],
 }

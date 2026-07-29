@@ -5,6 +5,8 @@ import { FarbschemaUmschalter } from '@/components/farbschema-umschalter'
 import { Markenzeichen } from '@/components/markenzeichen'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { versionKurz } from '@/lib/version'
+import { istPasskeyTauglich } from '@/lib/webauthn'
+import { appUrl } from '@/server/passkeys'
 import { holeBranding } from '@/server/branding'
 import { LoginFormular } from './login-formular'
 
@@ -64,6 +66,7 @@ export default async function LoginSeite({
               weiter={weiter}
               ssoAktiv={istOidcAktiv()}
               ssoName={oidcAnzeigename()}
+              passkeysMoeglich={istPasskeyTauglich(appUrl())}
             />
           </CardContent>
         </Card>

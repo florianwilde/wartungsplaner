@@ -53,6 +53,13 @@ export function BenutzerMenue({
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
+        <DropdownMenuItem asChild>
+          <Link href="/konto">
+            <UserRound />
+            Mein Konto
+          </Link>
+        </DropdownMenuItem>
+
         {!nurSso ? (
           <DropdownMenuItem asChild>
             <Link href="/passwort-aendern">

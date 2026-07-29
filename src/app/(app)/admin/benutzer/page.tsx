@@ -21,6 +21,7 @@ import {
   BenutzerBearbeitenDialog,
   PasswortZuruecksetzenDialog,
 } from './benutzer-aktionen'
+import { PasskeysZuruecksetzenButton } from './passkey-zuruecksetzen'
 
 export const metadata: Metadata = { title: 'Benutzer' }
 export const dynamic = 'force-dynamic'
@@ -31,7 +32,7 @@ export default async function BenutzerSeite() {
   const benutzer = await prisma.user.findMany({
     orderBy: [{ active: 'desc' }, { name: 'asc' }],
     include: {
-      _count: { select: { ownedTasks: true, executions: true } },
+      _count: { select: { ownedTasks: true, executions: true, passkeys: true } },
     },
   })
 
@@ -59,6 +60,7 @@ export default async function BenutzerSeite() {
               <TableHead>E-Mail</TableHead>
               <TableHead>Rolle</TableHead>
               <TableHead>Anmeldung</TableHead>
+              <TableHead>Passkeys</TableHead>
               <TableHead>Letzter Login</TableHead>
               <TableHead className="text-right">Aktionen</TableHead>
             </TableRow>
@@ -89,6 +91,9 @@ export default async function BenutzerSeite() {
                 <TableCell className="whitespace-nowrap text-muted-foreground">
                   {person.authProvider === 'OIDC' ? 'SSO' : 'Passwort'}
                 </TableCell>
+                <TableCell className="whitespace-nowrap tabular-nums text-muted-foreground">
+                  {person._count.passkeys}
+                </TableCell>
                 <TableCell className="whitespace-nowrap text-muted-foreground">
                   {person.lastLoginAt ? formatDateTime(person.lastLoginAt) : 'nie'}
                 </TableCell>
@@ -105,6 +110,13 @@ export default async function BenutzerSeite() {
                       <PasswortZuruecksetzenDialog
                         userId={person.id}
                         name={person.name}
+                      />
+                    ) : null}
+                    {person._count.passkeys > 0 ? (
+                      <PasskeysZuruecksetzenButton
+                        userId={person.id}
+                        name={person.name}
+                        anzahl={person._count.passkeys}
                       />
                     ) : null}
                     {person.id !== admin.id ? (

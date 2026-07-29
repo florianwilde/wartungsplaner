@@ -1,4 +1,16 @@
+import type { Role } from '@prisma/client'
 import type { NextAuthConfig } from 'next-auth'
+
+/** Die Felder, die diese Anwendung im Sitzungs-Token ablegt. */
+export type AnmeldeToken = {
+  sub?: string
+  uid?: string
+  name?: unknown
+  email?: unknown
+  role?: Role
+  mustChangePassword?: boolean
+  authProvider?: 'LOCAL' | 'OIDC'
+}
 
 /**
  * Basiskonfiguration ohne Datenbankzugriff.
@@ -49,13 +61,19 @@ export const authConfig = {
   },
   callbacks: {
     session({ session, token }) {
+      // Die Felder werden hier ausdrücklich beschrieben, statt sich auf die
+      // Typerweiterung von Auth.js zu verlassen: Sobald weitere Auth.js-Module
+      // (etwa die WebAuthn-Typen) im Spiel sind, greift die Erweiterung nicht
+      // mehr zuverlässig. Die Werte selbst setzt der jwt-Callback in auth.ts.
+      const inhalt = token as unknown as AnmeldeToken
+
       if (session.user) {
-        session.user.id = token.uid ?? (token.sub as string)
-        session.user.role = token.role ?? 'AUDITOR'
-        session.user.mustChangePassword = token.mustChangePassword ?? false
-        session.user.authProvider = token.authProvider ?? 'LOCAL'
-        if (typeof token.name === 'string') session.user.name = token.name
-        if (typeof token.email === 'string') session.user.email = token.email
+        session.user.id = inhalt.uid ?? inhalt.sub ?? ''
+        session.user.role = inhalt.role ?? 'AUDITOR'
+        session.user.mustChangePassword = inhalt.mustChangePassword ?? false
+        session.user.authProvider = inhalt.authProvider ?? 'LOCAL'
+        if (typeof inhalt.name === 'string') session.user.name = inhalt.name
+        if (typeof inhalt.email === 'string') session.user.email = inhalt.email
       }
       return session
     },

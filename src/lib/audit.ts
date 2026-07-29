@@ -49,6 +49,9 @@ export const AUDIT_AKTIONEN = {
   NOTIFICATION_SENT: 'Benachrichtigung versendet',
   NOTIFICATION_TEST_SENT: 'Testnachricht versendet',
   NOTIFICATION_RUN: 'Benachrichtigungslauf ausgeführt',
+  PASSKEY_REGISTRIERT: 'Passkey hinterlegt',
+  PASSKEY_ENTFERNT: 'Passkey entfernt',
+  PASSKEY_UMBENANNT: 'Passkey umbenannt',
   IMPORT_AUSGEFUEHRT: 'Import ausgeführt',
   EXPORT_ERZEUGT: 'Export erzeugt',
 } as const

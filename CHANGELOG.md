@@ -18,6 +18,44 @@ Noch keine Änderungen.
 
 ---
 
+## [1.4.0] – 2026-07-29
+
+### Hinzugefügt
+
+- **Anmeldung mit Passkeys (WebAuthn/FIDO2).** Windows Hello, Touch ID oder ein
+  Sicherheitsschlüssel ersetzen das Passwort – ohne Identity Provider.
+  - Anmeldung **ohne Eingabe der E-Mail-Adresse**: Der Browser bietet die
+    hinterlegten Passkeys von sich aus an. Die Anwendung gibt dabei keine
+    Auskunft über vorhandene Konten.
+  - Mehrere Passkeys je Konto (bis zu zehn), benennbar und einzeln entfernbar
+  - Neue Seite **Mein Konto** mit Übersicht über Angaben, Passwort und Passkeys
+    samt Zeitpunkt der letzten Verwendung
+- **Administration:** Spalte mit der Anzahl hinterlegter Passkeys und die
+  Möglichkeit, sie nach einem Geräteverlust zurückzusetzen.
+
+### Sicherheit
+
+- Die Aufgabe (Challenge) eines WebAuthn-Vorgangs liegt **serverseitig** und
+  wird nach einmaliger Verwendung sofort entfernt. Läge sie nur im Browser,
+  könnte eine angreifende Person eine eigene Aufgabe vorgeben und eine früher
+  abgefangene Signatur erneut einreichen.
+- Der **Signaturzähler** wird bei jeder Anmeldung fortgeschrieben; er dient
+  der Erkennung geklonter Schlüssel.
+- Gespeichert wird ausschließlich der **öffentliche** Schlüssel – der geheime
+  Teil verlässt das Gerät nie.
+- Passkeys werden nur angeboten, wenn die Anwendung über **HTTPS** (oder
+  localhost) erreichbar ist; andernfalls erscheint ein erklärender Hinweis
+  statt einer unverständlichen Browsermeldung.
+- Der **letzte Passkey** eines Kontos ohne Passwort lässt sich nicht entfernen,
+  und das Zurücksetzen durch die Administration wird abgelehnt, solange kein
+  Passwort hinterlegt ist – sonst bliebe der Zugang verschlossen.
+- `/api/passkeys/anmeldung` ist ohne Sitzung erreichbar (es dient ja gerade dem
+  Anmelden), die Registrierung unter `/api/passkeys/registrierung` dagegen
+  nicht.
+- Alle Vorgänge erscheinen im Audit-Log.
+
+---
+
 ## [1.3.5] – 2026-07-29
 
 ### Hinzugefügt
@@ -201,7 +239,8 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.3.5...main
+[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.4.0...main
+[1.4.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.4.0
 [1.3.5]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.3.5
 [1.3.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.3.0
 [1.2.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.2.0

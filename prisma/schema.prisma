@@ -100,6 +100,7 @@ model User {
   responsibleFindings Finding[]             @relation("FindingResponsible")
   auditLogs           AuditLog[]
   eskalationFuer      NotificationSetting[] @relation("EskalationsEmpfaenger")
+  passkeys            Passkey[]
 
   @@index([role])
 }
@@ -265,6 +266,59 @@ model Branding {
   updatedById String?
 
   @@map("Branding")
+}
+
+// ---------------------------------------------------------------------------
+// Passkeys (WebAuthn)
+// ---------------------------------------------------------------------------
+
+/// Ein registrierter Passkey. Gespeichert wird ausschließlich der öffentliche
+/// Schlüssel – der private Teil verlässt das Gerät des Benutzers nie.
+model Passkey {
+  id           String   @id @default(cuid())
+  userId       String
+  /// Kennung des Schlüssels, Base64URL-kodiert
+  credentialId String   @unique
+  /// Öffentlicher Schlüssel, Base64URL-kodiert
+  publicKey    String
+  /// Signaturzähler zur Erkennung geklonter Schlüssel
+  counter      Int      @default(0)
+  /// Übertragungswege, z. B. internal, hybrid, usb
+  transports   String[] @default([])
+  /// singleDevice oder multiDevice (synchronisierter Passkey)
+  deviceType   String   @default("singleDevice")
+  /// Wurde der Schlüssel in einem Konto gesichert?
+  backedUp     Boolean  @default(false)
+  /// Vom Benutzer vergebener Name, z. B. "Notebook Windows Hello"
+  name         String
+  createdAt    DateTime @default(now())
+  lastUsedAt   DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+enum WebAuthnAbsicht {
+  REGISTRIERUNG
+  ANMELDUNG
+}
+
+/// Kurzlebige Aufgabe (Challenge) eines WebAuthn-Vorgangs.
+///
+/// Sie wird bewusst serverseitig gehalten: Läge sie nur im Browser, könnte
+/// eine angreifende Person eine eigene Aufgabe vorgeben und eine früher
+/// abgefangene Signatur erneut einreichen.
+model WebAuthnChallenge {
+  id        String          @id @default(cuid())
+  challenge String
+  absicht   WebAuthnAbsicht
+  /// Bei der Registrierung bekannt, bei der Anmeldung noch offen
+  userId    String?
+  createdAt DateTime        @default(now())
+  expiresAt DateTime
+
+  @@index([expiresAt])
 }
 
 // ---------------------------------------------------------------------------

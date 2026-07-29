@@ -3,7 +3,7 @@ import type { Provider } from 'next-auth/providers'
 import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 
-import { authConfig } from '@/auth.config'
+import { authConfig, type AnmeldeToken } from '@/auth.config'
 import { prisma } from '@/lib/prisma'
 import { schreibeAuditLeise } from '@/lib/audit'
 import {
@@ -148,8 +148,67 @@ const credentialsProvider = Credentials({
   },
 })
 
+/**
+ * Anmeldung mit Passkey.
+ *
+ * Der Browser hat den Vorgang bereits über `/api/passkeys/anmeldung` gestartet
+ * und die Antwort des Sicherheitsschlüssels erzeugt. Hier wird sie geprüft.
+ * Ein Passwort ist dafür nicht nötig, daher greift auch die Sperre nach
+ * Fehlversuchen nicht – ein Passkey lässt sich nicht erraten.
+ */
+const passkeyProvider = Credentials({
+  id: 'passkey',
+  name: 'Passkey',
+  credentials: {
+    vorgangId: { label: 'Vorgang', type: 'text' },
+    antwort: { label: 'Antwort', type: 'text' },
+  },
+  async authorize(credentials) {
+    const vorgangId =
+      typeof credentials?.vorgangId === 'string' ? credentials.vorgangId : ''
+    const rohAntwort =
+      typeof credentials?.antwort === 'string' ? credentials.antwort : ''
+
+    if (!vorgangId || !rohAntwort) return null
+
+    try {
+      const antwort = JSON.parse(rohAntwort)
+      const { pruefeAnmeldung } = await import('@/server/passkeys')
+      const ergebnis = await pruefeAnmeldung(vorgangId, antwort)
+
+      const benutzer = await prisma.user.update({
+        where: { id: ergebnis.benutzerId },
+        data: { lastLoginAt: new Date() },
+        select: { id: true, name: true, email: true },
+      })
+
+      await schreibeAuditLeise({
+        userId: benutzer.id,
+        action: 'LOGIN_SUCCESS',
+        entityType: 'User',
+        entityId: benutzer.id,
+        payload: { verfahren: 'Passkey', passkey: ergebnis.passkeyName },
+      })
+
+      return { id: benutzer.id, name: benutzer.name, email: benutzer.email }
+    } catch (error) {
+      await schreibeAuditLeise({
+        userId: null,
+        action: 'LOGIN_FAILED',
+        entityType: 'User',
+        entityId: null,
+        payload: {
+          verfahren: 'Passkey',
+          grund: error instanceof Error ? error.message : 'unbekannt',
+        },
+      })
+      return null
+    }
+  },
+})
+
 function baueProviderListe(): Provider[] {
-  const providers: Provider[] = [credentialsProvider]
+  const providers: Provider[] = [credentialsProvider, passkeyProvider]
 
   if (istOidcAktiv()) {
     providers.push({
@@ -284,7 +343,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   events: {
     async signOut(message) {
       const userId =
-        'token' in message ? (message.token?.uid ?? null) : null
+        'token' in message
+          ? ((message.token as unknown as AnmeldeToken | null)?.uid ?? null)
+          : null
       if (userId) {
         await schreibeAuditLeise({
           userId,
