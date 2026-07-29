@@ -4,13 +4,14 @@ import { SeitenKopf } from '@/components/seiten-kopf'
 import { addMonths, startOfMonth, toISODate, todayInBerlin } from '@/lib/dates'
 import { prisma } from '@/lib/prisma'
 import { erforderlicherBenutzer } from '@/lib/session'
-import { REPORT_BESCHREIBUNG, REPORT_TITEL } from '@/server/reports/daten'
+import { ladeAlleVorlagen } from '@/server/report-vorlagen'
+import { REPORT_BESCHREIBUNG, REPORT_TITEL } from '@/server/reports/typen'
 import { ReportFormular, type ReportDefinition } from './report-formular'
 
 export const metadata: Metadata = { title: 'Reports' }
 export const dynamic = 'force-dynamic'
 
-const BERICHTE: ReportDefinition[] = [
+const BERICHTE: Omit<ReportDefinition, 'vorlagen'>[] = [
   {
     typ: 'compliance',
     titel: REPORT_TITEL.compliance,
@@ -41,6 +42,8 @@ export default async function ReportsSeite() {
   const benutzer = await erforderlicherBenutzer()
   const heute = todayInBerlin()
 
+  const vorlagen = await ladeAlleVorlagen()
+
   const kategorien = await prisma.category.findMany({
     orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
     select: { id: true, name: true, color: true },
@@ -54,7 +57,14 @@ export default async function ReportsSeite() {
       />
 
       <ReportFormular
-        berichte={BERICHTE}
+        berichte={BERICHTE.map((bericht) => ({
+          ...bericht,
+          vorlagen: (vorlagen[bericht.typ] ?? []).map((v) => ({
+            id: v.id!,
+            name: v.name,
+            istStandard: v.istStandard,
+          })),
+        }))}
         kategorien={kategorien}
         standardVon={toISODate(startOfMonth(addMonths(heute, -11)))}
         standardBis={toISODate(heute)}

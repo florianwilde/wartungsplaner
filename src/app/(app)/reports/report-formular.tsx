@@ -15,6 +15,8 @@ export type ReportDefinition = {
   beschreibung: string
   /** true = Zeitraumfilter, false = Vorschau in Monaten */
   mitZeitraum: boolean
+  /** Verfuegbare PDF-Vorlagen; leer = eingebaute Fassung */
+  vorlagen: { id: string; name: string; istStandard: boolean }[]
 }
 
 export function ReportFormular({
@@ -32,6 +34,8 @@ export function ReportFormular({
   const [bis, setBis] = useState(standardBis)
   const [monate, setMonate] = useState('6')
   const [gewaehlt, setGewaehlt] = useState<string[]>([])
+  // Je Bericht die gewaehlte PDF-Vorlage (leer = Standardvorlage)
+  const [vorlagen, setVorlagen] = useState<Record<string, string>>({})
 
   const kategorienParameter = useMemo(
     () => (gewaehlt.length > 0 ? gewaehlt.join(',') : ''),
@@ -55,6 +59,11 @@ export function ReportFormular({
       params.set('monate', monate)
     }
     if (kategorienParameter) params.set('kategorien', kategorienParameter)
+
+    // Die Vorlage betrifft nur das PDF; Excel enthaelt stets alle Felder.
+    const vorlage = vorlagen[bericht.typ]
+    if (format === 'pdf' && vorlage) params.set('vorlage', vorlage)
+
     return `/api/reports/${bericht.typ}?${params.toString()}`
   }
 
@@ -140,19 +149,48 @@ export function ReportFormular({
               <CardTitle className="text-base">{bericht.titel}</CardTitle>
               <CardDescription>{bericht.beschreibung}</CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              <Button asChild size="sm">
-                <a href={baueUrl(bericht, 'pdf')} download>
-                  <FileText className="size-4" />
-                  PDF herunterladen
-                </a>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <a href={baueUrl(bericht, 'xlsx')} download>
-                  <FileSpreadsheet className="size-4" />
-                  Excel herunterladen
-                </a>
-              </Button>
+            <CardContent className="space-y-3">
+              {bericht.vorlagen.length > 0 ? (
+                <div className="space-y-1.5">
+                  <Label htmlFor={`vorlage-${bericht.typ}`} className="text-xs">
+                    PDF-Vorlage
+                  </Label>
+                  <select
+                    id={`vorlage-${bericht.typ}`}
+                    value={vorlagen[bericht.typ] ?? ''}
+                    onChange={(e) =>
+                      setVorlagen((bisher) => ({
+                        ...bisher,
+                        [bericht.typ]: e.target.value,
+                      }))
+                    }
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="">Standardvorlage</option>
+                    {bericht.vorlagen.map((vorlage) => (
+                      <option key={vorlage.id} value={vorlage.id}>
+                        {vorlage.name}
+                        {vorlage.istStandard ? ' (Standard)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
+
+              <div className="flex flex-wrap gap-2">
+                <Button asChild size="sm">
+                  <a href={baueUrl(bericht, 'pdf')} download>
+                    <FileText className="size-4" />
+                    PDF herunterladen
+                  </a>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <a href={baueUrl(bericht, 'xlsx')} download>
+                    <FileSpreadsheet className="size-4" />
+                    Excel herunterladen
+                  </a>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}

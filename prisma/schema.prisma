@@ -269,6 +269,46 @@ model Branding {
 }
 
 // ---------------------------------------------------------------------------
+// Report-Vorlagen
+// ---------------------------------------------------------------------------
+
+/// Anpassbare Vorlage für einen PDF-Report.
+///
+/// Je Reportart kann es mehrere Vorlagen geben; genau eine davon ist als
+/// Standard gekennzeichnet und wird vorausgewählt. Ohne eigene Vorlage greift
+/// die eingebaute Fassung aus `src/lib/report-vorlagen.ts`.
+model ReportTemplate {
+  id          String  @id @default(cuid())
+  name        String
+  /// compliance | historie | abweichungen | vorschau
+  reportTyp   String
+  istStandard Boolean @default(false)
+
+  /// hoch oder quer
+  ausrichtung String   @default("hoch")
+  /// Gewählte Spalten in der gewünschten Reihenfolge
+  spalten     String[] @default([])
+
+  mitDeckblatt        Boolean @default(false)
+  deckblattUntertitel String?
+  /// Freitext vor der Tabelle
+  einleitung          String?
+  /// Freitext nach der Tabelle
+  schluss             String?
+
+  mitUnterschriften  Boolean @default(false)
+  unterschriftLinks  String?
+  unterschriftRechts String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+
+  @@unique([reportTyp, name])
+  @@index([reportTyp])
+}
+
+// ---------------------------------------------------------------------------
 // Passkeys (WebAuthn)
 // ---------------------------------------------------------------------------
 

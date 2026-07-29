@@ -5,13 +5,19 @@
  * verwendet. Deren WinAnsi-Kodierung deckt Umlaute und das Eszett ab, sodass
  * keine Schriftdateien mit ausgeliefert werden müssen.
  *
- * Jede Seite erhält einen Kopf (Anwendung, Bericht, Zeitraum, Filter) und
- * eine Fußzeile mit Erstellungsdatum, erstellender Person und Seitenzahl.
+ * Aufbau und Umfang richten sich nach der gewählten Vorlage: Ausrichtung,
+ * Spaltenauswahl, Deckblatt, Freitextblöcke und Unterschriftenfelder.
+ * Jede Seite erhält einen Kopf und eine Fußzeile mit Seitenzahl.
  */
 import PDFDocument from 'pdfkit'
 
 import { formatDate, formatDateTime } from '@/lib/dates'
 import { formatiereDateigroesse } from '@/lib/labels'
+import {
+  seitenMasse,
+  spaltenAusSchluesseln,
+  type ReportVorlage,
+} from '@/lib/report-vorlagen'
 import {
   formatiereProzent,
   type AbweichungZeile,
@@ -21,16 +27,14 @@ import {
   type VorschauZeile,
 } from './daten'
 
-const SEITE = { breite: 595.28, hoehe: 841.89 } // A4 Hochformat
 const RAND = { oben: 92, unten: 62, links: 40, rechts: 40 }
-const INHALT_BREITE = SEITE.breite - RAND.links - RAND.rechts
 
 const FARBE = {
   text: '#111827',
   schwach: '#6b7280',
   linie: '#d1d5db',
   kopfHintergrund: '#f3f4f6',
-  akzent: '#1d4ed8',
+  zebra: '#fafafa',
   rot: '#b91c1c',
   gruen: '#15803d',
 }
@@ -43,13 +47,27 @@ export type Spalte = {
   ausrichtung?: 'left' | 'right' | 'center'
 }
 
+/** Zeichenkontext: Maße hängen von der Ausrichtung der Vorlage ab. */
+type Kontext = {
+  seite: { breite: number; hoehe: number }
+  inhaltBreite: number
+}
+
+function kontextFuer(vorlage: ReportVorlage): Kontext {
+  const seite = seitenMasse(vorlage.ausrichtung)
+  return { seite, inhaltBreite: seite.breite - RAND.links - RAND.rechts }
+}
+
 /** Erzeugt das Dokument und liefert das fertige PDF als Buffer. */
 async function baueDokument(
   kopf: ReportKopf,
-  zeichne: (doc: Doc) => void,
+  vorlage: ReportVorlage,
+  zeichne: (doc: Doc, k: Kontext) => void,
 ): Promise<Buffer> {
+  const k = kontextFuer(vorlage)
+
   const doc = new PDFDocument({
-    size: 'A4',
+    size: [k.seite.breite, k.seite.hoehe],
     margins: {
       top: RAND.oben,
       bottom: RAND.unten,
@@ -72,18 +90,163 @@ async function baueDokument(
     doc.on('error', reject)
   })
 
-  zeichne(doc)
-  zeichneKopfUndFuss(doc, kopf)
+  let ersteInhaltsseite = 0
+  if (vorlage.mitDeckblatt) {
+    zeichneDeckblatt(doc, k, kopf, vorlage)
+    doc.addPage()
+    ersteInhaltsseite = 1
+  }
+
+  doc.y = RAND.oben
+  if (vorlage.einleitung) {
+    absatz(doc, k, vorlage.einleitung, 9)
+    doc.moveDown(0.5)
+  }
+
+  zeichne(doc, k)
+
+  if (vorlage.schluss) {
+    doc.moveDown(0.5)
+    absatz(doc, k, vorlage.schluss, 9)
+  }
+
+  if (vorlage.mitUnterschriften) {
+    zeichneUnterschriften(doc, k, vorlage)
+  }
+
+  zeichneKopfUndFuss(doc, k, kopf, ersteInhaltsseite)
   doc.end()
 
   return fertig
 }
 
-/** Zeichnet Kopf- und Fußzeile nachträglich auf alle Seiten. */
-function zeichneKopfUndFuss(doc: Doc, kopf: ReportKopf) {
-  const bereich = doc.bufferedPageRange()
+/** Deckblatt mit Titel, Zeitraum und Eckdaten. */
+function zeichneDeckblatt(
+  doc: Doc,
+  k: Kontext,
+  kopf: ReportKopf,
+  vorlage: ReportVorlage,
+) {
+  const mitte = k.seite.hoehe / 2 - 120
 
-  for (let i = 0; i < bereich.count; i++) {
+  if (kopf.logoDatei) {
+    try {
+      doc.image(kopf.logoDatei, RAND.links, mitte - 90, { fit: [180, 50] })
+    } catch (error) {
+      console.error('Logo auf dem Deckblatt nicht einbettbar:', error)
+    }
+  }
+
+  doc
+    .font('Helvetica')
+    .fontSize(12)
+    .fillColor(FARBE.schwach)
+    .text(kopf.organisation || kopf.anwendung, RAND.links, mitte - 24, {
+      width: k.inhaltBreite,
+    })
+
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(28)
+    .fillColor(FARBE.text)
+    .text(kopf.titel, RAND.links, mitte, { width: k.inhaltBreite })
+
+  if (vorlage.deckblattUntertitel) {
+    doc
+      .font('Helvetica')
+      .fontSize(14)
+      .fillColor(kopf.markenfarbe)
+      .text(vorlage.deckblattUntertitel, RAND.links, doc.y + 6, {
+        width: k.inhaltBreite,
+      })
+  }
+
+  doc
+    .moveTo(RAND.links, doc.y + 18)
+    .lineTo(RAND.links + 160, doc.y + 18)
+    .lineWidth(2)
+    .strokeColor(kopf.markenfarbe)
+    .stroke()
+
+  const eckdaten: [string, string][] = [
+    ['Zeitraum', `${formatDate(kopf.zeitraum.von)} bis ${formatDate(kopf.zeitraum.bis)}`],
+    ['Kategorien', kopf.kategorienText],
+    ['Erstellt am', formatDateTime(kopf.erstelltAm)],
+    ['Erstellt von', kopf.erstelltVon],
+  ]
+
+  let y = doc.y + 36
+  for (const [bezeichnung, wert] of eckdaten) {
+    doc
+      .font('Helvetica')
+      .fontSize(9)
+      .fillColor(FARBE.schwach)
+      .text(bezeichnung, RAND.links, y, { width: 110, lineBreak: false })
+    doc
+      .font('Helvetica')
+      .fontSize(10)
+      .fillColor(FARBE.text)
+      .text(wert, RAND.links + 120, y, { width: k.inhaltBreite - 120 })
+    y = doc.y + 8
+  }
+
+  if (kopf.fussnote) {
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(9)
+      .fillColor(FARBE.schwach)
+      .text(kopf.fussnote, RAND.links, k.seite.hoehe - 120, {
+        width: k.inhaltBreite,
+      })
+  }
+}
+
+/** Unterschriftenfelder am Ende des Berichts. */
+function zeichneUnterschriften(doc: Doc, k: Kontext, vorlage: ReportVorlage) {
+  const benoetigt = 90
+  if (doc.y + benoetigt > k.seite.hoehe - RAND.unten) {
+    doc.addPage()
+    doc.y = RAND.oben
+  }
+
+  const y = doc.y + 40
+  const breite = (k.inhaltBreite - 40) / 2
+
+  const feld = (x: number, beschriftung: string) => {
+    doc
+      .moveTo(x, y)
+      .lineTo(x + breite, y)
+      .lineWidth(0.7)
+      .strokeColor(FARBE.text)
+      .stroke()
+
+    doc
+      .font('Helvetica')
+      .fontSize(8)
+      .fillColor(FARBE.schwach)
+      .text(beschriftung, x, y + 5, { width: breite, lineBreak: false })
+  }
+
+  feld(RAND.links, vorlage.unterschriftLinks || 'Datum, Unterschrift (Durchführung)')
+  feld(
+    RAND.links + breite + 40,
+    vorlage.unterschriftRechts || 'Datum, Unterschrift (Prüfung)',
+  )
+
+  doc.y = y + 24
+}
+
+/** Zeichnet Kopf- und Fußzeile nachträglich auf alle Inhaltsseiten. */
+function zeichneKopfUndFuss(
+  doc: Doc,
+  k: Kontext,
+  kopf: ReportKopf,
+  ersteInhaltsseite: number,
+) {
+  const bereich = doc.bufferedPageRange()
+  const inhaltsseiten = bereich.count - ersteInhaltsseite
+
+  for (let i = ersteInhaltsseite; i < bereich.count; i++) {
     doc.switchToPage(bereich.start + i)
 
     // Kopf- und Fußzeile liegen außerhalb des Satzspiegels. Ohne diese
@@ -93,14 +256,12 @@ function zeichneKopfUndFuss(doc: Doc, kopf: ReportKopf) {
     doc.page.margins = { top: 0, bottom: 0, left: RAND.links, right: RAND.rechts }
 
     // --- Kopfzeile ---
-    // Ein hinterlegtes Logo (PNG/JPG) steht links, sonst der Anwendungsname.
     let textAbstand = 0
     if (kopf.logoDatei) {
       try {
         doc.image(kopf.logoDatei, RAND.links, 26, { fit: [130, 26] })
         textAbstand = 140
       } catch (error) {
-        // Beschädigte oder unlesbare Datei darf den Report nicht verhindern.
         console.error('Logo konnte nicht eingebettet werden:', error)
       }
     }
@@ -119,7 +280,7 @@ function zeichneKopfUndFuss(doc: Doc, kopf: ReportKopf) {
       .fontSize(14)
       .fillColor(kopf.markenfarbe)
       .text(kopf.titel, RAND.links + textAbstand, 30, {
-        width: INHALT_BREITE - textAbstand,
+        width: k.inhaltBreite - textAbstand,
         align: 'right',
         lineBreak: false,
       })
@@ -132,27 +293,26 @@ function zeichneKopfUndFuss(doc: Doc, kopf: ReportKopf) {
         `Zeitraum ${formatDate(kopf.zeitraum.von)} – ${formatDate(kopf.zeitraum.bis)}`,
         RAND.links,
         54,
-        { width: INHALT_BREITE / 2, lineBreak: false },
+        { width: k.inhaltBreite / 2, lineBreak: false },
       )
-      .text(`Kategorien: ${kopf.kategorienText}`, RAND.links + INHALT_BREITE / 2, 54, {
-        width: INHALT_BREITE / 2,
+      .text(`Kategorien: ${kopf.kategorienText}`, RAND.links + k.inhaltBreite / 2, 54, {
+        width: k.inhaltBreite / 2,
         align: 'right',
         lineBreak: false,
       })
 
-    // Trennlinie in der Markenfarbe
     doc
       .moveTo(RAND.links, 70)
-      .lineTo(SEITE.breite - RAND.rechts, 70)
+      .lineTo(k.seite.breite - RAND.rechts, 70)
       .lineWidth(1)
       .strokeColor(kopf.markenfarbe)
       .stroke()
 
     // --- Fußzeile ---
-    const fussY = SEITE.hoehe - 44
+    const fussY = k.seite.hoehe - 44
     doc
       .moveTo(RAND.links, fussY - 8)
-      .lineTo(SEITE.breite - RAND.rechts, fussY - 8)
+      .lineTo(k.seite.breite - RAND.rechts, fussY - 8)
       .lineWidth(0.5)
       .strokeColor(FARBE.linie)
       .stroke()
@@ -169,14 +329,15 @@ function zeichneKopfUndFuss(doc: Doc, kopf: ReportKopf) {
       .fontSize(7.5)
       .fillColor(FARBE.schwach)
       .text(fussLinks, RAND.links, fussY, {
-        width: INHALT_BREITE * 0.7,
+        width: k.inhaltBreite * 0.7,
         lineBreak: false,
       })
-      .text(`Seite ${i + 1} von ${bereich.count}`, RAND.links + INHALT_BREITE * 0.7, fussY, {
-        width: INHALT_BREITE * 0.3,
-        align: 'right',
-        lineBreak: false,
-      })
+      .text(
+        `Seite ${i - ersteInhaltsseite + 1} von ${inhaltsseiten}`,
+        RAND.links + k.inhaltBreite * 0.7,
+        fussY,
+        { width: k.inhaltBreite * 0.3, align: 'right', lineBreak: false },
+      )
 
     if (kopf.fussnote) {
       doc
@@ -184,7 +345,7 @@ function zeichneKopfUndFuss(doc: Doc, kopf: ReportKopf) {
         .fontSize(7)
         .fillColor(FARBE.schwach)
         .text(kopf.fussnote, RAND.links, fussY + 10, {
-          width: INHALT_BREITE,
+          width: k.inhaltBreite,
           align: 'center',
           lineBreak: false,
         })
@@ -195,33 +356,40 @@ function zeichneKopfUndFuss(doc: Doc, kopf: ReportKopf) {
 }
 
 /** Prüft den verbleibenden Platz und legt bei Bedarf eine neue Seite an. */
-function sichereHoehe(doc: Doc, benoetigt: number) {
-  if (doc.y + benoetigt > SEITE.hoehe - RAND.unten) {
+function sichereHoehe(doc: Doc, k: Kontext, benoetigt: number) {
+  if (doc.y + benoetigt > k.seite.hoehe - RAND.unten) {
     doc.addPage()
     doc.y = RAND.oben
   }
 }
 
-function ueberschrift(doc: Doc, text: string, groesse = 11) {
-  sichereHoehe(doc, groesse + 14)
+function ueberschrift(doc: Doc, k: Kontext, text: string, groesse = 11) {
+  sichereHoehe(doc, k, groesse + 14)
   doc
     .font('Helvetica-Bold')
     .fontSize(groesse)
     .fillColor(FARBE.text)
-    .text(text, RAND.links, doc.y, { width: INHALT_BREITE })
+    .text(text, RAND.links, doc.y, { width: k.inhaltBreite })
   doc.moveDown(0.35)
 }
 
-function absatz(doc: Doc, text: string, groesse = 8.5) {
+function absatz(doc: Doc, k: Kontext, text: string, groesse = 8.5) {
   if (!text) return
-  const hoehe = doc.heightOfString(text, { width: INHALT_BREITE })
-  sichereHoehe(doc, hoehe)
+  doc.font('Helvetica').fontSize(groesse)
+  const hoehe = doc.heightOfString(text, { width: k.inhaltBreite })
+  sichereHoehe(doc, k, hoehe)
   doc
-    .font('Helvetica')
-    .fontSize(groesse)
     .fillColor(FARBE.schwach)
-    .text(text, RAND.links, doc.y, { width: INHALT_BREITE })
+    .text(text, RAND.links, doc.y, { width: k.inhaltBreite })
   doc.moveDown(0.4)
+}
+
+function absatzEingerueckt(doc: Doc, k: Kontext, text: string) {
+  const breite = k.inhaltBreite - 16
+  doc.font('Helvetica').fontSize(7)
+  const hoehe = doc.heightOfString(text, { width: breite })
+  sichereHoehe(doc, k, hoehe)
+  doc.fillColor(FARBE.schwach).text(text, RAND.links + 16, doc.y, { width: breite })
 }
 
 /**
@@ -230,6 +398,7 @@ function absatz(doc: Doc, text: string, groesse = 8.5) {
  */
 function tabelle(
   doc: Doc,
+  k: Kontext,
   spalten: Spalte[],
   zeilen: string[][],
   optionen: {
@@ -238,17 +407,19 @@ function tabelle(
     schriftgroesse?: number
   } = {},
 ) {
+  if (spalten.length === 0) return
+
   const groesse = optionen.schriftgroesse ?? 8
   const polsterX = 4
   const polsterY = 4
 
   const zeichneKopf = () => {
     const hoehe = groesse + polsterY * 2
-    sichereHoehe(doc, hoehe + 4)
+    sichereHoehe(doc, k, hoehe + 4)
     const y = doc.y
 
     doc
-      .rect(RAND.links, y, INHALT_BREITE, hoehe)
+      .rect(RAND.links, y, k.inhaltBreite, hoehe)
       .fillColor(FARBE.kopfHintergrund)
       .fill()
 
@@ -270,7 +441,6 @@ function tabelle(
   zeichneKopf()
 
   zeilen.forEach((zeile, index) => {
-    // Benötigte Zeilenhöhe anhand der höchsten Zelle bestimmen.
     doc.font('Helvetica').fontSize(groesse)
     let zellenHoehe = groesse + 2
     spalten.forEach((spalte, s) => {
@@ -281,7 +451,7 @@ function tabelle(
     })
     const zeilenHoehe = zellenHoehe + polsterY * 2
 
-    if (doc.y + zeilenHoehe > SEITE.hoehe - RAND.unten) {
+    if (doc.y + zeilenHoehe > k.seite.hoehe - RAND.unten) {
       doc.addPage()
       doc.y = RAND.oben
       zeichneKopf()
@@ -290,10 +460,7 @@ function tabelle(
     const y = doc.y
 
     if (index % 2 === 1) {
-      doc
-        .rect(RAND.links, y, INHALT_BREITE, zeilenHoehe)
-        .fillColor('#fafafa')
-        .fill()
+      doc.rect(RAND.links, y, k.inhaltBreite, zeilenHoehe).fillColor(FARBE.zebra).fill()
     }
 
     const farbe = optionen.zeilenFarbe?.(index) ?? FARBE.text
@@ -312,7 +479,7 @@ function tabelle(
     doc.y = y + zeilenHoehe
     doc
       .moveTo(RAND.links, doc.y)
-      .lineTo(SEITE.breite - RAND.rechts, doc.y)
+      .lineTo(k.seite.breite - RAND.rechts, doc.y)
       .lineWidth(0.4)
       .strokeColor(FARBE.linie)
       .stroke()
@@ -321,16 +488,33 @@ function tabelle(
   doc.y += 10
 }
 
-/** Skaliert Spaltenanteile auf die verfügbare Inhaltsbreite. */
-function spalten(
-  definition: { kopf: string; anteil: number; ausrichtung?: Spalte['ausrichtung'] }[],
-): Spalte[] {
-  const summe = definition.reduce((s, d) => s + d.anteil, 0)
-  return definition.map((d) => ({
-    kopf: d.kopf,
-    breite: (d.anteil / summe) * INHALT_BREITE,
-    ausrichtung: d.ausrichtung,
-  }))
+/**
+ * Baut die Spalten der Vorlage auf die verfügbare Breite um.
+ * Die Anteile aus dem Katalog werden dabei auf 100 % normiert.
+ */
+function spaltenFuer(
+  vorlage: ReportVorlage,
+  k: Kontext,
+): { spalten: Spalte[]; schluessel: string[] } {
+  const definitionen = spaltenAusSchluesseln(vorlage.typ, vorlage.spalten)
+  const summe = definitionen.reduce((s, d) => s + d.anteil, 0) || 1
+
+  return {
+    spalten: definitionen.map((d) => ({
+      kopf: d.kopf,
+      breite: (d.anteil / summe) * k.inhaltBreite,
+      ausrichtung: d.ausrichtung,
+    })),
+    schluessel: definitionen.map((d) => d.key),
+  }
+}
+
+/** Wählt aus einem Datensatz die Werte der gewählten Spalten. */
+function zeileAus(
+  werte: Record<string, string>,
+  schluessel: string[],
+): string[] {
+  return schluessel.map((k) => werte[k] ?? '')
 }
 
 // ---------------------------------------------------------------------------
@@ -340,56 +524,56 @@ function spalten(
 export function erzeugeCompliancePdf(
   kopf: ReportKopf,
   report: ComplianceReport,
+  vorlage: ReportVorlage,
 ): Promise<Buffer> {
-  return baueDokument(kopf, (doc) => {
-    doc.y = RAND.oben
-
-    ueberschrift(doc, 'Erfüllungsgrad gesamt')
+  return baueDokument(kopf, vorlage, (doc, k) => {
+    ueberschrift(doc, k, 'Erfüllungsgrad gesamt')
     absatz(
       doc,
+      k,
       `Im Zeitraum wurden ${report.gesamt.gesamt} Fälligkeiten betrachtet. ` +
         `Der Erfüllungsgrad beträgt ${formatiereProzent(report.gesamt.erfuellungsgrad)}; ` +
         `${formatiereProzent(report.gesamt.puenktlichkeitsquote)} der erledigten Prüfungen erfolgten pünktlich. ` +
         `Ausgesetzte Fälligkeiten (${report.gesamt.ausgesetzt}) bleiben bei der Berechnung unberücksichtigt.`,
     )
 
-    const spaltenDef = spalten([
-      { kopf: 'Kategorie', anteil: 22 },
-      { kopf: 'Gesamt', anteil: 9, ausrichtung: 'right' },
-      { kopf: 'Pünktlich', anteil: 10, ausrichtung: 'right' },
-      { kopf: 'Verspätet', anteil: 10, ausrichtung: 'right' },
-      { kopf: 'Offen', anteil: 9, ausrichtung: 'right' },
-      { kopf: 'Überfällig', anteil: 11, ausrichtung: 'right' },
-      { kopf: 'Ausgesetzt', anteil: 11, ausrichtung: 'right' },
-      { kopf: 'Erfüllung', anteil: 9, ausrichtung: 'right' },
-      { kopf: 'Pünktl.', anteil: 9, ausrichtung: 'right' },
-    ])
-
+    const { spalten, schluessel } = spaltenFuer(vorlage, k)
     const alleZeilen = [...report.zeilen, report.gesamt]
-    const daten = alleZeilen.map((zeile) => [
-      zeile.kategorie,
-      String(zeile.gesamt),
-      String(zeile.puenktlich),
-      String(zeile.verspaetet),
-      String(zeile.offen),
-      String(zeile.ueberfaellig),
-      String(zeile.ausgesetzt),
-      formatiereProzent(zeile.erfuellungsgrad),
-      formatiereProzent(zeile.puenktlichkeitsquote),
-    ])
 
-    tabelle(doc, spaltenDef, daten, {
-      fettZeile: (index) => index === alleZeilen.length - 1,
-      zeilenFarbe: (index) => {
-        const zeile = alleZeilen[index]
-        if (zeile.ueberfaellig > 0) return FARBE.rot
-        if (zeile.gesamt > 0 && zeile.erfuellungsgrad === 1) return FARBE.gruen
-        return undefined
+    tabelle(
+      doc,
+      k,
+      spalten,
+      alleZeilen.map((zeile) =>
+        zeileAus(
+          {
+            kategorie: zeile.kategorie,
+            gesamt: String(zeile.gesamt),
+            puenktlich: String(zeile.puenktlich),
+            verspaetet: String(zeile.verspaetet),
+            offen: String(zeile.offen),
+            ueberfaellig: String(zeile.ueberfaellig),
+            ausgesetzt: String(zeile.ausgesetzt),
+            erfuellung: formatiereProzent(zeile.erfuellungsgrad),
+            puenktlichkeit: formatiereProzent(zeile.puenktlichkeitsquote),
+          },
+          schluessel,
+        ),
+      ),
+      {
+        fettZeile: (index) => index === alleZeilen.length - 1,
+        zeilenFarbe: (index) => {
+          const zeile = alleZeilen[index]
+          if (zeile.ueberfaellig > 0) return FARBE.rot
+          if (zeile.gesamt > 0 && zeile.erfuellungsgrad === 1) return FARBE.gruen
+          return undefined
+        },
       },
-    })
+    )
 
     absatz(
       doc,
+      k,
       'Lesehilfe: „Erfüllung“ ist der Anteil erledigter Fälligkeiten an allen bewertbaren ' +
         'Fälligkeiten des Zeitraums. „Pünktl.“ ist der Anteil der innerhalb von Termin und ' +
         'Karenzfrist erledigten Prüfungen an allen erledigten Prüfungen.',
@@ -404,46 +588,45 @@ export function erzeugeCompliancePdf(
 export function erzeugeHistoriePdf(
   kopf: ReportKopf,
   aufgaben: HistorieAufgabe[],
+  vorlage: ReportVorlage,
 ): Promise<Buffer> {
-  return baueDokument(kopf, (doc) => {
-    doc.y = RAND.oben
-
+  return baueDokument(kopf, vorlage, (doc, k) => {
     if (aufgaben.length === 0) {
-      absatz(doc, 'Im gewählten Zeitraum wurde keine Durchführung protokolliert.')
+      absatz(doc, k, 'Im gewählten Zeitraum wurde keine Durchführung protokolliert.')
       return
     }
 
-    const spaltenDef = spalten([
-      { kopf: 'Soll', anteil: 10 },
-      { kopf: 'Durchgeführt', anteil: 12 },
-      { kopf: 'Person', anteil: 16 },
-      { kopf: 'Ergebnis', anteil: 18 },
-      { kopf: 'Termintreue', anteil: 11 },
-      { kopf: 'Nachweise', anteil: 10, ausrichtung: 'right' },
-      { kopf: 'Abw.', anteil: 7, ausrichtung: 'right' },
-    ])
+    const { spalten, schluessel } = spaltenFuer(vorlage, k)
 
     aufgaben.forEach((aufgabe, index) => {
       if (index > 0) doc.moveDown(0.5)
-      ueberschrift(doc, aufgabe.titel)
+      ueberschrift(doc, k, aufgabe.titel)
       absatz(
         doc,
+        k,
         `Kategorie: ${aufgabe.kategorie} · Verantwortlich: ${aufgabe.verantwortlich} · ` +
           `Intervall: ${aufgabe.intervall} · Audit-Referenz: ${aufgabe.auditReferenz}`,
       )
 
       tabelle(
         doc,
-        spaltenDef,
-        aufgabe.durchfuehrungen.map((durchfuehrung) => [
-          formatDate(durchfuehrung.sollDatum),
-          formatDate(durchfuehrung.istDatum),
-          durchfuehrung.person,
-          durchfuehrung.ergebnis,
-          durchfuehrung.puenktlich ? 'pünktlich' : 'verspätet',
-          String(durchfuehrung.nachweise.length),
-          String(durchfuehrung.abweichungen),
-        ]),
+        k,
+        spalten,
+        aufgabe.durchfuehrungen.map((d) =>
+          zeileAus(
+            {
+              soll: formatDate(d.sollDatum),
+              ist: formatDate(d.istDatum),
+              person: d.person,
+              ergebnis: d.ergebnis,
+              termintreue: d.puenktlich ? 'pünktlich' : 'verspätet',
+              nachweise: String(d.nachweise.length),
+              abweichungen: String(d.abweichungen),
+              kommentar: d.kommentar,
+            },
+            schluessel,
+          ),
+        ),
         {
           zeilenFarbe: (i) =>
             aufgabe.durchfuehrungen[i].puenktlich ? undefined : FARBE.rot,
@@ -455,7 +638,7 @@ export function erzeugeHistoriePdf(
       for (const durchfuehrung of aufgabe.durchfuehrungen) {
         if (durchfuehrung.nachweise.length === 0 && !durchfuehrung.kommentar) continue
 
-        sichereHoehe(doc, 24)
+        sichereHoehe(doc, k, 24)
         doc
           .font('Helvetica-Bold')
           .fontSize(7.5)
@@ -464,16 +647,17 @@ export function erzeugeHistoriePdf(
             `Durchführung vom ${formatDate(durchfuehrung.istDatum)} (Soll ${formatDate(durchfuehrung.sollDatum)})`,
             RAND.links + 8,
             doc.y,
-            { width: INHALT_BREITE - 8 },
+            { width: k.inhaltBreite - 8 },
           )
 
         if (durchfuehrung.kommentar) {
-          absatzEingerueckt(doc, `Kommentar: ${durchfuehrung.kommentar}`)
+          absatzEingerueckt(doc, k, `Kommentar: ${durchfuehrung.kommentar}`)
         }
 
         for (const nachweis of durchfuehrung.nachweise) {
           absatzEingerueckt(
             doc,
+            k,
             `${nachweis.dateiname} (${formatiereDateigroesse(nachweis.groesseBytes)}) · SHA-256: ${nachweis.sha256}`,
           )
         }
@@ -483,17 +667,6 @@ export function erzeugeHistoriePdf(
   })
 }
 
-function absatzEingerueckt(doc: Doc, text: string) {
-  const breite = INHALT_BREITE - 16
-  const hoehe = doc.heightOfString(text, { width: breite })
-  sichereHoehe(doc, hoehe)
-  doc
-    .font('Helvetica')
-    .fontSize(7)
-    .fillColor(FARBE.schwach)
-    .text(text, RAND.links + 16, doc.y, { width: breite })
-}
-
 // ---------------------------------------------------------------------------
 // 3. Abweichungsbericht
 // ---------------------------------------------------------------------------
@@ -501,66 +674,70 @@ function absatzEingerueckt(doc: Doc, text: string) {
 export function erzeugeAbweichungenPdf(
   kopf: ReportKopf,
   abweichungen: AbweichungZeile[],
+  vorlage: ReportVorlage,
 ): Promise<Buffer> {
-  return baueDokument(kopf, (doc) => {
-    doc.y = RAND.oben
-
+  return baueDokument(kopf, vorlage, (doc, k) => {
     const offen = abweichungen.filter((a) => a.status !== 'Geschlossen').length
     const ueberFrist = abweichungen.filter((a) => a.fristUeberschritten).length
 
-    ueberschrift(doc, 'Zusammenfassung')
+    ueberschrift(doc, k, 'Zusammenfassung')
     absatz(
       doc,
+      k,
       `${abweichungen.length} Abweichungen im Zeitraum, davon ${offen} nicht geschlossen ` +
         `und ${ueberFrist} mit überschrittener Frist.`,
     )
 
     if (abweichungen.length === 0) {
-      absatz(doc, 'Im gewählten Zeitraum wurden keine Abweichungen festgestellt.')
+      absatz(doc, k, 'Im gewählten Zeitraum wurden keine Abweichungen festgestellt.')
       return
     }
 
-    const spaltenDef = spalten([
-      { kopf: 'Abweichung', anteil: 26 },
-      { kopf: 'Aufgabe', anteil: 20 },
-      { kopf: 'Schwere', anteil: 9 },
-      { kopf: 'Status', anteil: 12 },
-      { kopf: 'Verantwortlich', anteil: 15 },
-      { kopf: 'Frist', anteil: 9 },
-      { kopf: 'Festgestellt', anteil: 9 },
-    ])
+    const { spalten, schluessel } = spaltenFuer(vorlage, k)
 
     tabelle(
       doc,
-      spaltenDef,
-      abweichungen.map((abweichung) => [
-        abweichung.titel,
-        abweichung.aufgabe,
-        abweichung.schwere,
-        abweichung.status,
-        abweichung.verantwortlich,
-        formatDate(abweichung.frist),
-        formatDate(abweichung.festgestelltAm),
-      ]),
+      k,
+      spalten,
+      abweichungen.map((a) =>
+        zeileAus(
+          {
+            titel: a.titel,
+            aufgabe: a.aufgabe,
+            kategorie: a.kategorie,
+            schwere: a.schwere,
+            status: a.status,
+            verantwortlich: a.verantwortlich,
+            frist: formatDate(a.frist),
+            festgestellt: formatDate(a.festgestelltAm),
+            geschlossen: a.geschlossenAm ? formatDate(a.geschlossenAm) : '–',
+          },
+          schluessel,
+        ),
+      ),
       {
         zeilenFarbe: (index) =>
           abweichungen[index].fristUeberschritten ? FARBE.rot : undefined,
       },
     )
 
-    ueberschrift(doc, 'Feststellungen und Maßnahmen im Detail')
+    ueberschrift(doc, k, 'Feststellungen und Maßnahmen im Detail')
     for (const abweichung of abweichungen) {
-      sichereHoehe(doc, 40)
+      sichereHoehe(doc, k, 40)
       doc
         .font('Helvetica-Bold')
         .fontSize(8.5)
         .fillColor(FARBE.text)
-        .text(`${abweichung.titel} (${abweichung.schwere}, ${abweichung.status})`, RAND.links, doc.y, {
-          width: INHALT_BREITE,
-        })
+        .text(
+          `${abweichung.titel} (${abweichung.schwere}, ${abweichung.status})`,
+          RAND.links,
+          doc.y,
+          { width: k.inhaltBreite },
+        )
 
       absatzEingerueckt(
         doc,
+        k,
         `Aufgabe: ${abweichung.aufgabe} · Kategorie: ${abweichung.kategorie} · ` +
           `Verantwortlich: ${abweichung.verantwortlich} · Frist: ${formatDate(abweichung.frist)}` +
           (abweichung.geschlossenAm
@@ -568,10 +745,10 @@ export function erzeugeAbweichungenPdf(
             : ''),
       )
       if (abweichung.beschreibung) {
-        absatzEingerueckt(doc, `Feststellung: ${abweichung.beschreibung}`)
+        absatzEingerueckt(doc, k, `Feststellung: ${abweichung.beschreibung}`)
       }
       if (abweichung.massnahme) {
-        absatzEingerueckt(doc, `Umgesetzte Maßnahme: ${abweichung.massnahme}`)
+        absatzEingerueckt(doc, k, `Umgesetzte Maßnahme: ${abweichung.massnahme}`)
       }
       doc.moveDown(0.5)
     }
@@ -585,45 +762,43 @@ export function erzeugeAbweichungenPdf(
 export function erzeugeVorschauPdf(
   kopf: ReportKopf,
   zeilen: VorschauZeile[],
+  vorlage: ReportVorlage,
 ): Promise<Buffer> {
-  return baueDokument(kopf, (doc) => {
-    doc.y = RAND.oben
-
-    ueberschrift(doc, 'Kommende Prüfungen')
+  return baueDokument(kopf, vorlage, (doc, k) => {
+    ueberschrift(doc, k, 'Kommende Prüfungen')
     absatz(
       doc,
+      k,
       `${zeilen.length} Termine im Vorschauzeitraum. Termine ohne bereits angelegte ` +
         'Fälligkeit sind als „geplant“ gekennzeichnet – sie ergeben sich rechnerisch ' +
         'aus dem hinterlegten Intervall.',
     )
 
     if (zeilen.length === 0) {
-      absatz(doc, 'Im Vorschauzeitraum steht keine Prüfung an.')
+      absatz(doc, k, 'Im Vorschauzeitraum steht keine Prüfung an.')
       return
     }
 
-    const spaltenDef = spalten([
-      { kopf: 'Termin', anteil: 10 },
-      { kopf: 'Aufgabe', anteil: 30 },
-      { kopf: 'Kategorie', anteil: 15 },
-      { kopf: 'Verantwortlich', anteil: 16 },
-      { kopf: 'Intervall', anteil: 14 },
-      { kopf: 'Kritikalität', anteil: 9 },
-      { kopf: 'Art', anteil: 8 },
-    ])
+    const { spalten, schluessel } = spaltenFuer(vorlage, k)
 
     tabelle(
       doc,
-      spaltenDef,
-      zeilen.map((zeile) => [
-        formatDate(zeile.datum),
-        zeile.aufgabe,
-        zeile.kategorie,
-        zeile.verantwortlich,
-        zeile.intervall,
-        zeile.kritikalitaet,
-        zeile.bestehend ? 'angelegt' : 'geplant',
-      ]),
+      k,
+      spalten,
+      zeilen.map((z) =>
+        zeileAus(
+          {
+            termin: formatDate(z.datum),
+            aufgabe: z.aufgabe,
+            kategorie: z.kategorie,
+            verantwortlich: z.verantwortlich,
+            intervall: z.intervall,
+            kritikalitaet: z.kritikalitaet,
+            art: z.bestehend ? 'angelegt' : 'geplant',
+          },
+          schluessel,
+        ),
+      ),
     )
   })
 }

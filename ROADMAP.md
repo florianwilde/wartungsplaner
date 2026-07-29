@@ -19,6 +19,7 @@ Umgesetzte Fassungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
 | ✅ **1.3.0** | Import und Export von Kategorien, Aufgaben und Benutzern mit Vorschau |
 | ✅ **1.3.5** | Dunkles Farbschema mit Umschalter und Systemvorgabe |
 | ✅ **1.4.0** | Anmeldung mit Passkeys (WebAuthn), Kontoseite, Zurücksetzen durch die Administration |
+| ✅ **1.5.0** | Anpassbare PDF-Vorlagen und wählbarer Zeitraum auf dem Dashboard |
 
 ---
 
@@ -96,7 +97,7 @@ Identity Provider zu erfordern – das bleibt SSO-Installationen vorbehalten.
 
 ---
 
-## 1.5.0 – Anpassbare PDF-Exporte und Vorlagen 📋
+## 1.5.0 – Anpassbare PDF-Exporte und Vorlagen ✅
 
 **Warum:** Jedes Audit hat eigene Erwartungen an Aufbau und Umfang der
 Nachweise. Heute ist das Layout fest im Code hinterlegt.

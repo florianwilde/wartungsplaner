@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import {
   AlertTriangle,
@@ -30,6 +31,13 @@ import { prisma } from '@/lib/prisma'
 import { canExecute } from '@/lib/rbac'
 import { bewerteAmpel, type Ampel } from '@/lib/scheduling'
 import { erforderlicherBenutzer } from '@/lib/session'
+import {
+  ZEITHORIZONT_BEZEICHNUNG,
+  ZEITHORIZONT_COOKIE,
+  imHorizont,
+  leseZeithorizont,
+} from '@/lib/zeithorizont'
+import { ZeithorizontAuswahl } from './zeithorizont-auswahl'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Dashboard' }
@@ -39,6 +47,9 @@ export default async function DashboardSeite() {
   const benutzer = await erforderlicherBenutzer()
   const heute = todayInBerlin()
   const wochenende = endOfWeek(heute)
+  const horizont = leseZeithorizont(
+    (await cookies()).get(ZEITHORIZONT_COOKIE)?.value,
+  )
 
   const [unerledigte, offeneAbweichungen, kategorien] = await Promise.all([
     prisma.occurrence.findMany({
@@ -127,7 +138,12 @@ export default async function DashboardSeite() {
       })
     : []
 
-  const naechsteFaelligkeiten = bewertet.slice(0, 12)
+  // Überfällige erscheinen immer, unabhängig vom gewählten Zeitraum.
+  const imZeitraum = bewertet.filter((e) =>
+    imHorizont(e.occurrence.dueDate, horizont, heute, e.ampel === 'ueberfaellig'),
+  )
+  // Auch bei weitem Zeitraum bleibt die Liste bedienbar.
+  const naechsteFaelligkeiten = imZeitraum.slice(0, 30)
 
   return (
     <div className="space-y-6">
@@ -179,15 +195,25 @@ export default async function DashboardSeite() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* --- Nächste Fälligkeiten --- */}
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Nächste Fälligkeiten</CardTitle>
-            <CardDescription>
-              Überfällige und anstehende Prüfungen, die nächste zuerst.
-            </CardDescription>
+          <CardHeader className="flex flex-row items-start justify-between gap-4">
+            <div>
+              <CardTitle>Nächste Fälligkeiten</CardTitle>
+              <CardDescription>
+                {ZEITHORIZONT_BEZEICHNUNG[horizont]} · überfällige Prüfungen
+                erscheinen immer, die nächste zuerst.
+              </CardDescription>
+            </div>
+            <ZeithorizontAuswahl aktuell={horizont} />
           </CardHeader>
           <CardContent className="space-y-2">
             {naechsteFaelligkeiten.length === 0 ? (
-              <LeerHinweis text="Derzeit ist keine Prüfung offen." />
+              <LeerHinweis
+                text={
+                  bewertet.length === 0
+                    ? 'Derzeit ist keine Prüfung offen.'
+                    : 'In diesem Zeitraum steht keine Prüfung an. Wählen Sie einen weiteren Zeitraum.'
+                }
+              />
             ) : (
               naechsteFaelligkeiten.map(({ occurrence, ampel }) => {
                 const tage = differenceInDays(heute, occurrence.dueDate)

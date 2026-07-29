@@ -19,29 +19,14 @@ import { erzeugeVorschau, intervallText, warPuenktlich } from '@/lib/scheduling'
 import { holeBranding } from '@/server/branding'
 import { absoluterPfad } from '@/server/dateiablage'
 
-export type ReportTyp =
-  | 'compliance'
-  | 'historie'
-  | 'abweichungen'
-  | 'vorschau'
+import { REPORT_TITEL, type ReportTyp } from './typen'
 
-export const REPORT_TITEL: Record<ReportTyp, string> = {
-  compliance: 'Compliance-Übersicht',
-  historie: 'Aufgabenhistorie',
-  abweichungen: 'Abweichungsbericht',
-  vorschau: 'Fälligkeitsvorschau',
-}
-
-export const REPORT_BESCHREIBUNG: Record<ReportTyp, string> = {
-  compliance:
-    'Erfüllungsgrad gesamt und je Kategorie: pünktlich, verspätet, offen, überfällig.',
-  historie:
-    'Je Aufgabe alle Durchführungen mit Datum, Person, Ergebnis und Nachweisen inklusive SHA-256.',
-  abweichungen:
-    'Alle Abweichungen des Zeitraums mit Schweregrad, Verantwortlichkeit, Frist und Maßnahme.',
-  vorschau:
-    'Vorschau der kommenden Prüfungen inklusive planerisch fortgeschriebener Termine.',
-}
+export {
+  REPORT_BESCHREIBUNG,
+  REPORT_TITEL,
+  REPORT_TYPEN,
+  type ReportTyp,
+} from './typen'
 
 export type Zeitraum = { von: Date; bis: Date }
 

@@ -20,6 +20,7 @@ import {
   erzeugeHistorieExcel,
   erzeugeVorschauExcel,
 } from '@/server/reports/excel'
+import { holeVorlage } from '@/server/report-vorlagen'
 import {
   erzeugeAbweichungenPdf,
   erzeugeCompliancePdf,
@@ -79,6 +80,8 @@ export async function GET(
     .filter(Boolean)
 
   const heute = todayInBerlin()
+  // Ohne ausdrueckliche Wahl greift die Standardvorlage der Reportart.
+  const vorlage = await holeVorlage(reportTyp, suche.get('vorlage'))
 
   try {
     let inhalt: Buffer
@@ -92,7 +95,7 @@ export async function GET(
 
       inhalt =
         format === 'pdf'
-          ? await erzeugeVorschauPdf(kopf, vorschau.zeilen)
+          ? await erzeugeVorschauPdf(kopf, vorschau.zeilen, vorlage)
           : await erzeugeVorschauExcel(kopf, vorschau.zeilen)
     } else {
       zeitraum = leseZeitraum(suche.get('von'), suche.get('bis'), heute)
@@ -102,19 +105,19 @@ export async function GET(
         const daten = await ladeCompliance(zeitraum, kategorien)
         inhalt =
           format === 'pdf'
-            ? await erzeugeCompliancePdf(kopf, daten)
+            ? await erzeugeCompliancePdf(kopf, daten, vorlage)
             : await erzeugeComplianceExcel(kopf, daten)
       } else if (reportTyp === 'historie') {
         const daten = await ladeHistorie(zeitraum, kategorien)
         inhalt =
           format === 'pdf'
-            ? await erzeugeHistoriePdf(kopf, daten)
+            ? await erzeugeHistoriePdf(kopf, daten, vorlage)
             : await erzeugeHistorieExcel(kopf, daten)
       } else {
         const daten = await ladeAbweichungen(zeitraum, kategorien)
         inhalt =
           format === 'pdf'
-            ? await erzeugeAbweichungenPdf(kopf, daten)
+            ? await erzeugeAbweichungenPdf(kopf, daten, vorlage)
             : await erzeugeAbweichungenExcel(kopf, daten)
       }
     }
@@ -130,6 +133,7 @@ export async function GET(
         von: formatDate(zeitraum.von),
         bis: formatDate(zeitraum.bis),
         kategorien: kategorien.length > 0 ? kategorien.length : 'alle',
+        vorlage: vorlage.name,
       },
     })
 

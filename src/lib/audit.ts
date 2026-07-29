@@ -52,6 +52,9 @@ export const AUDIT_AKTIONEN = {
   PASSKEY_REGISTRIERT: 'Passkey hinterlegt',
   PASSKEY_ENTFERNT: 'Passkey entfernt',
   PASSKEY_UMBENANNT: 'Passkey umbenannt',
+  REPORT_VORLAGE_ANGELEGT: 'Report-Vorlage angelegt',
+  REPORT_VORLAGE_GEAENDERT: 'Report-Vorlage geändert',
+  REPORT_VORLAGE_GELOESCHT: 'Report-Vorlage gelöscht',
   IMPORT_AUSGEFUEHRT: 'Import ausgeführt',
   EXPORT_ERZEUGT: 'Export erzeugt',
 } as const

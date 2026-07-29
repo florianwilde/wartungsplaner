@@ -18,6 +18,31 @@ Noch keine Änderungen.
 
 ---
 
+## [1.5.0] – 2026-07-29
+
+### Hinzugefügt
+
+- **Anpassbare PDF-Vorlagen** unter *Administration → Report-Vorlagen*. Je
+  Reportart lassen sich mehrere Vorlagen anlegen; eine davon gilt als Standard:
+  - **Ausrichtung** A4 hoch oder quer – Querformat schafft Platz für breite
+    Tabellen
+  - **Spaltenauswahl** je Report; die für die Aussagekraft nötigen Spalten sind
+    fest und lassen sich nicht abwählen. Die Breiten passen sich automatisch an.
+  - **Deckblatt** mit Titel, Untertitel, Zeitraum und Eckdaten; die
+    Seitenzählung beginnt danach
+  - **Freitextblöcke** vor und nach der Auswertung
+  - **Unterschriftenfelder** mit frei wählbarer Beschriftung
+  - Vorschau je Vorlage direkt aus der Verwaltung heraus
+- Auf der Reports-Seite lässt sich je Bericht die gewünschte Vorlage wählen.
+  Die Excel-Exporte enthalten weiterhin stets alle Felder.
+- **Wählbarer Zeitraum auf dem Dashboard**: Die Liste „Nächste Fälligkeiten“
+  zeigt wahlweise *diese Woche*, die *nächsten 30* oder *90 Tage* oder *alle
+  offenen*. Überfällige Prüfungen erscheinen immer – sie würden sonst gerade
+  dann verschwinden, wenn sie am dringendsten sind. Die Auswahl bleibt
+  gespeichert.
+
+---
+
 ## [1.4.0] – 2026-07-29
 
 ### Hinzugefügt
@@ -239,7 +264,8 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.4.0...main
+[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.5.0...main
+[1.5.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.5.0
 [1.4.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.4.0
 [1.3.5]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.3.5
 [1.3.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.3.0
