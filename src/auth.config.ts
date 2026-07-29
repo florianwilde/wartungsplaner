@@ -7,8 +7,20 @@ import type { NextAuthConfig } from 'next-auth'
  * deshalb weder Prisma noch bcrypt verwenden. Die Provider und der
  * datenbankgestützte `jwt`-Callback werden in `src/auth.ts` ergänzt.
  */
+/**
+ * Sichere Cookies verwenden, sobald die Anwendung über HTTPS erreichbar ist.
+ * Ohne diese Ableitung würde Auth.js bei einem Reverse Proxy, der intern per
+ * HTTP spricht, das `Secure`-Kennzeichen weglassen.
+ */
+const nutzeSichereCookies = (
+  process.env.AUTH_URL ??
+  process.env.APP_URL ??
+  ''
+).startsWith('https://')
+
 export const authConfig = {
   trustHost: true,
+  useSecureCookies: nutzeSichereCookies,
   pages: {
     signIn: '/login',
     error: '/login',
@@ -17,6 +29,23 @@ export const authConfig = {
     strategy: 'jwt',
     // Arbeitstag zzgl. Puffer
     maxAge: 12 * 60 * 60,
+  },
+  cookies: {
+    sessionToken: {
+      name: nutzeSichereCookies
+        ? '__Secure-authjs.session-token'
+        : 'authjs.session-token',
+      options: {
+        httpOnly: true,
+        // "lax" statt "strict": Nach der Rückkehr vom Identity Provider muss
+        // das Cookie mitgesendet werden, sonst schlägt die SSO-Anmeldung fehl.
+        // Gegen CSRF schützen die Origin-Prüfung der Server Actions und der
+        // CSRF-Token von Auth.js.
+        sameSite: 'lax',
+        path: '/',
+        secure: nutzeSichereCookies,
+      },
+    },
   },
   callbacks: {
     session({ session, token }) {

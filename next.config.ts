@@ -21,11 +21,42 @@ const nextConfig: NextConfig = {
     APP_GIT_COMMIT: (process.env.GIT_COMMIT ?? '').slice(0, 12),
   },
   experimental: {
-    // Server Actions erhalten Dateianhänge bis 25 MB (plus Overhead).
     serverActions: {
+      // Dateianhänge bis 25 MB (plus Overhead durch die Kodierung).
       bodySizeLimit: '30mb',
+      // CSRF-Schutz: Next.js vergleicht bei jedem Aufruf einer Server Action
+      // den Origin-Header mit dem Host. Hinter einem Reverse Proxy weicht der
+      // Host ab, deshalb wird die öffentliche Adresse hier ausdrücklich
+      // erlaubt. Ohne diesen Eintrag würden gültige Aufrufe abgewiesen –
+      // fremde Ursprünge bleiben in jedem Fall gesperrt.
+      allowedOrigins: erlaubteUrspruenge(),
     },
   },
+}
+
+/**
+ * Ursprünge, die Server Actions aufrufen dürfen: die konfigurierte Adresse der
+ * Anwendung sowie – nur in der Entwicklung – localhost.
+ */
+function erlaubteUrspruenge(): string[] {
+  const urspruenge = new Set<string>()
+
+  for (const wert of [process.env.APP_URL, process.env.AUTH_URL]) {
+    const adresse = wert?.trim()
+    if (!adresse) continue
+    try {
+      urspruenge.add(new URL(adresse).host)
+    } catch {
+      // Ungültige Angaben werden stillschweigend übergangen; die Anwendung
+      // bleibt dann beim strengen Standardverhalten von Next.js.
+    }
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    urspruenge.add('localhost:3000')
+  }
+
+  return [...urspruenge]
 }
 
 export default nextConfig

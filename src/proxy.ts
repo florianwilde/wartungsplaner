@@ -2,6 +2,11 @@ import NextAuth from 'next-auth'
 import { NextResponse } from 'next/server'
 
 import { authConfig } from '@/auth.config'
+import {
+  baueContentSecurityPolicy,
+  baueSicherheitsHeader,
+  erzeugeNonce,
+} from '@/lib/sicherheit'
 
 /**
  * Grobe Zugriffskontrolle vor dem Rendern (früher "middleware").
@@ -33,10 +38,53 @@ function anfrageUrsprung(request: Request, fallback: string): string {
   return `${protokoll}://${host}`
 }
 
+/**
+ * Versieht eine Antwort mit den Schutz-Headern.
+ * Wird auf jede Antwort angewandt – auch auf Weiterleitungen.
+ */
+function mitSchutzHeadern(
+  antwort: NextResponse,
+  nonce: string,
+  https: boolean,
+): NextResponse {
+  antwort.headers.set(
+    'Content-Security-Policy',
+    baueContentSecurityPolicy({
+      nonce,
+      entwicklung: process.env.NODE_ENV !== 'production',
+      https,
+    }),
+  )
+  for (const [name, wert] of Object.entries(baueSicherheitsHeader(https))) {
+    antwort.headers.set(name, wert)
+  }
+  return antwort
+}
+
 export default auth((request) => {
   const { nextUrl } = request
   const pfad = nextUrl.pathname
   const angemeldet = Boolean(request.auth?.user)
+
+  // Nonce für die Content-Security-Policy. Next.js übernimmt ihn automatisch
+  // für die eigenen Skripte, sobald er im CSP-Header steht; die Anwendung
+  // liest ihn zusätzlich über den Anfrage-Header aus (siehe layout.tsx).
+  const nonce = erzeugeNonce()
+  const https =
+    (request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim() ??
+      nextUrl.protocol.replace(':', '')) === 'https'
+
+  const anfrageHeader = new Headers(request.headers)
+  anfrageHeader.set('x-nonce', nonce)
+
+  const weiter = () =>
+    mitSchutzHeadern(
+      NextResponse.next({ request: { headers: anfrageHeader } }),
+      nonce,
+      https,
+    )
+  const umleiten = (ziel: URL) =>
+    mitSchutzHeadern(NextResponse.redirect(ziel), nonce, https)
 
   const istOeffentlich = OEFFENTLICHE_PFADE.some(
     (p) => pfad === p || pfad.startsWith(`${p}/`),
@@ -44,10 +92,10 @@ export default auth((request) => {
   const ursprung = anfrageUrsprung(request, nextUrl.origin)
 
   if (!angemeldet) {
-    if (istOeffentlich) return NextResponse.next()
+    if (istOeffentlich) return weiter()
     const ziel = new URL('/login', ursprung)
     if (pfad !== '/') ziel.searchParams.set('weiter', `${pfad}${nextUrl.search}`)
-    return NextResponse.redirect(ziel)
+    return umleiten(ziel)
   }
 
   // Ein erzwungener Passwortwechsel wird bewusst NICHT hier geprüft:
@@ -58,10 +106,10 @@ export default auth((request) => {
   // Datenbankstand.
 
   if (angemeldet && pfad === '/login') {
-    return NextResponse.redirect(new URL('/', ursprung))
+    return umleiten(new URL('/', ursprung))
   }
 
-  return NextResponse.next()
+  return weiter()
 })
 
 export const config = {

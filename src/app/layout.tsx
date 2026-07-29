@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { Toaster } from 'sonner'
 
 import { baueMarkenCss } from '@/lib/branding'
@@ -31,6 +32,8 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const branding = await holeBranding()
+  // Der Nonce stammt aus proxy.ts und gehört zur Content-Security-Policy.
+  const nonce = (await headers()).get('x-nonce') ?? undefined
 
   // Die Farbwerte sind zuvor auf #rrggbb normalisiert worden; es gelangt
   // damit ausschließlich validiertes CSS in die Seite.
@@ -41,6 +44,7 @@ export default async function RootLayout({
       <head>
         <style
           id="markenfarben"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: markenCss }}
         />
       </head>

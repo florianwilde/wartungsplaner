@@ -14,6 +14,7 @@ import { prisma } from '@/lib/prisma'
 export const AUDIT_AKTIONEN = {
   LOGIN_SUCCESS: 'Anmeldung erfolgreich',
   LOGIN_FAILED: 'Anmeldung fehlgeschlagen',
+  LOGIN_BLOCKED: 'Anmeldung gesperrt (zu viele Fehlversuche)',
   LOGOUT: 'Abmeldung',
   PASSWORD_CHANGED: 'Passwort geändert',
   USER_CREATED: 'Benutzer angelegt',
@@ -44,6 +45,10 @@ export const AUDIT_AKTIONEN = {
   CRON_RUN: 'Täglicher Job ausgeführt',
   BRANDING_UPDATED: 'Erscheinungsbild geändert',
   BRANDING_RESET: 'Erscheinungsbild zurückgesetzt',
+  NOTIFICATION_SETTINGS_UPDATED: 'Benachrichtigungen konfiguriert',
+  NOTIFICATION_SENT: 'Benachrichtigung versendet',
+  NOTIFICATION_TEST_SENT: 'Testnachricht versendet',
+  NOTIFICATION_RUN: 'Benachrichtigungslauf ausgeführt',
 } as const
 
 export type AuditAktion = keyof typeof AUDIT_AKTIONEN

@@ -126,6 +126,37 @@ export function formatDateTime(value: Date | null | undefined): string {
   }).format(new Date(value))
 }
 
+/**
+ * ISO-Wochennummer nach DIN 1355 / ISO 8601.
+ * Woche 1 ist die Woche, die den ersten Donnerstag des Jahres enthält.
+ */
+export function isoKalenderwoche(date: Date): { jahr: number; woche: number } {
+  // Auf den Donnerstag derselben Woche schieben – dessen Jahr bestimmt das
+  // ISO-Jahr.
+  const donnerstag = addDays(startOfWeek(date), 3)
+  const jahresbeginn = dateOnly(donnerstag.getUTCFullYear(), 1, 1)
+  const ersterDonnerstag = addDays(startOfWeek(jahresbeginn), 3)
+
+  const woche =
+    Math.round(differenceInDays(ersterDonnerstag, donnerstag) / 7) + 1
+
+  return { jahr: donnerstag.getUTCFullYear(), woche }
+}
+
+/** Kennung einer Kalenderwoche, z. B. "2026-W31". */
+export function kalenderwochenSchluessel(date: Date): string {
+  const { jahr, woche } = isoKalenderwoche(date)
+  return `${jahr}-W${String(woche).padStart(2, '0')}`
+}
+
+/**
+ * Wochentag als Zahl: 1 = Montag … 7 = Sonntag.
+ * Entspricht der Zählung in ISO 8601 und der Auswahl im Admin-Bereich.
+ */
+export function wochentagIso(date: Date): number {
+  return ((toDateOnly(date).getUTCDay() + 6) % 7) + 1
+}
+
 /** ISO-Kalendertag "JJJJ-MM-TT" – für <input type="date"> und Dateinamen. */
 export function toISODate(date: Date): string {
   const d = new Date(date)

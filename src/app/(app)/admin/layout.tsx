@@ -23,6 +23,7 @@ export default async function AdminLayout({
           { href: '/admin/benutzer', label: 'Benutzer' },
           { href: '/admin/kategorien', label: 'Kategorien' },
           { href: '/admin/erscheinungsbild', label: 'Erscheinungsbild' },
+          { href: '/admin/benachrichtigungen', label: 'Benachrichtigungen' },
           { href: '/admin/system', label: 'System' },
           { href: '/admin/audit', label: 'Audit-Log' },
         ]}

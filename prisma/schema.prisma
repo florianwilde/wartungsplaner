@@ -91,11 +91,15 @@ model User {
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 
-  ownedTasks          Task[]        @relation("TaskOwner")
+  /// Empfängt Erinnerungen und Übersichten per E-Mail
+  notifyByEmail      Boolean      @default(true)
+
+  ownedTasks          Task[]                @relation("TaskOwner")
   executions          Execution[]
   uploads             Attachment[]
-  responsibleFindings Finding[]     @relation("FindingResponsible")
+  responsibleFindings Finding[]             @relation("FindingResponsible")
   auditLogs           AuditLog[]
+  eskalationFuer      NotificationSetting[] @relation("EskalationsEmpfaenger")
 
   @@index([role])
 }
@@ -261,6 +265,78 @@ model Branding {
   updatedById String?
 
   @@map("Branding")
+}
+
+// ---------------------------------------------------------------------------
+// Benachrichtigungen
+// ---------------------------------------------------------------------------
+
+/// Art einer versendeten Benachrichtigung.
+enum NotificationKind {
+  /// Sammelmail über bald fällige und überfällige Aufgaben
+  AUFGABEN
+  /// Sammelmail über Abweichungen mit naher oder überschrittener Frist
+  ABWEICHUNGEN
+  /// Eskalation überfälliger Aufgaben an eine zentrale Stelle
+  ESKALATION
+  /// Wöchentliche Übersicht
+  WOCHENUEBERSICHT
+  /// Testnachricht aus dem Administrationsbereich
+  TEST
+}
+
+/// Globale Einstellungen zum E-Mail-Versand. Einzelner Datensatz mit der
+/// festen ID "singleton" – analog zum Erscheinungsbild.
+model NotificationSetting {
+  id      String  @id @default("singleton")
+  /// Hauptschalter. Ohne SMTP-Konfiguration bleibt der Versand ohnehin aus.
+  enabled Boolean @default(false)
+
+  /// Sammelmail über bald fällige und überfällige Aufgaben
+  aufgabenAktiv     Boolean @default(true)
+  /// Sammelmail über Abweichungen mit naher oder überschrittener Frist
+  abweichungenAktiv Boolean @default(true)
+  /// Vorlauf in Tagen, ab dem an eine Abweichungsfrist erinnert wird
+  abweichungVorlaufTage Int @default(7)
+
+  /// Eskalation überfälliger Aufgaben an eine zentrale Stelle
+  eskalationAktiv    Boolean @default(false)
+  /// Erst ab so vielen Tagen Überfälligkeit wird eskaliert
+  eskalationAbTagen  Int     @default(7)
+  eskalationUserId   String?
+
+  /// Wöchentliche Übersicht
+  wochenuebersichtAktiv   Boolean @default(false)
+  /// Wochentag der Übersicht: 1 = Montag … 7 = Sonntag
+  wochenuebersichtTag     Int     @default(1)
+
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+
+  eskalationUser User? @relation("EskalationsEmpfaenger", fields: [eskalationUserId], references: [id], onDelete: SetNull)
+
+  @@map("NotificationSetting")
+}
+
+/// Protokoll versendeter Benachrichtigungen.
+///
+/// Dient der Wiederholungssperre: Der eindeutige Schlüssel verhindert, dass
+/// derselbe Sachverhalt mehrfach gemeldet wird, auch wenn der tägliche Job
+/// mehrmals läuft.
+model SentNotification {
+  id         String           @id @default(cuid())
+  kind       NotificationKind
+  /// Fachlicher Schlüssel, z. B. "occurrence:<id>:faellig" oder "user:<id>:2026-W31"
+  key        String
+  recipient  String
+  subject    String
+  sentAt     DateTime         @default(now())
+  /// Anzahl der in dieser Nachricht enthaltenen Vorgänge
+  itemCount  Int              @default(0)
+
+  @@unique([kind, key])
+  @@index([sentAt])
+  @@index([recipient])
 }
 
 // ---------------------------------------------------------------------------

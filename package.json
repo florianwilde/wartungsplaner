@@ -1,6 +1,6 @@
 {
   "name": "wartungsplaner",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -40,6 +40,7 @@
     "next": "16.2.12",
     "next-auth": "5.0.0-beta.32",
     "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.11",
     "pdfkit": "^0.17.2",
     "prisma": "6.19.3",
     "react": "19.2.8",
@@ -55,6 +56,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^22.15.3",
+    "@types/nodemailer": "^8.0.1",
     "@types/pdfkit": "^0.17.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",

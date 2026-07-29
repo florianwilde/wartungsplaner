@@ -47,6 +47,15 @@ services:
       CRON_ENABLED: ${CRON_ENABLED:-true}
       CRON_SCHEDULE: ${CRON_SCHEDULE:-15 2 * * *}
       CRON_TOKEN: ${CRON_TOKEN:-}
+      # E-Mail-Versand. Ohne SMTP_HOST bleiben die Benachrichtigungen aus.
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_REJECT_UNAUTHORIZED: ${SMTP_REJECT_UNAUTHORIZED:-true}
+      MAIL_CRON_SCHEDULE: ${MAIL_CRON_SCHEDULE:-0 7 * * *}
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-Start!1234}
       OIDC_ISSUER: ${OIDC_ISSUER:-}

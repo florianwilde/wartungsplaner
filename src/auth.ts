@@ -6,6 +6,15 @@ import bcrypt from 'bcryptjs'
 import { authConfig } from '@/auth.config'
 import { prisma } from '@/lib/prisma'
 import { schreibeAuditLeise } from '@/lib/audit'
+import {
+  baueKennung,
+  neuerSpeicher,
+  pruefeVersuch,
+  raeumeAuf,
+  setzeZurueck,
+  vermerkeFehlversuch,
+  type Versuchsspeicher,
+} from '@/lib/anmeldeversuche'
 
 /** Kennung des generischen OIDC-Providers (Teil der Redirect-URI). */
 export const OIDC_PROVIDER_ID = 'oidc'
@@ -31,6 +40,22 @@ function normalisiereEmail(email: string): string {
   return email.trim().toLowerCase()
 }
 
+// Speicher der Fehlversuche. Am globalen Objekt, damit er einen Hot-Reload
+// übersteht. Für eine Installation mit einem App-Container ausreichend; bei
+// mehreren Instanzen müsste er durch einen gemeinsamen Speicher ersetzt werden.
+const globalForAnmeldung = globalThis as unknown as {
+  wartungsplanerVersuche: Versuchsspeicher | undefined
+}
+const versuche: Versuchsspeicher = (globalForAnmeldung.wartungsplanerVersuche ??=
+  neuerSpeicher())
+
+/** Netzwerkadresse der Anfrage, soweit ermittelbar. */
+function anfrageAdresse(request: Request | undefined): string {
+  const kopf = request?.headers
+  const weitergeleitet = kopf?.get('x-forwarded-for')?.split(',')[0]?.trim()
+  return weitergeleitet || kopf?.get('x-real-ip')?.trim() || 'unbekannt'
+}
+
 const credentialsProvider = Credentials({
   id: 'credentials',
   name: 'E-Mail und Passwort',
@@ -38,7 +63,7 @@ const credentialsProvider = Credentials({
     email: { label: 'E-Mail', type: 'email' },
     password: { label: 'Passwort', type: 'password' },
   },
-  async authorize(credentials) {
+  async authorize(credentials, request) {
     const email =
       typeof credentials?.email === 'string'
         ? normalisiereEmail(credentials.email)
@@ -47,6 +72,29 @@ const credentialsProvider = Credentials({
       typeof credentials?.password === 'string' ? credentials.password : ''
 
     if (!email || !password) return null
+
+    // --- Schutz vor dem Erraten von Passwörtern -------------------------
+    const jetzt = Date.now()
+    const kennung = baueKennung(email, anfrageAdresse(request as Request))
+
+    // Gelegentlich aufräumen, damit der Speicher nicht unbegrenzt wächst.
+    if (versuche.size > 500) raeumeAuf(versuche, jetzt)
+
+    const zulaessig = pruefeVersuch(versuche, kennung, jetzt)
+    if (!zulaessig.erlaubt) {
+      await schreibeAuditLeise({
+        userId: null,
+        action: 'LOGIN_BLOCKED',
+        entityType: 'User',
+        entityId: null,
+        payload: {
+          email,
+          grund: 'zu viele Fehlversuche',
+          gesperrtNochSekunden: zulaessig.verbleibendeSekunden,
+        },
+      })
+      return null
+    }
 
     const user = await prisma.user.findUnique({ where: { email } })
 
@@ -58,6 +106,8 @@ const credentialsProvider = Credentials({
     const passwortStimmt = await bcrypt.compare(password, hash)
 
     if (!user || !user.passwordHash || !user.active || !passwortStimmt) {
+      const sperreAusgeloest = vermerkeFehlversuch(versuche, kennung, jetzt)
+
       await schreibeAuditLeise({
         userId: user?.id ?? null,
         action: 'LOGIN_FAILED',
@@ -72,10 +122,15 @@ const credentialsProvider = Credentials({
               : !user.passwordHash
                 ? 'Konto ohne lokales Passwort (nur SSO)'
                 : 'falsches Passwort',
+          ...(sperreAusgeloest
+            ? { folge: 'Anmeldung vorübergehend gesperrt' }
+            : {}),
         },
       })
       return null
     }
+
+    setzeZurueck(versuche, kennung)
 
     await prisma.user.update({
       where: { id: user.id },

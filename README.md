@@ -22,6 +22,8 @@ auditfertige Reports als PDF und Excel.
 - [Anmeldung über SSO (OIDC)](#anmeldung-über-sso-oidc)
 - [Erste Schritte nach der Installation](#erste-schritte-nach-der-installation)
 - [Erscheinungsbild anpassen](#erscheinungsbild-anpassen)
+- [E-Mail-Benachrichtigungen](#e-mail-benachrichtigungen)
+- [Sicherheit](#sicherheit)
 - [Aktualisierung](#aktualisierung)
 - [Versionierung und Änderungsverlauf](#versionierung-und-änderungsverlauf)
 - [Datensicherung und Wiederherstellung](#datensicherung-und-wiederherstellung)
@@ -307,6 +309,83 @@ Hinweise:
 
 ---
 
+## E-Mail-Benachrichtigungen
+
+Damit niemand täglich ins Dashboard schauen muss, meldet sich der
+Wartungsplaner von selbst. Der Versand ist **erst aktiv, wenn beides erfüllt
+ist**: ein Mailserver in der `.env` **und** der Schalter unter
+*Administration → Benachrichtigungen*.
+
+### Mailserver in der `.env`
+
+```dotenv
+SMTP_HOST=mail.firma.de
+SMTP_PORT=587
+SMTP_SECURE=false            # true bei Port 465
+SMTP_USER=wartungsplaner
+SMTP_PASSWORD=…
+SMTP_FROM=Wartungsplaner <wartungsplaner@firma.de>
+SMTP_REJECT_UNAUTHORIZED=true   # nur bei eigenem Zertifikat auf false
+
+MAIL_CRON_SCHEDULE=0 7 * * *    # Versandzeit, Standard 07:00 Uhr
+```
+
+Nach dem Ändern der `.env` den Stack neu starten. Unter
+*Administration → Benachrichtigungen* prüft eine **Testnachricht**, ob alles
+sitzt.
+
+### Nachrichtenarten
+
+| Art | Empfänger | Auslöser |
+| --- | --- | --- |
+| **Prüfungen** | verantwortliche Person | Eine Prüfung rückt in ihre Vorlaufzeit oder ist überfällig |
+| **Abweichungen** | verantwortliche Person | Die Frist einer offenen Abweichung rückt näher oder ist überschritten |
+| **Eskalation** | eine zentrale Stelle | Prüfungen, die länger als die eingestellte Schwelle überfällig sind |
+| **Wochenübersicht** | alle | Am eingestellten Wochentag, sofern etwas offen ist |
+
+Grundsätze:
+
+- **Eine Sammelnachricht je Person**, nicht eine je Aufgabe.
+- **Wiederholungssicher:** Derselbe Vorgang wird nicht zweimal gemeldet. Ein
+  mehrfacher Lauf am selben Tag erzeugt daher keine zweite Nachricht.
+- **Überfälliges wird wöchentlich erneut gemeldet**, damit es nicht nach der
+  ersten Nachricht in Vergessenheit gerät.
+- **Eskalationen höchstens einmal je Kalenderwoche.**
+- Wer nichts offen hat, erhält keine Nachricht.
+- Einzelne Personen lassen sich unter *Administration → Benachrichtigungen*
+  abmelden.
+
+Der Versandzeitpunkt liegt bewusst nach dem Fälligkeitsabgleich (Standard
+02:15 Uhr), damit dessen Ergebnis einfließt.
+
+---
+
+## Sicherheit
+
+Ausführlich beschrieben in [SICHERHEIT.md](SICHERHEIT.md) – Bedrohungsmodell,
+umgesetzte Maßnahmen und bewusste Einschränkungen. Die wichtigsten Punkte:
+
+- **Anmeldung:** bcrypt (Kostenfaktor 12), Mindestanforderungen an Passwörter,
+  erzwungener Wechsel des Startpassworts, Sperre nach fünf Fehlversuchen je
+  Konto und Netzwerkadresse, keine Auskunft über vorhandene Konten.
+- **Sitzungen:** `HttpOnly`, `SameSite=Lax`, `Secure` und `__Secure-`-Präfix
+  automatisch bei HTTPS. Rolle und Kontostatus werden bei jeder Anfrage frisch
+  aus der Datenbank gelesen – Sperrungen wirken sofort.
+- **CSRF:** Origin-Prüfung der Server Actions (mit `allowedOrigins` aus
+  `APP_URL`), CSRF-Token von Auth.js, `form-action 'self'`.
+- **Content-Security-Policy** mit Nonce je Anfrage, ohne `unsafe-inline` für
+  Skripte, dazu die üblichen Schutz-Header.
+- **Revisionssicherheit:** Durchführungen unveränderlich, Audit-Log per
+  Datenbank-Trigger auf `INSERT` beschränkt, Benutzer nicht löschbar.
+- **Dateien:** Positivlisten, Größengrenzen, generierte Speichernamen, Schutz
+  vor Path Traversal, Auslieferung nur über die Anwendung mit Protokollierung.
+
+Für den Betrieb wichtig: `AUTH_SECRET` vor der Inbetriebnahme ändern,
+`APP_URL`/`AUTH_URL` auf die tatsächliche HTTPS-Adresse setzen und die
+Anwendung hinter einem Reverse Proxy mit TLS betreiben.
+
+---
+
 ## Aktualisierung
 
 Für das Update des laufenden Stacks liegt das Skript `update.sh` bei. Es führt
@@ -532,8 +611,13 @@ npm run dev                   # http://localhost:3000
 | Auth.js v5 | Credentials- und OIDC-Provider, Session-Cookies |
 | Tailwind CSS 4 + shadcn/ui | Oberfläche, vollständig auf Deutsch |
 | pdfkit / exceljs | Serverseitige Report-Erzeugung |
-| node-cron | Täglicher Hintergrundjob |
+| nodemailer | E-Mail-Benachrichtigungen |
+| node-cron | Fälligkeitsabgleich und Versandlauf |
 | Vitest | Unit-Tests |
+
+Weitere Dokumente: [ROADMAP.md](ROADMAP.md) (geplante Weiterentwicklung),
+[CHANGELOG.md](CHANGELOG.md) (Änderungsverlauf),
+[SICHERHEIT.md](SICHERHEIT.md) (Schutzmaßnahmen).
 
 ### Verzeichnisse
 

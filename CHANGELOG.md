@@ -18,6 +18,52 @@ Noch keine Änderungen.
 
 ---
 
+## [1.2.0] – 2026-07-29
+
+### Hinzugefügt
+
+- **E-Mail-Benachrichtigungen.** Der Wartungsplaner meldet sich von selbst,
+  statt darauf zu warten, dass jemand ins Dashboard schaut:
+  - Sammelnachricht je verantwortlicher Person über anstehende und überfällige
+    Prüfungen – bewusst eine Nachricht statt einer je Aufgabe
+  - Erinnerung an Fristen offener Abweichungen, mit einstellbarem Vorlauf
+  - Eskalation lange überfälliger Prüfungen an eine zentrale Stelle,
+    höchstens einmal je Kalenderwoche
+  - Wöchentliche Übersicht je Person; wer nichts offen hat, erhält nichts
+  - Wiederholungssicher: derselbe Vorgang wird nicht zweimal gemeldet,
+    Überfälliges dagegen wöchentlich erneut
+  - Eigener Zeitplan (`MAIL_CRON_SCHEDULE`, Standard 07:00 Uhr), damit der
+    Fälligkeitsabgleich vorher gelaufen ist
+- **Administration → Benachrichtigungen**: Ein- und Ausschalten je
+  Nachrichtenart, Eskalationsempfänger, Wochentag der Übersicht, Testnachricht,
+  sofortiger Lauf, Abmeldung je Benutzer und Übersicht der letzten Sendungen.
+- **[ROADMAP.md](ROADMAP.md)** – die geplante Weiterentwicklung ist jetzt Teil
+  des Projekts.
+- **[SICHERHEIT.md](SICHERHEIT.md)** – Bedrohungsmodell, umgesetzte Maßnahmen,
+  Ergebnis der Durchsicht und bewusste Einschränkungen.
+
+### Sicherheit
+
+Durchsicht der gesamten Anwendung mit folgenden Härtungen:
+
+- **Begrenzung der Anmeldeversuche**: nach fünf Fehlversuchen je Konto und
+  Netzwerkadresse eine Sperre von 15 Minuten. Zuvor waren Passwörter unbegrenzt
+  oft ratbar. Sperren erscheinen im Audit-Log.
+- **Content-Security-Policy mit Nonce** je Anfrage, ohne `unsafe-inline` für
+  Skripte, dazu `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`,
+  `Cross-Origin-*` und `Strict-Transport-Security` bei HTTPS.
+- **CSRF-Schutz der Server Actions abgesichert**: Die erlaubten Ursprünge
+  werden aus `APP_URL`/`AUTH_URL` abgeleitet, damit die Origin-Prüfung auch
+  hinter einem Reverse Proxy zuverlässig greift.
+- **Sitzungs-Cookies** erhalten `Secure` und das Präfix `__Secure-`
+  automatisch, sobald die Anwendung über HTTPS erreichbar ist.
+- **Header Injection in E-Mails** unterbunden: Betreffzeilen werden von
+  Steuerzeichen und Zeilenumbrüchen befreit.
+- `/api/branding` ist ohne Anmeldung erreichbar, damit ein hochgeladenes Logo
+  auf der Anmeldeseite erscheint.
+
+---
+
 ## [1.1.0] – 2026-07-29
 
 ### Hinzugefügt
@@ -101,6 +147,7 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.1.0...main
+[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.2.0...main
+[1.2.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.2.0
 [1.1.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.1.0
 [1.0.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.0.0
