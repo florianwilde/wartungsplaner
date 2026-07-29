@@ -18,6 +18,41 @@ Noch keine Änderungen.
 
 ---
 
+## [1.3.0] – 2026-07-29
+
+### Hinzugefügt
+
+- **Export von Stammdaten** unter *Administration → Import / Export*:
+  Kategorien, Aufgaben und Benutzer als CSV oder JSON, dazu ein Gesamtexport
+  aller Bereiche in einer Datei. Passwörter werden nie exportiert.
+- **Import derselben Daten mit Vorschau**: Vor dem Schreiben zeigt die
+  Anwendung Zeile für Zeile, was angelegt und was geändert würde – bei
+  Änderungen mit Angabe der betroffenen Felder.
+- **Zuordnung über fachliche Schlüssel** (Kategoriename, Aufgabentitel,
+  E-Mail-Adresse) statt über interne Kennungen. Dadurch sind Daten zwischen
+  Installationen übertragbar, und ein Export lässt sich unverändert wieder
+  einlesen.
+- **Strenge Prüfung:** Ein einziger fehlerhafter Datensatz verhindert den
+  gesamten Lauf. Ein halb eingespielter Bestand wäre schlimmer als gar keiner.
+  Geschrieben wird in einer Transaktion.
+- **Vorlagendateien** je Bereich mit Kopfzeile und Beispielzeile.
+- Jeder Import und Export erzeugt einen Audit-Eintrag.
+
+### Sicherheit
+
+- **Schutz vor CSV Injection:** Werte, die mit `=`, `+`, `-` oder `@` beginnen,
+  werden beim Export entschärft. Andernfalls könnte Excel sie beim Öffnen als
+  Formel ausführen.
+- Import und Export sind Administratoren vorbehalten – der Export enthält die
+  vollständige Benutzerliste.
+- Beim Import bestehender Konten bleiben Anmeldeverfahren und Passwort
+  unangetastet; ein Wechsel würde ein vorhandenes Passwort entwerten oder eine
+  SSO-Verknüpfung zerstören.
+- Die Prüfung läuft vor dem Schreiben erneut gegen den aktuellen Datenbestand –
+  der Vorschau aus dem Browser wird nicht vertraut.
+
+---
+
 ## [1.2.0] – 2026-07-29
 
 ### Hinzugefügt
@@ -147,7 +182,8 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.2.0...main
+[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.3.0...main
+[1.3.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.3.0
 [1.2.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.2.0
 [1.1.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.1.0
 [1.0.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.0.0

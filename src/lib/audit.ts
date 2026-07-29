@@ -49,6 +49,8 @@ export const AUDIT_AKTIONEN = {
   NOTIFICATION_SENT: 'Benachrichtigung versendet',
   NOTIFICATION_TEST_SENT: 'Testnachricht versendet',
   NOTIFICATION_RUN: 'Benachrichtigungslauf ausgeführt',
+  IMPORT_AUSGEFUEHRT: 'Import ausgeführt',
+  EXPORT_ERZEUGT: 'Export erzeugt',
 } as const
 
 export type AuditAktion = keyof typeof AUDIT_AKTIONEN

@@ -15,10 +15,12 @@ Umgesetzte Fassungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
 | --- | --- |
 | ✅ **1.0.0** | Grundfunktion: Datenmodell, Anmeldung mit Rollen und optionalem SSO, Fälligkeitslogik, Erledigen-Vorgang mit Nachweisen, Abweichungen, Dashboard, Kalender, vier Reports, Administrationsbereich, revisionssicheres Audit-Log, Docker-Stack |
 | ✅ **1.1.0** | Corporate Design, konfigurierbares Erscheinungsbild, Versionierung mit Änderungsverlauf, Update-Skript |
+| ✅ **1.2.0** | E-Mail-Benachrichtigungen, Sicherheitshärtung (CSP, CSRF, Brute-Force-Schutz), Roadmap und Sicherheitsdokumentation |
+| ✅ **1.3.0** | Import und Export von Kategorien, Aufgaben und Benutzern mit Vorschau |
 
 ---
 
-## 1.2.0 – E-Mail-Benachrichtigungen 🔨
+## 1.2.0 – E-Mail-Benachrichtigungen ✅
 
 **Warum zuerst:** Ohne Benachrichtigungen muss jemand täglich ins Dashboard
 schauen. Das ist der größte funktionale Hebel für den Alltagsnutzen.
@@ -35,7 +37,7 @@ schauen. Das ist der größte funktionale Hebel für den Alltagsnutzen.
 
 ---
 
-## 1.3.0 – Import und Export von Stammdaten 📋
+## 1.3.0 – Import und Export von Stammdaten ✅
 
 **Warum:** Zehn Restore-Tests für zehn Systeme legt heute niemand gern einzeln
 an. Außerdem erleichtert der Export Migration, Sicherung und Abstimmung mit

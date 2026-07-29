@@ -1,0 +1,257 @@
+/**
+ * Einspielen geprüfter Importdaten.
+ *
+ * Grundsätze:
+ *  - Es wird ausschließlich geschrieben, was die Prüfung (`@/lib/import-export`)
+ *    zuvor freigegeben hat. Die Prüfung läuft vor dem Schreiben erneut, damit
+ *    zwischen Vorschau und Bestätigung keine Lücke entsteht.
+ *  - Alles geschieht in einer Transaktion: entweder vollständig oder gar nicht.
+ *  - Jeder Lauf erzeugt Audit-Einträge.
+ *  - Bestehende Aufgaben werden aktualisiert, ihre Fälligkeiten und
+ *    Durchführungen bleiben unangetastet.
+ */
+import type { Prisma } from '@prisma/client'
+
+import { schreibeAudit } from '@/lib/audit'
+import { parseISODate } from '@/lib/dates'
+import type {
+  AufgabeDaten,
+  BenutzerDaten,
+  ImportVorschau,
+  KategorieDaten,
+} from '@/lib/import-export'
+import { prisma } from '@/lib/prisma'
+import { erzeugeErsteFaelligkeit } from '@/server/faelligkeiten'
+
+export type ImportErgebnis = {
+  angelegt: number
+  aktualisiert: number
+  uebersprungen: number
+}
+
+// ---------------------------------------------------------------------------
+// Kategorien
+// ---------------------------------------------------------------------------
+
+export async function schreibeKategorien(
+  vorschau: ImportVorschau<KategorieDaten>,
+  benutzerId: string,
+): Promise<ImportErgebnis> {
+  const ergebnis: ImportErgebnis = { angelegt: 0, aktualisiert: 0, uebersprungen: 0 }
+
+  await prisma.$transaction(async (tx) => {
+    for (const eintrag of vorschau.eintraege) {
+      if (eintrag.vorgang === 'unveraendert') {
+        ergebnis.uebersprungen++
+        continue
+      }
+
+      const vorhanden = await tx.category.findFirst({
+        where: { name: { equals: eintrag.daten.name, mode: 'insensitive' } },
+        select: { id: true },
+      })
+
+      if (vorhanden) {
+        await tx.category.update({ where: { id: vorhanden.id }, data: eintrag.daten })
+        ergebnis.aktualisiert++
+      } else {
+        await tx.category.create({ data: eintrag.daten })
+        ergebnis.angelegt++
+      }
+    }
+
+    await schreibeAudit(
+      {
+        userId: benutzerId,
+        action: 'IMPORT_AUSGEFUEHRT',
+        entityType: 'Category',
+        entityId: null,
+        payload: { bereich: 'Kategorien', ...ergebnis },
+      },
+      tx,
+    )
+  })
+
+  return ergebnis
+}
+
+// ---------------------------------------------------------------------------
+// Benutzer
+// ---------------------------------------------------------------------------
+
+export async function schreibeBenutzer(
+  vorschau: ImportVorschau<BenutzerDaten>,
+  benutzerId: string,
+): Promise<ImportErgebnis> {
+  const ergebnis: ImportErgebnis = { angelegt: 0, aktualisiert: 0, uebersprungen: 0 }
+
+  await prisma.$transaction(async (tx) => {
+    for (const eintrag of vorschau.eintraege) {
+      if (eintrag.vorgang === 'unveraendert') {
+        ergebnis.uebersprungen++
+        continue
+      }
+
+      const daten = eintrag.daten
+      const vorhanden = await tx.user.findUnique({
+        where: { email: daten.email },
+        select: { id: true },
+      })
+
+      if (vorhanden) {
+        // Anmeldeverfahren und Passwort bleiben bewusst unangetastet.
+        await tx.user.update({
+          where: { id: vorhanden.id },
+          data: {
+            name: daten.name,
+            role: daten.role as Prisma.UserUpdateInput['role'],
+            active: daten.active,
+            notifyByEmail: daten.notifyByEmail,
+          },
+        })
+        ergebnis.aktualisiert++
+      } else {
+        // Neue Konten entstehen ohne Passwort. Für lokale Konten vergibt die
+        // Administration anschließend ein Startpasswort; SSO-Konten brauchen
+        // keines.
+        await tx.user.create({
+          data: {
+            name: daten.name,
+            email: daten.email,
+            role: daten.role as Prisma.UserCreateInput['role'],
+            authProvider: daten.authProvider as Prisma.UserCreateInput['authProvider'],
+            active: daten.active,
+            notifyByEmail: daten.notifyByEmail,
+            passwordHash: null,
+            mustChangePassword: false,
+          },
+        })
+        ergebnis.angelegt++
+      }
+    }
+
+    await schreibeAudit(
+      {
+        userId: benutzerId,
+        action: 'IMPORT_AUSGEFUEHRT',
+        entityType: 'User',
+        entityId: null,
+        payload: {
+          bereich: 'Benutzer',
+          ...ergebnis,
+          hinweis: 'Neue lokale Konten haben noch kein Passwort',
+        },
+      },
+      tx,
+    )
+  })
+
+  return ergebnis
+}
+
+// ---------------------------------------------------------------------------
+// Aufgaben
+// ---------------------------------------------------------------------------
+
+export async function schreibeAufgaben(
+  vorschau: ImportVorschau<AufgabeDaten>,
+  benutzerId: string,
+): Promise<ImportErgebnis> {
+  const ergebnis: ImportErgebnis = { angelegt: 0, aktualisiert: 0, uebersprungen: 0 }
+
+  // Zuordnung der fachlichen Schlüssel auf die technischen IDs.
+  const [kategorien, benutzer] = await Promise.all([
+    prisma.category.findMany({ select: { id: true, name: true } }),
+    prisma.user.findMany({ select: { id: true, email: true } }),
+  ])
+  const kategorieId = new Map(kategorien.map((k) => [k.name.toLowerCase(), k.id]))
+  const benutzerIdNachEmail = new Map(benutzer.map((b) => [b.email.toLowerCase(), b.id]))
+
+  await prisma.$transaction(async (tx) => {
+    for (const eintrag of vorschau.eintraege) {
+      if (eintrag.vorgang === 'unveraendert') {
+        ergebnis.uebersprungen++
+        continue
+      }
+
+      const daten = eintrag.daten
+      const categoryId = kategorieId.get(daten.kategorieName.toLowerCase())
+      const ownerId = benutzerIdNachEmail.get(daten.verantwortlichEmail.toLowerCase())
+
+      // Kann nach der Prüfung nur eintreten, wenn parallel etwas gelöscht
+      // wurde – dann bricht die Transaktion ab, statt halb zu schreiben.
+      if (!categoryId || !ownerId) {
+        throw new Error(
+          `Für „${daten.title}“ fehlt inzwischen die Kategorie oder die verantwortliche Person.`,
+        )
+      }
+
+      const gemeinsam = {
+        title: daten.title,
+        description: daten.description,
+        instructionsMd: daten.instructionsMd,
+        categoryId,
+        ownerId,
+        intervalType: daten.intervalType as Prisma.TaskCreateInput['intervalType'],
+        intervalValue: daten.intervalValue,
+        scheduleMode: daten.scheduleMode as Prisma.TaskCreateInput['scheduleMode'],
+        startDate: parseISODate(daten.startDate),
+        leadTimeDays: daten.leadTimeDays,
+        graceDays: daten.graceDays,
+        evidenceRequired: daten.evidenceRequired,
+        criticality: daten.criticality as Prisma.TaskCreateInput['criticality'],
+        auditReference: daten.auditReference,
+        active: daten.active,
+      }
+
+      const vorhanden = await tx.task.findFirst({
+        where: { title: { equals: daten.title, mode: 'insensitive' } },
+        select: { id: true, active: true },
+      })
+
+      if (vorhanden) {
+        await tx.task.update({ where: { id: vorhanden.id }, data: gemeinsam })
+
+        // Wird eine zuvor deaktivierte Aufgabe wieder aktiviert und hat keine
+        // unerledigte Fälligkeit, entsteht sofort wieder eine.
+        if (!vorhanden.active && gemeinsam.active) {
+          const offene = await tx.occurrence.count({
+            where: {
+              taskId: vorhanden.id,
+              status: { in: ['OPEN', 'OVERDUE', 'SUSPENDED'] },
+            },
+          })
+          if (offene === 0) {
+            await erzeugeErsteFaelligkeit(
+              tx,
+              vorhanden.id,
+              gemeinsam.startDate,
+              benutzerId,
+            )
+          }
+        }
+
+        ergebnis.aktualisiert++
+      } else {
+        const neu = await tx.task.create({ data: gemeinsam })
+        if (neu.active) {
+          await erzeugeErsteFaelligkeit(tx, neu.id, gemeinsam.startDate, benutzerId)
+        }
+        ergebnis.angelegt++
+      }
+    }
+
+    await schreibeAudit(
+      {
+        userId: benutzerId,
+        action: 'IMPORT_AUSGEFUEHRT',
+        entityType: 'Task',
+        entityId: null,
+        payload: { bereich: 'Aufgaben', ...ergebnis },
+      },
+      tx,
+    )
+  })
+
+  return ergebnis
+}
