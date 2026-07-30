@@ -101,6 +101,8 @@ model User {
   auditLogs           AuditLog[]
   eskalationFuer      NotificationSetting[] @relation("EskalationsEmpfaenger")
   passkeys            Passkey[]
+  erfassteNachweise   Nachweis[]            @relation("NachweisErfasser")
+  gepruefteNachweise  Nachweis[]            @relation("NachweisPruefer")
 
   @@index([role])
 }
@@ -149,9 +151,10 @@ model Task {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  owner       User         @relation("TaskOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  category    Category            @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  owner       User                @relation("TaskOwner", fields: [ownerId], references: [id], onDelete: Restrict)
   occurrences Occurrence[]
+  pruefboegen PruefbogenVorlage[]
 
   @@index([categoryId])
   @@index([ownerId])
@@ -169,6 +172,7 @@ model Occurrence {
 
   task      Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
   execution Execution?
+  nachweise Nachweis[]
 
   @@unique([taskId, dueDate])
   @@index([status])
@@ -211,6 +215,8 @@ model Attachment {
 
   execution  Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
   uploadedBy User      @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+  /// Gesetzt, wenn dieser Anhang aus einem Prüfbogen erzeugt wurde
+  nachweis   Nachweis?
 
   @@index([executionId])
   @@index([sha256])
@@ -266,6 +272,147 @@ model Branding {
   updatedById String?
 
   @@map("Branding")
+}
+
+// ---------------------------------------------------------------------------
+// Nachweismodul: Prüfbögen
+// ---------------------------------------------------------------------------
+
+/// Antwortart eines Prüfpunkts.
+enum PruefpunktArt {
+  /// erfüllt / nicht erfüllt / entfällt
+  BEWERTUNG
+  /// Freitext
+  TEXT
+  /// Zahl
+  ZAHL
+  /// Datum
+  DATUM
+  /// Entscheidung bei Rezertifizierungen
+  ENTSCHEIDUNG
+}
+
+/// Ergebnis eines einzelnen Prüfpunkts.
+enum PruefpunktErgebnis {
+  ERFUELLT
+  NICHT_ERFUELLT
+  ENTFAELLT
+  /// Rezertifizierung: Recht bleibt bestehen
+  BELASSEN
+  /// Rezertifizierung: Recht wird entzogen
+  ENTZIEHEN
+  /// Rezertifizierung: Recht wird angepasst
+  AENDERN
+}
+
+/// Stand eines ausgefüllten Prüfbogens.
+enum NachweisStatus {
+  /// Wird gerade ausgefüllt, jederzeit änderbar
+  ENTWURF
+  /// Zur Gegenzeichnung vorgelegt
+  VORGELEGT
+  /// Gegengezeichnet und damit gültig – ab hier unveränderlich
+  GEGENGEZEICHNET
+  /// Mit Begründung zurückgewiesen, wieder änderbar
+  ZURUECKGEWIESEN
+}
+
+/// Vorlage eines Prüfbogens. Kann einer Aufgabe fest zugeordnet sein oder
+/// als allgemeine Vorlage bereitstehen.
+model PruefbogenVorlage {
+  id            String  @id @default(cuid())
+  name          String  @unique
+  beschreibung  String?
+  /// Optional fest einer Aufgabe zugeordnet
+  taskId        String?
+  /// Muss ein Nachweis aus dieser Vorlage gegengezeichnet werden?
+  vierAugen     Boolean @default(false)
+  aktiv         Boolean @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+
+  task      Task?               @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  punkte    PruefbogenPunkt[]
+  nachweise Nachweis[]
+
+  @@index([taskId])
+}
+
+/// Ein Prüfpunkt innerhalb einer Vorlage.
+model PruefbogenPunkt {
+  id         String        @id @default(cuid())
+  vorlageId  String
+  position   Int
+  frage      String
+  hinweis    String?
+  art        PruefpunktArt @default(BEWERTUNG)
+  /// Muss dieser Punkt beantwortet werden?
+  pflicht    Boolean       @default(true)
+
+  vorlage  PruefbogenVorlage @relation(fields: [vorlageId], references: [id], onDelete: Cascade)
+  antworten NachweisAntwort[]
+
+  @@unique([vorlageId, position])
+  @@index([vorlageId])
+}
+
+/// Ein ausgefüllter Prüfbogen.
+///
+/// Gehört zu genau einer Fälligkeit. Nach der Gegenzeichnung ist er
+/// unveränderlich; das erzeugte PDF wird als Nachweis an der Durchführung
+/// hinterlegt.
+model Nachweis {
+  id           String         @id @default(cuid())
+  vorlageId    String
+  occurrenceId String
+  status       NachweisStatus @default(ENTWURF)
+
+  /// Zusammenfassende Bemerkung der erfassenden Person
+  bemerkung String?
+
+  erfasstById   String
+  erfasstAm     DateTime  @default(now())
+  vorgelegtAm   DateTime?
+  /// Gegenzeichnung – darf nicht dieselbe Person wie erfasstBy sein
+  geprueftById  String?
+  geprueftAm    DateTime?
+  /// Begründung bei Zurückweisung
+  ablehnungsgrund String?
+
+  /// Erzeugtes PDF, als Anhang an der Durchführung hinterlegt
+  attachmentId String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vorlage    PruefbogenVorlage @relation(fields: [vorlageId], references: [id], onDelete: Restrict)
+  occurrence Occurrence        @relation(fields: [occurrenceId], references: [id], onDelete: Cascade)
+  erfasstBy  User              @relation("NachweisErfasser", fields: [erfasstById], references: [id], onDelete: Restrict)
+  geprueftBy User?             @relation("NachweisPruefer", fields: [geprueftById], references: [id], onDelete: Restrict)
+  attachment Attachment?       @relation(fields: [attachmentId], references: [id], onDelete: SetNull)
+  antworten  NachweisAntwort[]
+
+  @@index([occurrenceId])
+  @@index([status])
+}
+
+/// Antwort auf einen Prüfpunkt.
+model NachweisAntwort {
+  id         String              @id @default(cuid())
+  nachweisId String
+  punktId    String
+  ergebnis   PruefpunktErgebnis?
+  /// Freitext, Zahl oder Datum – je nach Art des Prüfpunkts
+  wert       String?
+  bemerkung  String?
+
+  nachweis Nachweis        @relation(fields: [nachweisId], references: [id], onDelete: Cascade)
+  punkt    PruefbogenPunkt @relation(fields: [punktId], references: [id], onDelete: Cascade)
+
+  @@unique([nachweisId, punktId])
+  @@index([nachweisId])
 }
 
 // ---------------------------------------------------------------------------

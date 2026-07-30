@@ -20,6 +20,7 @@ Umgesetzte Fassungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
 | ✅ **1.3.5** | Dunkles Farbschema mit Umschalter und Systemvorgabe |
 | ✅ **1.4.0** | Anmeldung mit Passkeys (WebAuthn), Kontoseite, Zurücksetzen durch die Administration |
 | ✅ **1.5.0** | Anpassbare PDF-Vorlagen und wählbarer Zeitraum auf dem Dashboard |
+| ✅ **1.6.0** | Nachweismodul für Reviews und Regelprüfungen mit Vier-Augen-Prinzip |
 
 ---
 
@@ -121,7 +122,7 @@ Nachweise. Heute ist das Layout fest im Code hinterlegt.
 
 ---
 
-## 1.6.0 – Nachweismodul für Reviews und Regelprüfungen 📋
+## 1.6.0 – Nachweismodul für Reviews und Regelprüfungen ✅
 
 **Warum:** Bei Reviews entsteht der Nachweis heute außerhalb der Anwendung –
 als Word-Datei, Tabelle oder E-Mail-Verlauf – und wird anschließend hochgeladen.

@@ -6,6 +6,7 @@ import { useState } from 'react'
 import {
   AlertTriangle,
   CalendarDays,
+  ClipboardList,
   FileBarChart,
   LayoutDashboard,
   ListChecks,
@@ -28,6 +29,7 @@ const ICONS = {
   aufgaben: ListChecks,
   abweichungen: AlertTriangle,
   kalender: CalendarDays,
+  nachweise: ClipboardList,
   reports: FileBarChart,
   admin: Settings,
 }

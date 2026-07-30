@@ -13,6 +13,7 @@ const GRUNDNAVIGATION: NavigationsEintrag[] = [
   { href: '/', label: 'Dashboard', icon: 'dashboard' },
   { href: '/tasks', label: 'Aufgaben', icon: 'aufgaben' },
   { href: '/findings', label: 'Abweichungen', icon: 'abweichungen' },
+  { href: '/nachweise', label: 'Nachweise', icon: 'nachweise' },
   { href: '/calendar', label: 'Kalender', icon: 'kalender' },
   { href: '/reports', label: 'Reports', icon: 'reports' },
 ]

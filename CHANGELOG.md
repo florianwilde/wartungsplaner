@@ -18,6 +18,55 @@ Noch keine Änderungen.
 
 ---
 
+## [1.6.0] – 2026-07-30
+
+### Hinzugefügt
+
+- **Nachweismodul für Reviews und Regelprüfungen.** Der Prüfvorgang findet
+  jetzt in der Anwendung statt, statt in Word- oder Tabellendateien außerhalb.
+  - **Prüfbögen** unter *Administration → Prüfbögen*: beliebig viele Prüfpunkte
+    mit Frage, Hinweis, Antwortart (Bewertung, Entscheidung, Freitext, Zahl,
+    Datum) und Pflichtkennzeichen. Ein Bogen kann fest einer Aufgabe zugeordnet
+    sein oder für alle bereitstehen.
+  - **Erfassen** direkt an der offenen Fälligkeit; Zwischenstände lassen sich
+    speichern, ein umfangreiches Review muss nicht in einem Zug fertig werden.
+  - **Neue Seite „Nachweise“** mit den eigenen offenen Bögen, den zur
+    Gegenzeichnung vorgelegten und den zuletzt abgeschlossenen.
+- **Vier-Augen-Prinzip**, je Prüfbogen einschaltbar:
+  - Ablauf *Entwurf → vorgelegt → gegengezeichnet*, mit Zurückweisung samt
+    begründeter Rückgabe an die erfassende Person.
+  - Die gegenzeichnende Person **darf nicht die erfassende sein** – die
+    Anwendung setzt das durch, nicht nur die Oberfläche.
+  - Vorgelegt werden kann erst, wenn alle Pflichtangaben ausgefüllt sind;
+    die Oberfläche nennt die offenen Punkte mit Nummer.
+  - Jeder Schritt erscheint mit Person und Zeitpunkt im Audit-Log.
+- **PDF-Nachweis**: Aus dem abgeschlossenen Bogen entsteht ein PDF mit
+  Kopfdaten, allen Prüfpunkten samt Befund und Bemerkungen sowie
+  Unterschriftenfeldern beider Personen. Feststellungen sind farblich
+  hervorgehoben.
+- Der Nachweis wird **automatisch als Anhang an der Durchführung hinterlegt** –
+  mit SHA-256 wie jeder andere Nachweis, damit die Nachweiskette geschlossen
+  bleibt. Zusätzlich ist er einzeln herunterladbar.
+- Mit der Gegenzeichnung **gilt die Fälligkeit als erledigt**: Die Anwendung
+  protokolliert die Durchführung, hängt das PDF daran und erzeugt den
+  Folgetermin – genau wie beim gewohnten Erledigen-Vorgang. Enthält der Bogen
+  eine Feststellung, lautet das Ergebnis „in Ordnung mit Bemerkungen“. War die
+  Fälligkeit bereits erledigt, kommt der Nachweis zur bestehenden Durchführung
+  hinzu.
+
+### Unveränderlichkeit
+
+- Ein gegengezeichneter Nachweis lässt sich nicht mehr ändern; Korrekturen
+  erfolgen als neuer, protokollierter Vorgang – wie bei den Durchführungen.
+- Die Prüfpunkte eines Bogens lassen sich nicht mehr ändern, sobald damit
+  abgeschlossene Nachweise entstanden sind. Andernfalls würden bestehende
+  Nachweise nachträglich eine andere Bedeutung bekommen. Für Änderungen wird
+  ein neuer Bogen angelegt.
+- Prüfbögen mit vorhandenen Nachweisen lassen sich nicht löschen, nur
+  deaktivieren.
+
+---
+
 ## [1.5.0] – 2026-07-29
 
 ### Hinzugefügt
@@ -264,7 +313,8 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.5.0...main
+[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.6.0...main
+[1.6.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.6.0
 [1.5.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.5.0
 [1.4.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.4.0
 [1.3.5]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.3.5

@@ -31,6 +31,8 @@ import {
   warPuenktlich,
 } from '@/lib/scheduling'
 import { erforderlicherBenutzer } from '@/lib/session'
+import { ladeVerfuegbareVorlagen } from '@/server/nachweise'
+import { NachweisStarten } from './nachweis-starten'
 import {
   AktivierungSchalter,
   AussetzenDialog,
@@ -85,6 +87,8 @@ export default async function AufgabenDetailSeite({
   })
 
   if (!aufgabe) notFound()
+
+  const pruefboegen = await ladeVerfuegbareVorlagen(aufgabe.id)
 
   const personen = await prisma.user.findMany({
     where: { active: true, role: { in: ['ADMIN', 'EDITOR'] } },
@@ -184,7 +188,21 @@ export default async function AufgabenDetailSeite({
                     </p>
                   </div>
 
-                  <div className="kein-druck flex items-center gap-2">
+                  <div className="kein-druck flex flex-wrap items-center gap-2">
+                    {darfErledigen ? (
+                      <NachweisStarten
+                        occurrenceId={occurrence.id}
+                        faelligAm={formatDate(occurrence.dueDate)}
+                        boegen={pruefboegen.map((bogen) => ({
+                          id: bogen.id,
+                          name: bogen.name,
+                          beschreibung: bogen.beschreibung,
+                          vierAugen: bogen.vierAugen,
+                          anzahlPunkte: bogen._count.punkte,
+                          zugeordnet: bogen.taskId === aufgabe.id,
+                        }))}
+                      />
+                    ) : null}
                     {darfVerwalten ? (
                       <AussetzenDialog
                         occurrenceId={occurrence.id}
