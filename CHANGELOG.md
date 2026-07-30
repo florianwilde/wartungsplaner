@@ -31,6 +31,18 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
     muss aufräumen. Verkettung ist erlaubt, Kreise werden abgelehnt, und eine
     gesperrte Vertretung führt die Meldung zurück zur zuständigen Person,
     statt sie ins Leere laufen zu lassen.
+- **Belege aus der Zwischenablage.** Seit die Prüfbögen Belege aufnehmen, ist
+  der Screenshot der häufigste – und der Umweg über „Speichern unter“ und den
+  Explorer der lästigste Teil daran.
+  - **Strg+V** fügt ein Bild unmittelbar ein, **Ziehen** legt Dateien ab, die
+    Auswahl über die Schaltfläche bleibt daneben bestehen. Alle drei Wege
+    sammeln sich in einer Liste, aus der sich einzelne Einträge vor dem
+    Hochladen wieder entfernen lassen.
+  - Eingefügte Bilder bekommen einen sprechenden Namen mit Zeitpunkt;
+    „image.png“ wäre nach dem dritten Beleg unbrauchbar.
+  - Geprüft wird schon im Browser nach denselben Regeln wie auf dem Server –
+    ein nicht zugelassener Inhalt wird gar nicht erst übernommen.
+  - Verfügbar an den Belegen des Prüfbogens und im Erledigen-Dialog.
 
 ---
 

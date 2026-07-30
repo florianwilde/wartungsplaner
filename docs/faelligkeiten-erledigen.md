@@ -89,6 +89,11 @@ erscheint in der Aufgabenhistorie und im Bericht.
 Dateien, die die Prüfung belegen: Protokolle, Screenshots, Exporte. Zugelassen
 sind pdf, png, jpg, txt, log, csv, xlsx und docx bis 25 MB je Datei.
 
+Einen Screenshot fügen Sie mit **Strg+V** unmittelbar ein, statt ihn erst zu
+speichern; Dateien lassen sich auch in den Bereich **ziehen**. Eingefügte
+Bilder erhalten einen Namen mit Zeitpunkt. Vor dem Absenden lässt sich jeder
+Eintrag einzeln wieder entfernen.
+
 Jede Datei erhält beim Hochladen eine **SHA-256-Prüfsumme**. Sie wird
 mitgeführt und lässt sich jederzeit nachrechnen – siehe
 [Unversehrtheit der Nachweise](unversehrtheit.md).

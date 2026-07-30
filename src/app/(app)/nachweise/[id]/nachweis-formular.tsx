@@ -18,6 +18,7 @@ import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { DateiEingabe } from '@/components/datei-eingabe'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
@@ -39,7 +40,7 @@ import {
   type PruefpunktArt,
   type PruefpunktErgebnis,
 } from '@/lib/nachweise'
-import { ACCEPT_ATTRIBUT, ERLAUBTE_ENDUNGEN_TEXT } from '@/lib/uploads'
+import { ERLAUBTE_ENDUNGEN_TEXT } from '@/lib/uploads'
 import { Zeilenliste, type ZeileAnzeige } from './zeilenliste'
 import {
   nachweisBelegEntfernen,
@@ -128,6 +129,7 @@ export function NachweisFormular({
   const [belegLaeuft, starteBeleg] = useTransition()
   const [belegPunktId, setBelegPunktId] = useState('')
   const dateiFeld = useRef<HTMLInputElement>(null)
+  const [leerenSignal, setLeerenSignal] = useState(0)
 
   const hochladen = () => {
     const dateien = Array.from(dateiFeld.current?.files ?? [])
@@ -147,7 +149,7 @@ export function NachweisFormular({
         return
       }
       toast.success(antwort.erfolg ?? 'Hinzugefügt.')
-      if (dateiFeld.current) dateiFeld.current.value = ''
+      setLeerenSignal((wert) => wert + 1)
       setBelegPunktId('')
       router.refresh()
     })
@@ -527,13 +529,11 @@ export function NachweisFormular({
                     <Label htmlFor="belegDateien">Dateien auswählen</Label>
                     {/* Ohne name-Attribut: Die Dateien gehören nicht zum
                         Zwischenstand, sondern werden einzeln hochgeladen. */}
-                    <input
+                    <DateiEingabe
                       id="belegDateien"
-                      ref={dateiFeld}
-                      type="file"
-                      multiple
-                      accept={ACCEPT_ATTRIBUT}
-                      className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium"
+                      feldRef={dateiFeld}
+                      leerenSignal={leerenSignal}
+                      hinweis={`Erlaubt: ${ERLAUBTE_ENDUNGEN_TEXT} · maximal 25 MB je Datei`}
                     />
                   </div>
                   <div className="space-y-1.5">

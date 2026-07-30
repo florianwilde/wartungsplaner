@@ -71,6 +71,22 @@ zwischen nachvollziehbar und unbrauchbar.
 Jede Datei erhält eine SHA-256-Prüfsumme und ist einzeln herunterladbar. Bis
 zu 25 Belege je Bogen.
 
+### Screenshot einfügen
+
+Der häufigste Beleg ist der Screenshot – und der Umweg über „Speichern unter“
+und den Explorer der lästigste Teil daran. Drei Wege führen zum Ziel:
+
+- **Einfügen mit Strg+V**, sobald der Bereich sichtbar ist. Ein eingefügtes
+  Bild bekommt einen sprechenden Namen mit Zeitpunkt, etwa
+  `bildschirmfoto-2026-07-30-172305.png` – „image.png“ wäre nach dem dritten
+  Beleg unbrauchbar.
+- **Dateien in den Bereich ziehen.**
+- **Über die Schaltfläche auswählen** wie bisher.
+
+Alle drei sammeln sich in derselben Liste; einzelne Einträge lassen sich
+wieder entfernen, bevor hochgeladen wird. Dasselbe gilt im Erledigen-Dialog
+für die Nachweise einer Durchführung.
+
 ## Vorlegen und gegenzeichnen
 
 Verlangt der Bogen das Vier-Augen-Prinzip:

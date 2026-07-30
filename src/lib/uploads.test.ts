@@ -6,6 +6,7 @@ import {
   baueSpeicherpfad,
   bereinigeDateinamen,
   dateiendung,
+  nameFuerEinfuegung,
   pruefeDatei,
 } from './uploads'
 
@@ -104,6 +105,55 @@ describe('baueSpeicherpfad', () => {
     )
     expect(baueSpeicherpfad('xyz', 'png', dateOnly(2026, 12, 31))).toBe(
       '2026/12/xyz.png',
+    )
+  })
+})
+
+describe('nameFuerEinfuegung', () => {
+  // Ortszeit, weil der Name für Menschen gedacht ist.
+  const zeitpunkt = new Date(2026, 6, 30, 17, 23, 5)
+
+  it('gibt einem eingefügten Screenshot einen sprechenden Namen', () => {
+    expect(nameFuerEinfuegung('image/png', zeitpunkt)).toBe(
+      'bildschirmfoto-2026-07-30-172305.png',
+    )
+  })
+
+  it('macht aus jpeg die zugelassene Endung jpg', () => {
+    expect(nameFuerEinfuegung('image/jpeg', zeitpunkt)).toBe(
+      'bildschirmfoto-2026-07-30-172305.jpg',
+    )
+  })
+
+  it('nennt anderes nicht Bildschirmfoto', () => {
+    expect(nameFuerEinfuegung('application/pdf', zeitpunkt)).toBe(
+      'einfuegung-2026-07-30-172305.pdf',
+    )
+  })
+
+  it('behält einen echten Dateinamen', () => {
+    // Beim Kopieren aus dem Explorer kommt der richtige Name mit.
+    expect(nameFuerEinfuegung('image/png', zeitpunkt, 'ad-export.png')).toBe(
+      'ad-export.png',
+    )
+  })
+
+  it('verwirft die Platzhalternamen der Browser', () => {
+    // Chromium meldet jeden eingefügten Screenshot als „image.png“ – nach
+    // dem dritten wäre die Ablage unbrauchbar.
+    expect(nameFuerEinfuegung('image/png', zeitpunkt, 'image.png')).toBe(
+      'bildschirmfoto-2026-07-30-172305.png',
+    )
+  })
+
+  it('lehnt nicht zugelassene Typen ab', () => {
+    expect(nameFuerEinfuegung('image/svg+xml', zeitpunkt)).toBeNull()
+    expect(nameFuerEinfuegung('application/zip', zeitpunkt)).toBeNull()
+  })
+
+  it('kommt mit einer Zeichensatzangabe im Typ zurecht', () => {
+    expect(nameFuerEinfuegung('text/plain; charset=utf-8', zeitpunkt)).toBe(
+      'einfuegung-2026-07-30-172305.txt',
     )
   })
 })

@@ -297,9 +297,11 @@ Fassung senkt den Aufwand im laufenden Betrieb.
   Gegenzeichnungsbitten gehen an die Vertretung, die Aufgabe bleibt beim
   Eigentümer. Eine Vertretung *je Aufgabe* wurde bewusst nicht umgesetzt – sie
   müsste bei jedem Urlaub an jeder Aufgabe einzeln gepflegt werden.
-- 📋 **Belege aus der Zwischenablage** – Screenshot einfügen, statt ihn erst
+- ✅ **Belege aus der Zwischenablage** – Screenshot einfügen, statt ihn erst
   als Datei zu speichern. Seit 1.7.0 ist der Screenshot der häufigste Beleg,
-  und der Umweg über den Explorer ist der lästigste Teil daran.
+  und der Umweg über den Explorer war der lästigste Teil daran. Zusätzlich
+  lassen sich Dateien in den Bereich ziehen; eingefügte Bilder erhalten einen
+  Namen mit Zeitpunkt.
 - 📋 **Aufgabenvorlagen und Duplizieren** – wiederkehrende Muster einmal
   definieren und für mehrere Systeme ausrollen (offener Punkt aus 1.3.0,
   ergänzt den Import).

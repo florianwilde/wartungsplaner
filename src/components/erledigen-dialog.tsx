@@ -11,11 +11,11 @@ import {
   FileCheck2,
   Plus,
   Trash2,
-  Upload,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
+import { DateiEingabe } from '@/components/datei-eingabe'
 import {
   Dialog,
   DialogContent,
@@ -34,7 +34,7 @@ import {
   SCHWERE_BEZEICHNUNG,
 } from '@/lib/labels'
 import { STATUS_BEZEICHNUNG, type NachweisStatus } from '@/lib/nachweise'
-import { ACCEPT_ATTRIBUT, ERLAUBTE_ENDUNGEN_TEXT } from '@/lib/uploads'
+import { ERLAUBTE_ENDUNGEN_TEXT } from '@/lib/uploads'
 import { faelligkeitErledigen } from '@/server/actions/durchfuehrungen'
 import { nachweisBeginnen } from '@/server/actions/nachweise'
 
@@ -450,23 +450,17 @@ export function ErledigenDialog({
                 </span>
               )}
             </Label>
-            <Input
+            <DateiEingabe
               id="nachweise"
               name="nachweise"
-              type="file"
-              multiple
-              accept={ACCEPT_ATTRIBUT}
               required={nachweisPflicht}
-              onChange={(e) => setDateiAnzahl(e.target.files?.length ?? 0)}
-              className="cursor-pointer"
+              onAnzahl={setDateiAnzahl}
+              hinweis={`Erlaubt: ${ERLAUBTE_ENDUNGEN_TEXT} · maximal 25 MB je Datei${
+                dateiAnzahl > 0
+                  ? ` · ${dateiAnzahl} ${dateiAnzahl === 1 ? 'Datei' : 'Dateien'} gewählt`
+                  : ''
+              }`}
             />
-            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Upload className="size-3.5" />
-              Erlaubt: {ERLAUBTE_ENDUNGEN_TEXT} · maximal 25 MB je Datei
-              {dateiAnzahl > 0
-                ? ` · ${dateiAnzahl} ${dateiAnzahl === 1 ? 'Datei' : 'Dateien'} gewählt`
-                : ''}
-            </p>
           </div>
 
           <div className="space-y-3 rounded-lg border border-border p-3">
