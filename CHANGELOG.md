@@ -14,6 +14,54 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ## [Unveröffentlicht]
 
+### Sicherheit
+
+- **Die Datenbank ist von außerhalb des Compose-Stacks nicht mehr erreichbar.**
+  Bisher wurde der Postgres-Port auf dem Host veröffentlicht (an `127.0.0.1`
+  gebunden). Die Anwendung braucht ihn nicht – sie spricht die Datenbank im
+  Compose-Netz unter dem Namen `db` an –, und auch `backup.sh` arbeitet über
+  `docker compose exec`. Damit gibt es keinen Datenbankzugang mehr, der von
+  einer Firewallregel oder von der Vertrauenswürdigkeit lokaler Konten auf dem
+  Server abhinge.
+  - **Beim Update zu beachten:** Wer vom Host aus auf die Datenbank zugreift
+    (eigene Skripte, `psql`, Prisma Studio), braucht künftig
+    `docker-compose.dev.yml`:
+    `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`.
+    Diese Datei bindet den Port wieder an `127.0.0.1` und gehört nicht auf ein
+    Produktivsystem. Sicherung und Wiederherstellung sind unverändert.
+
+### Hinzugefügt
+
+- **Feststellungen lassen sich in Abweichungen überführen.** Ein nicht
+  erfüllter Prüfpunkt beschreibt bereits, was fehlt; Titel und Beschreibung
+  sind daher vorbelegt, einzugeben bleiben Schwere, Frist und verantwortliche
+  Person. Die Abweichung behält einen Rückverweis auf den Prüfpunkt, und je
+  Feststellung entsteht höchstens eine.
+- **Benachrichtigung zur Gegenzeichnung.** Ein vorgelegter Prüfnachweis blieb
+  bisher still liegen, bis jemand zufällig auf die Übersicht schaute.
+  - Die Bitte geht sofort beim Vorlegen hinaus, zuerst an die verantwortliche
+    Person der Aufgabe; ist sie selbst die erfassende, an alle übrigen mit
+    Ausführungsrecht.
+  - Wartet ein Nachweis länger als eingestellt, erinnert der Tageslauf
+    wöchentlich.
+  - Eine Zurückweisung wird der erfassenden Person sofort mitsamt Begründung
+    gemeldet.
+  - Das Dashboard weist offene Gegenzeichnungen aus. Schaltbar unter
+    *Administration → Benachrichtigungen*.
+- **Zeilenlisten im Prüfbogen.** Ein Prüfpunkt der neuen Art *Liste* nimmt
+  beliebig viele gleichartige Zeilen auf – je Konto, Transponder oder
+  Firewall-Regel eine Entscheidung.
+  - **Übernahme aus einer CSV-Datei**: Semikolon, Komma und Tabulator werden
+    erkannt, eine Kopfzeile ebenfalls, sodass sich ein AD-Export unverändert
+    einlesen lässt. Doppelte und namenlose Zeilen werden gemeldet statt still
+    verworfen.
+  - **Sammelentscheidung** für alle noch offenen Zeilen; bereits entschiedene
+    bleiben unangetastet. Damit bleibt nur die Ausnahme Handarbeit.
+  - Eine Liste gilt erst als beantwortet, wenn Zeilen vorhanden und alle
+    entschieden sind – eine leere Liste belegt nichts.
+  - Zeilen mit Befund erscheinen als Feststellung und stehen einzeln im
+    PDF-Nachweis.
+
 ### Dokumentation
 
 - Roadmap um die Fassungen **1.8.0 bis 1.10.0** ergänzt und begründet.

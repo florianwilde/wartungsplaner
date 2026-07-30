@@ -161,7 +161,21 @@ realistische Beispielaufgaben mit ausformulierten Prüfanleitungen.
 | Service | Beschreibung |
 | --- | --- |
 | `app` | Next.js im Production-Build (Multi-Stage-Dockerfile, Standalone-Ausgabe, unprivilegierter Benutzer), Healthcheck auf `/api/health` |
-| `db` | `postgres:16` mit Healthcheck (`pg_isready`); der Port ist nur an `127.0.0.1` gebunden |
+| `db` | `postgres:16` mit Healthcheck (`pg_isready`); **kein Port auf dem Host** – nur im Compose-Netz erreichbar |
+
+Die Datenbank ist bewusst von außerhalb des Stacks nicht erreichbar. Die
+Anwendung spricht sie im Compose-Netz unter dem Namen `db` an, und die
+Sicherung arbeitet über `docker compose exec`. Damit gibt es keinen
+Datenbankzugang, der von einer fehlenden Firewallregel abhinge.
+
+Wird der Zugriff vom Host doch gebraucht – etwa für Prisma Studio in der
+Entwicklung – gibt es dafür eine eigene Datei:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+```
+
+Sie bindet den Port an `127.0.0.1` und gehört nicht auf ein Produktivsystem.
 
 | Volume | Inhalt |
 | --- | --- |
@@ -190,7 +204,7 @@ Alle Einstellungen werden über die Datei `.env` gesetzt; sie ist per
 | Variable | Standard | Bedeutung |
 | --- | --- | --- |
 | `APP_PORT` | `3000` | Port auf dem Host |
-| `POSTGRES_PORT` | `5432` | Postgres-Port auf dem Host (nur `127.0.0.1`) |
+| `POSTGRES_PORT` | `5432` | Nur mit `docker-compose.dev.yml`: Postgres-Port auf `127.0.0.1` |
 | `TZ` | `Europe/Berlin` | Zeitzone von Anwendung und Datenbank |
 | `AUTH_TRUST_HOST` | `true` | Hinter einem Reverse Proxy auf `true` lassen |
 | `UPLOAD_DIR` | `/app/uploads` | Ablage der Nachweise im Container |
@@ -565,7 +579,8 @@ Anwendung werten `X-Forwarded-Host` und `X-Forwarded-Proto` aus.
 npm install
 cp .env.example .env          # DATABASE_URL auf localhost belassen
 
-docker compose up -d db       # nur die Datenbank
+# Nur die Datenbank, mit auf 127.0.0.1 veröffentlichtem Port
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
 npx prisma migrate dev        # Schema anlegen
 npm run db:seed               # Beispieldaten
 

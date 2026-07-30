@@ -135,6 +135,13 @@ als bei Skripten.
 - **Offene Weiterleitung:** Das Ziel nach der Anmeldung wird auf
   anwendungsinterne Pfade begrenzt (`sichereZielUrl`).
 - **Container:** läuft als unprivilegierter Benutzer (UID 1001), nicht als root.
+- **Datenbank ohne veröffentlichten Port:** Postgres ist ausschließlich im
+  Compose-Netz unter dem Namen `db` erreichbar; auf dem Host wird kein Port
+  gebunden. Damit ist die Datenbank auch dann nicht erreichbar, wenn jemand
+  lokalen Zugang zum Server erhält oder eine Firewallregel fehlt. Die
+  Sicherung arbeitet über `docker compose exec` und braucht keinen Port.
+  Für Entwicklungszugriffe gibt es `docker-compose.dev.yml`, das ihn bewusst
+  und ausdrücklich an `127.0.0.1` bindet.
 - **Hintergrundjob über HTTP:** nur erreichbar, wenn `CRON_TOKEN` gesetzt ist,
   und dann ausschließlich per Bearer-Token – ein Cookie genügt nicht.
 

@@ -11,9 +11,15 @@ services:
       PGTZ: ${TZ:-Europe/Berlin}
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      # Nur für Backups/Debugging vom Host aus. In Produktion ggf. entfernen.
-      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
+    # Bewusst kein veröffentlichter Port: Die Datenbank ist ausschließlich im
+    # Compose-Netz unter dem Namen "db" erreichbar. Die Anwendung braucht nichts
+    # anderes, und `backup.sh` arbeitet über `docker compose exec`.
+    #
+    # Für Entwicklungszugriffe vom Host (Prisma Studio, Migrationen, Testdaten)
+    # gibt es `docker-compose.dev.yml`:
+    #   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+    expose:
+      - '5432'
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 10s

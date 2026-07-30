@@ -1,0 +1,17 @@
+# Zusatz für die Entwicklung – nicht auf Produktivsystemen verwenden.
+#
+# Veröffentlicht den Postgres-Port auf dem Host, damit Prisma Studio,
+# `npm run db:migrate`, `npm run db:seed` und die Integrationstests von außerhalb
+# des Compose-Stacks auf die Datenbank zugreifen können. Im Standard-Stack ist
+# die Datenbank bewusst nur im Compose-Netz erreichbar.
+#
+# Verwendung:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#
+# Die Bindung an 127.0.0.1 bleibt auch hier bestehen: Der Port ist dann vom
+# Entwicklungsrechner erreichbar, nicht aus dem Netz.
+
+services:
+  db:
+    ports:
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
