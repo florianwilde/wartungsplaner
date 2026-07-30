@@ -14,7 +14,14 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ## [Unveröffentlicht]
 
-Noch keine Änderungen.
+### Dokumentation
+
+- Roadmap um die Fassungen **1.8.0 bis 1.10.0** ergänzt und begründet.
+- Fünf Punkte, die in umgesetzten Fassungen als erledigt geführt wurden, es
+  aber nicht sind, mit ⏳ gekennzeichnet und den kommenden Fassungen
+  zugeordnet: CSV-Übernahme von Prüfzeilen und Überführung von Feststellungen
+  in Abweichungen (1.6.0), Passkey-Pflicht je Rolle (1.4.0), SVG-Logo im
+  PDF-Kopf (1.5.0), Duplizieren von Aufgaben (1.3.0).
 
 ---
 

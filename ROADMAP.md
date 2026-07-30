@@ -5,7 +5,8 @@ dem Nutzen im Alltag und der Auditfähigkeit, nicht aus dem Aufwand.
 
 Umgesetzte Fassungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
 
-**Legende:** ✅ umgesetzt · 🔨 in Arbeit · 📋 geplant · 💡 Idee, noch nicht terminiert
+**Legende:** ✅ umgesetzt · ⏳ angekündigt, aber noch offen · 🔨 in Arbeit ·
+📋 geplant · 💡 Idee, noch nicht terminiert
 
 ---
 
@@ -22,6 +23,17 @@ Umgesetzte Fassungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
 | ✅ **1.5.0** | Anpassbare PDF-Vorlagen und wählbarer Zeitraum auf dem Dashboard |
 | ✅ **1.6.0** | Nachweismodul für Reviews und Regelprüfungen mit Vier-Augen-Prinzip |
 | ✅ **1.7.0** | Belege am Prüfbogen: AD-Exporte, Screenshots und Protokolle mit Prüfsumme |
+
+## Vorgesehen
+
+| Fassung | Inhalt |
+| --- | --- |
+| 📋 **1.8.0** | Den Prüfvorgang zu Ende führen: Benachrichtigung zur Gegenzeichnung, Feststellungen als Abweichungen, Zeilenlisten mit CSV-Übernahme, Nachweisregister |
+| 📋 **1.9.0** | Nachweise belastbar aufbewahren: Prüfsummenlauf, Archiv-Export, Aufbewahrungsfristen, Virenprüfung |
+| 📋 **1.10.0** | Alltagstauglichkeit: Vertretung, Belege aus der Zwischenablage, Aufgabenvorlagen, iCal |
+
+Quer dazu und unabhängig von einer Fassung: **End-to-End-Tests** und eine
+**CI-Pipeline** – siehe [Technik und Betrieb](#technik-und-betrieb).
 
 ---
 
@@ -57,7 +69,8 @@ Fachbereichen außerhalb der Anwendung.
   statt einen halben Bestand zu hinterlassen
 - Jeder Import erzeugt Audit-Einträge mit Anzahl und Art der Änderungen
 - Vorlagendateien zum Herunterladen, damit das erwartete Format klar ist
-- Aufgaben zusätzlich duplizieren können (Vorlage → neue Aufgabe)
+- ⏳ Aufgaben zusätzlich duplizieren können (Vorlage → neue Aufgabe) – offen,
+  eingeplant für 1.10.0
 
 ---
 
@@ -94,7 +107,8 @@ Identity Provider zu erfordern – das bleibt SSO-Installationen vorbehalten.
   letzte Verwendung einsehen
 - Administrative Übersicht: wer hat Passkeys hinterlegt, Zurücksetzen bei
   Geräteverlust
-- Optional erzwingbar je Rolle (z. B. Passkey-Pflicht für Administratoren)
+- ⏳ Optional erzwingbar je Rolle (z. B. Passkey-Pflicht für Administratoren) –
+  offen, eingeplant für 1.9.0
 - Alle Vorgänge im Audit-Log
 
 ---
@@ -111,7 +125,8 @@ Nachweise. Heute ist das Layout fest im Code hinterlegt.
   „Kurzfassung Geschäftsführung“)
 - Vorschau vor dem Erzeugen
 - Seitenformat und Ausrichtung (A4 hoch/quer) je Vorlage
-- Logo in den PDF-Kopf auch aus SVG-Dateien (heute nur PNG und JPG)
+- ⏳ Logo in den PDF-Kopf auch aus SVG-Dateien – offen; PDF-Reports betten
+  weiterhin nur PNG und JPG ein, in der Oberfläche wirkt das SVG bereits
 
 ### Dashboard: Zeithorizont wählbar
 
@@ -144,8 +159,9 @@ führt den Vorgang in der Anwendung durch und erzeugt den Nachweis daraus.
   - **Zutrittsberechtigungen** – Transponder, Person, Entscheidung
   - **Regelprüfung** (Firewall, Patchstand, Zertifikate) – Regel bzw. System,
     Befund, Maßnahme
-- Zeilen lassen sich aus einer CSV-Datei übernehmen (etwa ein AD-Export), damit
-  niemand hunderte Einträge abtippt
+- ⏳ Zeilen lassen sich aus einer CSV-Datei übernehmen (etwa ein AD-Export),
+  damit niemand hunderte Einträge abtippt – offen, eingeplant für 1.8.0. Ein
+  Prüfbogen hat derzeit fest definierte Prüfpunkte, keine Zeilenliste.
 - Zwischenspeichern: ein umfangreiches Review muss nicht in einem Zug fertig
   werden
 
@@ -169,8 +185,9 @@ führt den Vorgang in der Anwendung durch und erzeugt den Nachweis daraus.
   mit SHA-256 wie jeder andere Nachweis, damit die Nachweiskette geschlossen
   bleibt
 - Zusätzlich einzeln **herunterladbar**
-- Nicht erfüllte Prüfpunkte lassen sich mit einem Griff in **Abweichungen**
-  überführen, statt sie erneut zu erfassen
+- ⏳ Nicht erfüllte Prüfpunkte lassen sich mit einem Griff in **Abweichungen**
+  überführen – offen, eingeplant für 1.8.0. Die Feststellungen werden bereits
+  erkannt und ausgewiesen, aber noch nicht übernommen.
 
 ---
 
@@ -190,43 +207,127 @@ den AD-Export oder den Screenshot, auf den sich eine Antwort stützt.
 
 ---
 
-## Danach geplant
+## Empfehlung für die nächsten Fassungen
 
-### Auditfähigkeit
+Die Reihenfolge folgt zwei Fragen: Wo bricht der Ablauf heute ab, und worauf
+verlässt sich die Anwendung, ohne es zu prüfen?
 
+---
+
+## 1.8.0 – Den Prüfvorgang zu Ende führen 📋
+
+**Warum zuerst:** Das Nachweismodul erfasst und zeichnet gegen, lässt die
+prüfende Person danach aber allein. Ein vorgelegter Bogen liegt still da,
+Feststellungen müssen von Hand als Abweichung nacherfasst werden, und eine
+Rezertifizierung von achtzig Konten ist mit fest definierten Prüfpunkten nicht
+zu bewältigen. Das sind keine neuen Ideen, sondern die verbliebenen Lücken des
+begonnenen Ablaufs – und die kosten im Alltag am meisten.
+
+### Benachrichtigung zur Gegenzeichnung
+
+- 📋 Nachricht an die berechtigten Personen, sobald ein Nachweis **vorgelegt**
+  wird. Heute erfährt niemand davon; der Bogen bleibt liegen, bis jemand
+  zufällig auf die Seite „Nachweise“ schaut.
+- 📋 Erinnerung, wenn eine Gegenzeichnung länger als vereinbart aussteht, und
+  Nachricht an die erfassende Person bei **Zurückweisung**.
+- 📋 Anzeige offener Gegenzeichnungen auf dem Dashboard.
+
+### Feststellungen in Abweichungen überführen
+
+- 📋 Aus einem nicht erfüllten Prüfpunkt wird mit einem Griff eine Abweichung –
+  Titel, Beschreibung und Bezug sind bereits bekannt und müssen nicht erneut
+  eingegeben werden (offener Punkt aus 1.6.0).
+- 📋 Rückverweis von der Abweichung auf den Prüfpunkt, aus dem sie stammt.
+
+### Zeilenlisten im Prüfbogen
+
+- 📋 Ein Prüfpunkt vom Typ **Liste**: viele gleichartige Zeilen mit derselben
+  Frage – je Konto, Transponder oder Firewall-Regel eine Entscheidung
+  (offener Punkt aus 1.6.0).
+- 📋 Zeilen aus einer **CSV-Datei** übernehmen, etwa direkt aus einem
+  AD-Export. Ohne das ist eine Rezertifizierung größerer Bestände Handarbeit.
+- 📋 Sammelentscheidung für alle Zeilen ohne eigenen Befund („übrige
+  belassen“), damit nur die Ausnahmen einzeln zu bearbeiten sind.
+
+### Nachweisregister
+
+- 📋 Fünfter Report: alle Nachweise eines Zeitraums mit Prüfbogen, Aufgabe,
+  beiden Personen, Zeitpunkten, Anzahl Feststellungen und Prüfsumme. Der
+  Compliance-Report zeigt heute Durchführungen, nicht die Prüfvorgänge selbst.
+
+---
+
+## 1.9.0 – Nachweise belastbar aufbewahren 📋
+
+**Warum:** Die Anwendung verspricht Revisionssicherheit über Prüfsummen –
+prüft aber nie nach, ob die Dateien noch da sind und noch zusammenpassen. Ein
+stiller Verlust im Upload-Volume fällt heute erst auf, wenn jemand Jahre später
+einen Download versucht. Genau dann ist er nicht mehr zu heilen.
+
+- 📋 **Prüfsummenlauf** – regelmäßiger Abgleich aller Nachweise: Ist die Datei
+  vorhanden, stimmt der SHA-256 noch? Ergebnis als Bericht und, bei
+  Abweichung, als Nachricht an die Administration.
+- 📋 **Verwaiste Dateien erkennen** – Dateien im Volume ohne Eintrag in der
+  Datenbank und umgekehrt. Beides entsteht bei Abbrüchen und bleibt bislang
+  unbemerkt.
 - 📋 **Nachweis-Export als Archiv** – ein ZIP mit allen Nachweisen eines
-  Zeitraums plus Prüfsummenliste. Das ist es, was eine prüfende Person
+  Zeitraums samt Prüfsummenliste. Das ist es, was eine prüfende Person
   tatsächlich mitnehmen möchte.
-- 📋 **Aufbewahrungsfristen und Archivierung** – derzeit wächst der Bestand
-  unbegrenzt. Nötig sind definierte Fristen und ein Archivstatus statt einer
-  Löschung.
+- 📋 **Aufbewahrungsfristen und Archivierung** – der Bestand wächst unbegrenzt.
+  Nötig sind Fristen je Kategorie und ein Archivstatus statt einer Löschung.
+  Mit den Belegen aus 1.7.0 hat das eine zweite Seite: Ein AD-Export enthält
+  personenbezogene Daten und sollte nicht unbefristet liegen bleiben.
+- 📋 **Virenprüfung hochgeladener Dateien** – Belege werden von anderen Personen
+  wieder heruntergeladen. Eine Prüfung beim Hochladen (etwa gegen ClamAV im
+  Stack) verhindert, dass die Nachweisablage zum Verteilweg wird.
+- 📋 **Passkey-Pflicht je Rolle** – für Administratoren erzwingbar
+  (offener Punkt aus 1.4.0).
 - 💡 **Signierte Nachweise** – Zeitstempel oder Signatur über die Prüfsumme,
   damit die Unverändertheit auch ohne Vertrauen in die Datenbank belegbar ist.
 
-### Alltagstauglichkeit
+---
 
+## 1.10.0 – Alltagstauglichkeit 📋
+
+**Warum:** Bis hierher ging es um Vollständigkeit und Belastbarkeit. Diese
+Fassung senkt den Aufwand im laufenden Betrieb.
+
+- 📋 **Vertretung** – je Aufgabe oder je Person eine vertretende Person.
+  Fällt jemand länger aus, laufen die Fälligkeiten heute schlicht über.
+- 📋 **Belege aus der Zwischenablage** – Screenshot einfügen, statt ihn erst
+  als Datei zu speichern. Seit 1.7.0 ist der Screenshot der häufigste Beleg,
+  und der Umweg über den Explorer ist der lästigste Teil daran.
+- 📋 **Aufgabenvorlagen und Duplizieren** – wiederkehrende Muster einmal
+  definieren und für mehrere Systeme ausrollen (offener Punkt aus 1.3.0,
+  ergänzt den Import).
 - 📋 **Kalender-Abonnement (iCal)** – ein `.ics`-Feed je Person, den Outlook
-  abonniert; Fälligkeiten erscheinen direkt im gewohnten Kalender.
-- 📋 **Aufgabenvorlagen** – wiederkehrende Muster einmal definieren und für
-  mehrere Systeme ausrollen (ergänzt den Import aus 1.3.0).
+  abonniert; Fälligkeiten erscheinen im gewohnten Kalender.
 - 💡 **Wartungsfenster und Feiertage** – Fälligkeiten, die auf einen Feiertag
   oder in eine Betriebsruhe fallen, automatisch verschieben.
-- 💡 **Anhänge direkt aus der Zwischenablage** – Screenshots einfügen, statt
-  sie erst als Datei zu speichern.
 - 💡 **Mobile Ansicht für die Durchführung** – Prüfungen im Serverraum am
   Telefon abhaken.
+- ⏳ **SVG-Logo im PDF-Kopf** – heute betten die Reports nur PNG und JPG ein
+  (offener Punkt aus 1.5.0).
 
-### Technik und Betrieb
+---
 
-- 📋 **End-to-End-Tests mit Playwright** – der Erledigen-Vorgang samt
-  Datei-Upload ist bislang nicht automatisiert geprüft. Das ist die größte
-  verbleibende Testlücke.
-- 📋 **CI-Pipeline in GitLab** – Typprüfung, Tests, Build und Image bei jedem
-  Commit; ein Tag erzeugt eine Fassung.
+## Technik und Betrieb
+
+- 📋 **End-to-End-Tests mit Playwright** – *die dringendste Maßnahme dieser
+  Liste.* Beide Fehler, die in 1.6.0 auffielen, lagen zwischen Oberfläche und
+  Server: Der Prüfbogen meldete sich als vollständig, während der Server einen
+  leeren Stand bewertete, und der PDF-Nachweis entstand im Regelfall gar nicht.
+  Beides bestand jede Typprüfung und jeden Unit-Test. Diese Klasse von Fehlern
+  findet nur ein Test, der die Anwendung tatsächlich bedient.
+- 📋 **CI-Pipeline in GitLab** – Typprüfung, Unit-Tests, Integrationstests,
+  Build und Image bei jedem Commit; ein Tag erzeugt eine Fassung.
+- 📋 **Wiederherstellungstest der Anwendung selbst** – `backup.sh` schreibt
+  Sicherungen, ob sie sich einspielen lassen, ist nie geprüft worden. Für ein
+  Werkzeug, das Restore-Tests verwaltet, eine unangenehme Lücke.
 - 💡 **Strukturiertes Logging und Metrik-Endpunkt** – Anbindung an die
   vorhandene Überwachung.
-- 💡 **Mehrsprachigkeit** – die Oberfläche ist derzeit bewusst einsprachig
-  deutsch. Eine englische Fassung wäre für externe Prüfende hilfreich.
+- 💡 **Mehrsprachigkeit** – die Oberfläche ist bewusst einsprachig deutsch.
+  Eine englische Fassung wäre für externe Prüfende hilfreich.
 
 ---
 
