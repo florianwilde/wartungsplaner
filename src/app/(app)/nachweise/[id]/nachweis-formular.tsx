@@ -133,11 +133,41 @@ export function NachweisFormular({
       ),
     )
 
+  /** Bringt die Eingaben der Oberfläche in die Form der Server-Aktion. */
+  const alsFormular = () => {
+    const formular = new FormData()
+    formular.set(
+      'antworten',
+      JSON.stringify(
+        punkte.map((p) => ({
+          punktId: p.id,
+          ergebnis: p.ergebnis,
+          wert: p.wert,
+          bemerkung: p.bemerkung,
+        })),
+      ),
+    )
+    formular.set('bemerkung', bemerkung)
+    return formular
+  }
+
   const loeseUebergangAus = (
     uebergang: 'vorlegen' | 'gegenzeichnen' | 'zurueckweisen' | 'abschliessen',
     begruendung: string | null = null,
   ) =>
     starteUebergang(async () => {
+      // Vorlegen und Abschließen prüfen serverseitig die Pflichtangaben. Was
+      // gerade eingetippt wurde, steht aber nur im Browser – ohne vorheriges
+      // Speichern würde der Server einen veralteten Stand bewerten und den
+      // Vorgang mit „Pflichtangaben fehlen“ ablehnen, obwohl alles ausgefüllt ist.
+      if (aenderbar && (uebergang === 'vorlegen' || uebergang === 'abschliessen')) {
+        const gespeichert = await nachweisSpeichern(nachweisId, {}, alsFormular())
+        if (gespeichert.fehler) {
+          toast.error(gespeichert.fehler)
+          return
+        }
+      }
+
       const ergebnis = await nachweisUebergang(nachweisId, uebergang, begruendung)
       if (ergebnis.fehler) toast.error(ergebnis.fehler)
       else {

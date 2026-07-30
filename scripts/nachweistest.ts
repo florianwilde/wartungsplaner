@@ -365,6 +365,82 @@ async function main() {
     'Die Gegenzeichnung ist der zweiten Person zugeordnet',
   )
 
+  // --- Ohne Vier-Augen-Prinzip: abschließen in einem Zug ------------------
+  const soloAufgabe = await prisma.task.create({
+    data: {
+      title: `${PRAEFIX}Firewall-Regel-Review`,
+      categoryId: kategorie.id,
+      ownerId: erfasser.id,
+      intervalType: 'QUARTERLY',
+      scheduleMode: 'FIXED',
+      startDate: heute,
+      graceDays: 0,
+      active: true,
+    },
+  })
+  const soloFaelligkeit = await prisma.occurrence.create({
+    data: { taskId: soloAufgabe.id, dueDate: addDays(heute, 5), status: 'OPEN' },
+  })
+  const soloVorlage = await prisma.pruefbogenVorlage.create({
+    data: {
+      name: `${PRAEFIX}Regelprüfung ohne Gegenzeichnung`,
+      taskId: soloAufgabe.id,
+      vierAugen: false,
+      aktiv: true,
+      punkte: {
+        create: [
+          {
+            position: 1,
+            frage: 'Sind alle Regeln noch begründet?',
+            art: 'BEWERTUNG',
+            pflicht: true,
+          },
+        ],
+      },
+    },
+    include: { punkte: true },
+  })
+
+  const soloId = await starteNachweis(
+    soloFaelligkeit.id,
+    soloVorlage.id,
+    erfasser.id,
+  )
+
+  // Genau der Fall aus der Oberfläche: Die Antwort steht noch im Browser,
+  // der Server kennt sie nicht. Erst speichern, dann abschließen.
+  await erwarteFehler(
+    () => fuehreUebergangAus(soloId, 'abschliessen', erfasser.id, null),
+    'Pflicht',
+    'Abschließen ohne gespeicherte Antworten wird abgelehnt',
+  )
+
+  await speichereAntworten(soloId, erfasser.id, null, [
+    {
+      punktId: soloVorlage.punkte[0].id,
+      ergebnis: 'ERFUELLT',
+      wert: null,
+      bemerkung: null,
+    },
+  ])
+  const solo = await fuehreUebergangAus(soloId, 'abschliessen', erfasser.id, null)
+  pruefe(
+    solo.neuerStatus === 'GEGENGEZEICHNET',
+    'Ohne Vier-Augen-Prinzip schließt die erfassende Person selbst ab',
+  )
+  pruefe(
+    solo.attachmentId !== null,
+    'Auch dabei entsteht der PDF-Nachweis an der Durchführung',
+  )
+  const soloErledigt = await prisma.occurrence.findUnique({
+    where: { id: soloFaelligkeit.id },
+    include: { execution: { select: { result: true } } },
+  })
+  pruefe(
+    soloErledigt?.status === 'DONE' && soloErledigt.execution?.result === 'OK',
+    'Ohne Feststellung lautet das Ergebnis „in Ordnung“',
+  )
+
   // ---------------------------------------------------------------------
   await raeumeAuf()
 

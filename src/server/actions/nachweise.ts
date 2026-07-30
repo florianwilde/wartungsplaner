@@ -308,7 +308,7 @@ export async function nachweisUebergang(
 
     const hinweis =
       ergebnis.neuerStatus === 'GEGENGEZEICHNET' && !ergebnis.attachmentId
-        ? ' Hinweis: Das PDF entsteht, sobald die Fälligkeit erledigt ist.'
+        ? ' Hinweis: Das PDF konnte nicht hinterlegt werden – bitte den Anhang an der Durchführung prüfen.'
         : ''
 
     revalidatePath('/nachweise')
