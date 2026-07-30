@@ -43,6 +43,18 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
   - Geprüft wird schon im Browser nach denselben Regeln wie auf dem Server –
     ein nicht zugelassener Inhalt wird gar nicht erst übernommen.
   - Verfügbar an den Belegen des Prüfbogens und im Erledigen-Dialog.
+- **Aufgaben duplizieren und ausrollen** – der offene Punkt aus 1.3.0. Zehn
+  Restore-Tests für zehn Systeme unterscheiden sich meist nur im Titel; der
+  Import konnte das, war für drei Aufgaben aber zu umständlich.
+  - **Ein Titel je Zeile** legt mehrere Aufgaben auf einmal an, mit allen
+    Einstellungen der Vorlage samt Prüfanleitung und Audit-Referenzen.
+    Höchstens 25 auf einmal – darüber ist der Import das richtige Werkzeug.
+  - **Die Vergangenheit kommt nicht mit.** Fälligkeiten, Durchführungen und
+    Nachweise bleiben bei der Vorlage; eine Kopie beginnt bei null. Eine
+    erfundene Historie stünde sonst in jedem Bericht.
+  - **Prüfbögen wahlweise mitkopieren**: Jede Kopie bekommt einen eigenen Bogen
+    mit denselben Prüfpunkten, benannt nach seiner Aufgabe.
+  - Ohne „sofort aktiv“ entsteht die Aufgabe still, ohne erste Fälligkeit.
 
 ---
 

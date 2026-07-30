@@ -33,6 +33,7 @@ import {
 } from '@/lib/scheduling'
 import { erforderlicherBenutzer } from '@/lib/session'
 import { ladeNachweisStand, ladeVerfuegbareVorlagen } from '@/server/nachweise'
+import { DuplizierenDialog } from './duplizieren-dialog'
 import { NachweisStarten } from './nachweis-starten'
 import {
   AktivierungSchalter,
@@ -135,6 +136,14 @@ export default async function AufgabenDetailSeite({
           darfVerwalten ? (
             <>
               <AktivierungSchalter taskId={aufgabe.id} aktiv={aufgabe.active} />
+              <DuplizierenDialog
+                taskId={aufgabe.id}
+                titel={aufgabe.title}
+                heute={toISODate(heute)}
+                anzahlBoegen={
+                  pruefboegen.filter((bogen) => bogen.taskId === aufgabe.id).length
+                }
+              />
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/tasks/${aufgabe.id}/bearbeiten`}>
                   <Pencil className="size-4" />

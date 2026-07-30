@@ -100,8 +100,44 @@ neuen Fälligkeiten.
 Wird sie später wieder aktiviert und hat keine offene Fälligkeit, entsteht
 sofort wieder eine.
 
-## Viele Aufgaben auf einmal
+## Eine Aufgabe duplizieren
 
-Zehn Restore-Tests für zehn Systeme legt niemand gern einzeln an. Dafür gibt
-es [Import und Export](import-und-export.md): Vorlage herunterladen, in
-Excel ausfüllen, mit Vorschau einspielen.
+Auf der Seite einer Aufgabe legt **Duplizieren** eine Kopie mit allen
+Einstellungen an: Kategorie, Zuständigkeit, Intervall, Vorlauf, Karenz,
+Kritikalität, Nachweispflicht, Beschreibung, Prüfanleitung und
+Audit-Referenzen.
+
+**Nicht mit kommt die Vergangenheit.** Fälligkeiten, Durchführungen und
+Nachweise bleiben bei der Vorlage; die Kopie beginnt bei null. Eine erfundene
+Historie stünde sonst in jedem Bericht.
+
+Im Dialog geben Sie an:
+
+| Feld | Bedeutung |
+| --- | --- |
+| **Titel** | Ein Titel je Zeile – so entstehen mehrere Aufgaben auf einmal |
+| **Erste Fälligkeit am** | Das Startdatum der Vorlage liegt meist in der Vergangenheit |
+| **Prüfbögen mitkopieren** | Jede Kopie bekommt einen eigenen Bogen mit denselben Prüfpunkten |
+| **Sofort aktiv** | Ohne Haken entsteht die Aufgabe still und lässt sich vorher nacharbeiten |
+
+### Für mehrere Systeme ausrollen
+
+Genau dafür ist das Titelfeld mehrzeilig. Aus
+
+```
+Restore-Test DC01
+Restore-Test DC02
+Restore-Test DC03
+```
+
+entstehen drei Aufgaben mit identischen Einstellungen. Leerzeilen und
+Doppelte werden übergangen; höchstens 25 auf einmal.
+
+Werden die Prüfbögen mitkopiert, trägt jeder den Namen seiner Aufgabe – sonst
+stünden in der Verwaltung zehn gleich benannte Bögen nebeneinander.
+
+## Noch mehr Aufgaben auf einmal
+
+Für größere Bestände – oder wenn sich die Aufgaben in mehr als dem Titel
+unterscheiden – gibt es [Import und Export](import-und-export.md): Vorlage
+herunterladen, in Excel ausfüllen, mit Vorschau einspielen.

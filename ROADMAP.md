@@ -69,8 +69,8 @@ Fachbereichen außerhalb der Anwendung.
   statt einen halben Bestand zu hinterlassen
 - Jeder Import erzeugt Audit-Einträge mit Anzahl und Art der Änderungen
 - Vorlagendateien zum Herunterladen, damit das erwartete Format klar ist
-- ⏳ Aufgaben zusätzlich duplizieren können (Vorlage → neue Aufgabe) – offen,
-  eingeplant für 1.10.0
+- ✅ Aufgaben zusätzlich duplizieren können (Vorlage → neue Aufgabe) –
+  umgesetzt in 1.10.0
 
 ---
 
@@ -302,9 +302,12 @@ Fassung senkt den Aufwand im laufenden Betrieb.
   und der Umweg über den Explorer war der lästigste Teil daran. Zusätzlich
   lassen sich Dateien in den Bereich ziehen; eingefügte Bilder erhalten einen
   Namen mit Zeitpunkt.
-- 📋 **Aufgabenvorlagen und Duplizieren** – wiederkehrende Muster einmal
+- ✅ **Aufgaben duplizieren und ausrollen** – wiederkehrende Muster einmal
   definieren und für mehrere Systeme ausrollen (offener Punkt aus 1.3.0,
-  ergänzt den Import).
+  ergänzt den Import). Ein Titel je Zeile legt mehrere Aufgaben an; die
+  Vergangenheit der Vorlage kommt bewusst nicht mit. Eigene
+  „Aufgabenvorlagen“ als Stammdaten braucht es dafür nicht – jede bestehende
+  Aufgabe ist die Vorlage.
 - 📋 **Kalender-Abonnement (iCal)** – ein `.ics`-Feed je Person, den Outlook
   abonniert; Fälligkeiten erscheinen im gewohnten Kalender.
 - 💡 **Wartungsfenster und Feiertage** – Fälligkeiten, die auf einen Feiertag

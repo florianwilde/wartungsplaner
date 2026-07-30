@@ -19,7 +19,8 @@
     "test:integritaet": "tsx scripts/integritaetstest.ts",
     "test:aufbewahrung": "tsx scripts/aufbewahrungstest.ts",
     "test:viren": "tsx scripts/virentest.ts",
-    "test:vertretung": "tsx scripts/vertretungstest.ts"
+    "test:vertretung": "tsx scripts/vertretungstest.ts",
+    "test:duplizieren": "tsx scripts/duplizierungstest.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

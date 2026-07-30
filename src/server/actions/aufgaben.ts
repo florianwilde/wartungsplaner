@@ -5,12 +5,24 @@ import { z } from 'zod'
 
 import { schreibeAudit } from '@/lib/audit'
 import { parseISODate } from '@/lib/dates'
+import { leseTitel } from '@/lib/duplizieren'
 import { prisma } from '@/lib/prisma'
 import { canManageTasks } from '@/lib/rbac'
 import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
+import {
+  dupliziereAufgabe,
+  type DuplizierErgebnis,
+} from '@/server/duplizieren'
 import { erzeugeErsteFaelligkeit } from '@/server/faelligkeiten'
 
 export type AktionsStatus = { fehler?: string; erfolg?: string }
+
+/** Ergebnis des Duplizierens: wie viele Aufgaben entstanden sind. */
+export type DuplizierStatus = {
+  fehler?: string
+  anzahl?: number
+  ersteId?: string
+}
 
 const aufgabenSchema = z
   .object({
@@ -159,6 +171,56 @@ export async function aufgabeAnlegen(
   revalidatePath('/tasks')
   revalidatePath('/')
   return { erfolg: neueId }
+}
+
+/**
+ * Dupliziert eine Aufgabe – wahlweise mehrfach für verschiedene Systeme.
+ *
+ * Zehn Restore-Tests für zehn Systeme unterscheiden sich oft nur im Titel.
+ * Der Import kann das, ist für drei Aufgaben aber zu umständlich.
+ *
+ * Übernommen wird alles außer der Vergangenheit: Fälligkeiten,
+ * Durchführungen und Nachweise der Vorlage bleiben, wo sie sind. Eine Kopie
+ * beginnt bei null.
+ */
+export async function aufgabeDuplizieren(
+  taskId: string,
+  _status: DuplizierStatus,
+  formData: FormData,
+): Promise<DuplizierStatus> {
+  let ergebnis: DuplizierErgebnis
+  try {
+    const benutzer = await benutzerFuerAktion(canManageTasks)
+
+    const gelesen = leseTitel(String(formData.get('titel') ?? ''))
+    if (!gelesen.ok) return { fehler: gelesen.fehler }
+
+    let startDate: Date
+    try {
+      startDate = parseISODate(String(formData.get('startDate') ?? '').trim())
+    } catch {
+      return { fehler: 'Das Startdatum ist ungültig.' }
+    }
+
+    ergebnis = await dupliziereAufgabe(
+      taskId,
+      {
+        titel: gelesen.titel,
+        startDate,
+        mitBoegen: formData.get('mitBoegen') === 'on',
+        aktiv: formData.get('aktiv') !== 'off',
+      },
+      benutzer.id,
+    )
+  } catch (error) {
+    return { fehler: fehlertext(error) }
+  }
+
+  revalidatePath('/tasks')
+  revalidatePath('/')
+  revalidatePath('/admin/pruefboegen')
+
+  return { anzahl: ergebnis.ids.length, ersteId: ergebnis.ids[0] }
 }
 
 /**
