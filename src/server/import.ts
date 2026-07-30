@@ -200,7 +200,6 @@ export async function schreibeAufgaben(
         graceDays: daten.graceDays,
         evidenceRequired: daten.evidenceRequired,
         criticality: daten.criticality as Prisma.TaskCreateInput['criticality'],
-        auditReference: daten.auditReference,
         active: daten.active,
       }
 
@@ -209,8 +208,20 @@ export async function schreibeAufgaben(
         select: { id: true, active: true },
       })
 
+      const referenzIds = await loeseReferenzenAuf(tx, daten.auditReferenzen)
+
       if (vorhanden) {
-        await tx.task.update({ where: { id: vorhanden.id }, data: gemeinsam })
+        await tx.task.update({
+          where: { id: vorhanden.id },
+          data: {
+            ...gemeinsam,
+            // Die Datei gibt den vollständigen Stand vor.
+            auditReferenzen: {
+              deleteMany: {},
+              create: referenzIds.map((referenzId) => ({ referenzId })),
+            },
+          },
+        })
 
         // Wird eine zuvor deaktivierte Aufgabe wieder aktiviert und hat keine
         // unerledigte Fälligkeit, entsteht sofort wieder eine.
@@ -233,7 +244,14 @@ export async function schreibeAufgaben(
 
         ergebnis.aktualisiert++
       } else {
-        const neu = await tx.task.create({ data: gemeinsam })
+        const neu = await tx.task.create({
+          data: {
+            ...gemeinsam,
+            auditReferenzen: {
+              create: referenzIds.map((referenzId) => ({ referenzId })),
+            },
+          },
+        })
         if (neu.active) {
           await erzeugeErsteFaelligkeit(tx, neu.id, gemeinsam.startDate, benutzerId)
         }
@@ -254,4 +272,64 @@ export async function schreibeAufgaben(
   })
 
   return ergebnis
+}
+
+/**
+ * Löst die Anzeigenamen aus der Datei in Audit-Referenzen auf.
+ *
+ * Unbekannte Referenzen werden angelegt statt abgewiesen: Ein Import soll
+ * einen Bestand aus einer anderen Installation übernehmen können, ohne dass
+ * vorher jede Anforderung von Hand nachgepflegt werden muss. Die Aufteilung
+ * in Rahmenwerk und Kurzzeichen folgt dem Anzeigenamen; steht dort nur ein
+ * Kurzzeichen, bleibt das Rahmenwerk leer und lässt sich nachtragen.
+ */
+async function loeseReferenzenAuf(
+  tx: Prisma.TransactionClient,
+  liste: string,
+): Promise<string[]> {
+  const namen = [
+    ...new Set(
+      liste.split(',').map((eintrag) => eintrag.trim()).filter(Boolean),
+    ),
+  ]
+  if (namen.length === 0) return []
+
+  const ids: string[] = []
+  for (const name of namen) {
+    const { rahmenwerk, kuerzel } = zerlegeAnzeigenamen(name)
+
+    const vorhanden = await tx.auditReferenz.findFirst({
+      where: { rahmenwerk, kuerzel },
+      select: { id: true },
+    })
+    if (vorhanden) {
+      ids.push(vorhanden.id)
+      continue
+    }
+
+    const erstellt = await tx.auditReferenz.create({
+      data: { rahmenwerk, kuerzel, bezeichnung: kuerzel },
+      select: { id: true },
+    })
+    ids.push(erstellt.id)
+  }
+  return ids
+}
+
+/**
+ * Trennt „ISO 27001 A.8.13“ in Rahmenwerk und Kurzzeichen.
+ *
+ * Der letzte Bestandteil gilt als Kurzzeichen – das trifft die gängige
+ * Schreibweise. Steht dort nur ein Wort, gibt es kein Rahmenwerk.
+ */
+function zerlegeAnzeigenamen(name: string): {
+  rahmenwerk: string | null
+  kuerzel: string
+} {
+  const teile = name.split(/\s+/).filter(Boolean)
+  if (teile.length < 2) return { rahmenwerk: null, kuerzel: name }
+  return {
+    rahmenwerk: teile.slice(0, -1).join(' '),
+    kuerzel: teile.at(-1)!,
+  }
 }

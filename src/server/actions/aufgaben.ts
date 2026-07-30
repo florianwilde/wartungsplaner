@@ -35,7 +35,7 @@ const aufgabenSchema = z
     graceDays: z.number().int().min(0).max(365),
     evidenceRequired: z.boolean(),
     criticality: z.enum(['LOW', 'MEDIUM', 'HIGH']),
-    auditReference: z.string().trim().max(200).optional().or(z.literal('')),
+    auditReferenzen: z.string().trim().max(2000).optional().or(z.literal('')),
     active: z.boolean(),
   })
   .refine(
@@ -74,7 +74,7 @@ function leseFormular(formData: FormData) {
     graceDays: zahl('graceDays', 0),
     evidenceRequired: formData.get('evidenceRequired') === 'on',
     criticality: String(formData.get('criticality') ?? 'MEDIUM'),
-    auditReference: String(formData.get('auditReference') ?? ''),
+    auditReferenzen: String(formData.get('auditReferenzen') ?? ''),
     active: formData.get('active') !== 'off',
   }
 }
@@ -101,6 +101,7 @@ export async function aufgabeAnlegen(
     }
 
     await pruefeStammdaten(daten.categoryId, daten.ownerId)
+    const referenzIds = await pruefeReferenzen(daten.auditReferenzen ?? '')
 
     const aufgabe = await prisma.$transaction(async (tx) => {
       const erstellt = await tx.task.create({
@@ -118,8 +119,10 @@ export async function aufgabeAnlegen(
           graceDays: daten.graceDays,
           evidenceRequired: daten.evidenceRequired,
           criticality: daten.criticality,
-          auditReference: daten.auditReference || null,
           active: daten.active,
+          auditReferenzen: {
+            create: referenzIds.map((referenzId) => ({ referenzId })),
+          },
         },
       })
 
@@ -186,6 +189,7 @@ export async function aufgabeAendern(
     if (!vorher) return { fehler: 'Die Aufgabe wurde nicht gefunden.' }
 
     await pruefeStammdaten(daten.categoryId, daten.ownerId)
+    const referenzIds = await pruefeReferenzen(daten.auditReferenzen ?? '')
 
     await prisma.$transaction(async (tx) => {
       const aktualisiert = await tx.task.update({
@@ -204,8 +208,13 @@ export async function aufgabeAendern(
           graceDays: daten.graceDays,
           evidenceRequired: daten.evidenceRequired,
           criticality: daten.criticality,
-          auditReference: daten.auditReference || null,
           active: daten.active,
+          // Ersetzen statt abgleichen: Die Auswahl im Formular ist der
+          // vollstaendige gewuenschte Stand.
+          auditReferenzen: {
+            deleteMany: {},
+            create: referenzIds.map((referenzId) => ({ referenzId })),
+          },
         },
       })
 
@@ -386,6 +395,31 @@ export async function aussetzungAufheben(
 }
 
 // --- Hilfsfunktionen -------------------------------------------------------
+
+/**
+ * Prüft die gewählten Audit-Referenzen und liefert die gültigen Kennungen.
+ *
+ * Unbekannte Kennungen werden abgewiesen statt stillschweigend verworfen:
+ * Eine Zuordnung, die niemand mitbekommt, wäre schlimmer als eine
+ * Fehlermeldung.
+ */
+async function pruefeReferenzen(roh: string): Promise<string[]> {
+  const ids = [
+    ...new Set(roh.split(',').map((eintrag) => eintrag.trim()).filter(Boolean)),
+  ]
+  if (ids.length === 0) return []
+
+  const gefunden = await prisma.auditReferenz.findMany({
+    where: { id: { in: ids } },
+    select: { id: true },
+  })
+  if (gefunden.length !== ids.length) {
+    throw new Error(
+      'Mindestens eine gewählte Audit-Referenz existiert nicht mehr. Bitte die Seite neu laden.',
+    )
+  }
+  return ids
+}
 
 async function pruefeStammdaten(categoryId: string, ownerId: string) {
   const [kategorie, besitzer] = await Promise.all([

@@ -177,7 +177,8 @@ export type AufgabeDaten = {
   graceDays: number
   evidenceRequired: boolean
   criticality: string
-  auditReference: string | null
+  /** Anzeigenamen der zugeordneten Referenzen, mit Komma getrennt */
+  auditReferenzen: string
   active: boolean
 }
 
@@ -194,7 +195,7 @@ export const AUFGABE_SPALTEN = [
   'karenztage',
   'nachweispflicht',
   'kritikalitaet',
-  'auditreferenz',
+  'auditreferenzen',
   'aktiv',
   'pruefanleitung',
 ] as const
@@ -223,7 +224,7 @@ export type AufgabenBestand = {
   graceDays: number
   evidenceRequired: boolean
   criticality: string
-  auditReference: string | null
+  auditReferenzen: string
   active: boolean
   description: string | null
   instructionsMd: string | null
@@ -355,7 +356,9 @@ export function pruefeAufgaben(
       graceDays: karenz,
       evidenceRequired: leseJaNein(zeile.nachweispflicht ?? '', false),
       criticality: kritikalitaet,
-      auditReference: (zeile.auditreferenz ?? '').trim() || null,
+      auditReferenzen: normalisiereReferenzliste(
+        zeile.auditreferenzen ?? zeile.auditreferenz ?? '',
+      ),
       active: leseJaNein(zeile.aktiv ?? '', true),
     }
 
@@ -400,7 +403,7 @@ function vergleicheAufgabe(alt: AufgabenBestand, neu: AufgabeDaten): string[] {
   pruefe('Karenz', alt.graceDays, neu.graceDays)
   pruefe('Nachweispflicht', alt.evidenceRequired, neu.evidenceRequired)
   pruefe('Kritikalität', alt.criticality, neu.criticality)
-  pruefe('Audit-Referenz', alt.auditReference, neu.auditReference)
+  pruefe('Audit-Referenzen', alt.auditReferenzen, neu.auditReferenzen)
   pruefe('Aktiv', alt.active, neu.active)
   pruefe('Beschreibung', alt.description, neu.description)
   pruefe('Prüfanleitung', alt.instructionsMd, neu.instructionsMd)
@@ -581,4 +584,23 @@ export function fasseVorschauZusammen(vorschau: VorschauKennzahlen): string {
     `${vorschau.anlegen} anlegen, ${vorschau.aktualisieren} aktualisieren, ` +
     `${vorschau.unveraendert} unverändert.`
   )
+}
+
+/**
+ * Bringt eine Liste von Audit-Referenzen in eine vergleichbare Form.
+ *
+ * Reihenfolge und Leerraum sollen keinen Unterschied machen: Sonst meldete
+ * der Abgleich eine Änderung, wo inhaltlich keine ist.
+ */
+export function normalisiereReferenzliste(wert: string): string {
+  return [
+    ...new Set(
+      wert
+        .split(',')
+        .map((eintrag) => eintrag.replace(/\s+/g, ' ').trim())
+        .filter(Boolean),
+    ),
+  ]
+    .sort((a, b) => a.localeCompare(b, 'de'))
+    .join(', ')
 }

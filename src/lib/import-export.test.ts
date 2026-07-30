@@ -126,7 +126,7 @@ const BESTAND_AUFGABEN: AufgabenBestand[] = [
     graceDays: 7,
     evidenceRequired: true,
     criticality: 'HIGH',
-    auditReference: 'ISO 27001 A.8.13',
+    auditReferenzen: 'ISO 27001 A.8.13',
     active: true,
     description: null,
     instructionsMd: null,

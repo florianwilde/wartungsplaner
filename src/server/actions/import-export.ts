@@ -9,6 +9,7 @@ import {
   MAX_ZEILEN,
   darfGeschriebenWerden,
   fasseVorschauZusammen,
+  normalisiereReferenzliste,
   pruefeAufgaben,
   pruefeBenutzer,
   pruefeKategorien,
@@ -19,6 +20,7 @@ import {
   type ImportFehler,
   type ImportVorschau,
 } from '@/lib/import-export'
+import { anzeigeName } from '@/lib/audit-referenzen'
 import { prisma } from '@/lib/prisma'
 import { canAdminister } from '@/lib/rbac'
 import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
@@ -106,6 +108,9 @@ async function pruefe(
       include: {
         category: { select: { name: true } },
         owner: { select: { email: true } },
+        auditReferenzen: {
+          select: { referenz: { select: { kuerzel: true, rahmenwerk: true } } },
+        },
       },
     }),
     prisma.category.findMany({ select: { name: true } }),
@@ -128,7 +133,9 @@ async function pruefe(
       graceDays: a.graceDays,
       evidenceRequired: a.evidenceRequired,
       criticality: a.criticality,
-      auditReference: a.auditReference,
+      auditReferenzen: normalisiereReferenzliste(
+        a.auditReferenzen.map((z) => anzeigeName(z.referenz)).join(','),
+      ),
       active: a.active,
       description: a.description,
       instructionsMd: a.instructionsMd,

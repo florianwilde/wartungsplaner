@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { SeitenKopf } from '@/components/seiten-kopf'
+import { sortiereReferenzen } from '@/lib/audit-referenzen'
 import { toISODate } from '@/lib/dates'
 import { prisma } from '@/lib/prisma'
 import { erforderlicheRolle } from '@/lib/session'
@@ -19,8 +20,11 @@ export default async function AufgabeBearbeitenSeite({
   await erforderlicheRolle('ADMIN')
   const { id } = await params
 
-  const [aufgabe, kategorien, personen] = await Promise.all([
-    prisma.task.findUnique({ where: { id } }),
+  const [aufgabe, kategorien, personen, referenzen] = await Promise.all([
+    prisma.task.findUnique({
+      where: { id },
+      include: { auditReferenzen: { select: { referenzId: true } } },
+    }),
     prisma.category.findMany({
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
       select: { id: true, name: true },
@@ -29,6 +33,12 @@ export default async function AufgabeBearbeitenSeite({
       where: { active: true, role: { in: ['ADMIN', 'EDITOR'] } },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
+    }),
+    // Ausgemusterte Referenzen bleiben zugeordnet, werden aber nicht mehr
+    // zur Neuvergabe angeboten.
+    prisma.auditReferenz.findMany({
+      where: { aktiv: true },
+      select: { id: true, kuerzel: true, bezeichnung: true, rahmenwerk: true },
     }),
   ])
 
@@ -63,6 +73,7 @@ export default async function AufgabeBearbeitenSeite({
         abbrechenHref={`/tasks/${aufgabe.id}`}
         kategorien={kategorien}
         personen={personenMitBisherigem}
+        referenzen={sortiereReferenzen(referenzen)}
         werte={{
           title: aufgabe.title,
           description: aufgabe.description ?? '',
@@ -77,7 +88,7 @@ export default async function AufgabeBearbeitenSeite({
           graceDays: aufgabe.graceDays,
           evidenceRequired: aufgabe.evidenceRequired,
           criticality: aufgabe.criticality,
-          auditReference: aufgabe.auditReference ?? '',
+          auditReferenzIds: aufgabe.auditReferenzen.map((z) => z.referenzId),
           active: aufgabe.active,
         }}
       />

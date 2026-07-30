@@ -13,6 +13,7 @@ import {
   KATEGORIE_SPALTEN,
   type ImportArt,
 } from '@/lib/import-export'
+import { anzeigeName } from '@/lib/audit-referenzen'
 import { prisma } from '@/lib/prisma'
 
 export const SPALTEN: Record<ImportArt, readonly string[]> = {
@@ -39,6 +40,9 @@ export async function ladeAufgabenZeilen(): Promise<CsvZeile[]> {
     include: {
       category: { select: { name: true } },
       owner: { select: { email: true } },
+      auditReferenzen: {
+        select: { referenz: { select: { kuerzel: true, rahmenwerk: true } } },
+      },
     },
   })
 
@@ -55,7 +59,10 @@ export async function ladeAufgabenZeilen(): Promise<CsvZeile[]> {
     karenztage: String(a.graceDays),
     nachweispflicht: jaNein(a.evidenceRequired),
     kritikalitaet: a.criticality,
-    auditreferenz: a.auditReference ?? '',
+    auditreferenzen: a.auditReferenzen
+      .map((zuordnung) => anzeigeName(zuordnung.referenz))
+      .sort((x, y) => x.localeCompare(y, 'de'))
+      .join(', '),
     aktiv: jaNein(a.active),
     pruefanleitung: a.instructionsMd ?? '',
   }))
@@ -147,7 +154,7 @@ export function vorlageCsv(art: ImportArt): string {
       karenztage: '7',
       nachweispflicht: 'ja',
       kritikalitaet: 'HIGH',
-      auditreferenz: 'ISO 27001 A.8.13',
+      auditreferenzen: 'ISO 27001 A.8.13, ISO 27001 A.8.24',
       aktiv: 'ja',
       pruefanleitung: '## Durchführung\n1. Erster Schritt',
     },

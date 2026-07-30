@@ -24,6 +24,11 @@ import { formatDate, todayInBerlin } from '@/lib/dates'
 import { prisma } from '@/lib/prisma'
 import { canManageTasks } from '@/lib/rbac'
 import { bewerteAmpel, intervallText } from '@/lib/scheduling'
+import {
+  anzeigeName,
+  langName,
+  sortiereReferenzen,
+} from '@/lib/audit-referenzen'
 import { erforderlicherBenutzer } from '@/lib/session'
 import { FilterLeiste, type FilterFeld } from './filter-leiste'
 
@@ -36,6 +41,7 @@ type SuchParameter = {
   verantwortlich?: string
   status?: string
   kritikalitaet?: string
+  referenz?: string
 }
 
 export default async function AufgabenSeite({
@@ -63,7 +69,23 @@ export default async function AufgabenSeite({
       { title: { contains: suche, mode: 'insensitive' } },
       { description: { contains: suche, mode: 'insensitive' } },
       { auditReference: { contains: suche, mode: 'insensitive' } },
+      {
+        auditReferenzen: {
+          some: {
+            referenz: {
+              OR: [
+                { kuerzel: { contains: suche, mode: 'insensitive' } },
+                { bezeichnung: { contains: suche, mode: 'insensitive' } },
+                { rahmenwerk: { contains: suche, mode: 'insensitive' } },
+              ],
+            },
+          },
+        },
+      },
     ]
+  }
+  if (filter.referenz && filter.referenz !== 'alle') {
+    where.auditReferenzen = { some: { referenzId: filter.referenz } }
   }
   if (filter.kategorie && filter.kategorie !== 'alle') {
     where.categoryId = filter.kategorie
@@ -89,6 +111,14 @@ export default async function AufgabenSeite({
     include: {
       category: { select: { name: true, color: true } },
       owner: { select: { name: true } },
+      auditReferenzen: {
+        select: {
+          referenzId: true,
+          referenz: {
+            select: { kuerzel: true, bezeichnung: true, rahmenwerk: true },
+          },
+        },
+      },
       occurrences: {
         where: { status: { in: ['OPEN', 'OVERDUE', 'SUSPENDED'] } },
         orderBy: { dueDate: 'asc' },
@@ -97,6 +127,13 @@ export default async function AufgabenSeite({
       },
     },
   })
+
+  const referenzenMitAufgaben = sortiereReferenzen(
+    await prisma.auditReferenz.findMany({
+      where: { aufgaben: { some: {} } },
+      select: { id: true, kuerzel: true, rahmenwerk: true },
+    }),
+  )
 
   const filterFelder: FilterFeld[] = [
     {
@@ -126,6 +163,23 @@ export default async function AufgabenSeite({
         { wert: 'ueberfaellig', label: 'Mit überfälliger Fälligkeit' },
       ],
     },
+    // Nur Referenzen anbieten, denen tatsaechlich Aufgaben zugeordnet sind -
+    // ein Filter, der stets leer ausgeht, hilft niemandem.
+    ...(referenzenMitAufgaben.length > 0
+      ? [
+          {
+            name: 'referenz',
+            label: 'Audit-Referenz',
+            optionen: [
+              { wert: 'alle', label: 'Alle Referenzen' },
+              ...referenzenMitAufgaben.map((r) => ({
+                wert: r.id,
+                label: anzeigeName(r),
+              })),
+            ],
+          },
+        ]
+      : []),
     {
       name: 'kritikalitaet',
       label: 'Kritikalität',
@@ -194,11 +248,15 @@ export default async function AufgabenSeite({
                         {aufgabe.evidenceRequired ? (
                           <Badge variant="outline">Nachweis nötig</Badge>
                         ) : null}
-                        {aufgabe.auditReference ? (
-                          <span className="text-xs text-muted-foreground">
-                            {aufgabe.auditReference}
-                          </span>
-                        ) : null}
+                        {aufgabe.auditReferenzen.map((zuordnung) => (
+                          <Badge
+                            key={zuordnung.referenzId}
+                            variant="outline"
+                            title={langName(zuordnung.referenz)}
+                          >
+                            {zuordnung.referenz.kuerzel}
+                          </Badge>
+                        ))}
                       </div>
                     </TableCell>
                     <TableCell>

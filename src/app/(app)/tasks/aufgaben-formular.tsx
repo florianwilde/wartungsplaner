@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { nachRahmenwerk } from '@/lib/audit-referenzen'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -35,7 +36,8 @@ export type AufgabenFormularWerte = {
   graceDays: number
   evidenceRequired: boolean
   criticality: 'LOW' | 'MEDIUM' | 'HIGH'
-  auditReference: string
+  /** Kennungen der zugeordneten Audit-Referenzen */
+  auditReferenzIds: string[]
   active: boolean
 }
 
@@ -58,6 +60,7 @@ export function AufgabenFormular({
   werte,
   kategorien,
   personen,
+  referenzen,
   absendeLabel,
   /** Bei „Anlegen“ enthält `erfolg` die neue ID, sonst eine Meldung. */
   leitetZuDetailWeiter = false,
@@ -67,12 +70,22 @@ export function AufgabenFormular({
   werte: AufgabenFormularWerte
   kategorien: Auswahl[]
   personen: Auswahl[]
+  /** Auswählbare Audit-Referenzen, nur aktive. */
+  referenzen: {
+    id: string
+    kuerzel: string
+    bezeichnung: string
+    rahmenwerk: string | null
+  }[]
   absendeLabel: string
   leitetZuDetailWeiter?: boolean
   abbrechenHref: string
 }) {
   const router = useRouter()
   const [intervallTyp, setIntervallTyp] = useState<IntervallTyp>(werte.intervalType)
+  const [gewaehlteReferenzen, setGewaehlteReferenzen] = useState<string[]>(
+    werte.auditReferenzIds,
+  )
 
   const [status, formAction] = useActionState(
     async (vorher: AktionsStatus, formData: FormData) => {
@@ -178,14 +191,59 @@ export function AufgabenFormular({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="auditReference">Audit-Referenz (optional)</Label>
-            <Input
-              id="auditReference"
-              name="auditReference"
-              defaultValue={werte.auditReference}
-              maxLength={200}
-              placeholder="z. B. ISO 27001 A.8.13"
+            <Label>Audit-Referenzen (optional)</Label>
+            <input
+              type="hidden"
+              name="auditReferenzen"
+              value={gewaehlteReferenzen.join(',')}
             />
+
+            {referenzen.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Noch keine Audit-Referenzen hinterlegt. Sie werden unter
+                Administration → Audit-Referenzen gepflegt.
+              </p>
+            ) : (
+              <>
+                <div className="space-y-3 rounded-md border border-border p-3">
+                  {nachRahmenwerk(referenzen).map((gruppe) => (
+                    <div key={gruppe.rahmenwerk ?? 'ohne'} className="space-y-1.5">
+                      <p className="text-xs font-medium text-muted-foreground">
+                        {gruppe.rahmenwerk ?? 'Ohne Rahmenwerk'}
+                      </p>
+                      <div className="flex flex-wrap gap-x-4 gap-y-2">
+                        {gruppe.eintraege.map((referenz) => (
+                          <label
+                            key={referenz.id}
+                            className="flex items-start gap-2 text-sm"
+                            title={referenz.bezeichnung}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={gewaehlteReferenzen.includes(referenz.id)}
+                              onChange={(e) =>
+                                setGewaehlteReferenzen((bisher) =>
+                                  e.target.checked
+                                    ? [...bisher, referenz.id]
+                                    : bisher.filter((id) => id !== referenz.id),
+                                )
+                              }
+                              className="mt-0.5 size-4"
+                            />
+                            <span>{referenz.kuerzel}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Mehrfachauswahl möglich – eine Prüfung deckt oft mehrere
+                  Anforderungen ab. Listen und Auswertungen lassen sich danach
+                  filtern.
+                </p>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>

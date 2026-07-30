@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { anzeigeName, langName } from '@/lib/audit-referenzen'
 import { addDays, formatDate, formatDateTime, toISODate, todayInBerlin } from '@/lib/dates'
 import { formatiereDateigroesse } from '@/lib/labels'
 import { prisma } from '@/lib/prisma'
@@ -68,6 +69,14 @@ export default async function AufgabenDetailSeite({
     include: {
       category: true,
       owner: { select: { id: true, name: true, email: true } },
+      auditReferenzen: {
+        select: {
+          referenzId: true,
+          referenz: {
+            select: { kuerzel: true, bezeichnung: true, rahmenwerk: true },
+          },
+        },
+      },
       occurrences: {
         orderBy: { dueDate: 'desc' },
         include: {
@@ -142,9 +151,15 @@ export default async function AufgabenDetailSeite({
         {aufgabe.evidenceRequired ? (
           <Badge variant="outline">Nachweis verpflichtend</Badge>
         ) : null}
-        {aufgabe.auditReference ? (
-          <Badge variant="outline">{aufgabe.auditReference}</Badge>
-        ) : null}
+        {aufgabe.auditReferenzen.map((zuordnung) => (
+          <Badge
+            key={zuordnung.referenzId}
+            variant="outline"
+            title={langName(zuordnung.referenz)}
+          >
+            {anzeigeName(zuordnung.referenz)}
+          </Badge>
+        ))}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
