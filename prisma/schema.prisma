@@ -246,11 +246,14 @@ model Finding {
   status         FindingStatus @default(OPEN)
   closedAt       DateTime?
   closingComment String?
+  /// Prüfpunkt, aus dessen Feststellung diese Abweichung entstanden ist
+  punktId        String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
-  responsible User      @relation("FindingResponsible", fields: [responsibleId], references: [id], onDelete: Restrict)
+  execution   Execution        @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  responsible User             @relation("FindingResponsible", fields: [responsibleId], references: [id], onDelete: Restrict)
+  punkt       PruefbogenPunkt? @relation(fields: [punktId], references: [id], onDelete: SetNull)
 
   @@index([status])
   @@index([responsibleId])
@@ -367,6 +370,7 @@ model PruefbogenPunkt {
   vorlage  PruefbogenVorlage @relation(fields: [vorlageId], references: [id], onDelete: Cascade)
   antworten NachweisAntwort[]
   belege    Attachment[]
+  findings  Finding[]
 
   @@unique([vorlageId, position])
   @@index([vorlageId])

@@ -7,7 +7,7 @@ import { SeitenKopf } from '@/components/seiten-kopf'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatDate, formatDateTime } from '@/lib/dates'
+import { addDays, formatDate, formatDateTime, toISODate, todayInBerlin } from '@/lib/dates'
 import {
   STATUS_BEZEICHNUNG,
   istAenderbar,
@@ -15,9 +15,11 @@ import {
   type PruefpunktArt,
   type PruefpunktErgebnis,
 } from '@/lib/nachweise'
-import { canExecute } from '@/lib/rbac'
+import { prisma } from '@/lib/prisma'
+import { canExecute, canManageFindings } from '@/lib/rbac'
 import { erforderlicherBenutzer } from '@/lib/session'
-import { ladeNachweis } from '@/server/nachweise'
+import { ladeFeststellungen, ladeNachweis } from '@/server/nachweise'
+import { Feststellungen } from './feststellungen'
 import { NachweisFormular } from './nachweis-formular'
 
 export const metadata: Metadata = { title: 'Prüfnachweis' }
@@ -56,6 +58,19 @@ export default async function NachweisSeite({
     canExecute(benutzer.role) &&
     status === 'VORGELEGT' &&
     nachweis.erfasstById !== benutzer.id
+
+  // Feststellungen lassen sich erst nach dem Abschluss überführen: Vorher gibt
+  // es keine Durchführung, an der eine Abweichung hängen könnte.
+  const feststellungen =
+    status === 'GEGENGEZEICHNET' ? await ladeFeststellungen(nachweis.id) : []
+  const personen =
+    feststellungen.length > 0
+      ? await prisma.user.findMany({
+          where: { active: true },
+          select: { id: true, name: true },
+          orderBy: { name: 'asc' },
+        })
+      : []
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -132,6 +147,15 @@ export default async function NachweisSeite({
           Korrekturen erfolgen ausschließlich als neuer, protokollierter Vorgang.
         </p>
       ) : null}
+
+      <Feststellungen
+        nachweisId={nachweis.id}
+        pruefbogen={nachweis.vorlage.name}
+        feststellungen={feststellungen}
+        personen={personen}
+        vorschlagFrist={toISODate(addDays(todayInBerlin(), 30))}
+        darfAnlegen={canManageFindings(benutzer.role)}
+      />
 
       <NachweisFormular
         nachweisId={nachweis.id}

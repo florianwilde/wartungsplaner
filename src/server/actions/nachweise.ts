@@ -1,15 +1,18 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 
 import { schreibeAudit } from '@/lib/audit'
 import { saeubereFrage, type PruefpunktErgebnis } from '@/lib/nachweise'
 import { prisma } from '@/lib/prisma'
-import { canAdminister, canExecute } from '@/lib/rbac'
+import { parseISODate } from '@/lib/dates'
+import { canAdminister, canExecute, canManageFindings } from '@/lib/rbac'
 import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
 import {
   NachweisFehler,
   entferneBeleg,
+  erzeugeAbweichungAusFeststellung,
   fuegeBelegeHinzu,
   fuehreUebergangAus,
   ladeNachweis,
@@ -24,6 +27,15 @@ export type NachweisStatusRueckmeldung = {
   /** Kennung eines neu angelegten Nachweises */
   nachweisId?: string
 }
+
+const feststellungSchema = z.object({
+  punktId: z.string().trim().min(1),
+  title: z.string().trim().min(3, 'Der Titel muss mindestens 3 Zeichen haben.').max(200),
+  description: z.string().trim().max(4000).optional().or(z.literal('')),
+  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+  responsibleId: z.string().trim().min(1, 'Bitte eine verantwortliche Person wählen.'),
+  dueDate: z.string().trim().min(1, 'Bitte eine Frist angeben.'),
+})
 
 const ARTEN = ['BEWERTUNG', 'TEXT', 'ZAHL', 'DATUM', 'ENTSCHEIDUNG'] as const
 const ERGEBNISSE = [
@@ -274,6 +286,60 @@ export async function nachweisSpeichern(
 
   revalidatePath(`/nachweise/${nachweisId}`)
   return { erfolg: 'Der Zwischenstand wurde gespeichert.' }
+}
+
+/**
+ * Legt aus einer Feststellung eine Abweichung an.
+ *
+ * Die Angaben aus dem Prüfpunkt sind bereits vorbelegt; hier kommen nur noch
+ * Schwere, verantwortliche Person und Frist hinzu.
+ */
+export async function abweichungAusFeststellung(
+  nachweisId: string,
+  _status: NachweisStatusRueckmeldung,
+  formData: FormData,
+): Promise<NachweisStatusRueckmeldung> {
+  try {
+    const benutzer = await benutzerFuerAktion(canManageFindings)
+
+    const eingabe = feststellungSchema.safeParse({
+      punktId: String(formData.get('punktId') ?? ''),
+      title: String(formData.get('title') ?? ''),
+      description: String(formData.get('description') ?? ''),
+      severity: String(formData.get('severity') ?? 'MEDIUM'),
+      responsibleId: String(formData.get('responsibleId') ?? ''),
+      dueDate: String(formData.get('dueDate') ?? ''),
+    })
+    if (!eingabe.success) {
+      return { fehler: eingabe.error.issues[0]?.message ?? 'Ungültige Eingabe.' }
+    }
+
+    let frist: Date
+    try {
+      frist = parseISODate(eingabe.data.dueDate)
+    } catch {
+      return { fehler: 'Die Frist ist ungültig.' }
+    }
+
+    await erzeugeAbweichungAusFeststellung(
+      nachweisId,
+      {
+        punktId: eingabe.data.punktId,
+        title: eingabe.data.title,
+        description: eingabe.data.description?.trim() || null,
+        severity: eingabe.data.severity,
+        responsibleId: eingabe.data.responsibleId,
+        dueDate: frist,
+      },
+      benutzer.id,
+    )
+
+    revalidatePath(`/nachweise/${nachweisId}`)
+    revalidatePath('/findings')
+    return { erfolg: 'Die Abweichung wurde angelegt.' }
+  } catch (error) {
+    return { fehler: fehlertext(error) }
+  }
 }
 
 /**

@@ -166,6 +166,145 @@ export type AntwortEingabe = {
   bemerkung: string | null
 }
 
+export type FeststellungAnzeige = {
+  punktId: string
+  position: number
+  frage: string
+  ergebnis: string
+  bemerkung: string | null
+  /** Kennung der bereits daraus angelegten Abweichung */
+  findingId: string | null
+}
+
+/**
+ * Feststellungen eines abgeschlossenen Nachweises samt Hinweis darauf, ob
+ * daraus bereits eine Abweichung entstanden ist.
+ */
+export async function ladeFeststellungen(
+  nachweisId: string,
+): Promise<FeststellungAnzeige[]> {
+  const nachweis = await ladeNachweis(nachweisId)
+  if (!nachweis) return []
+
+  const auffaellig = auffaelligePunkte(
+    alsPunkte(nachweis.vorlage.punkte),
+    alsAntworten(nachweis.antworten),
+  )
+  if (auffaellig.length === 0) return []
+
+  const findings = await prisma.finding.findMany({
+    where: {
+      punktId: { in: auffaellig.map((e) => e.punkt.id) },
+      execution: { occurrenceId: nachweis.occurrenceId },
+    },
+    select: { id: true, punktId: true },
+  })
+
+  return auffaellig.map((eintrag) => {
+    const antwort = nachweis.antworten.find((a) => a.punktId === eintrag.punkt.id)
+    return {
+      punktId: eintrag.punkt.id,
+      position: eintrag.punkt.position,
+      frage: eintrag.punkt.frage,
+      ergebnis: String(eintrag.antwort.ergebnis),
+      bemerkung: antwort?.bemerkung ?? null,
+      findingId: findings.find((f) => f.punktId === eintrag.punkt.id)?.id ?? null,
+    }
+  })
+}
+
+export type AbweichungAusFeststellung = {
+  punktId: string
+  title: string
+  description: string | null
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+  responsibleId: string
+  dueDate: Date
+}
+
+/**
+ * Legt aus einer Feststellung eine Abweichung an.
+ *
+ * Titel und Beschreibung kommen aus dem Prüfpunkt, müssen also nicht erneut
+ * eingegeben werden. Der Rückverweis auf den Prüfpunkt bleibt erhalten, damit
+ * später nachvollziehbar ist, woher die Abweichung stammt.
+ */
+export async function erzeugeAbweichungAusFeststellung(
+  nachweisId: string,
+  eingabe: AbweichungAusFeststellung,
+  benutzerId: string,
+): Promise<string> {
+  const nachweis = await ladeNachweis(nachweisId)
+  if (!nachweis) throw new NachweisFehler('Der Nachweis wurde nicht gefunden.')
+
+  const punkt = nachweis.vorlage.punkte.find((p) => p.id === eingabe.punktId)
+  if (!punkt) {
+    throw new NachweisFehler('Der Prüfpunkt gehört nicht zu diesem Nachweis.')
+  }
+
+  // Eine Abweichung hängt immer an einer Durchführung. Die entsteht mit dem
+  // Abschluss des Nachweises – vorher gibt es nichts, woran sie hängen könnte.
+  const executionId = nachweis.occurrence.execution?.id
+  if (!executionId) {
+    throw new NachweisFehler(
+      'Abweichungen lassen sich erst anlegen, wenn der Nachweis abgeschlossen ist.',
+    )
+  }
+
+  const bereitsVorhanden = await prisma.finding.findFirst({
+    where: { executionId, punktId: eingabe.punktId },
+    select: { id: true },
+  })
+  if (bereitsVorhanden) {
+    throw new NachweisFehler(
+      `Zu Prüfpunkt ${punkt.position} gibt es bereits eine Abweichung.`,
+    )
+  }
+
+  const verantwortlich = await prisma.user.findFirst({
+    where: { id: eingabe.responsibleId, active: true },
+    select: { id: true },
+  })
+  if (!verantwortlich) {
+    throw new NachweisFehler('Die verantwortliche Person wurde nicht gefunden.')
+  }
+
+  const finding = await prisma.$transaction(async (tx) => {
+    const erstellt = await tx.finding.create({
+      data: {
+        executionId,
+        punktId: eingabe.punktId,
+        title: eingabe.title,
+        description: eingabe.description,
+        severity: eingabe.severity,
+        responsibleId: eingabe.responsibleId,
+        dueDate: eingabe.dueDate,
+        status: 'OPEN',
+      },
+      select: { id: true, title: true, severity: true },
+    })
+
+    await schreibeAudit(
+      {
+        userId: benutzerId,
+        action: 'FINDING_CREATED',
+        entityType: 'Finding',
+        entityId: erstellt.id,
+        payload: {
+          titel: erstellt.title,
+          schwere: erstellt.severity,
+          herkunft: `Prüfbogen „${nachweis.vorlage.name}“, Prüfpunkt ${punkt.position}`,
+        },
+      },
+      tx,
+    )
+
+    return erstellt
+  })
+
+  return finding.id
+}
+
 /** Höchstzahl an Belegen je Prüfbogen. */
 export const MAX_BELEGE = 25
 

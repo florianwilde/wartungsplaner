@@ -13,8 +13,10 @@ import { PrismaClient } from '@prisma/client'
 import { addDays, todayInBerlin } from '../src/lib/dates'
 import {
   entferneBeleg,
+  erzeugeAbweichungAusFeststellung,
   fuegeBelegeHinzu,
   fuehreUebergangAus,
+  ladeFeststellungen,
   ladeNachweis,
   ladeOffeneGegenzeichnungen,
   speichereAntworten,
@@ -454,6 +456,70 @@ async function main() {
   pruefe(
     eintraege.some((e) => e.userId === pruefer.id),
     'Die Gegenzeichnung ist der zweiten Person zugeordnet',
+  )
+
+  // --- Feststellungen in Abweichungen überführen ---------------------------
+  const feststellungen = await ladeFeststellungen(nachweisId)
+  pruefe(
+    feststellungen.length === 1 && feststellungen[0].position === 2,
+    'Der auffällige Prüfpunkt erscheint als Feststellung',
+  )
+  pruefe(
+    feststellungen[0]?.findingId === null,
+    'Vor dem Überführen gibt es dazu noch keine Abweichung',
+  )
+
+  const findingId = await erzeugeAbweichungAusFeststellung(
+    nachweisId,
+    {
+      punktId: feststellungen[0].punktId,
+      title: 'Berechtigungen von M. Müller entziehen',
+      description: 'Aus dem Prüfbogen übernommen.',
+      severity: 'HIGH',
+      responsibleId: erfasser.id,
+      dueDate: addDays(heute, 30),
+    },
+    pruefer.id,
+  )
+  const abweichung = await prisma.finding.findUnique({
+    where: { id: findingId },
+    select: { punktId: true, executionId: true, severity: true, status: true },
+  })
+  pruefe(
+    abweichung?.punktId === feststellungen[0].punktId,
+    'Die Abweichung verweist auf den Prüfpunkt, aus dem sie stammt',
+  )
+  pruefe(
+    abweichung?.executionId === erledigt?.execution?.id,
+    'Sie hängt an der Durchführung dieser Fälligkeit',
+  )
+  pruefe(
+    abweichung?.status === 'OPEN' && abweichung.severity === 'HIGH',
+    'Schwere und Status werden übernommen',
+  )
+
+  const danach = await ladeFeststellungen(nachweisId)
+  pruefe(
+    danach[0]?.findingId === findingId,
+    'Die Feststellung weist die angelegte Abweichung aus',
+  )
+
+  await erwarteFehler(
+    () =>
+      erzeugeAbweichungAusFeststellung(
+        nachweisId,
+        {
+          punktId: feststellungen[0].punktId,
+          title: 'Zweiter Versuch',
+          description: null,
+          severity: 'LOW',
+          responsibleId: erfasser.id,
+          dueDate: addDays(heute, 30),
+        },
+        pruefer.id,
+      ),
+    'bereits eine Abweichung',
+    'Aus derselben Feststellung entsteht keine zweite Abweichung',
   )
 
   // --- Ohne Vier-Augen-Prinzip: abschließen in einem Zug ------------------
