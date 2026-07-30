@@ -29,12 +29,14 @@ gebaut ist. Technik, Installation und Betrieb stehen in der
 | [Reports und Archiv](reports-und-archiv.md) | Die fünf Auswertungen, Vorlagen, ZIP-Archiv für Audits |
 | [Audit-Referenzen](audit-referenzen.md) | Anforderungen aus Normen pflegen und danach filtern |
 | [Unversehrtheit der Nachweise](unversehrtheit.md) | Wie die Anwendung ihre eigene Ablage prüft |
+| [Aufbewahrung](aufbewahrung.md) | Wie lange Nachweisdateien vorgehalten werden |
+| [Virenprüfung](virenpruefung.md) | Hochgeladene Dateien beim Empfang prüfen |
 
 ## Verwaltung
 
 | Seite | Worum es geht |
 | --- | --- |
-| [Benutzer und Anmeldung](benutzer-und-anmeldung.md) | Konten, Passkeys, SSO, Passwörter |
+| [Benutzer und Anmeldung](benutzer-und-anmeldung.md) | Konten, Passkeys, SSO, Passwörter, Passkey-Pflicht |
 | [Benachrichtigungen](benachrichtigungen.md) | Welche Nachrichten wann hinausgehen |
 | [Import und Export](import-und-export.md) | Stammdaten in größerer Zahl pflegen |
 | [Erscheinungsbild](erscheinungsbild.md) | Farben, Logo, Fußzeile der Berichte |

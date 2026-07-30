@@ -1,0 +1,55 @@
+# Zusatz: Virenprüfung hochgeladener Dateien.
+#
+# Belege werden von anderen Personen wieder heruntergeladen. Ohne Prüfung wäre
+# die Nachweisablage ein bequemer Verteilweg – und zwar einer, dem man
+# vertraut, weil er aus der eigenen Anwendung stammt.
+#
+# Bewusst als eigene Datei und nicht im Standard-Stack: Das
+# Signaturverzeichnis von ClamAV belegt rund ein Gigabyte und braucht beim
+# ersten Start einige Minuten, bis es geladen ist. Das soll niemand ungefragt
+# mitschleppen müssen.
+#
+# Verwendung:
+#   docker compose -f docker-compose.yml -f docker-compose.clamav.yml up -d
+#
+# Zusätzlich in der .env setzen:
+#   CLAMAV_HOST=clamav
+#
+# Solange CLAMAV_HOST leer ist, wird nicht geprüft und die Anwendung läuft
+# unverändert. Mit VIRENPRUEFUNG_PFLICHT=true werden Dateien abgelehnt, wenn
+# der Dienst nicht erreichbar ist – siehe .env.example.
+
+services:
+  clamav:
+    image: clamav/clamav:1.4
+    container_name: wartungsplaner-clamav
+    restart: unless-stopped
+    environment:
+      # Signaturen beim Start aktualisieren und danach stündlich.
+      CLAMAV_NO_FRESHCLAMD: 'false'
+      TZ: ${TZ:-Europe/Berlin}
+    volumes:
+      # Damit die Signaturen einen Neustart überdauern und nicht jedes Mal
+      # erneut geladen werden.
+      - clamdb:/var/lib/clamav
+    # Kein veröffentlichter Port: Der Dienst wird nur im Compose-Netz
+    # gebraucht, genau wie die Datenbank.
+    expose:
+      - '3310'
+    healthcheck:
+      test: ['CMD', 'clamdcheck.sh']
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      # Der erste Start dauert, bis die Signaturen geladen sind.
+      start_period: 300s
+
+  app:
+    environment:
+      CLAMAV_HOST: ${CLAMAV_HOST:-clamav}
+      CLAMAV_PORT: ${CLAMAV_PORT:-3310}
+      CLAMAV_TIMEOUT_MS: ${CLAMAV_TIMEOUT_MS:-30000}
+      VIRENPRUEFUNG_PFLICHT: ${VIRENPRUEFUNG_PFLICHT:-false}
+
+volumes:
+  clamdb:

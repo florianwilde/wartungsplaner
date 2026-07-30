@@ -6,6 +6,11 @@ import { CheckCircle2, XCircle } from 'lucide-react'
 import { istOidcAktiv, oidcAnzeigename } from '@/auth'
 import { istPasskeyTauglich } from '@/lib/webauthn'
 import {
+  istVirenpruefungEingerichtet,
+  istVirenpruefungPflicht,
+  pruefeVerbindung,
+} from '@/server/virenpruefung'
+import {
   appUrl,
   holeSicherheitsEinstellungen,
   ohnePasskeyJeRolle,
@@ -65,6 +70,10 @@ export default async function SystemSeite() {
     offeneAbweichungen,
     protokolleintraege,
   ] = anzahlen
+
+  const virenpruefung = istVirenpruefungEingerichtet()
+    ? await pruefeVerbindung()
+    : null
 
   const sicherheit = await holeSicherheitsEinstellungen()
   const ohnePasskey = await ohnePasskeyJeRolle()
@@ -145,6 +154,21 @@ export default async function SystemSeite() {
                 }
                 neutralWennAus
               />
+              <ZustandZeile
+                label="Virenprüfung"
+                gut={virenpruefung?.erreichbar === true}
+                text={
+                  !virenpruefung
+                    ? 'nicht eingerichtet'
+                    : virenpruefung.erreichbar
+                      ? `aktiv – ${virenpruefung.version}`
+                      : `nicht erreichbar: ${virenpruefung.grund}`
+                }
+                neutralWennAus={!virenpruefung}
+              />
+              {istVirenpruefungPflicht() ? (
+                <Zeile label="Prüfung verpflichtend" wert="ja" />
+              ) : null}
               <Zeile
                 label="HTTP-Auslöser für den Job"
                 wert={process.env.CRON_TOKEN?.trim() ? 'konfiguriert' : 'nicht konfiguriert'}

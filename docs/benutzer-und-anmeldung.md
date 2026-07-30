@@ -41,6 +41,21 @@ Der letzte Passkey eines Kontos ohne Passwort lässt sich nicht entfernen –
 sonst bliebe der Zugang verschlossen. Nach einem Geräteverlust kann die
 Administration alle Passkeys eines Kontos zurücksetzen.
 
+## Passkey-Pflicht
+
+Für einzelne Rollen lässt sich ein hinterlegter Passkey verlangen –
+einzustellen unter **Administration → System**. Wer keinen hat, wird bei der
+nächsten Anmeldung zur Einrichtung geführt, bevor er weiterarbeiten kann.
+
+Drei Ausnahmen sorgen dafür, dass dabei niemand ausgesperrt wird:
+
+- **Ohne HTTPS** bietet kein Browser die Registrierung an. Die Pflicht bleibt
+  dann wirkungslos und lässt sich gar nicht erst einschalten.
+- **SSO-Konten** sind ausgenommen: Dort gibt es bereits ein Verfahren, und ein
+  zweiter Faktor gehört in den Identity Provider.
+- Beim Einschalten nennt die Anwendung, **wie viele Personen betroffen** wären,
+  und weist ausdrücklich darauf hin, wenn Sie selbst dazugehören.
+
 ## Anmeldung über SSO
 
 Ist ein OIDC-Provider konfiguriert, erscheint zusätzlich die Schaltfläche für

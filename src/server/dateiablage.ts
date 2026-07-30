@@ -3,6 +3,11 @@ import { mkdir, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { baueSpeicherpfad, bereinigeDateinamen, pruefeDatei } from '@/lib/uploads'
+import { beschreibe, darfAngenommenWerden } from '@/lib/virenpruefung'
+import {
+  istVirenpruefungPflicht,
+  pruefeInhalt,
+} from '@/server/virenpruefung'
 
 /** Wurzelverzeichnis der Nachweise (Docker-Volume). */
 export function uploadVerzeichnis(): string {
@@ -48,6 +53,26 @@ export async function speichereDatei(datei: File): Promise<GespeicherteDatei> {
   // Größe nach dem Lesen erneut prüfen: `File.size` stammt vom Client.
   const nachpruefung = pruefeDatei(datei.name, inhalt.byteLength, datei.type)
   if (!nachpruefung.ok) throw new Error(nachpruefung.fehler)
+
+  // Vor dem Schreiben prüfen: Eine als Schadprogramm erkannte Datei soll gar
+  // nicht erst im Ablageverzeichnis landen. Belege werden später von anderen
+  // Personen heruntergeladen – ohne Prüfung wäre die Nachweisablage ein
+  // bequemer Verteilweg, dem man auch noch vertraut.
+  const status = await pruefeInhalt(inhalt)
+  const urteil = darfAngenommenWerden(status, istVirenpruefungPflicht())
+  if (!urteil.erlaubt) {
+    console.warn(
+      `Datei „${anzeigename}“ abgelehnt: ${beschreibe(status)}`,
+    )
+    throw new Error(urteil.grund ?? 'Die Datei wurde nicht angenommen.')
+  }
+  if (status.art === 'nicht-erreichbar') {
+    // Angenommen, aber nicht stillschweigend: Wer später wissen will, ob
+    // geprüft wurde, findet es im Protokoll.
+    console.warn(
+      `Datei „${anzeigename}“ ohne Virenprüfung übernommen: ${beschreibe(status)}`,
+    )
+  }
 
   const sha256 = createHash('sha256').update(inhalt).digest('hex')
   const relativerPfad = baueSpeicherpfad(
