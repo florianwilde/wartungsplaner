@@ -21,6 +21,8 @@ import {
   uebernehmeZeilen,
   speichereAntworten,
   starteNachweis,
+  uebernimmNachweis,
+  verwirfNachweis,
   type AntwortEingabe,
 } from '@/server/nachweise'
 
@@ -289,6 +291,37 @@ export async function nachweisSpeichern(
 
   revalidatePath(`/nachweise/${nachweisId}`)
   return { erfolg: 'Der Zwischenstand wurde gespeichert.' }
+}
+
+/** Übernimmt einen fremden Entwurf, um ihn weiterzuführen. */
+export async function nachweisUebernehmen(
+  nachweisId: string,
+): Promise<NachweisStatusRueckmeldung> {
+  try {
+    const benutzer = await benutzerFuerAktion(canExecute)
+    await uebernimmNachweis(nachweisId, benutzer.id)
+    revalidatePath(`/nachweise/${nachweisId}`)
+    revalidatePath('/nachweise')
+    return { erfolg: 'Der Entwurf gehört jetzt Ihnen und lässt sich ausfüllen.' }
+  } catch (error) {
+    return { fehler: fehlertext(error) }
+  }
+}
+
+/** Verwirft einen Entwurf, damit ein neuer Bogen angelegt werden kann. */
+export async function nachweisVerwerfen(
+  nachweisId: string,
+): Promise<NachweisStatusRueckmeldung> {
+  try {
+    const benutzer = await benutzerFuerAktion(canExecute)
+    // Die Administration darf auch fremde Entwürfe verwerfen – sonst bliebe
+    // der Bogen einer ausgeschiedenen Person für immer liegen.
+    await verwirfNachweis(nachweisId, benutzer.id, canAdminister(benutzer.role))
+    revalidatePath('/nachweise')
+    return { erfolg: 'Der Entwurf wurde verworfen.' }
+  } catch (error) {
+    return { fehler: fehlertext(error) }
+  }
 }
 
 /** Übernimmt Zeilen aus einer CSV-Datei in einen Listen-Prüfpunkt. */

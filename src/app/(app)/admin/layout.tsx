@@ -25,6 +25,7 @@ export default async function AdminLayout({
           { href: '/admin/erscheinungsbild', label: 'Erscheinungsbild' },
           { href: '/admin/benachrichtigungen', label: 'Benachrichtigungen' },
           { href: '/admin/pruefboegen', label: 'Prüfbögen' },
+          { href: '/admin/audit-referenzen', label: 'Audit-Referenzen' },
           { href: '/admin/report-vorlagen', label: 'Report-Vorlagen' },
           { href: '/admin/import-export', label: 'Import / Export' },
           { href: '/admin/integritaet', label: 'Unversehrtheit' },

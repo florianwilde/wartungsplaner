@@ -498,6 +498,113 @@ export async function leereZeilen(
   return anzahl
 }
 
+/**
+ * Übernimmt einen Entwurf von einer anderen Person.
+ *
+ * Ohne diesen Weg wäre ein angefangener Bogen eine Sackgasse: Nur die
+ * erfassende Person darf ihn ausfüllen. Ist sie im Urlaub oder ausgeschieden,
+ * steckt die Prüfung fest, und ein neuer Bogen derselben Vorlage lässt sich
+ * für dieselbe Fälligkeit nicht anlegen.
+ *
+ * Das Vier-Augen-Prinzip bleibt gewahrt: Wer übernimmt, wird zur erfassenden
+ * Person und kann anschließend nicht selbst gegenzeichnen. Der Wechsel steht
+ * im Audit-Log.
+ */
+export async function uebernimmNachweis(
+  nachweisId: string,
+  benutzerId: string,
+): Promise<void> {
+  const nachweis = await ladeNachweis(nachweisId)
+  if (!nachweis) throw new NachweisFehler('Der Nachweis wurde nicht gefunden.')
+
+  if (!istAenderbar(nachweis.status as NachweisStatus)) {
+    throw new NachweisFehler(
+      'Nur ein Entwurf lässt sich übernehmen. Ein vorgelegter Nachweis wird gegengezeichnet oder zurückgewiesen.',
+    )
+  }
+  if (nachweis.erfasstById === benutzerId) {
+    throw new NachweisFehler('Dieser Nachweis gehört Ihnen bereits.')
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.nachweis.update({
+      where: { id: nachweisId },
+      data: { erfasstById: benutzerId, erfasstAm: new Date() },
+    })
+    await schreibeAudit(
+      {
+        userId: benutzerId,
+        action: 'NACHWEIS_UEBERNOMMEN',
+        entityType: 'Nachweis',
+        entityId: nachweisId,
+        payload: {
+          pruefbogen: nachweis.vorlage.name,
+          aufgabe: nachweis.occurrence.task.title,
+          vorher: nachweis.erfasstBy.name,
+        },
+      },
+      tx,
+    )
+  })
+}
+
+/**
+ * Verwirft einen Entwurf.
+ *
+ * Ein Entwurf hat keine Beweiskraft – er wurde weder vorgelegt noch
+ * gegengezeichnet. Ihn zu verwerfen ist deshalb unbedenklich, und es ist der
+ * einzige Weg, einen versehentlich angelegten Bogen wieder loszuwerden.
+ * Abgeschlossene Nachweise bleiben unantastbar.
+ */
+export async function verwirfNachweis(
+  nachweisId: string,
+  benutzerId: string,
+  darfFremde: boolean,
+): Promise<void> {
+  const nachweis = await ladeNachweis(nachweisId)
+  if (!nachweis) throw new NachweisFehler('Der Nachweis wurde nicht gefunden.')
+
+  if (!istAenderbar(nachweis.status as NachweisStatus)) {
+    throw new NachweisFehler(
+      'Nur ein Entwurf lässt sich verwerfen. Ein abgeschlossener Nachweis bleibt unverändert erhalten.',
+    )
+  }
+  if (nachweis.erfasstById !== benutzerId && !darfFremde) {
+    throw new NachweisFehler(
+      'Diesen Entwurf hat eine andere Person angelegt. Übernehmen Sie ihn, oder lassen Sie ihn von der Administration verwerfen.',
+    )
+  }
+
+  const belege = await prisma.attachment.findMany({
+    where: { nachweisId },
+    select: { id: true, storedPath: true },
+  })
+
+  await prisma.$transaction(async (tx) => {
+    await tx.nachweis.delete({ where: { id: nachweisId } })
+    await schreibeAudit(
+      {
+        userId: benutzerId,
+        action: 'NACHWEIS_VERWORFEN',
+        entityType: 'Nachweis',
+        entityId: nachweisId,
+        payload: {
+          pruefbogen: nachweis.vorlage.name,
+          aufgabe: nachweis.occurrence.task.title,
+          erfasstVon: nachweis.erfasstBy.name,
+          belege: belege.length,
+        },
+      },
+      tx,
+    )
+  })
+
+  // Erst nach dem erfolgreichen Löschen: Bleiben die Dateien liegen, meldet
+  // sie der Integritätslauf als verwaist – das ist heilbar. Umgekehrt wäre
+  // der Beleg fort und der Eintrag noch da.
+  await entferneDateien(belege.map((b) => b.storedPath))
+}
+
 /** Höchstzahl an Belegen je Prüfbogen. */
 export const MAX_BELEGE = 25
 

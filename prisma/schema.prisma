@@ -146,7 +146,8 @@ model Task {
   graceDays      Int          @default(0)
   evidenceRequired Boolean    @default(false)
   criticality    Criticality  @default(MEDIUM)
-  /// Freitext-Referenz, z. B. "ISO 27001 A.8.13"
+  /// Bisheriger Freitext; abgelöst durch die Zuordnung `auditReferenzen`.
+  /// Bleibt für einen Übergang erhalten, damit nichts verlorengeht.
   auditReference String?
   active         Boolean      @default(true)
   createdAt      DateTime     @default(now())
@@ -156,6 +157,7 @@ model Task {
   owner       User                @relation("TaskOwner", fields: [ownerId], references: [id], onDelete: Restrict)
   occurrences Occurrence[]
   pruefboegen PruefbogenVorlage[]
+  auditReferenzen TaskAuditReferenz[]
 
   @@index([categoryId])
   @@index([ownerId])
@@ -563,6 +565,46 @@ model WebAuthnChallenge {
 // ---------------------------------------------------------------------------
 
 /// Art einer versendeten Benachrichtigung.
+/// Eine Audit-Referenz, etwa "ISO 27001 A.8.13" oder "TISAX 1.6.1".
+///
+/// Bewusst als Stammdatum statt als Freitext an der Aufgabe: Nur so lässt
+/// sich verlässlich danach filtern. Als Freitext wären "ISO 27001 A.8.13" und
+/// "ISO27001 A.8.13" zwei verschiedene Dinge, und genau die Frage „welche
+/// Prüfungen decken diese Anforderung ab?“ bliebe unbeantwortbar.
+model AuditReferenz {
+  id          String  @id @default(cuid())
+  /// Kurzzeichen der Anforderung, z. B. "A.8.13"
+  kuerzel     String
+  bezeichnung String
+  /// Norm oder Rahmenwerk, z. B. "ISO 27001" oder "TISAX"
+  rahmenwerk  String?
+  beschreibung String?
+  aktiv       Boolean @default(true)
+  sortOrder   Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  aufgaben TaskAuditReferenz[]
+
+  /// Innerhalb eines Rahmenwerks ist das Kurzzeichen eindeutig.
+  @@unique([rahmenwerk, kuerzel])
+  @@index([aktiv])
+}
+
+/// Zuordnung: Eine Aufgabe kann mehrere Anforderungen abdecken, und eine
+/// Anforderung wird von mehreren Aufgaben getragen.
+model TaskAuditReferenz {
+  taskId     String
+  referenzId String
+
+  task     Task          @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  referenz AuditReferenz @relation(fields: [referenzId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, referenzId])
+  @@index([referenzId])
+}
+
 /// Ergebnis eines Integritätslaufs über die abgelegten Nachweise.
 ///
 /// Die Anwendung verspricht Revisionssicherheit über Prüfsummen. Ohne einen

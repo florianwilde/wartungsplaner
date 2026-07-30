@@ -16,10 +16,14 @@ import {
   type PruefpunktErgebnis,
 } from '@/lib/nachweise'
 import { prisma } from '@/lib/prisma'
-import { canExecute, canManageFindings } from '@/lib/rbac'
+import { canAdminister, canExecute, canManageFindings } from '@/lib/rbac'
 import { erforderlicherBenutzer } from '@/lib/session'
 import { ladeFeststellungen, ladeNachweis } from '@/server/nachweise'
 import { Feststellungen } from './feststellungen'
+import {
+  EigenenEntwurfVerwerfen,
+  FremderEntwurf,
+} from './fremder-entwurf'
 import { NachweisFormular } from './nachweis-formular'
 
 export const metadata: Metadata = { title: 'Prüfnachweis' }
@@ -148,6 +152,15 @@ export default async function NachweisSeite({
         </p>
       ) : null}
 
+      {istAenderbar(status) && nachweis.erfasstById !== benutzer.id ? (
+        <FremderEntwurf
+          nachweisId={nachweis.id}
+          erfasstVon={nachweis.erfasstBy.name}
+          taskId={nachweis.occurrence.task.id}
+          darfVerwerfen={canAdminister(benutzer.role)}
+        />
+      ) : null}
+
       <Feststellungen
         nachweisId={nachweis.id}
         pruefbogen={nachweis.vorlage.name}
@@ -156,6 +169,15 @@ export default async function NachweisSeite({
         vorschlagFrist={toISODate(addDays(todayInBerlin(), 30))}
         darfAnlegen={canManageFindings(benutzer.role)}
       />
+
+      {darfBearbeiten ? (
+        <div className="kein-druck flex justify-end">
+          <EigenenEntwurfVerwerfen
+            nachweisId={nachweis.id}
+            taskId={nachweis.occurrence.task.id}
+          />
+        </div>
+      ) : null}
 
       <NachweisFormular
         nachweisId={nachweis.id}

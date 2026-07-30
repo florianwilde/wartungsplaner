@@ -23,6 +23,8 @@ import {
   speichereZeilen,
   starteNachweis,
   uebernehmeZeilen,
+  uebernimmNachweis,
+  verwirfNachweis,
 } from '../src/server/nachweise'
 import { protokolliereDurchfuehrung } from '../src/server/durchfuehrung-service'
 import { ladeNachweisregister } from '../src/server/reports/daten'
@@ -761,6 +763,85 @@ async function main() {
   pruefe(
     soloAnhang?.executionId === null,
     'Das PDF wartet am Prüfbogen, bis die Fälligkeit erledigt wird',
+  )
+
+  // --- Fremder Entwurf: übernehmen und verwerfen ---------------------------
+  const fremdFaelligkeit = await prisma.occurrence.create({
+    data: { taskId: soloAufgabe.id, dueDate: addDays(heute, 90), status: 'OPEN' },
+  })
+  const fremdId = await starteNachweis(
+    fremdFaelligkeit.id,
+    soloVorlage.id,
+    erfasser.id,
+  )
+
+  await erwarteFehler(
+    () =>
+      speichereAntworten(fremdId, pruefer.id, null, [
+        {
+          punktId: soloVorlage.punkte[0].id,
+          ergebnis: 'ERFUELLT',
+          wert: null,
+          bemerkung: null,
+        },
+      ]),
+    'erfassende Person',
+    'Ein fremder Entwurf lässt sich nicht einfach ausfüllen',
+  )
+  await erwarteFehler(
+    () => verwirfNachweis(fremdId, pruefer.id, false),
+    'andere Person',
+    'Und ohne Verwaltungsrecht auch nicht verwerfen',
+  )
+
+  await uebernimmNachweis(fremdId, pruefer.id)
+  const uebernommen = await ladeNachweis(fremdId)
+  pruefe(
+    uebernommen?.erfasstById === pruefer.id,
+    'Ein Entwurf lässt sich übernehmen, statt in der Sackgasse zu enden',
+  )
+
+  await speichereAntworten(fremdId, pruefer.id, null, [
+    {
+      punktId: soloVorlage.punkte[0].id,
+      ergebnis: 'ERFUELLT',
+      wert: null,
+      bemerkung: null,
+    },
+  ])
+  const nachUebernahme = await ladeNachweis(fremdId)
+  pruefe(
+    nachUebernahme?.antworten.length === 1,
+    'Danach ist er auch ausfüllbar',
+  )
+
+  await erwarteFehler(
+    () => uebernimmNachweis(fremdId, pruefer.id),
+    'gehört Ihnen bereits',
+    'Ein eigener Entwurf lässt sich nicht nochmals übernehmen',
+  )
+
+  // Verwerfen gibt die Fälligkeit wieder frei.
+  await verwirfNachweis(fremdId, pruefer.id, false)
+  pruefe(
+    (await ladeNachweis(fremdId)) === null,
+    'Ein Entwurf lässt sich verwerfen',
+  )
+  const neuerVersuch = await starteNachweis(
+    fremdFaelligkeit.id,
+    soloVorlage.id,
+    pruefer.id,
+  )
+  pruefe(
+    neuerVersuch !== fremdId,
+    'Danach lässt sich ein neuer Bogen derselben Vorlage anlegen',
+  )
+  await verwirfNachweis(neuerVersuch, pruefer.id, false)
+
+  await erwarteFehler(
+    () => verwirfNachweis(soloId, erfasser.id, true),
+    'Nur ein Entwurf',
+    'Ein abgeschlossener Nachweis lässt sich nicht verwerfen',
   )
 
   // --- Nachweisregister ---------------------------------------------------
