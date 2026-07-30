@@ -9,6 +9,8 @@ import { canAdminister, canExecute } from '@/lib/rbac'
 import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
 import {
   NachweisFehler,
+  entferneBeleg,
+  fuegeBelegeHinzu,
   fuehreUebergangAus,
   ladeNachweis,
   speichereAntworten,
@@ -272,6 +274,63 @@ export async function nachweisSpeichern(
 
   revalidatePath(`/nachweise/${nachweisId}`)
   return { erfolg: 'Der Zwischenstand wurde gespeichert.' }
+}
+
+/**
+ * Nimmt Belege zu einem Prüfbogen entgegen.
+ *
+ * Gemeint sind die tatsächlichen Nachweise aus den geprüften Systemen:
+ * AD-Export, Screenshot, Herstellerprotokoll, Sicherungsbericht.
+ */
+export async function nachweisBelegeHochladen(
+  nachweisId: string,
+  _status: NachweisStatusRueckmeldung,
+  formData: FormData,
+): Promise<NachweisStatusRueckmeldung> {
+  try {
+    const benutzer = await benutzerFuerAktion(canExecute)
+
+    const dateien = formData
+      .getAll('dateien')
+      .filter((eintrag): eintrag is File => eintrag instanceof File && eintrag.size > 0)
+
+    if (dateien.length === 0) {
+      return { fehler: 'Bitte mindestens eine Datei auswählen.' }
+    }
+
+    const punktIdRoh = String(formData.get('punktId') ?? '').trim()
+    const anzahl = await fuegeBelegeHinzu(
+      nachweisId,
+      benutzer.id,
+      dateien,
+      punktIdRoh === '' ? null : punktIdRoh,
+    )
+
+    revalidatePath(`/nachweise/${nachweisId}`)
+    return {
+      erfolg:
+        anzahl === 1
+          ? 'Der Beleg wurde hinzugefügt.'
+          : `${anzahl} Belege wurden hinzugefügt.`,
+    }
+  } catch (error) {
+    return { fehler: fehlertext(error) }
+  }
+}
+
+/** Entfernt einen Beleg, solange der Prüfbogen bearbeitet werden darf. */
+export async function nachweisBelegEntfernen(
+  nachweisId: string,
+  belegId: string,
+): Promise<NachweisStatusRueckmeldung> {
+  try {
+    const benutzer = await benutzerFuerAktion(canExecute)
+    await entferneBeleg(nachweisId, belegId, benutzer.id)
+    revalidatePath(`/nachweise/${nachweisId}`)
+    return { erfolg: 'Der Beleg wurde entfernt.' }
+  } catch (error) {
+    return { fehler: fehlertext(error) }
+  }
 }
 
 /** Legt vor, zeichnet gegen, weist zurück oder schließt ab. */

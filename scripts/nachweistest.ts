@@ -12,6 +12,8 @@ import { PrismaClient } from '@prisma/client'
 
 import { addDays, todayInBerlin } from '../src/lib/dates'
 import {
+  entferneBeleg,
+  fuegeBelegeHinzu,
   fuehreUebergangAus,
   ladeNachweis,
   ladeOffeneGegenzeichnungen,
@@ -221,6 +223,67 @@ async function main() {
     },
   ])
 
+  // --- Belege -------------------------------------------------------------
+  const adExport = new File(
+    ['sAMAccountName;Gruppe\r\nmmueller;Fachanwendung-Admins\r\n'],
+    'AD-Export Fachanwendung.csv',
+    { type: 'text/csv' },
+  )
+  const screenshot = new File([Buffer.from('89504e470d0a1a0a', 'hex')], 'screenshot.png', {
+    type: 'image/png',
+  })
+
+  const anzahl = await fuegeBelegeHinzu(
+    nachweisId,
+    erfasser.id,
+    [adExport, screenshot],
+    vorlage.punkte[1].id,
+  )
+  pruefe(anzahl === 2, 'Mehrere Belege lassen sich in einem Zug hinzufügen')
+
+  const mitBelegen = await ladeNachweis(nachweisId)
+  pruefe(
+    mitBelegen?.belege.length === 2,
+    'Die Belege hängen am Prüfbogen',
+  )
+  pruefe(
+    mitBelegen!.belege.every((b) => b.sha256.length === 64),
+    'Jeder Beleg trägt eine SHA-256-Prüfsumme',
+  )
+  pruefe(
+    mitBelegen!.belege.every((b) => b.punktId === vorlage.punkte[1].id),
+    'Belege lassen sich einem einzelnen Prüfpunkt zuordnen',
+  )
+  const nochOhneDurchfuehrung = await prisma.attachment.findMany({
+    where: { nachweisId },
+    select: { executionId: true },
+  })
+  pruefe(
+    nochOhneDurchfuehrung.every((b) => b.executionId === null),
+    'Vor dem Abschluss hängen sie an keiner Durchführung',
+  )
+
+  await erwarteFehler(
+    () => fuegeBelegeHinzu(nachweisId, pruefer.id, [screenshot], null),
+    'erfassende Person',
+    'Eine fremde Person kann keine Belege hinzufügen',
+  )
+
+  const ueberzaehlig = new File(['x'], 'skript.exe', { type: 'application/octet-stream' })
+  await erwarteFehler(
+    () => fuegeBelegeHinzu(nachweisId, erfasser.id, [ueberzaehlig], null),
+    'nicht zugelassen',
+    'Nicht zugelassene Dateitypen werden abgewiesen',
+  )
+
+  const zuEntfernen = mitBelegen!.belege[1]
+  await entferneBeleg(nachweisId, zuEntfernen.id, erfasser.id)
+  const nachEntfernen = await ladeNachweis(nachweisId)
+  pruefe(
+    nachEntfernen?.belege.length === 1,
+    'Ein Beleg lässt sich vor dem Abschluss wieder entfernen',
+  )
+
   // --- Vorlegen -----------------------------------------------------------
   const vorgelegt = await fuehreUebergangAus(
     nachweisId,
@@ -330,6 +393,34 @@ async function main() {
     where: { taskId: aufgabe.id, status: 'OPEN' },
   })
   pruefe(folge !== null, 'Der Folgetermin entsteht wie bei jeder Erledigung')
+
+  const belegeDanach = await prisma.attachment.findMany({
+    where: { nachweisId },
+    select: { executionId: true, filename: true },
+  })
+  pruefe(
+    belegeDanach.length === 1 &&
+      belegeDanach[0].executionId === erledigt?.execution?.id,
+    'Die Belege wandern mit dem Abschluss an die Durchführung',
+  )
+  const anDerDurchfuehrung = await prisma.attachment.count({
+    where: { executionId: erledigt?.execution?.id },
+  })
+  pruefe(
+    anDerDurchfuehrung === 2,
+    'An der Durchführung hängen Beleg und PDF-Nachweis gemeinsam',
+  )
+
+  await erwarteFehler(
+    () => fuegeBelegeHinzu(nachweisId, erfasser.id, [adExport], null),
+    'nicht mehr änderbar',
+    'Nach dem Abschluss lassen sich keine Belege mehr hinzufügen',
+  )
+  await erwarteFehler(
+    () => entferneBeleg(nachweisId, zuEntfernen.id, erfasser.id),
+    'nicht mehr änderbar',
+    'Nach dem Abschluss lässt sich kein Beleg mehr entfernen',
+  )
 
   // --- Unveränderlichkeit -------------------------------------------------
   await erwarteFehler(

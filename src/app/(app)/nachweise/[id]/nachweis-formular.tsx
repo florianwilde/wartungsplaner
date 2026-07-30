@@ -1,15 +1,18 @@
 'use client'
 
-import { useActionState, useState, useTransition } from 'react'
+import { useActionState, useRef, useState, useTransition } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import {
   AlertCircle,
   CheckCircle2,
   Save,
+  Paperclip,
   Send,
   ThumbsDown,
   ThumbsUp,
+  Trash2,
+  Upload,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -34,10 +37,23 @@ import {
   type PruefpunktArt,
   type PruefpunktErgebnis,
 } from '@/lib/nachweise'
-import {
+import { ACCEPT_ATTRIBUT, ERLAUBTE_ENDUNGEN_TEXT } from '@/lib/uploads'
+ import {
+  nachweisBelegEntfernen,
+  nachweisBelegeHochladen,
   nachweisSpeichern,
   nachweisUebergang,
 } from '@/server/actions/nachweise'
+
+export type BelegAnzeige = {
+  id: string
+  filename: string
+  sizeBytes: number
+  sha256: string
+  punktId: string | null
+  hochgeladenVon: string
+  hochgeladenAm: string
+}
 
 export type PunktAnzeige = {
   id: string
@@ -54,6 +70,13 @@ export type PunktAnzeige = {
 const selectKlassen =
   'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
 
+/** Dateigröße in einer im Alltag lesbaren Form. */
+function lesbareGroesse(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 function SpeichernButton() {
   const { pending } = useFormStatus()
   return (
@@ -68,6 +91,7 @@ export function NachweisFormular({
   nachweisId,
   punkte: anfangsPunkte,
   bemerkung: anfangsBemerkung,
+  belege,
   vierAugen,
   aenderbar,
   darfGegenzeichnen,
@@ -76,6 +100,7 @@ export function NachweisFormular({
   nachweisId: string
   punkte: PunktAnzeige[]
   bemerkung: string
+  belege: BelegAnzeige[]
   vierAugen: boolean
   /** Darf die anmeldete Person die Antworten noch ändern? */
   aenderbar: boolean
@@ -89,6 +114,43 @@ export function NachweisFormular({
   const [ablehnen, setAblehnen] = useState(false)
   const [grund, setGrund] = useState('')
   const [uebergangLaeuft, starteUebergang] = useTransition()
+  const [belegLaeuft, starteBeleg] = useTransition()
+  const [belegPunktId, setBelegPunktId] = useState('')
+  const dateiFeld = useRef<HTMLInputElement>(null)
+
+  const hochladen = () => {
+    const dateien = Array.from(dateiFeld.current?.files ?? [])
+    if (dateien.length === 0) {
+      toast.error('Bitte zuerst eine Datei auswählen.')
+      return
+    }
+
+    starteBeleg(async () => {
+      const formular = new FormData()
+      for (const datei of dateien) formular.append('dateien', datei)
+      formular.set('punktId', belegPunktId)
+
+      const antwort = await nachweisBelegeHochladen(nachweisId, {}, formular)
+      if (antwort.fehler) {
+        toast.error(antwort.fehler)
+        return
+      }
+      toast.success(antwort.erfolg ?? 'Hinzugefügt.')
+      if (dateiFeld.current) dateiFeld.current.value = ''
+      setBelegPunktId('')
+      router.refresh()
+    })
+  }
+
+  const entferne = (belegId: string, dateiname: string) =>
+    starteBeleg(async () => {
+      const antwort = await nachweisBelegEntfernen(nachweisId, belegId)
+      if (antwort.fehler) toast.error(antwort.fehler)
+      else {
+        toast.success(`„${dateiname}“ wurde entfernt.`)
+        router.refresh()
+      }
+    })
 
   const speichern = nachweisSpeichern.bind(null, nachweisId)
   const [status, formAction] = useActionState(
@@ -312,6 +374,111 @@ export function NachweisFormular({
               rows={4}
               maxLength={4000}
             />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Belege</CardTitle>
+            <CardDescription>
+              Die tatsächlichen Nachweise aus den geprüften Systemen –
+              AD-Export, Screenshot, Herstellerprotokoll, Sicherungsbericht.
+              Erlaubt sind {ERLAUBTE_ENDUNGEN_TEXT}; je Datei bis 25 MB.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {belege.length > 0 ? (
+              <ul className="space-y-2">
+                {belege.map((beleg) => {
+                  const punkt = punkte.find((p) => p.id === beleg.punktId)
+                  return (
+                    <li
+                      key={beleg.id}
+                      className="flex flex-wrap items-start justify-between gap-3 rounded-md border border-border p-3"
+                    >
+                      <div className="min-w-0">
+                        <a
+                          href={`/api/attachments/${beleg.id}`}
+                          className="flex items-center gap-2 text-sm font-medium hover:underline"
+                        >
+                          <Paperclip className="size-4 shrink-0" />
+                          <span className="break-all">{beleg.filename}</span>
+                        </a>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {lesbareGroesse(beleg.sizeBytes)} ·{' '}
+                          {beleg.hochgeladenVon} · {beleg.hochgeladenAm}
+                          {punkt ? ` · zu Prüfpunkt ${punkt.position}` : ''}
+                        </p>
+                        <p className="mt-1 break-all font-mono text-[11px] text-muted-foreground">
+                          SHA-256: {beleg.sha256}
+                        </p>
+                      </div>
+                      {aenderbar ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={belegLaeuft}
+                          onClick={() => entferne(beleg.id, beleg.filename)}
+                        >
+                          <Trash2 className="size-4" />
+                          Entfernen
+                        </Button>
+                      ) : null}
+                    </li>
+                  )
+                })}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Noch keine Belege hinterlegt.
+              </p>
+            )}
+
+            {aenderbar ? (
+              <div className="space-y-3 rounded-md border border-dashed border-border p-3">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="belegDateien">Dateien auswählen</Label>
+                    {/* Ohne name-Attribut: Die Dateien gehören nicht zum
+                        Zwischenstand, sondern werden einzeln hochgeladen. */}
+                    <input
+                      id="belegDateien"
+                      ref={dateiFeld}
+                      type="file"
+                      multiple
+                      accept={ACCEPT_ATTRIBUT}
+                      className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="belegPunkt">Zuordnung (optional)</Label>
+                    <select
+                      id="belegPunkt"
+                      value={belegPunktId}
+                      onChange={(e) => setBelegPunktId(e.target.value)}
+                      className={selectKlassen}
+                    >
+                      <option value="">Zum gesamten Prüfbogen</option>
+                      {punkte.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          Zu Prüfpunkt {p.position}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={belegLaeuft}
+                  onClick={hochladen}
+                >
+                  <Upload className="size-4" />
+                  {belegLaeuft ? 'Wird übertragen …' : 'Belege hinzufügen'}
+                </Button>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
 

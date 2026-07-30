@@ -35,6 +35,16 @@ export type NachweisPunkt = {
   ergebnis: PruefpunktErgebnis | null
   wert: string | null
   bemerkung: string | null
+  /** Dateinamen der diesem Punkt zugeordneten Belege */
+  belege?: string[]
+}
+
+export type NachweisBeleg = {
+  dateiname: string
+  sha256: string
+  groesseBytes: number
+  /** Nummer des Prüfpunkts, falls der Beleg einem zugeordnet ist */
+  pruefpunkt: number | null
 }
 
 export type NachweisPdfEingabe = {
@@ -52,6 +62,8 @@ export type NachweisPdfEingabe = {
   geprueftAm: Date | null
   bemerkung: string | null
   punkte: NachweisPunkt[]
+  /** Beigefügte Belege – AD-Export, Screenshot, Herstellerprotokoll … */
+  belege?: NachweisBeleg[]
 }
 
 type Doc = PDFKit.PDFDocument
@@ -69,6 +81,13 @@ function ergebnisFarbe(ergebnis: PruefpunktErgebnis | null): string {
   if (ergebnis === 'NICHT_ERFUELLT' || ergebnis === 'ENTZIEHEN') return FARBE.rot
   if (ergebnis === 'ERFUELLT' || ergebnis === 'BELASSEN') return FARBE.gruen
   return FARBE.text
+}
+
+/** Dateigröße in einer im Bericht lesbaren Form. */
+function kilobyte(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
 /** Lesbare Antwort eines Prüfpunkts. */
@@ -231,6 +250,16 @@ export async function erzeugeNachweisPdf(
         })
     }
 
+    if (punkt.belege && punkt.belege.length > 0) {
+      doc
+        .font('Helvetica-Oblique')
+        .fontSize(7.5)
+        .fillColor(FARBE.schwach)
+        .text(`Beleg: ${punkt.belege.join(', ')}`, RAND.links + 12, doc.y + 2, {
+          width: BREITE - 24,
+        })
+    }
+
     doc.y += 8
     doc
       .moveTo(RAND.links, doc.y)
@@ -256,6 +285,63 @@ export async function erzeugeNachweisPdf(
       .fontSize(9)
       .fillColor(FARBE.text)
       .text(eingabe.bemerkung, RAND.links, doc.y, { width: BREITE })
+  }
+
+  // --- Beigefügte Belege -----------------------------------------------
+  //
+  // Mit Prüfsumme, damit das Dokument allein belegt, welche Dateien zur
+  // Prüfung gehörten und dass sie unverändert sind.
+  if (eingabe.belege && eingabe.belege.length > 0) {
+    doc.y += 14
+    platz(doc, 46)
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(10)
+      .fillColor(FARBE.text)
+      .text('Beigefügte Belege', RAND.links, doc.y, { width: BREITE })
+    doc.y += 2
+    doc
+      .font('Helvetica')
+      .fontSize(7.5)
+      .fillColor(FARBE.schwach)
+      .text(
+        'SHA-256-Prüfsumme zum Abgleich der Unverändertheit.',
+        RAND.links,
+        doc.y,
+        { width: BREITE },
+      )
+    doc.y += 6
+
+    for (const beleg of eingabe.belege) {
+      platz(doc, 24)
+      const y = doc.y
+      const bezeichnung =
+        beleg.pruefpunkt !== null
+          ? `${beleg.dateiname}  (zu Prüfpunkt ${beleg.pruefpunkt})`
+          : beleg.dateiname
+
+      doc
+        .font('Helvetica')
+        .fontSize(8.5)
+        .fillColor(FARBE.text)
+        .text(bezeichnung, RAND.links, y, { width: BREITE - 90 })
+      doc
+        .font('Helvetica')
+        .fontSize(8)
+        .fillColor(FARBE.schwach)
+        .text(kilobyte(beleg.groesseBytes), RAND.links + BREITE - 85, y, {
+          width: 85,
+          align: 'right',
+          lineBreak: false,
+        })
+      doc.y = Math.max(doc.y, y + 10)
+      doc
+        .font('Courier')
+        .fontSize(7)
+        .fillColor(FARBE.schwach)
+        .text(beleg.sha256, RAND.links + 12, doc.y, { width: BREITE - 12 })
+      doc.y += 4
+    }
   }
 
   // --- Unterschriften --------------------------------------------------

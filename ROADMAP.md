@@ -21,6 +21,7 @@ Umgesetzte Fassungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
 | ✅ **1.4.0** | Anmeldung mit Passkeys (WebAuthn), Kontoseite, Zurücksetzen durch die Administration |
 | ✅ **1.5.0** | Anpassbare PDF-Vorlagen und wählbarer Zeitraum auf dem Dashboard |
 | ✅ **1.6.0** | Nachweismodul für Reviews und Regelprüfungen mit Vier-Augen-Prinzip |
+| ✅ **1.7.0** | Belege am Prüfbogen: AD-Exporte, Screenshots und Protokolle mit Prüfsumme |
 
 ---
 
@@ -171,11 +172,21 @@ führt den Vorgang in der Anwendung durch und erzeugt den Nachweis daraus.
 - Nicht erfüllte Prüfpunkte lassen sich mit einem Griff in **Abweichungen**
   überführen, statt sie erneut zu erfassen
 
-### Abgrenzung
+---
 
-Das Modul ersetzt nicht den Datei-Upload: Wo ein Nachweis außerhalb entsteht
-(Screenshot, Herstellerprotokoll), bleibt der Upload der richtige Weg. Beides
-steht nebeneinander.
+## 1.7.0 – Belege am Prüfbogen ✅
+
+**Warum:** Der Prüfbogen hält fest, *was* geprüft wurde – der Beleg zeigt,
+*woran*. Dateien ließen sich bisher nur beim Erledigen anhängen, ein Prüfbogen
+entsteht aber vorher. Zum Zeitpunkt der Prüfung gab es also keine Ablage für
+den AD-Export oder den Screenshot, auf den sich eine Antwort stützt.
+
+- Belege direkt am Prüfbogen hochladen, mehrere in einem Zug
+- Zuordnung zu einem einzelnen Prüfpunkt oder zum gesamten Bogen
+- SHA-256 je Datei, einzeln herunterladbar
+- Verzeichnis der Belege mit Prüfsumme im PDF-Nachweis
+- Mit dem Abschluss wandern die Belege an die Durchführung und erscheinen an
+  der Aufgabe und in den Reports
 
 ---
 

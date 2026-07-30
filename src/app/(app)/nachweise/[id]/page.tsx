@@ -140,6 +140,15 @@ export default async function NachweisSeite({
         darfGegenzeichnen={darfGegenzeichnen}
         ablehnungsgrund={nachweis.ablehnungsgrund}
         bemerkung={nachweis.bemerkung ?? ''}
+        belege={nachweis.belege.map((beleg) => ({
+          id: beleg.id,
+          filename: beleg.filename,
+          sizeBytes: beleg.sizeBytes,
+          sha256: beleg.sha256,
+          punktId: beleg.punktId,
+          hochgeladenVon: beleg.uploadedBy.name,
+          hochgeladenAm: formatDateTime(beleg.uploadedAt),
+        }))}
         punkte={nachweis.vorlage.punkte.map((punkt) => {
           const antwort = nachweis.antworten.find((a) => a.punktId === punkt.id)
           return {

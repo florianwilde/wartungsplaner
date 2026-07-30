@@ -18,6 +18,41 @@ Noch keine Änderungen.
 
 ---
 
+## [1.7.0] – 2026-07-30
+
+### Hinzugefügt
+
+- **Belege am Prüfbogen.** Ein Prüfbogen nimmt jetzt die tatsächlichen
+  Nachweise aus den geprüften Systemen auf – AD-Export, Screenshot,
+  Herstellerprotokoll, Sicherungsbericht. Bisher ließen sich Dateien nur beim
+  Erledigen anhängen; ein Prüfbogen entsteht aber vorher, sodass es zum
+  Zeitpunkt der Prüfung keine Ablage dafür gab.
+  - Mehrere Dateien in einem Zug, bis zu 25 je Bogen, je Datei bis 25 MB.
+    Zugelassen sind dieselben Dateitypen wie beim Erledigen (pdf, png, jpg,
+    txt, log, csv, xlsx, docx).
+  - **Zuordnung zu einem einzelnen Prüfpunkt** oder zum gesamten Bogen. Damit
+    ist erkennbar, welcher Beleg welche Aussage stützt – bei einer
+    Rezertifizierung mit dreißig Punkten ist das der Unterschied zwischen
+    nachvollziehbar und unbrauchbar.
+  - Jede Datei erhält beim Hochladen eine **SHA-256-Prüfsumme**; sie steht in
+    der Übersicht und ist einzeln herunterladbar.
+  - Solange der Bogen bearbeitet werden darf, lassen sich Belege wieder
+    entfernen. Hinzufügen und Entfernen erscheinen im Audit-Log.
+- **Belege im PDF-Nachweis**: Am Prüfpunkt steht der zugehörige Dateiname, und
+  am Ende führt ein Verzeichnis alle Belege mit Größe und Prüfsumme auf. Damit
+  belegt das Dokument allein, welche Dateien zur Prüfung gehörten und dass sie
+  unverändert sind – auch außerhalb der Anwendung.
+- Mit dem Abschluss **wandern die Belege an die Durchführung** und erscheinen
+  dort neben dem erzeugten PDF, an der Aufgabe und in den Reports. Die Dateien
+  werden dabei nicht kopiert, es kommt nur die Zuordnung hinzu.
+
+### Geändert
+
+- Ein Anhang kann jetzt an einer Durchführung *oder* an einem laufenden
+  Prüfbogen hängen. Bestehende Anhänge bleiben unverändert.
+
+---
+
 ## [1.6.0] – 2026-07-30
 
 ### Hinzugefügt
@@ -313,7 +348,8 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.6.0...main
+[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.7.0...main
+[1.7.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.7.0
 [1.6.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.6.0
 [1.5.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.5.0
 [1.4.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.4.0

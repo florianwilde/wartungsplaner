@@ -201,8 +201,17 @@ model Execution {
 
 /// Datei-Nachweis zu einer Durchführung. Unveränderlich.
 model Attachment {
-  id           String   @id @default(cuid())
-  executionId  String
+  id String @id @default(cuid())
+  /// Durchführung, an der der Nachweis hängt.
+  ///
+  /// Leer, solange der Beleg zu einem noch offenen Prüfbogen gehört: Der
+  /// Prüfbogen entsteht vor der Durchführung. Mit dem Abschluss wird die
+  /// Durchführung nachgetragen, ohne die Datei zu kopieren.
+  executionId  String?
+  /// Gesetzt, wenn der Beleg während eines Prüfbogens hochgeladen wurde
+  nachweisId   String?
+  /// Optionale Zuordnung zu einem einzelnen Prüfpunkt
+  punktId      String?
   filename     String
   /// Pfad relativ zum Upload-Verzeichnis
   storedPath   String
@@ -213,12 +222,16 @@ model Attachment {
   uploadedById String
   uploadedAt   DateTime @default(now())
 
-  execution  Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
-  uploadedBy User      @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+  execution  Execution? @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  uploadedBy User       @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
   /// Gesetzt, wenn dieser Anhang aus einem Prüfbogen erzeugt wurde
   nachweis   Nachweis?
+  /// Prüfbogen, bei dem dieser Beleg hochgeladen wurde
+  belegZu    Nachweis?        @relation("NachweisBelege", fields: [nachweisId], references: [id], onDelete: Cascade)
+  punkt      PruefbogenPunkt? @relation(fields: [punktId], references: [id], onDelete: SetNull)
 
   @@index([executionId])
+  @@index([nachweisId])
   @@index([sha256])
 }
 
@@ -353,6 +366,7 @@ model PruefbogenPunkt {
 
   vorlage  PruefbogenVorlage @relation(fields: [vorlageId], references: [id], onDelete: Cascade)
   antworten NachweisAntwort[]
+  belege    Attachment[]
 
   @@unique([vorlageId, position])
   @@index([vorlageId])
@@ -393,6 +407,8 @@ model Nachweis {
   geprueftBy User?             @relation("NachweisPruefer", fields: [geprueftById], references: [id], onDelete: Restrict)
   attachment Attachment?       @relation(fields: [attachmentId], references: [id], onDelete: SetNull)
   antworten  NachweisAntwort[]
+  /// Hochgeladene Belege (AD-Export, Screenshot, Herstellerprotokoll …)
+  belege     Attachment[]      @relation("NachweisBelege")
 
   @@index([occurrenceId])
   @@index([status])

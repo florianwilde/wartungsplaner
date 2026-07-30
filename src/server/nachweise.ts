@@ -24,7 +24,12 @@ import {
 } from '@/lib/nachweise'
 import { prisma } from '@/lib/prisma'
 import { baueSpeicherpfad } from '@/lib/uploads'
-import { absoluterPfad, entferneDateien } from '@/server/dateiablage'
+import {
+  absoluterPfad,
+  entferneDateien,
+  speichereDatei,
+  type GespeicherteDatei,
+} from '@/server/dateiablage'
 import { protokolliereDurchfuehrung } from '@/server/durchfuehrung-service'
 import { erzeugeNachweisPdf } from '@/server/reports/nachweis-pdf'
 import { holeBranding } from '@/server/branding'
@@ -47,6 +52,19 @@ export async function ladeNachweis(nachweisId: string) {
       erfasstBy: { select: { id: true, name: true } },
       geprueftBy: { select: { id: true, name: true } },
       attachment: { select: { id: true, filename: true, sha256: true } },
+      belege: {
+        orderBy: { uploadedAt: 'asc' },
+        select: {
+          id: true,
+          filename: true,
+          mimeType: true,
+          sizeBytes: true,
+          sha256: true,
+          punktId: true,
+          uploadedAt: true,
+          uploadedBy: { select: { name: true } },
+        },
+      },
       occurrence: {
         include: {
           task: { select: { id: true, title: true, category: { select: { name: true } } } },
@@ -148,6 +166,141 @@ export type AntwortEingabe = {
   bemerkung: string | null
 }
 
+/** Höchstzahl an Belegen je Prüfbogen. */
+export const MAX_BELEGE = 25
+
+/**
+ * Nimmt Belege zu einem Prüfbogen entgegen – AD-Export, Screenshot,
+ * Herstellerprotokoll und dergleichen.
+ *
+ * Die Dateien hängen zunächst nur am Prüfbogen, denn eine Durchführung gibt es
+ * zu diesem Zeitpunkt noch nicht. Mit dem Abschluss werden sie ihr zugeordnet,
+ * ohne dass die Datei kopiert wird.
+ */
+export async function fuegeBelegeHinzu(
+  nachweisId: string,
+  benutzerId: string,
+  dateien: File[],
+  punktId: string | null,
+): Promise<number> {
+  const nachweis = await ladeNachweis(nachweisId)
+  if (!nachweis) throw new NachweisFehler('Der Nachweis wurde nicht gefunden.')
+  pruefeBearbeitbar(nachweis, benutzerId)
+
+  if (dateien.length === 0) {
+    throw new NachweisFehler('Bitte mindestens eine Datei auswählen.')
+  }
+  if (nachweis.belege.length + dateien.length > MAX_BELEGE) {
+    throw new NachweisFehler(
+      `Je Prüfbogen sind höchstens ${MAX_BELEGE} Belege möglich (bereits vorhanden: ${nachweis.belege.length}).`,
+    )
+  }
+  if (punktId && !nachweis.vorlage.punkte.some((p) => p.id === punktId)) {
+    throw new NachweisFehler('Der gewählte Prüfpunkt gehört nicht zu diesem Bogen.')
+  }
+
+  const geschrieben: GespeicherteDatei[] = []
+  try {
+    for (const datei of dateien) {
+      geschrieben.push(await speichereDatei(datei))
+    }
+
+    await prisma.$transaction(async (tx) => {
+      for (const datei of geschrieben) {
+        await tx.attachment.create({
+          data: {
+            nachweisId,
+            punktId,
+            // Die Durchführung wird beim Abschluss nachgetragen.
+            executionId: nachweis.occurrence.execution?.id ?? null,
+            uploadedById: benutzerId,
+            ...datei,
+          },
+        })
+      }
+
+      await schreibeAudit(
+        {
+          userId: benutzerId,
+          action: 'NACHWEIS_BELEG_HINZUGEFUEGT',
+          entityType: 'Nachweis',
+          entityId: nachweisId,
+          payload: {
+            dateien: geschrieben.map((d) => ({
+              dateiname: d.filename,
+              sha256: d.sha256,
+            })),
+            ...(punktId
+              ? {
+                  pruefpunkt:
+                    nachweis.vorlage.punkte.find((p) => p.id === punktId)?.position ?? null,
+                }
+              : {}),
+          },
+        },
+        tx,
+      )
+    })
+  } catch (error) {
+    await entferneDateien(geschrieben.map((d) => d.storedPath))
+    throw error instanceof NachweisFehler
+      ? error
+      : new NachweisFehler(
+          error instanceof Error ? error.message : 'Die Belege konnten nicht gespeichert werden.',
+        )
+  }
+
+  return geschrieben.length
+}
+
+/** Entfernt einen Beleg, solange der Prüfbogen noch bearbeitet werden darf. */
+export async function entferneBeleg(
+  nachweisId: string,
+  belegId: string,
+  benutzerId: string,
+): Promise<void> {
+  const nachweis = await ladeNachweis(nachweisId)
+  if (!nachweis) throw new NachweisFehler('Der Nachweis wurde nicht gefunden.')
+  pruefeBearbeitbar(nachweis, benutzerId)
+
+  const beleg = await prisma.attachment.findFirst({
+    where: { id: belegId, nachweisId },
+    select: { id: true, filename: true, sha256: true, storedPath: true },
+  })
+  if (!beleg) throw new NachweisFehler('Der Beleg gehört nicht zu diesem Prüfbogen.')
+
+  await prisma.$transaction(async (tx) => {
+    await tx.attachment.delete({ where: { id: beleg.id } })
+    await schreibeAudit(
+      {
+        userId: benutzerId,
+        action: 'NACHWEIS_BELEG_ENTFERNT',
+        entityType: 'Nachweis',
+        entityId: nachweisId,
+        payload: { dateiname: beleg.filename, sha256: beleg.sha256 },
+      },
+      tx,
+    )
+  })
+
+  await entferneDateien([beleg.storedPath])
+}
+
+/** Gemeinsame Regel für alle Änderungen an einem Prüfbogen. */
+function pruefeBearbeitbar(
+  nachweis: { status: string; erfasstById: string },
+  benutzerId: string,
+): void {
+  if (!istAenderbar(nachweis.status as NachweisStatus)) {
+    throw new NachweisFehler(
+      'Dieser Nachweis ist nicht mehr änderbar. Ein gegengezeichneter Nachweis bleibt unverändert; Korrekturen erfolgen als neuer Vorgang.',
+    )
+  }
+  if (nachweis.erfasstById !== benutzerId) {
+    throw new NachweisFehler('Nur die erfassende Person kann diesen Nachweis bearbeiten.')
+  }
+}
+
 /** Speichert Zwischenstand oder endgültige Antworten. */
 export async function speichereAntworten(
   nachweisId: string,
@@ -158,14 +311,7 @@ export async function speichereAntworten(
   const nachweis = await ladeNachweis(nachweisId)
   if (!nachweis) throw new NachweisFehler('Der Nachweis wurde nicht gefunden.')
 
-  if (!istAenderbar(nachweis.status as NachweisStatus)) {
-    throw new NachweisFehler(
-      'Dieser Nachweis ist nicht mehr änderbar. Ein gegengezeichneter Nachweis bleibt unverändert; Korrekturen erfolgen als neuer Vorgang.',
-    )
-  }
-  if (nachweis.erfasstById !== benutzerId) {
-    throw new NachweisFehler('Nur die erfassende Person kann diesen Nachweis bearbeiten.')
-  }
+  pruefeBearbeitbar(nachweis, benutzerId)
 
   const punkte = new Map(nachweis.vorlage.punkte.map((p) => [p.id, p]))
 
@@ -295,8 +441,21 @@ export async function fuehreUebergangAus(
           ergebnis: (antwort?.ergebnis as PruefpunktErgebnis | null) ?? null,
           wert: antwort?.wert ?? null,
           bemerkung: antwort?.bemerkung ?? null,
+          belege: nachweis.belege
+            .filter((beleg) => beleg.punktId === punkt.id)
+            .map((beleg) => beleg.filename),
         }
       }),
+      // Die Belege stehen mit Prüfsumme im PDF: Das Dokument allein belegt
+      // damit, welche Dateien zur Prüfung gehörten und dass sie unverändert
+      // sind – auch außerhalb der Anwendung.
+      belege: nachweis.belege.map((beleg) => ({
+        dateiname: beleg.filename,
+        sha256: beleg.sha256,
+        groesseBytes: beleg.sizeBytes,
+        pruefpunkt:
+          nachweis.vorlage.punkte.find((p) => p.id === beleg.punktId)?.position ?? null,
+      })),
     })
 
     const sha256 = createHash('sha256').update(pdf).digest('hex')
@@ -321,12 +480,15 @@ export async function fuehreUebergangAus(
       sha256,
     }
 
+    let executionId: string
+
     if (nachweis.occurrence.execution) {
       // Die Fälligkeit ist bereits erledigt – der Nachweis kommt zur
       // bestehenden Durchführung hinzu.
+      executionId = nachweis.occurrence.execution.id
       const anhang = await prisma.attachment.create({
         data: {
-          executionId: nachweis.occurrence.execution.id,
+          executionId,
           uploadedById: benutzerId,
           ...datei,
         },
@@ -351,8 +513,9 @@ export async function fuehreUebergangAus(
           },
           nachweis.erfasstById,
         )
+        executionId = durchfuehrung.executionId
         const anhang = await prisma.attachment.findFirst({
-          where: { executionId: durchfuehrung.executionId, sha256 },
+          where: { executionId, sha256 },
           select: { id: true },
         })
         attachmentId = anhang?.id ?? null
@@ -365,6 +528,15 @@ export async function fuehreUebergangAus(
         )
       }
     }
+
+    // Die während der Prüfung hochgeladenen Belege gehören ab jetzt zur
+    // Durchführung. Die Dateien bleiben liegen, wo sie sind – nur die
+    // Zuordnung kommt hinzu, damit sie an der Aufgabe und in den Reports
+    // erscheinen.
+    await prisma.attachment.updateMany({
+      where: { nachweisId, executionId: null },
+      data: { executionId },
+    })
   }
 
   // --- Zustandswechsel schreiben ---------------------------------------
