@@ -58,6 +58,32 @@ export default async function DashboardSeite() {
   // „Nachweise“ von sich aus aufruft.
   const offeneGegenzeichnungen = await ladeOffeneGegenzeichnungen(benutzer.id)
 
+  // Einmal alle aktiven Prüfbögen holen und je Fälligkeit zuordnen – eine
+  // Abfrage je Zeile wäre bei einer langen Liste spürbar.
+  const alleBoegen = await prisma.pruefbogenVorlage.findMany({
+    where: { aktiv: true },
+    orderBy: [{ taskId: 'desc' }, { name: 'asc' }],
+    select: {
+      id: true,
+      name: true,
+      beschreibung: true,
+      vierAugen: true,
+      taskId: true,
+      _count: { select: { punkte: true } },
+    },
+  })
+  const boegenFuer = (taskId: string) =>
+    alleBoegen
+      .filter((bogen) => bogen.taskId === taskId || bogen.taskId === null)
+      .map((bogen) => ({
+        id: bogen.id,
+        name: bogen.name,
+        beschreibung: bogen.beschreibung,
+        vierAugen: bogen.vierAugen,
+        anzahlPunkte: bogen._count.punkte,
+        zugeordnet: bogen.taskId === taskId,
+      }))
+
   const [unerledigte, offeneAbweichungen, kategorien] = await Promise.all([
     prisma.occurrence.findMany({
       where: { status: { in: ['OPEN', 'OVERDUE'] }, task: { active: true } },
@@ -292,6 +318,7 @@ export default async function DashboardSeite() {
                           faelligAm: formatDate(occurrence.dueDate),
                           evidenceRequired: occurrence.task.evidenceRequired,
                         }}
+                        boegen={boegenFuer(occurrence.task.id)}
                         personen={personen}
                         heute={toISODate(heute)}
                         standardFrist={toISODate(addDays(heute, 30))}

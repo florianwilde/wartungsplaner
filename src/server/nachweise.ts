@@ -35,7 +35,6 @@ import {
   speichereDatei,
   type GespeicherteDatei,
 } from '@/server/dateiablage'
-import { protokolliereDurchfuehrung } from '@/server/durchfuehrung-service'
 import {
   meldeVorlage,
   meldeZurueckweisung,
@@ -821,68 +820,36 @@ export async function fuehreUebergangAus(
       sha256,
     }
 
-    let executionId: string
+    // Der abgeschlossene Prüfbogen erledigt die Fälligkeit bewusst NICHT.
+    // Zum Erledigen gehören Ergebnis, Kommentar und vor allem Abweichungen
+    // mit Frist und Verantwortlichkeit – Angaben, die ein Prüfbogen nicht
+    // enthält. Diese Entscheidung bleibt beim Erledigen-Vorgang.
+    //
+    // Das PDF hängt deshalb zunächst am Prüfbogen. Ist die Fälligkeit
+    // bereits erledigt, kommt es sogleich zur Durchführung; andernfalls
+    // wandert es dorthin, sobald sie protokolliert wird.
+    // Ohne nachweisId: Das PDF ist der Nachweis selbst, kein Beleg – es
+    // gehoert nicht in die Belegliste des Bogens.
+    const anhang = await prisma.attachment.create({
+      data: {
+        executionId: nachweis.occurrence.execution?.id ?? null,
+        uploadedById: benutzerId,
+        ...datei,
+      },
+      select: { id: true },
+    })
+    attachmentId = anhang.id
 
     if (nachweis.occurrence.execution) {
-      // Die Fälligkeit ist bereits erledigt – der Nachweis kommt zur
-      // bestehenden Durchführung hinzu.
-      executionId = nachweis.occurrence.execution.id
-      const anhang = await prisma.attachment.create({
-        data: {
-          executionId,
-          uploadedById: benutzerId,
-          ...datei,
-        },
-        select: { id: true },
+      // Die während der Prüfung hochgeladenen Belege gehören dann ebenfalls
+      // zur Durchführung. Die Dateien bleiben liegen, wo sie sind – nur die
+      // Zuordnung kommt hinzu.
+      await prisma.attachment.updateMany({
+        where: { nachweisId, executionId: null },
+        data: { executionId: nachweis.occurrence.execution.id },
       })
-      attachmentId = anhang.id
-    } else {
-      // Regelfall: Der Nachweis entstand aus einer offenen Fälligkeit. Mit
-      // der Gegenzeichnung gilt die Prüfung als durchgeführt – erst dadurch
-      // gibt es eine Durchführung, an der das PDF hängen kann. Der Folgetermin
-      // entsteht dabei wie bei jeder anderen Erledigung.
-      const feststellungenVorhanden =
-        auffaelligePunkte(punkte, antworten).length +
-          auffaelligeZeilen(zeilen).length >
-        0
-      try {
-        const durchfuehrung = await protokolliereDurchfuehrung(
-          {
-            occurrenceId: nachweis.occurrenceId,
-            result: feststellungenVorhanden ? 'OK_WITH_REMARKS' : 'OK',
-            comment: `Erstellt aus dem Prüfbogen „${nachweis.vorlage.name}“.`,
-            durchgefuehrtAm: todayInBerlin(),
-            abweichungen: [],
-            nachweise: [datei],
-          },
-          nachweis.erfasstById,
-        )
-        executionId = durchfuehrung.executionId
-        const anhang = await prisma.attachment.findFirst({
-          where: { executionId, sha256 },
-          select: { id: true },
-        })
-        attachmentId = anhang?.id ?? null
-      } catch (error) {
-        await entferneDateien([relativerPfad])
-        throw new NachweisFehler(
-          error instanceof Error
-            ? `Die Durchführung konnte nicht protokolliert werden: ${error.message}`
-            : 'Die Durchführung konnte nicht protokolliert werden.',
-        )
-      }
     }
-
-    // Die während der Prüfung hochgeladenen Belege gehören ab jetzt zur
-    // Durchführung. Die Dateien bleiben liegen, wo sie sind – nur die
-    // Zuordnung kommt hinzu, damit sie an der Aufgabe und in den Reports
-    // erscheinen.
-    await prisma.attachment.updateMany({
-      where: { nachweisId, executionId: null },
-      data: { executionId },
-    })
   }
-
   // --- Zustandswechsel schreiben ---------------------------------------
   const jetzt = new Date()
   await prisma.$transaction(async (tx) => {

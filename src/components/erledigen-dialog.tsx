@@ -3,7 +3,14 @@
 import { useActionState, useEffect, useState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useRouter } from 'next/navigation'
-import { AlertCircle, CheckCircle2, Plus, Trash2, Upload } from 'lucide-react'
+import {
+  AlertCircle,
+  CheckCircle2,
+  ClipboardList,
+  Plus,
+  Trash2,
+  Upload,
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -26,6 +33,7 @@ import {
 } from '@/lib/labels'
 import { ACCEPT_ATTRIBUT, ERLAUBTE_ENDUNGEN_TEXT } from '@/lib/uploads'
 import { faelligkeitErledigen } from '@/server/actions/durchfuehrungen'
+import { nachweisBeginnen } from '@/server/actions/nachweise'
 
 type Ergebnis = 'OK' | 'OK_WITH_REMARKS' | 'DEVIATION'
 type Schwere = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
@@ -37,6 +45,17 @@ type Abweichung = {
   severity: Schwere
   responsibleId: string
   dueDate: string
+}
+
+/** Ein Prüfbogen, der für diese Fälligkeit in Frage kommt. */
+export type WaehlbarerBogen = {
+  id: string
+  name: string
+  beschreibung: string | null
+  vierAugen: boolean
+  anzahlPunkte: number
+  /** true = fest dieser Aufgabe zugeordnet */
+  zugeordnet: boolean
 }
 
 export type ErledigenAufgabe = {
@@ -64,6 +83,7 @@ export function ErledigenDialog({
   personen,
   heute,
   standardFrist,
+  boegen = [],
   ausloeser,
 }: {
   aufgabe: ErledigenAufgabe
@@ -72,11 +92,17 @@ export function ErledigenDialog({
   heute: string
   /** Vorschlag für die Frist neuer Abweichungen (JJJJ-MM-TT). */
   standardFrist: string
+  /** Prüfbögen, die für diese Aufgabe bereitstehen. */
+  boegen?: WaehlbarerBogen[]
   ausloeser?: React.ReactNode
 }) {
   const router = useRouter()
   const [offen, setOffen] = useState(false)
   const [ergebnis, setErgebnis] = useState<Ergebnis>('OK')
+  // Wegwahl: Mit Prüfbogen erfassen oder unmittelbar protokollieren.
+  const [weg, setWeg] = useState<'bogen' | 'direkt'>('direkt')
+  const [bogenId, setBogenId] = useState(boegen[0]?.id ?? '')
+  const [oeffnetBogen, setOeffnetBogen] = useState(false)
   const [abweichungen, setAbweichungen] = useState<Abweichung[]>([])
   const [dateiAnzahl, setDateiAnzahl] = useState(0)
 
@@ -142,6 +168,105 @@ export function ErledigenDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {boegen.length > 0 ? (
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Wie möchten Sie vorgehen?</p>
+
+            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-border p-3 text-sm has-[:checked]:border-primary">
+              <input
+                type="radio"
+                name="weg"
+                checked={weg === 'bogen'}
+                onChange={() => setWeg('bogen')}
+                className="mt-1"
+              />
+              <span className="min-w-0 flex-1 space-y-2">
+                <span className="flex items-center gap-2 font-medium">
+                  <ClipboardList className="size-4" />
+                  Prüfbogen ausfüllen
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  Der Befund wird Punkt für Punkt festgehalten; daraus entsteht
+                  ein PDF-Nachweis. Die Fälligkeit erledigen Sie danach hier –
+                  mit Ergebnis und etwaigen Abweichungen.
+                </span>
+
+                {weg === 'bogen' ? (
+                  <span className="block space-y-2 pt-1">
+                    {boegen.map((bogen) => (
+                      <label
+                        key={bogen.id}
+                        className="flex cursor-pointer items-start gap-2 rounded-md border border-border/60 p-2 text-sm has-[:checked]:border-primary"
+                      >
+                        <input
+                          type="radio"
+                          name="bogen"
+                          checked={bogenId === bogen.id}
+                          onChange={() => setBogenId(bogen.id)}
+                          className="mt-1"
+                        />
+                        <span className="min-w-0">
+                          <span className="font-medium">{bogen.name}</span>
+                          <span className="block text-xs text-muted-foreground">
+                            {bogen.anzahlPunkte} Prüfpunkte
+                            {bogen.vierAugen
+                              ? ' · Gegenzeichnung durch eine zweite Person'
+                              : ''}
+                            {bogen.zugeordnet ? ' · für diese Aufgabe' : ''}
+                          </span>
+                        </span>
+                      </label>
+                    ))}
+                  </span>
+                ) : null}
+              </span>
+            </label>
+
+            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-border p-3 text-sm has-[:checked]:border-primary">
+              <input
+                type="radio"
+                name="weg"
+                checked={weg === 'direkt'}
+                onChange={() => setWeg('direkt')}
+                className="mt-1"
+              />
+              <span className="min-w-0">
+                <span className="font-medium">Ohne Prüfbogen protokollieren</span>
+                <span className="block text-xs text-muted-foreground">
+                  Ergebnis und Kommentar erfassen, Dateien als Nachweis anhängen.
+                </span>
+              </span>
+            </label>
+          </div>
+        ) : null}
+
+        {weg === 'bogen' && boegen.length > 0 ? (
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setOffen(false)}>
+              Abbrechen
+            </Button>
+            <Button
+              disabled={oeffnetBogen || !bogenId}
+              onClick={async () => {
+                setOeffnetBogen(true)
+                const ergebnis = await nachweisBeginnen(
+                  aufgabe.occurrenceId,
+                  bogenId,
+                )
+                setOeffnetBogen(false)
+                if (ergebnis.fehler) {
+                  toast.error(ergebnis.fehler)
+                } else if (ergebnis.nachweisId) {
+                  setOffen(false)
+                  router.push(`/nachweise/${ergebnis.nachweisId}`)
+                }
+              }}
+            >
+              <ClipboardList className="size-4" />
+              {oeffnetBogen ? 'Wird geöffnet …' : 'Zum Prüfbogen'}
+            </Button>
+          </DialogFooter>
+        ) : (
         <form action={formAction} className="space-y-5">
           <input type="hidden" name="occurrenceId" value={aufgabe.occurrenceId} />
           <input
@@ -357,6 +482,7 @@ export function ErledigenDialog({
             <AbsendenButton />
           </DialogFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   )

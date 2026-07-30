@@ -217,6 +217,14 @@ export default async function AufgabenDetailSeite({
                           faelligAm: formatDate(occurrence.dueDate),
                           evidenceRequired: aufgabe.evidenceRequired,
                         }}
+                        boegen={pruefboegen.map((bogen) => ({
+                          id: bogen.id,
+                          name: bogen.name,
+                          beschreibung: bogen.beschreibung,
+                          vierAugen: bogen.vierAugen,
+                          anzahlPunkte: bogen._count.punkte,
+                          zugeordnet: bogen.taskId === aufgabe.id,
+                        }))}
                         personen={personen}
                         heute={toISODate(heute)}
                         standardFrist={toISODate(addDays(heute, 30))}
@@ -348,6 +356,26 @@ export default async function AufgabenDetailSeite({
                               </li>
                             ))}
                           </ul>
+                        </div>
+                      ) : null}
+
+                      {darfErledigen ? (
+                        <div className="kein-druck">
+                          {/* Ein Prüfbogen lässt sich auch nachreichen: Sein PDF
+                              kommt dann zur bestehenden Durchführung. */}
+                          <NachweisStarten
+                            occurrenceId={occurrence.id}
+                            faelligAm={formatDate(occurrence.dueDate)}
+                            nachreichen
+                            boegen={pruefboegen.map((bogen) => ({
+                              id: bogen.id,
+                              name: bogen.name,
+                              beschreibung: bogen.beschreibung,
+                              vierAugen: bogen.vierAugen,
+                              anzahlPunkte: bogen._count.punkte,
+                              zugeordnet: bogen.taskId === aufgabe.id,
+                            }))}
+                          />
                         </div>
                       ) : null}
 

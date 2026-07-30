@@ -104,9 +104,28 @@ export async function protokolliereDurchfuehrung(
       'Beim Ergebnis „Abweichung“ muss mindestens eine Abweichung mit Maßnahme erfasst werden.',
     )
   }
-  if (occurrence.task.evidenceRequired && eingabe.nachweise.length === 0) {
+  // Nachweise aus abgeschlossenen Prüfbögen dieser Fälligkeit: ihr PDF und
+  // ihre Belege hängen noch am Bogen und wandern gleich zur Durchführung.
+  const ausPruefboegen = await prisma.attachment.findMany({
+    where: {
+      executionId: null,
+      OR: [
+        // Belege, die während der Prüfung hochgeladen wurden
+        { belegZu: { occurrenceId: occurrence.id } },
+        // und das aus dem Bogen erzeugte PDF selbst
+        { nachweis: { occurrenceId: occurrence.id } },
+      ],
+    },
+    select: { id: true },
+  })
+
+  if (
+    occurrence.task.evidenceRequired &&
+    eingabe.nachweise.length === 0 &&
+    ausPruefboegen.length === 0
+  ) {
     throw new FachlicherFehler(
-      'Für diese Aufgabe ist ein Nachweis verpflichtend. Bitte laden Sie mindestens eine Datei hoch.',
+      'Für diese Aufgabe ist ein Nachweis verpflichtend. Bitte laden Sie mindestens eine Datei hoch oder schließen Sie den Prüfbogen ab.',
     )
   }
 
@@ -238,6 +257,17 @@ export async function protokolliereDurchfuehrung(
       eingabe.durchgefuehrtAm,
       benutzerId,
     )
+
+    // PDF-Nachweis und Belege abgeschlossener Prüfbögen gehören ab jetzt zur
+    // Durchführung. Die Dateien bleiben liegen, wo sie sind – nur die
+    // Zuordnung kommt hinzu, damit sie an der Aufgabe und in den Reports
+    // erscheinen und im Archiv landen.
+    if (ausPruefboegen.length > 0) {
+      await tx.attachment.updateMany({
+        where: { id: { in: ausPruefboegen.map((a) => a.id) } },
+        data: { executionId: execution.id },
+      })
+    }
 
     return {
       executionId: execution.id,

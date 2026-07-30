@@ -36,10 +36,13 @@ export function NachweisStarten({
   occurrenceId,
   faelligAm,
   boegen,
+  nachreichen = false,
 }: {
   occurrenceId: string
   faelligAm: string
   boegen: VerfuegbarerBogen[]
+  /** Die Fälligkeit ist bereits erledigt – der Bogen kommt hinzu. */
+  nachreichen?: boolean
 }) {
   const router = useRouter()
   const [offen, setOffen] = useState(false)
@@ -52,7 +55,7 @@ export function NachweisStarten({
     <>
       <Button variant="outline" size="sm" onClick={() => setOffen(true)}>
         <ClipboardList className="size-4" />
-        Prüfbogen
+        {nachreichen ? 'Prüfbogen nachreichen' : 'Prüfbogen'}
       </Button>
 
       <Dialog open={offen} onOpenChange={setOffen}>
@@ -61,7 +64,10 @@ export function NachweisStarten({
             <DialogTitle>Prüfnachweis erfassen</DialogTitle>
             <DialogDescription>
               Für die Fälligkeit vom {faelligAm}. Aus dem ausgefüllten Bogen
-              entsteht ein PDF-Nachweis, der an der Durchführung hinterlegt wird.
+              entsteht ein PDF-Nachweis.
+              {nachreichen
+                ? ' Er wird der bereits protokollierten Durchführung hinzugefügt.'
+                : ' Die Fälligkeit erledigen Sie danach wie gewohnt – dabei wird das PDF als Nachweis übernommen.'}
             </DialogDescription>
           </DialogHeader>
 

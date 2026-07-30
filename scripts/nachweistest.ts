@@ -24,6 +24,7 @@ import {
   starteNachweis,
   uebernehmeZeilen,
 } from '../src/server/nachweise'
+import { protokolliereDurchfuehrung } from '../src/server/durchfuehrung-service'
 import { ladeNachweisregister } from '../src/server/reports/daten'
 
 const prisma = new PrismaClient()
@@ -378,42 +379,69 @@ async function main() {
     (anhang?.sha256?.length ?? 0) === 64,
     'Der Anhang trägt eine SHA-256-Prüfsumme',
   )
+  const nachAbschluss = await prisma.occurrence.findUnique({
+    where: { id: faelligkeit.id },
+    include: { execution: { select: { id: true } } },
+  })
+  pruefe(
+    nachAbschluss?.status === 'OPEN' && nachAbschluss.execution === null,
+    'Der abgeschlossene Prüfbogen erledigt die Fälligkeit nicht von selbst',
+  )
+
+  const nochAmBogen = await prisma.attachment.findMany({
+    where: { nachweisId },
+    select: { id: true, executionId: true },
+  })
+  pruefe(
+    nochAmBogen.length === 1 && nochAmBogen[0].executionId === null,
+    'Der Beleg wartet am Prüfbogen auf die Durchführung',
+  )
+
+  // Jetzt erledigen – mit Ergebnis und Abweichung, wie es der Vorgang
+  // verlangt. Erst dabei entsteht die Durchführung.
+  const durchfuehrung = await protokolliereDurchfuehrung(
+    {
+      occurrenceId: faelligkeit.id,
+      result: 'DEVIATION',
+      comment: 'Prüfbogen abgeschlossen, eine Feststellung.',
+      durchgefuehrtAm: heute,
+      abweichungen: [
+        {
+          title: 'Berechtigungen M. Müller entziehen',
+          severity: 'HIGH',
+          responsibleId: erfasser.id,
+          dueDate: addDays(heute, 14),
+        },
+      ],
+      nachweise: [],
+    },
+    erfasser.id,
+  )
+
   const erledigt = await prisma.occurrence.findUnique({
     where: { id: faelligkeit.id },
     include: { execution: { select: { id: true, result: true } } },
   })
   pruefe(
-    erledigt?.status === 'DONE',
-    'Mit der Gegenzeichnung gilt die Fälligkeit als erledigt',
-  )
-  pruefe(
-    anhang?.executionId === erledigt?.execution?.id,
-    'Der Nachweis hängt an der Durchführung dieser Fälligkeit',
-  )
-  pruefe(
-    erledigt?.execution?.result === 'OK_WITH_REMARKS',
-    'Eine Feststellung führt zum Ergebnis „in Ordnung mit Bemerkungen“',
+    erledigt?.status === 'DONE' && erledigt.execution?.result === 'DEVIATION',
+    'Das Erledigen bestimmt Ergebnis und Abweichungen',
   )
   const folge = await prisma.occurrence.findFirst({
     where: { taskId: aufgabe.id, status: 'OPEN' },
   })
-  pruefe(folge !== null, 'Der Folgetermin entsteht wie bei jeder Erledigung')
+  pruefe(folge !== null, 'Der Folgetermin entsteht beim Erledigen')
 
-  const belegeDanach = await prisma.attachment.findMany({
-    where: { nachweisId },
-    select: { executionId: true, filename: true },
+  const anDerDurchfuehrung = await prisma.attachment.findMany({
+    where: { executionId: durchfuehrung.executionId },
+    select: { nachweisId: true },
   })
   pruefe(
-    belegeDanach.length === 1 &&
-      belegeDanach[0].executionId === erledigt?.execution?.id,
-    'Die Belege wandern mit dem Abschluss an die Durchführung',
+    anDerDurchfuehrung.length === 2,
+    'PDF und Beleg wandern beim Erledigen an die Durchführung',
   )
-  const anDerDurchfuehrung = await prisma.attachment.count({
-    where: { executionId: erledigt?.execution?.id },
-  })
   pruefe(
-    anDerDurchfuehrung === 2,
-    'An der Durchführung hängen Beleg und PDF-Nachweis gemeinsam',
+    anDerDurchfuehrung.filter((a) => a.nachweisId === nachweisId).length === 1,
+    'Der Beleg bleibt dem Prüfbogen zugeordnet, das PDF ist der Nachweis selbst',
   )
 
   await erwarteFehler(
@@ -643,13 +671,13 @@ async function main() {
     'Belassene Zeilen sind keine Feststellung',
   )
 
-  const listenErledigt = await prisma.occurrence.findUnique({
+  const listenStand = await prisma.occurrence.findUnique({
     where: { id: listenFaelligkeit.id },
     include: { execution: { select: { result: true } } },
   })
   pruefe(
-    listenErledigt?.execution?.result === 'OK_WITH_REMARKS',
-    'Eine Zeile mit Befund färbt das Ergebnis der Durchführung',
+    listenStand?.status === 'OPEN',
+    'Auch ohne Vier-Augen-Prinzip bleibt das Erledigen ein eigener Schritt',
   )
 
   await erwarteFehler(
@@ -726,13 +754,13 @@ async function main() {
     solo.attachmentId !== null,
     'Auch dabei entsteht der PDF-Nachweis an der Durchführung',
   )
-  const soloErledigt = await prisma.occurrence.findUnique({
-    where: { id: soloFaelligkeit.id },
-    include: { execution: { select: { result: true } } },
+  const soloAnhang = await prisma.attachment.findFirst({
+    where: { id: solo.attachmentId! },
+    select: { executionId: true, nachweisId: true },
   })
   pruefe(
-    soloErledigt?.status === 'DONE' && soloErledigt.execution?.result === 'OK',
-    'Ohne Feststellung lautet das Ergebnis „in Ordnung“',
+    soloAnhang?.executionId === null,
+    'Das PDF wartet am Prüfbogen, bis die Fälligkeit erledigt wird',
   )
 
   // --- Nachweisregister ---------------------------------------------------
