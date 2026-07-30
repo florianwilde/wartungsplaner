@@ -12,6 +12,7 @@ import {
   type AbweichungZeile,
   type ComplianceReport,
   type HistorieAufgabe,
+  type NachweisRegisterZeile,
   type ReportKopf,
   type VorschauZeile,
 } from './daten'
@@ -316,6 +317,69 @@ export async function erzeugeVorschauExcel(
       eintrag.kritikalitaet,
       eintrag.bestehend ? 'angelegt' : 'geplant',
     ]
+    zeile.commit()
+  }
+
+  return alsBuffer(mappe)
+}
+
+// ---------------------------------------------------------------------------
+// 5. Nachweisregister
+// ---------------------------------------------------------------------------
+
+export async function erzeugeNachweisregisterExcel(
+  kopf: ReportKopf,
+  nachweise: NachweisRegisterZeile[],
+): Promise<Buffer> {
+  const mappe = neueMappe(kopf)
+  const blatt = mappe.addWorksheet('Nachweise')
+
+  setzeBreiten(blatt, [32, 30, 18, 14, 22, 22, 16, 10, 10, 10, 10, 10, 70, 68])
+  let zeilenNummer = schreibeKopf(blatt, kopf)
+
+  schreibeTabellenkopf(blatt, zeilenNummer, [
+    'Prüfbogen',
+    'Aufgabe',
+    'Kategorie',
+    'Soll-Fälligkeit',
+    'Erfasst von',
+    'Gegengezeichnet von',
+    'Gegengezeichnet am',
+    'Vier-Augen',
+    'Prüfpunkte',
+    'Zeilen',
+    'Feststellungen',
+    'Belege',
+    'Feststellungen im Klartext',
+    'Prüfsumme (SHA-256)',
+  ])
+  zeilenNummer++
+
+  for (const nachweis of nachweise) {
+    const zeile = blatt.getRow(zeilenNummer++)
+    zeile.values = [
+      nachweis.pruefbogen,
+      nachweis.aufgabe,
+      nachweis.kategorie,
+      formatDate(nachweis.faelligAm),
+      nachweis.erfasstVon,
+      nachweis.geprueftVon,
+      nachweis.geprueftAm ? formatDate(nachweis.geprueftAm) : '',
+      nachweis.vierAugen ? 'ja' : 'nein',
+      nachweis.anzahlPunkte,
+      nachweis.anzahlZeilen,
+      nachweis.anzahlFeststellungen,
+      nachweis.anzahlBelege,
+      nachweis.feststellungen.join('\n'),
+      nachweis.pruefsumme,
+    ]
+    if (nachweis.anzahlFeststellungen > 0) {
+      zeile.getCell(11).font = { color: { argb: 'FFB91C1C' }, bold: true }
+    }
+    // Die Prüfsumme ist zum Abgleich gedacht und soll sich unverfälscht
+    // kopieren lassen – deshalb Festbreitenschrift statt Umbruch.
+    zeile.getCell(14).font = { name: 'Consolas', size: 9 }
+    zeile.getCell(13).alignment = { wrapText: true, vertical: 'top' }
     zeile.commit()
   }
 

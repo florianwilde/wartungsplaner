@@ -24,6 +24,7 @@ import {
   starteNachweis,
   uebernehmeZeilen,
 } from '../src/server/nachweise'
+import { ladeNachweisregister } from '../src/server/reports/daten'
 
 const prisma = new PrismaClient()
 
@@ -732,6 +733,55 @@ async function main() {
   pruefe(
     soloErledigt?.status === 'DONE' && soloErledigt.execution?.result === 'OK',
     'Ohne Feststellung lautet das Ergebnis „in Ordnung“',
+  )
+
+  // --- Nachweisregister ---------------------------------------------------
+  const zeitraum = { von: addDays(heute, -30), bis: addDays(heute, 30) }
+  const register = await ladeNachweisregister(zeitraum, [])
+  const eintrag = register.find((r) => r.pruefbogen === vorlage.name)
+
+  pruefe(
+    eintrag !== undefined,
+    'Der abgeschlossene Nachweis erscheint im Nachweisregister',
+  )
+  pruefe(
+    eintrag?.erfasstVon === erfasser.name && eintrag.geprueftVon === pruefer.name,
+    'Das Register weist beide beteiligten Personen aus',
+  )
+  pruefe(
+    eintrag?.pruefsumme.length === 64,
+    'Die Prüfsumme des PDF-Nachweises steht im Register',
+  )
+  pruefe(
+    eintrag?.anzahlFeststellungen === 1 &&
+      eintrag.feststellungen.some((f) => f.includes('M. Müller')),
+    'Feststellungen erscheinen im Klartext',
+  )
+  pruefe(
+    eintrag?.anzahlBelege === 1,
+    'Die Anzahl der Belege wird mitgeführt',
+  )
+
+  const soloEintrag = register.find((r) => r.pruefbogen === soloVorlage.name)
+  pruefe(
+    soloEintrag?.geprueftVon === 'ohne Gegenzeichnung' &&
+      soloEintrag.vierAugen === false,
+    'Ohne Vier-Augen-Pflicht täuscht das Register keine Gegenzeichnung vor',
+  )
+
+  const listenEintrag = register.find((r) => r.pruefbogen === listenVorlage.name)
+  pruefe(
+    listenEintrag?.anzahlZeilen === 3 && listenEintrag.anzahlFeststellungen === 1,
+    'Zeilen einer Liste zählen im Register mit, Befunde ebenso',
+  )
+
+  const engerZeitraum = await ladeNachweisregister(
+    { von: addDays(heute, 10), bis: addDays(heute, 30) },
+    [],
+  )
+  pruefe(
+    !engerZeitraum.some((r) => r.pruefbogen === vorlage.name),
+    'Außerhalb des Zeitraums erscheint der Nachweis nicht',
   )
 
   // ---------------------------------------------------------------------

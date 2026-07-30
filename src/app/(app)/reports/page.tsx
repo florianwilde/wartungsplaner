@@ -31,6 +31,12 @@ const BERICHTE: Omit<ReportDefinition, 'vorlagen'>[] = [
     mitZeitraum: true,
   },
   {
+    typ: 'nachweise',
+    titel: REPORT_TITEL.nachweise,
+    beschreibung: REPORT_BESCHREIBUNG.nachweise,
+    mitZeitraum: true,
+  },
+  {
     typ: 'vorschau',
     titel: REPORT_TITEL.vorschau,
     beschreibung: REPORT_BESCHREIBUNG.vorschau,

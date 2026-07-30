@@ -14,6 +14,13 @@ import {
   KRITIKALITAET_BEZEICHNUNG,
   SCHWERE_BEZEICHNUNG,
 } from '@/lib/labels'
+import {
+  ERGEBNIS_BEZEICHNUNG as PRUEFERGEBNIS_BEZEICHNUNG,
+  auffaelligePunkte,
+  auffaelligeZeilen,
+  type Pruefpunkt,
+  type PruefpunktErgebnis,
+} from '@/lib/nachweise'
 import { prisma } from '@/lib/prisma'
 import { erzeugeVorschau, intervallText, warPuenktlich } from '@/lib/scheduling'
 import { holeBranding } from '@/server/branding'
@@ -471,6 +478,132 @@ export async function ladeVorschau(
   )
 
   return { zeitraum: { von: heute, bis }, zeilen }
+}
+
+// ---------------------------------------------------------------------------
+// 5. Nachweisregister
+// ---------------------------------------------------------------------------
+
+export type NachweisRegisterZeile = {
+  pruefbogen: string
+  aufgabe: string
+  kategorie: string
+  faelligAm: Date
+  erfasstVon: string
+  erfasstAm: Date
+  geprueftVon: string
+  geprueftAm: Date | null
+  vierAugen: boolean
+  anzahlPunkte: number
+  anzahlZeilen: number
+  anzahlFeststellungen: number
+  anzahlBelege: number
+  /** Prüfsumme des erzeugten PDF-Nachweises */
+  pruefsumme: string
+  /** Feststellungen im Klartext für den Detailteil */
+  feststellungen: string[]
+}
+
+/**
+ * Alle abgeschlossenen Prüfnachweise eines Zeitraums.
+ *
+ * Bewusst nur gegengezeichnete: Ein Entwurf ist kein Nachweis. Maßgeblich ist
+ * der Zeitpunkt der Gegenzeichnung, denn das ist der Moment, in dem der
+ * Nachweis gültig wurde.
+ */
+export async function ladeNachweisregister(
+  zeitraum: Zeitraum,
+  kategorieIds: string[],
+): Promise<NachweisRegisterZeile[]> {
+  const nachweise = await prisma.nachweis.findMany({
+    where: {
+      status: 'GEGENGEZEICHNET',
+      geprueftAm: {
+        gte: zeitraum.von,
+        lte: naechsterTagesbeginn(zeitraum.bis),
+      },
+      occurrence: { task: kategorieFilter(kategorieIds) },
+    },
+    orderBy: { geprueftAm: 'desc' },
+    include: {
+      vorlage: { include: { punkte: { orderBy: { position: 'asc' } } } },
+      antworten: true,
+      zeilen: { orderBy: [{ punktId: 'asc' }, { position: 'asc' }] },
+      erfasstBy: { select: { name: true } },
+      geprueftBy: { select: { name: true } },
+      attachment: { select: { sha256: true } },
+      _count: { select: { belege: true } },
+      occurrence: {
+        select: {
+          dueDate: true,
+          task: { select: { title: true, category: { select: { name: true } } } },
+        },
+      },
+    },
+  })
+
+  return nachweise.map((nachweis) => {
+    const punkte = nachweis.vorlage.punkte.map((p) => ({
+      id: p.id,
+      position: p.position,
+      frage: p.frage,
+      art: p.art as Pruefpunkt['art'],
+      pflicht: p.pflicht,
+    }))
+    const antworten = nachweis.antworten.map((a) => ({
+      punktId: a.punktId,
+      ergebnis: (a.ergebnis as PruefpunktErgebnis | null) ?? null,
+      wert: a.wert,
+    }))
+    const zeilen = nachweis.zeilen.map((z) => ({
+      id: z.id,
+      punktId: z.punktId,
+      position: z.position,
+      bezeichnung: z.bezeichnung,
+      zusatz: z.zusatz,
+      ergebnis: (z.ergebnis as PruefpunktErgebnis | null) ?? null,
+      bemerkung: z.bemerkung,
+    }))
+
+    // Ein Befund kann an einem Prüfpunkt hängen oder an einer einzelnen Zeile
+    // einer Liste – beides zählt gleichermaßen als Feststellung.
+    const ausPunkten = auffaelligePunkte(punkte, antworten).map(
+      (eintrag) =>
+        `${eintrag.punkt.position}. ${eintrag.punkt.frage} – ${
+          PRUEFERGEBNIS_BEZEICHNUNG[eintrag.antwort.ergebnis!]
+        }`,
+    )
+    const ausZeilen = auffaelligeZeilen(zeilen).map((zeile) => {
+      const bezeichnung = zeile.zusatz
+        ? `${zeile.bezeichnung} · ${zeile.zusatz}`
+        : zeile.bezeichnung
+      return `${bezeichnung} – ${PRUEFERGEBNIS_BEZEICHNUNG[zeile.ergebnis!]}${
+        zeile.bemerkung ? ` (${zeile.bemerkung})` : ''
+      }`
+    })
+
+    return {
+      pruefbogen: nachweis.vorlage.name,
+      aufgabe: nachweis.occurrence.task.title,
+      kategorie: nachweis.occurrence.task.category.name,
+      faelligAm: nachweis.occurrence.dueDate,
+      erfasstVon: nachweis.erfasstBy.name,
+      erfasstAm: nachweis.erfasstAm,
+      // Ohne Vier-Augen-Pflicht schließt die erfassende Person selbst ab; das
+      // wird ausgewiesen, statt eine Gegenzeichnung vorzutäuschen.
+      geprueftVon: nachweis.vorlage.vierAugen
+        ? (nachweis.geprueftBy?.name ?? '–')
+        : 'ohne Gegenzeichnung',
+      geprueftAm: nachweis.geprueftAm,
+      vierAugen: nachweis.vorlage.vierAugen,
+      anzahlPunkte: punkte.length,
+      anzahlZeilen: zeilen.length,
+      anzahlFeststellungen: ausPunkten.length + ausZeilen.length,
+      anzahlBelege: nachweis._count.belege,
+      pruefsumme: nachweis.attachment?.sha256 ?? '',
+      feststellungen: [...ausPunkten, ...ausZeilen],
+    }
+  })
 }
 
 /** Prozentwert für die Ausgabe, z. B. "92,3 %". */

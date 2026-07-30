@@ -23,12 +23,12 @@ Umgesetzte Fassungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
 | ✅ **1.5.0** | Anpassbare PDF-Vorlagen und wählbarer Zeitraum auf dem Dashboard |
 | ✅ **1.6.0** | Nachweismodul für Reviews und Regelprüfungen mit Vier-Augen-Prinzip |
 | ✅ **1.7.0** | Belege am Prüfbogen: AD-Exporte, Screenshots und Protokolle mit Prüfsumme |
+| ✅ **1.8.0** | Prüfvorgang zu Ende geführt: Benachrichtigung zur Gegenzeichnung, Feststellungen als Abweichungen, Zeilenlisten, Nachweisregister |
 
 ## Vorgesehen
 
 | Fassung | Inhalt |
 | --- | --- |
-| 📋 **1.8.0** | Den Prüfvorgang zu Ende führen: Benachrichtigung zur Gegenzeichnung, Feststellungen als Abweichungen, Zeilenlisten mit CSV-Übernahme, Nachweisregister |
 | 📋 **1.9.0** | Nachweise belastbar aufbewahren: Prüfsummenlauf, Archiv-Export, Aufbewahrungsfristen, Virenprüfung |
 | 📋 **1.10.0** | Alltagstauglichkeit: Vertretung, Belege aus der Zwischenablage, Aufgabenvorlagen, iCal |
 
@@ -159,9 +159,9 @@ führt den Vorgang in der Anwendung durch und erzeugt den Nachweis daraus.
   - **Zutrittsberechtigungen** – Transponder, Person, Entscheidung
   - **Regelprüfung** (Firewall, Patchstand, Zertifikate) – Regel bzw. System,
     Befund, Maßnahme
-- ⏳ Zeilen lassen sich aus einer CSV-Datei übernehmen (etwa ein AD-Export),
-  damit niemand hunderte Einträge abtippt – offen, eingeplant für 1.8.0. Ein
-  Prüfbogen hat derzeit fest definierte Prüfpunkte, keine Zeilenliste.
+- ✅ Zeilen lassen sich aus einer CSV-Datei übernehmen (etwa ein AD-Export),
+  damit niemand hunderte Einträge abtippt – umgesetzt in 1.8.0 als Prüfpunkt-Art
+  „Liste“.
 - Zwischenspeichern: ein umfangreiches Review muss nicht in einem Zug fertig
   werden
 
@@ -185,9 +185,8 @@ führt den Vorgang in der Anwendung durch und erzeugt den Nachweis daraus.
   mit SHA-256 wie jeder andere Nachweis, damit die Nachweiskette geschlossen
   bleibt
 - Zusätzlich einzeln **herunterladbar**
-- ⏳ Nicht erfüllte Prüfpunkte lassen sich mit einem Griff in **Abweichungen**
-  überführen – offen, eingeplant für 1.8.0. Die Feststellungen werden bereits
-  erkannt und ausgewiesen, aber noch nicht übernommen.
+- ✅ Nicht erfüllte Prüfpunkte lassen sich mit einem Griff in **Abweichungen**
+  überführen – umgesetzt in 1.8.0, mit Rückverweis auf den Prüfpunkt.
 
 ---
 
@@ -214,7 +213,7 @@ verlässt sich die Anwendung, ohne es zu prüfen?
 
 ---
 
-## 1.8.0 – Den Prüfvorgang zu Ende führen 📋
+## 1.8.0 – Den Prüfvorgang zu Ende führen ✅
 
 **Warum zuerst:** Das Nachweismodul erfasst und zeichnet gegen, lässt die
 prüfende Person danach aber allein. Ein vorgelegter Bogen liegt still da,
@@ -225,33 +224,33 @@ begonnenen Ablaufs – und die kosten im Alltag am meisten.
 
 ### Benachrichtigung zur Gegenzeichnung
 
-- 📋 Nachricht an die berechtigten Personen, sobald ein Nachweis **vorgelegt**
+- ✅ Nachricht an die berechtigten Personen, sobald ein Nachweis **vorgelegt**
   wird. Heute erfährt niemand davon; der Bogen bleibt liegen, bis jemand
   zufällig auf die Seite „Nachweise“ schaut.
-- 📋 Erinnerung, wenn eine Gegenzeichnung länger als vereinbart aussteht, und
+- ✅ Erinnerung, wenn eine Gegenzeichnung länger als vereinbart aussteht, und
   Nachricht an die erfassende Person bei **Zurückweisung**.
-- 📋 Anzeige offener Gegenzeichnungen auf dem Dashboard.
+- ✅ Anzeige offener Gegenzeichnungen auf dem Dashboard.
 
 ### Feststellungen in Abweichungen überführen
 
-- 📋 Aus einem nicht erfüllten Prüfpunkt wird mit einem Griff eine Abweichung –
+- ✅ Aus einem nicht erfüllten Prüfpunkt wird mit einem Griff eine Abweichung –
   Titel, Beschreibung und Bezug sind bereits bekannt und müssen nicht erneut
   eingegeben werden (offener Punkt aus 1.6.0).
-- 📋 Rückverweis von der Abweichung auf den Prüfpunkt, aus dem sie stammt.
+- ✅ Rückverweis von der Abweichung auf den Prüfpunkt, aus dem sie stammt.
 
 ### Zeilenlisten im Prüfbogen
 
-- 📋 Ein Prüfpunkt vom Typ **Liste**: viele gleichartige Zeilen mit derselben
+- ✅ Ein Prüfpunkt vom Typ **Liste**: viele gleichartige Zeilen mit derselben
   Frage – je Konto, Transponder oder Firewall-Regel eine Entscheidung
   (offener Punkt aus 1.6.0).
-- 📋 Zeilen aus einer **CSV-Datei** übernehmen, etwa direkt aus einem
+- ✅ Zeilen aus einer **CSV-Datei** übernehmen, etwa direkt aus einem
   AD-Export. Ohne das ist eine Rezertifizierung größerer Bestände Handarbeit.
-- 📋 Sammelentscheidung für alle Zeilen ohne eigenen Befund („übrige
+- ✅ Sammelentscheidung für alle Zeilen ohne eigenen Befund („übrige
   belassen“), damit nur die Ausnahmen einzeln zu bearbeiten sind.
 
 ### Nachweisregister
 
-- 📋 Fünfter Report: alle Nachweise eines Zeitraums mit Prüfbogen, Aufgabe,
+- ✅ Fünfter Report: alle Nachweise eines Zeitraums mit Prüfbogen, Aufgabe,
   beiden Personen, Zeitpunkten, Anzahl Feststellungen und Prüfsumme. Der
   Compliance-Report zeigt heute Durchführungen, nicht die Prüfvorgänge selbst.
 

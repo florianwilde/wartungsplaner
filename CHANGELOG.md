@@ -14,6 +14,12 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ## [Unveröffentlicht]
 
+Noch keine Änderungen.
+
+---
+
+## [1.8.0] – 2026-07-30
+
 ### Sicherheit
 
 - **Die Datenbank ist von außerhalb des Compose-Stacks nicht mehr erreichbar.**
@@ -61,6 +67,19 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
     entschieden sind – eine leere Liste belegt nichts.
   - Zeilen mit Befund erscheinen als Feststellung und stehen einzeln im
     PDF-Nachweis.
+- **Nachweisregister als fünfter Report.** Der Compliance-Bericht zeigt
+  Durchführungen, nicht die Prüfvorgänge selbst. Das Register listet alle
+  abgeschlossenen Prüfnachweise eines Zeitraums mit Prüfbogen, Aufgabe,
+  beiden beteiligten Personen, Zeitpunkten, Anzahl der Prüfpunkte und Zeilen,
+  Feststellungen, Belegen und der SHA-256-Prüfsumme des PDF-Nachweises.
+  - Der Detailteil nennt jede Feststellung im Klartext und die vollständige
+    Prüfsumme – das Register allein genügt damit als Beleg dafür, welche
+    Prüfungen stattgefunden haben und dass die Nachweise unverändert sind.
+  - Bögen ohne Vier-Augen-Pflicht werden als „ohne Gegenzeichnung“
+    ausgewiesen, statt eine zweite Person vorzutäuschen.
+  - Voreingestellt im Querformat; zwölf Spalten brächen im Hochformat um.
+  - Als PDF und Excel verfügbar, mit anpassbarer Vorlage wie die übrigen
+    Berichte.
 
 ### Dokumentation
 
@@ -403,7 +422,8 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.7.0...main
+[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.8.0...main
+[1.8.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.8.0
 [1.7.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.7.0
 [1.6.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.6.0
 [1.5.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.5.0

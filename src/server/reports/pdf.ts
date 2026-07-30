@@ -23,6 +23,7 @@ import {
   type AbweichungZeile,
   type ComplianceReport,
   type HistorieAufgabe,
+  type NachweisRegisterZeile,
   type ReportKopf,
   type VorschauZeile,
 } from './daten'
@@ -800,5 +801,133 @@ export function erzeugeVorschauPdf(
         ),
       ),
     )
+  })
+}
+
+// ---------------------------------------------------------------------------
+// 5. Nachweisregister
+// ---------------------------------------------------------------------------
+
+export function erzeugeNachweisregisterPdf(
+  kopf: ReportKopf,
+  nachweise: NachweisRegisterZeile[],
+  vorlage: ReportVorlage,
+): Promise<Buffer> {
+  return baueDokument(kopf, vorlage, (doc, k) => {
+    const mitFeststellung = nachweise.filter((n) => n.anzahlFeststellungen > 0)
+    const feststellungen = nachweise.reduce(
+      (summe, n) => summe + n.anzahlFeststellungen,
+      0,
+    )
+    const gegengezeichnet = nachweise.filter((n) => n.vierAugen).length
+
+    ueberschrift(doc, k, 'Zusammenfassung')
+    absatz(
+      doc,
+      k,
+      `${nachweise.length} abgeschlossene Prüfnachweise im Zeitraum, davon ` +
+        `${gegengezeichnet} im Vier-Augen-Prinzip gegengezeichnet. ` +
+        (mitFeststellung.length === 0
+          ? 'Kein Nachweis enthält eine Feststellung.'
+          : `${mitFeststellung.length} ${
+              mitFeststellung.length === 1 ? 'Nachweis enthält' : 'Nachweise enthalten'
+            } zusammen ${feststellungen} ${
+              feststellungen === 1 ? 'Feststellung' : 'Feststellungen'
+            }.`),
+    )
+
+    if (nachweise.length === 0) {
+      absatz(
+        doc,
+        k,
+        'Im gewählten Zeitraum wurde kein Prüfnachweis abgeschlossen.',
+      )
+      return
+    }
+
+    const { spalten, schluessel } = spaltenFuer(vorlage, k)
+
+    tabelle(
+      doc,
+      k,
+      spalten,
+      nachweise.map((n) =>
+        zeileAus(
+          {
+            pruefbogen: n.pruefbogen,
+            aufgabe: n.aufgabe,
+            kategorie: n.kategorie,
+            faellig: formatDate(n.faelligAm),
+            erfasstVon: n.erfasstVon,
+            geprueftVon: n.geprueftVon,
+            geprueftAm: n.geprueftAm ? formatDate(n.geprueftAm) : '–',
+            vierAugen: n.vierAugen ? 'ja' : 'nein',
+            punkte: String(n.anzahlPunkte + n.anzahlZeilen),
+            feststellungen: String(n.anzahlFeststellungen),
+            belege: String(n.anzahlBelege),
+            pruefsumme: n.pruefsumme ? n.pruefsumme.slice(0, 16) + '…' : '–',
+          },
+          schluessel,
+        ),
+      ),
+      {
+        zeilenFarbe: (index) =>
+          nachweise[index].anzahlFeststellungen > 0 ? FARBE.rot : undefined,
+      },
+    )
+
+    // Der Detailteil ist der eigentliche Zweck des Registers: Die Tabelle
+    // nennt nur Zahlen, hier steht, worum es bei den Feststellungen ging und
+    // mit welcher Prüfsumme der Nachweis belegt ist.
+    ueberschrift(doc, k, 'Nachweise im Detail')
+    for (const nachweis of nachweise) {
+      sichereHoehe(doc, k, 40)
+      doc
+        .font('Helvetica-Bold')
+        .fontSize(8.5)
+        .fillColor(FARBE.text)
+        .text(`${nachweis.pruefbogen} – ${nachweis.aufgabe}`, RAND.links, doc.y, {
+          width: k.inhaltBreite,
+        })
+
+      absatzEingerueckt(
+        doc,
+        k,
+        `Erfasst von ${nachweis.erfasstVon} am ${formatDate(nachweis.erfasstAm)}, ` +
+          (nachweis.vierAugen
+            ? `gegengezeichnet von ${nachweis.geprueftVon}`
+            : 'ohne Gegenzeichnung abgeschlossen') +
+          (nachweis.geprueftAm ? ` am ${formatDate(nachweis.geprueftAm)}` : '') +
+          `. Soll-Fälligkeit ${formatDate(nachweis.faelligAm)}.`,
+      )
+
+      if (nachweis.feststellungen.length > 0) {
+        for (const eintrag of nachweis.feststellungen) {
+          absatzEingerueckt(doc, k, `Feststellung: ${eintrag}`)
+        }
+      } else {
+        absatzEingerueckt(doc, k, 'Ohne Feststellung.')
+      }
+
+      if (nachweis.anzahlBelege > 0) {
+        absatzEingerueckt(
+          doc,
+          k,
+          `${nachweis.anzahlBelege} ${
+            nachweis.anzahlBelege === 1 ? 'Beleg' : 'Belege'
+          } beigefügt.`,
+        )
+      }
+
+      absatzEingerueckt(
+        doc,
+        k,
+        nachweis.pruefsumme
+          ? `Prüfsumme des Nachweises (SHA-256): ${nachweis.pruefsumme}`
+          : 'Kein PDF-Nachweis hinterlegt.',
+      )
+
+      doc.y += 4
+    }
   })
 }

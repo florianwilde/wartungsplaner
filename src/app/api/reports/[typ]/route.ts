@@ -10,6 +10,7 @@ import {
   ladeAbweichungen,
   ladeCompliance,
   ladeHistorie,
+  ladeNachweisregister,
   ladeVorschau,
   REPORT_TITEL,
   type ReportTyp,
@@ -18,6 +19,7 @@ import {
   erzeugeAbweichungenExcel,
   erzeugeComplianceExcel,
   erzeugeHistorieExcel,
+  erzeugeNachweisregisterExcel,
   erzeugeVorschauExcel,
 } from '@/server/reports/excel'
 import { holeVorlage } from '@/server/report-vorlagen'
@@ -25,6 +27,7 @@ import {
   erzeugeAbweichungenPdf,
   erzeugeCompliancePdf,
   erzeugeHistoriePdf,
+  erzeugeNachweisregisterPdf,
   erzeugeVorschauPdf,
 } from '@/server/reports/pdf'
 
@@ -37,6 +40,7 @@ const GUELTIGE_TYPEN: ReportTyp[] = [
   'historie',
   'abweichungen',
   'vorschau',
+  'nachweise',
 ]
 
 const MIME = {
@@ -113,12 +117,18 @@ export async function GET(
           format === 'pdf'
             ? await erzeugeHistoriePdf(kopf, daten, vorlage)
             : await erzeugeHistorieExcel(kopf, daten)
-      } else {
+      } else if (reportTyp === 'abweichungen') {
         const daten = await ladeAbweichungen(zeitraum, kategorien)
         inhalt =
           format === 'pdf'
             ? await erzeugeAbweichungenPdf(kopf, daten, vorlage)
             : await erzeugeAbweichungenExcel(kopf, daten)
+      } else {
+        const daten = await ladeNachweisregister(zeitraum, kategorien)
+        inhalt =
+          format === 'pdf'
+            ? await erzeugeNachweisregisterPdf(kopf, daten, vorlage)
+            : await erzeugeNachweisregisterExcel(kopf, daten)
       }
     }
 

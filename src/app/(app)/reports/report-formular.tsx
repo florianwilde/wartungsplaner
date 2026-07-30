@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 export type ReportDefinition = {
-  typ: 'compliance' | 'historie' | 'abweichungen' | 'vorschau'
+  typ: 'compliance' | 'historie' | 'abweichungen' | 'vorschau' | 'nachweise'
   titel: string
   beschreibung: string
   /** true = Zeitraumfilter, false = Vorschau in Monaten */

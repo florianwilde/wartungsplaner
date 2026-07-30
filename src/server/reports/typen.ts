@@ -6,13 +6,19 @@
  * Module darauf zugreifen, ohne dass ein Kreis entsteht.
  */
 
-export type ReportTyp = 'compliance' | 'historie' | 'abweichungen' | 'vorschau'
+export type ReportTyp =
+  | 'compliance'
+  | 'historie'
+  | 'abweichungen'
+  | 'vorschau'
+  | 'nachweise'
 
 export const REPORT_TYPEN: ReportTyp[] = [
   'compliance',
   'historie',
   'abweichungen',
   'vorschau',
+  'nachweise',
 ]
 
 export const REPORT_TITEL: Record<ReportTyp, string> = {
@@ -20,6 +26,7 @@ export const REPORT_TITEL: Record<ReportTyp, string> = {
   historie: 'Aufgabenhistorie',
   abweichungen: 'Abweichungsbericht',
   vorschau: 'Fälligkeitsvorschau',
+  nachweise: 'Nachweisregister',
 }
 
 export const REPORT_BESCHREIBUNG: Record<ReportTyp, string> = {
@@ -31,4 +38,6 @@ export const REPORT_BESCHREIBUNG: Record<ReportTyp, string> = {
     'Alle Abweichungen des Zeitraums mit Schweregrad, Verantwortlichkeit, Frist und Maßnahme.',
   vorschau:
     'Vorschau der kommenden Prüfungen inklusive planerisch fortgeschriebener Termine.',
+  nachweise:
+    'Alle abgeschlossenen Prüfnachweise mit Prüfbogen, beiden Personen, Zeitpunkten, Feststellungen und Prüfsumme.',
 }

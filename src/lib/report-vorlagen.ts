@@ -68,6 +68,20 @@ export const SPALTEN_KATALOG: Record<ReportTyp, SpaltenDefinition[]> = {
     { key: 'kritikalitaet', kopf: 'Kritikalität', anteil: 9 },
     { key: 'art', kopf: 'Art', anteil: 8 },
   ],
+  nachweise: [
+    { key: 'pruefbogen', kopf: 'Prüfbogen', anteil: 19, pflicht: true },
+    { key: 'aufgabe', kopf: 'Aufgabe', anteil: 17, pflicht: true },
+    { key: 'kategorie', kopf: 'Kategorie', anteil: 12 },
+    { key: 'faellig', kopf: 'Soll', anteil: 8 },
+    { key: 'erfasstVon', kopf: 'Erfasst von', anteil: 14, pflicht: true },
+    { key: 'geprueftVon', kopf: 'Gegengezeichnet', anteil: 14, pflicht: true },
+    { key: 'geprueftAm', kopf: 'Am', anteil: 8 },
+    { key: 'vierAugen', kopf: '4-Augen', anteil: 7 },
+    { key: 'punkte', kopf: 'Punkte', anteil: 6, ausrichtung: 'right' },
+    { key: 'feststellungen', kopf: 'Fest.', anteil: 6, ausrichtung: 'right' },
+    { key: 'belege', kopf: 'Belege', anteil: 6, ausrichtung: 'right' },
+    { key: 'pruefsumme', kopf: 'SHA-256', anteil: 20 },
+  ],
 }
 
 /** Alle Spaltenschlüssel einer Reportart. */
@@ -83,7 +97,7 @@ export function pflichtSpalten(typ: ReportTyp): string[] {
 /** Vorbelegung: alle Spalten außer den ausdrücklich zusätzlichen. */
 export function standardSpalten(typ: ReportTyp): string[] {
   // "kommentar" und "geschlossen" sind ausführlich und daher nicht vorbelegt.
-  const zusatz = new Set(['kommentar'])
+  const zusatz = new Set(['kommentar', 'pruefsumme'])
   return SPALTEN_KATALOG[typ]
     .filter((s) => !zusatz.has(s.key))
     .map((s) => s.key)
@@ -166,7 +180,9 @@ export function eingebauteVorlage(typ: ReportTyp): ReportVorlage {
     name: 'Standard',
     typ,
     istStandard: true,
-    ausrichtung: typ === 'historie' || typ === 'abweichungen' ? 'hoch' : 'hoch',
+    // Das Nachweisregister führt zwölf Spalten; im Hochformat bräche die
+    // Tabelle mitten im Wort um. Die übrigen Berichte kommen hoch aus.
+    ausrichtung: typ === 'nachweise' ? 'quer' : 'hoch',
     spalten: standardSpalten(typ),
     mitDeckblatt: false,
     deckblattUntertitel: null,
