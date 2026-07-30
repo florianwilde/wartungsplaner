@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { anzeigeName } from '@/lib/audit-referenzen'
 
 export type ReportDefinition = {
   typ: 'compliance' | 'historie' | 'abweichungen' | 'vorschau' | 'nachweise'
@@ -22,11 +23,14 @@ export type ReportDefinition = {
 export function ReportFormular({
   berichte,
   kategorien,
+  referenzen,
   standardVon,
   standardBis,
 }: {
   berichte: ReportDefinition[]
   kategorien: { id: string; name: string; color: string }[]
+  /** Audit-Referenzen mit zugeordneten Aufgaben. */
+  referenzen: { id: string; kuerzel: string; rahmenwerk: string | null }[]
   standardVon: string
   standardBis: string
 }) {
@@ -36,6 +40,13 @@ export function ReportFormular({
   const [gewaehlt, setGewaehlt] = useState<string[]>([])
   // Je Bericht die gewaehlte PDF-Vorlage (leer = Standardvorlage)
   const [vorlagen, setVorlagen] = useState<Record<string, string>>({})
+
+  const [gewaehlteReferenzen, setGewaehlteReferenzen] = useState<string[]>([])
+
+  const referenzenParameter = useMemo(
+    () => (gewaehlteReferenzen.length > 0 ? gewaehlteReferenzen.join(',') : ''),
+    [gewaehlteReferenzen],
+  )
 
   const kategorienParameter = useMemo(
     () => (gewaehlt.length > 0 ? gewaehlt.join(',') : ''),
@@ -59,6 +70,7 @@ export function ReportFormular({
       params.set('monate', monate)
     }
     if (kategorienParameter) params.set('kategorien', kategorienParameter)
+    if (referenzenParameter) params.set('referenzen', referenzenParameter)
 
     // Die Vorlage betrifft nur das PDF; Excel enthaelt stets alle Felder.
     const vorlage = vorlagen[bericht.typ]
@@ -139,6 +151,37 @@ export function ReportFormular({
                 : `${gewaehlt.length} von ${kategorien.length} Kategorien gewählt.`}
             </p>
           </div>
+
+          {referenzen.length > 0 ? (
+            <div className="space-y-2">
+              <Label>Audit-Referenzen</Label>
+              <div className="flex flex-wrap gap-x-5 gap-y-2">
+                {referenzen.map((referenz) => (
+                  <label
+                    key={referenz.id}
+                    className="flex cursor-pointer items-center gap-2 text-sm"
+                  >
+                    <Checkbox
+                      checked={gewaehlteReferenzen.includes(referenz.id)}
+                      onCheckedChange={() =>
+                        setGewaehlteReferenzen((bisher) =>
+                          bisher.includes(referenz.id)
+                            ? bisher.filter((id) => id !== referenz.id)
+                            : [...bisher, referenz.id],
+                        )
+                      }
+                    />
+                    {anzeigeName(referenz)}
+                  </label>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {gewaehlteReferenzen.length === 0
+                  ? 'Keine Auswahl bedeutet: alle Referenzen.'
+                  : 'Enthalten sind Aufgaben, die mindestens eine der gewählten Anforderungen abdecken.'}
+              </p>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 

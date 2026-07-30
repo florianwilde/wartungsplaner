@@ -56,6 +56,7 @@ const MIME = {
  *   von, bis   JJJJ-MM-TT        (Compliance, Historie, Abweichungen)
  *   monate     1 – 36            (Fälligkeitsvorschau)
  *   kategorien kommagetrennte IDs (leer = alle)
+ *   referenzen kommagetrennte IDs der Audit-Referenzen (leer = alle)
  */
 export async function GET(
   request: NextRequest,
@@ -83,6 +84,11 @@ export async function GET(
     .map((eintrag) => eintrag.trim())
     .filter(Boolean)
 
+  const referenzen = (suche.get('referenzen') ?? '')
+    .split(',')
+    .map((eintrag) => eintrag.trim())
+    .filter(Boolean)
+
   const heute = todayInBerlin()
   // Ohne ausdrueckliche Wahl greift die Standardvorlage der Reportart.
   const vorlage = await holeVorlage(reportTyp, suche.get('vorlage'))
@@ -93,9 +99,9 @@ export async function GET(
 
     if (reportTyp === 'vorschau') {
       const monate = begrenze(Number(suche.get('monate') ?? '6'), 1, 36, 6)
-      const vorschau = await ladeVorschau(monate, kategorien)
+      const vorschau = await ladeVorschau(monate, kategorien, referenzen)
       zeitraum = vorschau.zeitraum
-      const kopf = await baueKopf(reportTyp, zeitraum, benutzer.name, kategorien)
+      const kopf = await baueKopf(reportTyp, zeitraum, benutzer.name, kategorien, referenzen)
 
       inhalt =
         format === 'pdf'
@@ -103,28 +109,28 @@ export async function GET(
           : await erzeugeVorschauExcel(kopf, vorschau.zeilen)
     } else {
       zeitraum = leseZeitraum(suche.get('von'), suche.get('bis'), heute)
-      const kopf = await baueKopf(reportTyp, zeitraum, benutzer.name, kategorien)
+      const kopf = await baueKopf(reportTyp, zeitraum, benutzer.name, kategorien, referenzen)
 
       if (reportTyp === 'compliance') {
-        const daten = await ladeCompliance(zeitraum, kategorien)
+        const daten = await ladeCompliance(zeitraum, kategorien, referenzen)
         inhalt =
           format === 'pdf'
             ? await erzeugeCompliancePdf(kopf, daten, vorlage)
             : await erzeugeComplianceExcel(kopf, daten)
       } else if (reportTyp === 'historie') {
-        const daten = await ladeHistorie(zeitraum, kategorien)
+        const daten = await ladeHistorie(zeitraum, kategorien, referenzen)
         inhalt =
           format === 'pdf'
             ? await erzeugeHistoriePdf(kopf, daten, vorlage)
             : await erzeugeHistorieExcel(kopf, daten)
       } else if (reportTyp === 'abweichungen') {
-        const daten = await ladeAbweichungen(zeitraum, kategorien)
+        const daten = await ladeAbweichungen(zeitraum, kategorien, referenzen)
         inhalt =
           format === 'pdf'
             ? await erzeugeAbweichungenPdf(kopf, daten, vorlage)
             : await erzeugeAbweichungenExcel(kopf, daten)
       } else {
-        const daten = await ladeNachweisregister(zeitraum, kategorien)
+        const daten = await ladeNachweisregister(zeitraum, kategorien, referenzen)
         inhalt =
           format === 'pdf'
             ? await erzeugeNachweisregisterPdf(kopf, daten, vorlage)

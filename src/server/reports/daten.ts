@@ -14,6 +14,7 @@ import {
   KRITIKALITAET_BEZEICHNUNG,
   SCHWERE_BEZEICHNUNG,
 } from '@/lib/labels'
+import { anzeigeName, sortiereReferenzen } from '@/lib/audit-referenzen'
 import {
   ERGEBNIS_BEZEICHNUNG as PRUEFERGEBNIS_BEZEICHNUNG,
   auffaelligePunkte,
@@ -43,6 +44,7 @@ export type ReportKopf = {
   erstelltAm: Date
   erstelltVon: string
   kategorienText: string
+  referenzenText: string
   /** Angaben aus dem konfigurierten Erscheinungsbild. */
   anwendung: string
   organisation: string
@@ -52,16 +54,47 @@ export type ReportKopf = {
   logoDatei: string | null
 }
 
-/** Baut den Filter auf ausgewählte Kategorien (leer = alle). */
-function kategorieFilter(kategorieIds: string[]): Prisma.TaskWhereInput {
-  return kategorieIds.length > 0 ? { categoryId: { in: kategorieIds } } : {}
+/**
+ * Baut den Filter auf ausgewählte Kategorien und Audit-Referenzen.
+ * Leere Auswahl heißt jeweils „alle“.
+ */
+function aufgabenFilter(
+  kategorieIds: string[],
+  referenzIds: string[] = [],
+): Prisma.TaskWhereInput {
+  const filter: Prisma.TaskWhereInput = {}
+  if (kategorieIds.length > 0) filter.categoryId = { in: kategorieIds }
+  if (referenzIds.length > 0) {
+    // "some": Eine Aufgabe genügt, wenn sie mindestens eine der gewählten
+    // Anforderungen abdeckt – danach fragt ein Audit.
+    filter.auditReferenzen = { some: { referenzId: { in: referenzIds } } }
+  }
+  return filter
 }
+
+/** Anzeigenamen der zugeordneten Referenzen, alphabetisch. */
+function referenzenText(
+  zuordnungen: { referenz: { kuerzel: string; rahmenwerk: string | null } }[],
+): string {
+  return zuordnungen
+    .map((zuordnung) => anzeigeName(zuordnung.referenz))
+    .sort((a, b) => a.localeCompare(b, 'de'))
+    .join(', ')
+}
+
+/** Auswahl der Referenzen für die Kopfzeile. */
+const REFERENZ_AUSWAHL = {
+  select: {
+    referenz: { select: { kuerzel: true, rahmenwerk: true } },
+  },
+} as const
 
 export async function baueKopf(
   typ: ReportTyp,
   zeitraum: Zeitraum,
   erstelltVon: string,
   kategorieIds: string[],
+  referenzIds: string[] = [],
 ): Promise<ReportKopf> {
   let kategorienText = 'Alle Kategorien'
   if (kategorieIds.length > 0) {
@@ -71,6 +104,17 @@ export async function baueKopf(
       select: { name: true },
     })
     kategorienText = kategorien.map((k) => k.name).join(', ') || 'Alle Kategorien'
+  }
+
+  let gewaehlteReferenzen = 'Alle Referenzen'
+  if (referenzIds.length > 0) {
+    const referenzen = await prisma.auditReferenz.findMany({
+      where: { id: { in: referenzIds } },
+      select: { kuerzel: true, rahmenwerk: true },
+    })
+    gewaehlteReferenzen =
+      sortiereReferenzen(referenzen).map(anzeigeName).join(", ") ||
+      'Alle Referenzen'
   }
 
   const branding = await holeBranding()
@@ -93,6 +137,7 @@ export async function baueKopf(
     erstelltAm: new Date(),
     erstelltVon,
     kategorienText,
+    referenzenText: gewaehlteReferenzen,
     anwendung: branding.appName,
     organisation: branding.organisation,
     markenfarbe: branding.primaryColor,
@@ -137,11 +182,12 @@ function berechneQuoten(zeile: Omit<ComplianceZeile, 'erfuellungsgrad' | 'puenkt
 export async function ladeCompliance(
   zeitraum: Zeitraum,
   kategorieIds: string[],
+  referenzIds: string[] = [],
 ): Promise<ComplianceReport> {
   const faelligkeiten = await prisma.occurrence.findMany({
     where: {
       dueDate: { gte: zeitraum.von, lte: zeitraum.bis },
-      task: kategorieFilter(kategorieIds),
+      task: aufgabenFilter(kategorieIds, referenzIds),
     },
     select: {
       dueDate: true,
@@ -253,10 +299,11 @@ export type HistorieAufgabe = {
 export async function ladeHistorie(
   zeitraum: Zeitraum,
   kategorieIds: string[],
+  referenzIds: string[] = [],
 ): Promise<HistorieAufgabe[]> {
   const aufgaben = await prisma.task.findMany({
     where: {
-      ...kategorieFilter(kategorieIds),
+      ...aufgabenFilter(kategorieIds, referenzIds),
       occurrences: {
         some: {
           execution: { isNot: null },
@@ -268,6 +315,7 @@ export async function ladeHistorie(
     include: {
       category: { select: { name: true } },
       owner: { select: { name: true } },
+      auditReferenzen: REFERENZ_AUSWAHL,
       occurrences: {
         where: {
           execution: { isNot: null },
@@ -295,7 +343,7 @@ export async function ladeHistorie(
     kategorie: aufgabe.category.name,
     verantwortlich: aufgabe.owner.name,
     intervall: intervallText(aufgabe.intervalType, aufgabe.intervalValue),
-    auditReferenz: aufgabe.auditReference ?? '–',
+    auditReferenz: referenzenText(aufgabe.auditReferenzen) || '–',
     durchfuehrungen: aufgabe.occurrences.map((occurrence) => {
       const execution = occurrence.execution!
       return {
@@ -337,11 +385,13 @@ export type AbweichungZeile = {
   kategorie: string
   geschlossenAm: Date | null
   massnahme: string
+  referenzen: string
 }
 
 export async function ladeAbweichungen(
   zeitraum: Zeitraum,
   kategorieIds: string[],
+  referenzIds: string[] = [],
 ): Promise<AbweichungZeile[]> {
   const heute = todayInBerlin()
 
@@ -349,7 +399,7 @@ export async function ladeAbweichungen(
     where: {
       execution: {
         executedAt: { gte: zeitraum.von, lte: naechsterTagesbeginn(zeitraum.bis) },
-        occurrence: { task: kategorieFilter(kategorieIds) },
+        occurrence: { task: aufgabenFilter(kategorieIds, referenzIds) },
       },
     },
     orderBy: [{ status: 'asc' }, { severity: 'desc' }, { dueDate: 'asc' }],
@@ -361,7 +411,11 @@ export async function ladeAbweichungen(
           occurrence: {
             select: {
               task: {
-                select: { title: true, category: { select: { name: true } } },
+                select: {
+                  title: true,
+                  category: { select: { name: true } },
+                  auditReferenzen: REFERENZ_AUSWAHL,
+                },
               },
             },
           },
@@ -384,6 +438,9 @@ export async function ladeAbweichungen(
     kategorie: abweichung.execution.occurrence.task.category.name,
     geschlossenAm: abweichung.closedAt,
     massnahme: abweichung.closingComment ?? '',
+    referenzen: referenzenText(
+      abweichung.execution.occurrence.task.auditReferenzen,
+    ),
   }))
 }
 
@@ -403,6 +460,7 @@ export type VorschauZeile = {
   verantwortlich: string
   intervall: string
   kritikalitaet: string
+  referenzen: string
   /** true = bereits angelegte Fälligkeit, false = rechnerisch fortgeschrieben */
   bestehend: boolean
 }
@@ -417,16 +475,18 @@ export type VorschauZeile = {
 export async function ladeVorschau(
   monate: number,
   kategorieIds: string[],
+  referenzIds: string[] = [],
 ): Promise<{ zeitraum: Zeitraum; zeilen: VorschauZeile[] }> {
   const heute = todayInBerlin()
   const bis = addMonths(heute, monate)
 
   const aufgaben = await prisma.task.findMany({
-    where: { active: true, ...kategorieFilter(kategorieIds) },
+    where: { active: true, ...aufgabenFilter(kategorieIds, referenzIds) },
     orderBy: [{ category: { sortOrder: 'asc' } }, { title: 'asc' }],
     include: {
       category: { select: { name: true } },
       owner: { select: { name: true } },
+      auditReferenzen: REFERENZ_AUSWAHL,
       occurrences: {
         where: { status: { in: ['OPEN', 'OVERDUE', 'SUSPENDED'] } },
         orderBy: { dueDate: 'asc' },
@@ -444,6 +504,7 @@ export async function ladeVorschau(
       verantwortlich: aufgabe.owner.name,
       intervall: intervallText(aufgabe.intervalType, aufgabe.intervalValue),
       kritikalitaet: KRITIKALITAET_BEZEICHNUNG[aufgabe.criticality],
+      referenzen: referenzenText(aufgabe.auditReferenzen),
     }
 
     const bestehende = aufgabe.occurrences
@@ -498,6 +559,7 @@ export type NachweisRegisterZeile = {
   anzahlZeilen: number
   anzahlFeststellungen: number
   anzahlBelege: number
+  referenzen: string
   /** Prüfsumme des erzeugten PDF-Nachweises */
   pruefsumme: string
   /** Feststellungen im Klartext für den Detailteil */
@@ -514,6 +576,7 @@ export type NachweisRegisterZeile = {
 export async function ladeNachweisregister(
   zeitraum: Zeitraum,
   kategorieIds: string[],
+  referenzIds: string[] = [],
 ): Promise<NachweisRegisterZeile[]> {
   const nachweise = await prisma.nachweis.findMany({
     where: {
@@ -522,7 +585,7 @@ export async function ladeNachweisregister(
         gte: zeitraum.von,
         lte: naechsterTagesbeginn(zeitraum.bis),
       },
-      occurrence: { task: kategorieFilter(kategorieIds) },
+      occurrence: { task: aufgabenFilter(kategorieIds, referenzIds) },
     },
     orderBy: { geprueftAm: 'desc' },
     include: {
@@ -536,7 +599,13 @@ export async function ladeNachweisregister(
       occurrence: {
         select: {
           dueDate: true,
-          task: { select: { title: true, category: { select: { name: true } } } },
+          task: {
+            select: {
+              title: true,
+              category: { select: { name: true } },
+              auditReferenzen: REFERENZ_AUSWAHL,
+            },
+          },
         },
       },
     },
@@ -600,6 +669,7 @@ export async function ladeNachweisregister(
       anzahlZeilen: zeilen.length,
       anzahlFeststellungen: ausPunkten.length + ausZeilen.length,
       anzahlBelege: nachweis._count.belege,
+      referenzen: referenzenText(nachweis.occurrence.task.auditReferenzen),
       pruefsumme: nachweis.attachment?.sha256 ?? '',
       feststellungen: [...ausPunkten, ...ausZeilen],
     }

@@ -253,6 +253,7 @@ export async function erzeugeAbweichungenExcel(
     'Geschlossen am',
     'Feststellung',
     'Umgesetzte Maßnahme',
+    'Audit-Referenzen',
   ])
   zeilenNummer++
 
@@ -271,6 +272,7 @@ export async function erzeugeAbweichungenExcel(
       abweichung.geschlossenAm ? formatDate(abweichung.geschlossenAm) : '',
       abweichung.beschreibung,
       abweichung.massnahme,
+      abweichung.referenzen,
     ]
     if (abweichung.fristUeberschritten) {
       zeile.getCell(8).font = { color: { argb: 'FFB91C1C' }, bold: true }
@@ -303,6 +305,7 @@ export async function erzeugeVorschauExcel(
     'Intervall',
     'Kritikalität',
     'Art',
+    'Audit-Referenzen',
   ])
   zeilenNummer++
 
@@ -316,6 +319,7 @@ export async function erzeugeVorschauExcel(
       eintrag.intervall,
       eintrag.kritikalitaet,
       eintrag.bestehend ? 'angelegt' : 'geplant',
+      eintrag.referenzen,
     ]
     zeile.commit()
   }
@@ -351,6 +355,7 @@ export async function erzeugeNachweisregisterExcel(
     'Feststellungen',
     'Belege',
     'Feststellungen im Klartext',
+    'Audit-Referenzen',
     'Prüfsumme (SHA-256)',
   ])
   zeilenNummer++
@@ -371,6 +376,7 @@ export async function erzeugeNachweisregisterExcel(
       nachweis.anzahlFeststellungen,
       nachweis.anzahlBelege,
       nachweis.feststellungen.join('\n'),
+      nachweis.referenzen,
       nachweis.pruefsumme,
     ]
     if (nachweis.anzahlFeststellungen > 0) {

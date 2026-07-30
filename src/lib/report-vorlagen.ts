@@ -47,6 +47,7 @@ export const SPALTEN_KATALOG: Record<ReportTyp, SpaltenDefinition[]> = {
     { key: 'nachweise', kopf: 'Nachweise', anteil: 10, ausrichtung: 'right' },
     { key: 'abweichungen', kopf: 'Abw.', anteil: 7, ausrichtung: 'right' },
     { key: 'kommentar', kopf: 'Kommentar', anteil: 20 },
+    { key: 'referenzen', kopf: 'Audit-Referenzen', anteil: 16 },
   ],
   abweichungen: [
     { key: 'titel', kopf: 'Abweichung', anteil: 26, pflicht: true },
@@ -58,6 +59,7 @@ export const SPALTEN_KATALOG: Record<ReportTyp, SpaltenDefinition[]> = {
     { key: 'frist', kopf: 'Frist', anteil: 9 },
     { key: 'festgestellt', kopf: 'Festgestellt', anteil: 9 },
     { key: 'geschlossen', kopf: 'Geschlossen', anteil: 9 },
+    { key: 'referenzen', kopf: 'Audit-Referenzen', anteil: 14 },
   ],
   vorschau: [
     { key: 'termin', kopf: 'Termin', anteil: 10, pflicht: true },
@@ -67,6 +69,7 @@ export const SPALTEN_KATALOG: Record<ReportTyp, SpaltenDefinition[]> = {
     { key: 'intervall', kopf: 'Intervall', anteil: 14 },
     { key: 'kritikalitaet', kopf: 'Kritikalität', anteil: 9 },
     { key: 'art', kopf: 'Art', anteil: 8 },
+    { key: 'referenzen', kopf: 'Audit-Referenzen', anteil: 14 },
   ],
   nachweise: [
     { key: 'pruefbogen', kopf: 'Prüfbogen', anteil: 19, pflicht: true },
@@ -80,6 +83,7 @@ export const SPALTEN_KATALOG: Record<ReportTyp, SpaltenDefinition[]> = {
     { key: 'punkte', kopf: 'Punkte', anteil: 6, ausrichtung: 'right' },
     { key: 'feststellungen', kopf: 'Fest.', anteil: 6, ausrichtung: 'right' },
     { key: 'belege', kopf: 'Belege', anteil: 6, ausrichtung: 'right' },
+    { key: 'referenzen', kopf: 'Audit-Referenzen', anteil: 14 },
     { key: 'pruefsumme', kopf: 'SHA-256', anteil: 20 },
   ],
 }
@@ -97,7 +101,7 @@ export function pflichtSpalten(typ: ReportTyp): string[] {
 /** Vorbelegung: alle Spalten außer den ausdrücklich zusätzlichen. */
 export function standardSpalten(typ: ReportTyp): string[] {
   // "kommentar" und "geschlossen" sind ausführlich und daher nicht vorbelegt.
-  const zusatz = new Set(['kommentar', 'pruefsumme'])
+  const zusatz = new Set(['kommentar', 'pruefsumme', 'referenzen'])
   return SPALTEN_KATALOG[typ]
     .filter((s) => !zusatz.has(s.key))
     .map((s) => s.key)

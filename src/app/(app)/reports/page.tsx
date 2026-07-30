@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { SeitenKopf } from '@/components/seiten-kopf'
 import { ArchivKarte } from './archiv-karte'
 import { addMonths, startOfMonth, toISODate, todayInBerlin } from '@/lib/dates'
+import { sortiereReferenzen } from '@/lib/audit-referenzen'
 import { prisma } from '@/lib/prisma'
 import { erforderlicherBenutzer } from '@/lib/session'
 import { ladeAlleVorlagen } from '@/server/report-vorlagen'
@@ -51,6 +52,15 @@ export default async function ReportsSeite() {
 
   const vorlagen = await ladeAlleVorlagen()
 
+  // Nur Referenzen mit zugeordneten Aufgaben – ein Filter, der stets leer
+  // ausgeht, hilft niemandem.
+  const referenzenMitAufgaben = sortiereReferenzen(
+    await prisma.auditReferenz.findMany({
+      where: { aufgaben: { some: {} } },
+      select: { id: true, kuerzel: true, rahmenwerk: true },
+    }),
+  )
+
   const kategorien = await prisma.category.findMany({
     orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
     select: { id: true, name: true, color: true },
@@ -73,6 +83,7 @@ export default async function ReportsSeite() {
           })),
         }))}
         kategorien={kategorien}
+        referenzen={referenzenMitAufgaben}
         standardVon={toISODate(startOfMonth(addMonths(heute, -11)))}
         standardBis={toISODate(heute)}
       />
