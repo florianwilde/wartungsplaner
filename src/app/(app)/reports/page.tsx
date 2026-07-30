@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import { SeitenKopf } from '@/components/seiten-kopf'
+import { ArchivKarte } from './archiv-karte'
 import { addMonths, startOfMonth, toISODate, todayInBerlin } from '@/lib/dates'
 import { prisma } from '@/lib/prisma'
 import { erforderlicherBenutzer } from '@/lib/session'
@@ -74,6 +75,12 @@ export default async function ReportsSeite() {
         kategorien={kategorien}
         standardVon={toISODate(startOfMonth(addMonths(heute, -11)))}
         standardBis={toISODate(heute)}
+      />
+
+      <ArchivKarte
+        standardVon={toISODate(startOfMonth(addMonths(heute, -11)))}
+        standardBis={toISODate(heute)}
+        kategorien={kategorien.map((k) => ({ id: k.id, name: k.name }))}
       />
 
       <p className="text-xs text-muted-foreground">
