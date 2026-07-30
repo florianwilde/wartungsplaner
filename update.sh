@@ -116,8 +116,33 @@ if [ "$GIT_PULL" = ja ]; then
   # --ff-only: kein automatischer Merge-Commit. Sind Historien auseinander-
   # gelaufen, bricht das Update ab, statt einen unklaren Stand zu erzeugen.
   if ! git pull --ff-only; then
-    fehler 'git pull fehlgeschlagen (Historien auseinandergelaufen?).'
-    hinweis 'Bitte den Stand manuell prüfen. Der Stack läuft unverändert weiter.'
+    fehler 'git pull fehlgeschlagen: Der lokale Stand lässt sich nicht vorspulen.'
+
+    ZWEIG="${BRANCH:-$(git rev-parse --abbrev-ref HEAD)}"
+
+    # Wurde die Historie auf dem Server neu geschrieben, ist der lokale Stand
+    # kein Vorfahr des entfernten mehr. Dann hilft kein Merge, sondern nur ein
+    # Zurücksetzen auf den entfernten Stand.
+    if ! git merge-base --is-ancestor HEAD "origin/$ZWEIG" 2>/dev/null; then
+      hinweis 'Die Historie im Projekt wurde offenbar neu geschrieben.'
+      hinweis 'Dieser Arbeitsstand hat Commits, die es dort nicht mehr gibt.'
+      hinweis ''
+      hinweis 'Wenn hier nichts von Hand geändert wurde – der Normalfall auf'
+      hinweis 'einem Server –, ist das Zurücksetzen auf den entfernten Stand'
+      hinweis 'der richtige Weg:'
+      hinweis ''
+      hinweis "    git fetch origin && git reset --hard origin/$ZWEIG"
+      hinweis '    ./update.sh'
+      hinweis ''
+      hinweis 'Konfiguration, Sicherungen, Nachweise und Datenbank bleiben davon'
+      hinweis 'unberührt: .env, backups/, uploads/ und pgdata/ liegen außerhalb'
+      hinweis 'der Versionsverwaltung.'
+    else
+      hinweis 'Bitte den Stand manuell prüfen, etwa mit "git status".'
+    fi
+
+    hinweis ''
+    hinweis 'Der Stack läuft unverändert weiter.'
     exit 1
   fi
 
