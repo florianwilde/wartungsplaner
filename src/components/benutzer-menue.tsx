@@ -11,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { abmelden } from '@/app/abmelden-action'
 
 export function BenutzerMenue({
   name,
@@ -70,7 +69,11 @@ export function BenutzerMenue({
         ) : null}
 
         <DropdownMenuItem asChild>
-          <form action={abmelden} className="w-full">
+          {/* Bewusst ein gewöhnliches Formular an einen eigenen Endpunkt:
+              Eine Server Action liefe durch die Middleware, die das
+              Sitzungs-Cookie neu ausstellt – die Abmeldung bliebe wirkungslos.
+              Siehe src/app/api/abmelden/route.ts. */}
+          <form method="post" action="/api/abmelden" className="w-full">
             <button type="submit" className="flex w-full items-center gap-2">
               <LogOut />
               Abmelden

@@ -124,11 +124,13 @@ export const config = {
      * - /api/passkeys/anmeldung (dient gerade dem Anmelden; die Registrierung
      *                 unter /api/passkeys/registrierung verlangt weiterhin
      *                 eine Sitzung und ist bewusst nicht ausgenommen)
+     * - /api/abmelden(die Middleware stellt das Sitzungs-Cookie sonst neu aus
+     *                 und macht die Abmeldung damit wirkungslos)
      * - /api/kalender (Kalender-Abonnement; Kalenderprogramme können sich
      *                 nicht anmelden, der Zugang ist das Geheimnis in der
      *                 Adresse)
      * - Next.js-interne Pfade und statische Dateien
      */
-    '/((?!api/auth|api/cron|api/health|api/branding|api/kalender|api/passkeys/anmeldung|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+    '/((?!api/abmelden|api/auth|api/cron|api/health|api/branding|api/kalender|api/passkeys/anmeldung|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],
 }

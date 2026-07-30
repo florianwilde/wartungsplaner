@@ -94,6 +94,14 @@ model User {
   /// Empfängt Erinnerungen und Übersichten per E-Mail
   notifyByEmail      Boolean      @default(true)
 
+  /// Zählt hoch, sobald alle Sitzungen des Kontos ungültig werden sollen
+  /// (Abmelden, Passwortwechsel). Der Wert steckt im Sitzungs-Token; weicht
+  /// er ab, gilt das Token nicht mehr. Ein JWT lässt sich nicht zurückrufen,
+  /// und das Cookie zu löschen genügt nicht: Vorgeladene Seitenaufrufe
+  /// stellen es sonst wieder aus – mit frischem Zeitstempel, weshalb auch
+  /// ein Zeitvergleich nicht trägt.
+  sitzungsstand Int @default(0)
+
   /// Geheimnis des Kalender-Abonnements; leer = kein Abo eingerichtet.
   /// Kalenderprogramme können sich nicht anmelden – dieser Wert ist der
   /// Zugang und lässt sich jederzeit neu erzeugen.

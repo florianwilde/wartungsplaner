@@ -14,7 +14,37 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ## [Unveröffentlicht]
 
-Noch keine Änderungen.
+### Behoben
+
+- **Die Sitzung überlebte das Abmelden.** Nach dem Klick auf *Abmelden*
+  erschien die Anmeldeseite, das Sitzungs-Cookie blieb aber gültig: Ein
+  Schritt zurück im Browser oder die erneute Eingabe der Adresse führte
+  wieder in die Anwendung. An einem gemeinsam genutzten Rechner hätte die
+  nächste Person die Sitzung übernehmen können.
+  - Ursache waren zwei ineinandergreifende Umstände: Die Middleware stellt
+    das Sitzungs-Cookie bei jeder Anfrage neu aus – auch bei der Abmeldung
+    –, und Next.js lädt Seiten im Voraus, sodass eine dieser Anfragen das
+    gerade gelöschte Cookie wieder ausstellte.
+  - Ein Wettlauf um Cookies ist nicht zu gewinnen. Jedes Konto führt jetzt
+    einen **Sitzungsstand**, der beim Abmelden hochzählt; ein Token mit
+    altem Stand ist wertlos, gleich wie oft das Cookie neu ausgestellt
+    wird. Das Abmelden selbst läuft über einen eigenen Endpunkt an der
+    Middleware vorbei.
+  - **Abmelden beendet damit alle Sitzungen des Kontos**, auch auf anderen
+    Geräten. Bei einem Werkzeug, das Nachweise führt, ist das die richtige
+    Voreinstellung.
+
+### Hinzugefügt
+
+- **End-to-End-Tests mit Playwright** (`npm run test:e2e`) – die
+  dringendste Maßnahme der Roadmap. Geprüft wird die laufende Anwendung im
+  Browser: Anmeldung, Rückkehr zur ursprünglich gewünschten Seite,
+  Zugriffsschutz je Rolle, Abmeldung sowie der Erledigen-Vorgang mit
+  Abweichung, Nachweispflicht und Folgetermin.
+  - Der erste Lauf hat den Abmeldefehler oben gefunden. Typprüfung, 522
+    Unit-Tests und acht Integrationsreihen waren zu diesem Zeitpunkt grün –
+    diese Fehlerklasse liegt zwischen Oberfläche und Server und ist anders
+    nicht zu finden.
 
 ---
 

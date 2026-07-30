@@ -336,12 +336,15 @@ Aus 1.10.0 übrig geblieben, weil beides eine eigene Fassung verdient:
 
 ## Technik und Betrieb
 
-- 📋 **End-to-End-Tests mit Playwright** – *die dringendste Maßnahme dieser
-  Liste.* Beide Fehler, die in 1.6.0 auffielen, lagen zwischen Oberfläche und
-  Server: Der Prüfbogen meldete sich als vollständig, während der Server einen
-  leeren Stand bewertete, und der PDF-Nachweis entstand im Regelfall gar nicht.
-  Beides bestand jede Typprüfung und jeden Unit-Test. Diese Klasse von Fehlern
-  findet nur ein Test, der die Anwendung tatsächlich bedient.
+- ✅ **End-to-End-Tests mit Playwright** – *war die dringendste Maßnahme
+  dieser Liste.* Beide Fehler, die in 1.6.0 auffielen, lagen zwischen
+  Oberfläche und Server und bestanden jede Typprüfung. Der erste Lauf der
+  neuen Tests hat prompt einen weiteren dieser Art gefunden: Die Sitzung
+  überlebte das Abmelden.
+  - Abgedeckt sind Anmeldung, Zugriffsschutz je Rolle, Abmeldung und der
+    Erledigen-Vorgang mit Abweichung, Nachweispflicht und Folgetermin.
+  - Noch offen: der Prüfbogen mit Gegenzeichnung durch eine zweite Person –
+    der aufwendigste Ablauf und deshalb der lohnendste nächste Schritt.
 - 📋 **CI-Pipeline in GitLab** – Typprüfung, Unit-Tests, Integrationstests,
   Build und Image bei jedem Commit; ein Tag erzeugt eine Fassung.
 - 📋 **Wiederherstellungstest der Anwendung selbst** – `backup.sh` schreibt

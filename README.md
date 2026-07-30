@@ -637,6 +637,7 @@ npm run dev                   # http://localhost:3000
 | `npm test` | Unit-Tests (Vitest) |
 | `npm run test:watch` | Unit-Tests im Watch-Modus |
 | `npm run test:integration` | Integrationstest gegen die laufende Datenbank |
+| `npm run test:e2e` | End-to-End-Tests im Browser gegen die laufende Anwendung |
 | `npm run db:migrate` | Migration erzeugen und anwenden |
 | `npm run db:deploy` | Migrationen anwenden (Produktion) |
 | `npm run db:seed` | Seed ausführen |
@@ -653,6 +654,12 @@ npm run dev                   # http://localhost:3000
   Nachweispflicht, Abweichungspflicht, ausgesetzte Fälligkeiten, die
   Audit-Protokollierung und den Tagesabgleich. Er legt eigene Testdaten an und
   räumt sie wieder auf.
+- **End-to-End-Tests** (`npm run test:e2e`) bedienen die laufende Anwendung im
+  Browser: Anmeldung, Zugriffsschutz je Rolle, Abmeldung und der
+  Erledigen-Vorgang. Sie finden Fehler zwischen Oberfläche und Server, die
+  Typprüfung und Unit-Tests nicht sehen können. Voraussetzung ist eine
+  laufende Instanz (`E2E_BASIS_URL`, Vorgabe `http://localhost:3007`) und eine
+  vom Host erreichbare Datenbank; einmalig `npx playwright install chromium`.
 
 ---
 

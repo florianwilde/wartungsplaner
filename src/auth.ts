@@ -324,11 +324,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           active: true,
           mustChangePassword: true,
           authProvider: true,
+          sitzungsstand: true,
         },
       })
 
       // Kein Konto mehr vorhanden oder deaktiviert -> Sitzung ungültig machen.
       if (!dbUser || !dbUser.active) return null
+
+      // Sitzungsstand: Beim Anmelden wird der aktuelle Stand ins Token
+      // geschrieben, beim Abmelden zählt er in der Datenbank hoch. Weicht er
+      // ab, ist das Token wertlos – anders als ein Zeitstempel überlebt das
+      // auch das Neuausstellen des Cookies durch die Middleware.
+      const stand = (token as { gen?: number }).gen ?? 0
+      if (user) {
+        ;(token as { gen?: number }).gen = dbUser.sitzungsstand
+      } else if (stand !== dbUser.sitzungsstand) {
+        return null
+      }
 
       token.uid = dbUser.id
       token.sub = dbUser.id
