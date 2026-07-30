@@ -18,6 +18,119 @@ Noch keine Änderungen.
 
 ---
 
+## [1.9.0] – 2026-07-30
+
+Diese Fassung beantwortet die Frage, ob man den Nachweisen noch trauen kann –
+und wie lange sie überhaupt aufbewahrt werden.
+
+### Hinzugefügt
+
+- **Täglicher Prüfsummenlauf über die abgelegten Nachweise.** Die Anwendung
+  führte zu jedem Nachweis eine SHA-256-Prüfsumme, hat sie aber nie
+  nachgeprüft; die Revisionssicherheit war damit eine Behauptung. Ein stiller
+  Verlust im Ablageverzeichnis wäre erst aufgefallen, wenn Jahre später jemand
+  einen Download versucht – dann ist er nicht mehr zu heilen.
+  - Geprüft wird in **beide Richtungen**: zu jedem Eintrag die Datei, zu jeder
+    Datei der Eintrag.
+  - Vier Befunde: fehlend, verändert, nicht lesbar, ohne Eintrag. Die ersten
+    drei mindern die Beweiskraft; eine Datei ohne Eintrag ist unordentlich,
+    aber es fehlt kein Beleg – sie zählt ausdrücklich nicht als Beanstandung.
+  - Einsehbar unter *Administration → Unversehrtheit*, von Hand auslösbar,
+    über `/api/cron?aufgabe=integritaet` ansprechbar. Beanstandungen gehen per
+    Mail an die Administration.
+- **Nachweisarchiv als ZIP.** Ein Bericht zeigt, *dass* geprüft wurde; ein
+  Audit will die Nachweise selbst – und zwar so, dass sie auch außerhalb dieser
+  Anwendung überprüfbar bleiben.
+  - Alle Nachweise eines Zeitraums, gegliedert nach Kategorie und Aufgabe
+  - `PRUEFSUMMEN.sha256` im Format von `sha256sum`: Die Unverändertheit lässt
+    sich mit `sha256sum -c` nachrechnen, ohne dieser Anwendung zu glauben
+  - `INHALT.csv` mit der Herkunft jeder Datei und `LIESMICH.txt` mit der
+    Anleitung dazu
+  - Wird als Datenstrom gebaut; ein Jahresbestand kann hunderte Megabyte
+    umfassen
+- **Aufbewahrungsfristen** unter *Administration → Aufbewahrung*. Der Bestand
+  wuchs unbegrenzt, und Belege wie ein AD-Export enthalten personenbezogene
+  Daten.
+  - Nach Ablauf wird die **Datei** entfernt, **nicht der Eintrag**: Datum,
+    Person, Ergebnis, Dateiname und Prüfsumme bleiben und belegen weiterhin,
+    dass geprüft wurde. Gelöscht wird der Inhalt, nicht die Tatsache.
+  - Frist je Kategorie mit globaler Vorgabe; maßgeblich ist der Zeitpunkt der
+    Durchführung.
+  - **Im Auslieferungszustand aus.** Gelöscht wird nie ungefragt, und die
+    Vorschau ermittelt dasselbe wie der Lauf, ohne etwas anzufassen.
+- **Passkey-Pflicht je Rolle** unter *Administration → System* – der letzte
+  offene Punkt aus 1.4.0. Wer keinen Passkey hat, wird bei der nächsten
+  Anmeldung zur Einrichtung geführt.
+  - Drei Ausnahmen, damit niemand ausgesperrt wird: ohne HTTPS bleibt die
+    Pflicht wirkungslos und lässt sich nicht einschalten, SSO-Konten sind
+    ausgenommen, und beim Einschalten wird genannt, wie viele Personen
+    betroffen wären.
+- **Virenprüfung hochgeladener Dateien** über einen optionalen ClamAV-Dienst.
+  Belege werden von anderen Personen wieder heruntergeladen – ohne Prüfung wäre
+  die Nachweisablage ein bequemer Verteilweg.
+  - Geprüft wird **vor** dem Schreiben; eine erkannte Datei landet gar nicht
+    erst im Ablageverzeichnis.
+  - Freiwillig: Ohne `CLAMAV_HOST` wird nicht geprüft und die Anwendung läuft
+    unverändert. Der Dienst steckt in `docker-compose.clamav.yml`, weil sein
+    Signaturverzeichnis rund ein Gigabyte belegt.
+  - Fällt der Dienst aus, wird die Datei voreingestellt angenommen und der
+    Ausfall protokolliert. Mit `VIRENPRUEFUNG_PFLICHT=true` umgekehrt.
+- **Releases zu den Versions-Tags.** `release.sh` legt sie bei GitLab und Gitea
+  an und nimmt den Text aus dem Changelog, damit es nur eine Quelle gibt.
+- **Handbuch** unter [docs/](docs/README.md): sechzehn Anleitungen für den
+  Alltag – Aufgaben anlegen, Prüfbögen aufsetzen, Nachweise führen, Reports
+  ziehen. Sie erklären auch das Warum, etwa weshalb eine Durchführung
+  unveränderlich ist.
+
+### Geändert
+
+- **Audit-Referenzen sind Stammdaten** statt eines Freitextfelds an der
+  Aufgabe. Als Freitext waren „ISO 27001 A.8.13“ und „ISO27001 A.8.13“ zwei
+  verschiedene Dinge, und die Frage „welche Prüfungen decken diese Anforderung
+  ab?“ blieb unbeantwortbar.
+  - Verwaltung unter *Administration → Audit-Referenzen* mit Rahmenwerk,
+    Kurzzeichen, Bezeichnung und Beschreibung
+  - **Mehrere je Aufgabe**; Aufgabenliste, Suche und alle fünf Reports lassen
+    sich danach filtern, vier Reports führen sie als Spalte
+  - Beim Update werden die vorhandenen Freitexte übernommen: Gleiche Texte
+    ergeben denselben Stammsatz. Die Aufteilung in Rahmenwerk und Kurzzeichen
+    wird bewusst nicht geraten – sie gehört in die Verwaltung.
+  - Referenzen mit zugeordneten Aufgaben lassen sich nicht löschen, nur
+    deaktivieren.
+- **Der Prüfbogen ist im Erledigen-Dialog wählbar** – auch auf dem Dashboard,
+  wo er bisher gar nicht erreichbar war.
+- **Ein abgeschlossener Prüfbogen erledigt die Fälligkeit nicht mehr von
+  selbst.** Zum Erledigen gehören Ergebnis und Abweichungen mit Frist und
+  Verantwortlichkeit – Angaben, die ein Prüfbogen nicht enthält. Das PDF wartet
+  am Bogen und wandert beim Erledigen mitsamt den Belegen an die Durchführung;
+  ein Bogen lässt sich damit auch nachreichen. Bei nachweispflichtigen Aufgaben
+  zählt er als Nachweis.
+- **Der Erledigen-Dialog kennt den vorliegenden Prüfbogen.** Bisher bot er auch
+  dann noch an, einen Bogen anzulegen, wenn längst einer ausgefüllt und
+  gegengezeichnet war – der Weg vom fertigen Bogen zur erledigten Fälligkeit
+  war nicht zu sehen. Jetzt nennt er den Bogen samt beiden Personen, belegt das
+  Ergebnis passend vor und stellt jede Feststellung zur Übernahme als
+  Abweichung bereit: ein Klick, und Titel und Bemerkung stehen im Formular.
+  Bögen, die noch in Arbeit sind, werden mit ihrem Stand genannt.
+
+### Behoben
+
+- **Im PDF-Nachweis blieb das Unterschriftsdatum leer.** Unter der Linie stand
+  „Datum, Unterschrift“, gedruckt wurde aber nur der Name – dabei sind
+  Zeitpunkt der Erfassung und der Gegenzeichnung festgehalten. Beides steht
+  jetzt über der Linie; die Beschriftung verspricht kein leeres Feld mehr.
+- **Fremde Prüfbogen-Entwürfe waren eine Sackgasse.** Ausfüllen darf nur die
+  erfassende Person, und ein zweiter Bogen derselben Vorlage ließ sich für
+  dieselbe Fälligkeit nicht anlegen – war die Kollegin im Urlaub, steckte die
+  Prüfung fest. Ein Entwurf lässt sich jetzt übernehmen oder verwerfen; wer
+  übernimmt, gilt als erfassende Person und kann nicht selbst gegenzeichnen.
+- Die **Aufgabenhistorie** zeigte nach der Umstellung auf Audit-Referenzen
+  noch den alten Freitext und damit einen eingefrorenen Stand.
+- `update.sh` nennt jetzt den Weg zurück, wenn sich der lokale Stand nicht
+  vorspulen lässt, statt nur „bitte manuell prüfen“ zu melden.
+
+---
+
 ## [1.8.0] – 2026-07-30
 
 ### Sicherheit
@@ -422,7 +535,8 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.8.0...main
+[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.9.0...main
+[1.9.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.9.0
 [1.8.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.8.0
 [1.7.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.7.0
 [1.6.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.6.0

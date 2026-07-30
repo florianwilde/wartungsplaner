@@ -24,12 +24,12 @@ Umgesetzte Fassungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
 | ✅ **1.6.0** | Nachweismodul für Reviews und Regelprüfungen mit Vier-Augen-Prinzip |
 | ✅ **1.7.0** | Belege am Prüfbogen: AD-Exporte, Screenshots und Protokolle mit Prüfsumme |
 | ✅ **1.8.0** | Prüfvorgang zu Ende geführt: Benachrichtigung zur Gegenzeichnung, Feststellungen als Abweichungen, Zeilenlisten, Nachweisregister |
+| ✅ **1.9.0** | Nachweise belastbar aufbewahren: Prüfsummenlauf, Archiv-Export, Aufbewahrungsfristen, Passkey-Pflicht, Virenprüfung; dazu Audit-Referenzen als Stammdaten und ein Handbuch |
 
 ## Vorgesehen
 
 | Fassung | Inhalt |
 | --- | --- |
-| 📋 **1.9.0** | Nachweise belastbar aufbewahren: Prüfsummenlauf, Archiv-Export, Aufbewahrungsfristen, Virenprüfung |
 | 📋 **1.10.0** | Alltagstauglichkeit: Vertretung, Belege aus der Zwischenablage, Aufgabenvorlagen, iCal |
 
 Quer dazu und unabhängig von einer Fassung: **End-to-End-Tests** und eine
@@ -107,8 +107,8 @@ Identity Provider zu erfordern – das bleibt SSO-Installationen vorbehalten.
   letzte Verwendung einsehen
 - Administrative Übersicht: wer hat Passkeys hinterlegt, Zurücksetzen bei
   Geräteverlust
-- ⏳ Optional erzwingbar je Rolle (z. B. Passkey-Pflicht für Administratoren) –
-  offen, eingeplant für 1.9.0
+- ✅ Optional erzwingbar je Rolle (z. B. Passkey-Pflicht für Administratoren) –
+  umgesetzt in 1.9.0
 - Alle Vorgänge im Audit-Log
 
 ---
@@ -256,30 +256,30 @@ begonnenen Ablaufs – und die kosten im Alltag am meisten.
 
 ---
 
-## 1.9.0 – Nachweise belastbar aufbewahren 📋
+## 1.9.0 – Nachweise belastbar aufbewahren ✅
 
 **Warum:** Die Anwendung verspricht Revisionssicherheit über Prüfsummen –
 prüft aber nie nach, ob die Dateien noch da sind und noch zusammenpassen. Ein
 stiller Verlust im Upload-Volume fällt heute erst auf, wenn jemand Jahre später
 einen Download versucht. Genau dann ist er nicht mehr zu heilen.
 
-- 📋 **Prüfsummenlauf** – regelmäßiger Abgleich aller Nachweise: Ist die Datei
+- ✅ **Prüfsummenlauf** – regelmäßiger Abgleich aller Nachweise: Ist die Datei
   vorhanden, stimmt der SHA-256 noch? Ergebnis als Bericht und, bei
   Abweichung, als Nachricht an die Administration.
 - 📋 **Verwaiste Dateien erkennen** – Dateien im Volume ohne Eintrag in der
   Datenbank und umgekehrt. Beides entsteht bei Abbrüchen und bleibt bislang
   unbemerkt.
-- 📋 **Nachweis-Export als Archiv** – ein ZIP mit allen Nachweisen eines
+- ✅ **Nachweis-Export als Archiv** – ein ZIP mit allen Nachweisen eines
   Zeitraums samt Prüfsummenliste. Das ist es, was eine prüfende Person
   tatsächlich mitnehmen möchte.
-- 📋 **Aufbewahrungsfristen und Archivierung** – der Bestand wächst unbegrenzt.
+- ✅ **Aufbewahrungsfristen und Archivierung** – der Bestand wächst unbegrenzt.
   Nötig sind Fristen je Kategorie und ein Archivstatus statt einer Löschung.
   Mit den Belegen aus 1.7.0 hat das eine zweite Seite: Ein AD-Export enthält
   personenbezogene Daten und sollte nicht unbefristet liegen bleiben.
-- 📋 **Virenprüfung hochgeladener Dateien** – Belege werden von anderen Personen
+- ✅ **Virenprüfung hochgeladener Dateien** – Belege werden von anderen Personen
   wieder heruntergeladen. Eine Prüfung beim Hochladen (etwa gegen ClamAV im
   Stack) verhindert, dass die Nachweisablage zum Verteilweg wird.
-- 📋 **Passkey-Pflicht je Rolle** – für Administratoren erzwingbar
+- ✅ **Passkey-Pflicht je Rolle** – für Administratoren erzwingbar
   (offener Punkt aus 1.4.0).
 - 💡 **Signierte Nachweise** – Zeitstempel oder Signatur über die Prüfsumme,
   damit die Unverändertheit auch ohne Vertrauen in die Datenbank belegbar ist.
