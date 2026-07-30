@@ -35,6 +35,30 @@ Dateien anhängen.
 > Verantwortlichkeit – Angaben, die ein Prüfbogen nicht enthält. Diese
 > Entscheidung bleibt bei Ihnen.
 
+## Wenn schon ein Prüfbogen vorliegt
+
+Ist der Bogen bereits ausgefüllt und – falls verlangt – gegengezeichnet, fragt
+der Dialog nicht mehr nach dem Weg. Stattdessen nennt er oben den Bogen mit
+beiden beteiligten Personen und verlinkt ihn. Sie erledigen die Fälligkeit
+damit von Hand:
+
+- **Das Ergebnis ist vorbelegt**: „In Ordnung mit Bemerkungen“, sobald der
+  Bogen Feststellungen enthält, sonst „In Ordnung“. Ändern können Sie es
+  jederzeit.
+- **Die Feststellungen des Bogens stehen im Abschnitt Abweichungen.** Ein Klick
+  auf *Als Abweichung übernehmen* legt daraus einen Eintrag mit Titel und
+  Bemerkung an; Schwere, Verantwortlichkeit und Frist ergänzen Sie. Was nicht
+  nachverfolgt werden muss, lassen Sie stehen.
+- **Die Nachweispflicht ist erfüllt** – der Bogen zählt als Nachweis. Weitere
+  Dateien dürfen Sie trotzdem anhängen.
+
+Beim Protokollieren wandern das PDF des Bogens und alle daran hängenden Belege
+zur Durchführung.
+
+Ist ein Bogen noch in Arbeit oder zur Gegenzeichnung vorgelegt, weist der
+Dialog darauf hin und verlinkt ihn. Erledigen können Sie trotzdem; wird der
+Bogen später abgeschlossen, kommt sein PDF zur bestehenden Durchführung hinzu.
+
 ## Der Dialog
 
 ### Ergebnis

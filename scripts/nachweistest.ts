@@ -18,6 +18,7 @@ import {
   fuehreUebergangAus,
   ladeFeststellungen,
   ladeNachweis,
+  ladeNachweisStand,
   ladeOffeneGegenzeichnungen,
   speichereAntworten,
   speichereZeilen,
@@ -763,6 +764,40 @@ async function main() {
   pruefe(
     soloAnhang?.executionId === null,
     'Das PDF wartet am Prüfbogen, bis die Fälligkeit erledigt wird',
+  )
+
+  // --- Stand für den Erledigen-Dialog -------------------------------------
+  const dialogStand = await ladeNachweisStand([
+    soloFaelligkeit.id,
+    listenFaelligkeit.id,
+  ])
+  pruefe(
+    dialogStand.length === 2,
+    'Der Stand kommt für mehrere Fälligkeiten in einem Zug',
+  )
+
+  const soloDialog = dialogStand.find((s) => s.occurrenceId === soloFaelligkeit.id)
+  pruefe(
+    soloDialog?.status === 'GEGENGEZEICHNET' && soloDialog.vierAugen === false,
+    'Der abgeschlossene Bogen wird dem Dialog als solcher gemeldet',
+  )
+  pruefe(
+    soloDialog?.feststellungen.length === 0,
+    'Ohne Befund nennt der Stand keine Feststellungen',
+  )
+
+  const listenDialog = dialogStand.find(
+    (s) => s.occurrenceId === listenFaelligkeit.id,
+  )
+  pruefe(
+    listenDialog?.feststellungen.length === 1 &&
+      listenDialog.feststellungen[0].titel.includes('kklein') &&
+      listenDialog.feststellungen[0].bemerkung === 'Austritt zum Monatsende',
+    'Die Feststellung steht im Klartext zur Übernahme als Abweichung bereit',
+  )
+  pruefe(
+    (await ladeNachweisStand([])).length === 0,
+    'Ohne Fälligkeiten wird die Datenbank nicht befragt',
   )
 
   // --- Fremder Entwurf: übernehmen und verwerfen ---------------------------

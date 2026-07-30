@@ -32,7 +32,7 @@ import { prisma } from '@/lib/prisma'
 import { canExecute } from '@/lib/rbac'
 import { bewerteAmpel, type Ampel } from '@/lib/scheduling'
 import { erforderlicherBenutzer } from '@/lib/session'
-import { ladeOffeneGegenzeichnungen } from '@/server/nachweise'
+import { ladeNachweisStand, ladeOffeneGegenzeichnungen } from '@/server/nachweise'
 import {
   ZEITHORIZONT_BEZEICHNUNG,
   ZEITHORIZONT_COOKIE,
@@ -178,6 +178,12 @@ export default async function DashboardSeite() {
   // Auch bei weitem Zeitraum bleibt die Liste bedienbar.
   const naechsteFaelligkeiten = imZeitraum.slice(0, 30)
 
+  // Bereits geführte Prüfbögen zu diesen Fälligkeiten: Der Erledigen-Dialog
+  // soll den vorliegenden Bogen nennen, statt einen weiteren anzubieten.
+  const nachweisStand = canExecute(benutzer.role)
+    ? await ladeNachweisStand(naechsteFaelligkeiten.map((e) => e.occurrence.id))
+    : []
+
   return (
     <div className="space-y-6">
       <SeitenKopf
@@ -319,6 +325,9 @@ export default async function DashboardSeite() {
                           evidenceRequired: occurrence.task.evidenceRequired,
                         }}
                         boegen={boegenFuer(occurrence.task.id)}
+                        nachweise={nachweisStand.filter(
+                          (n) => n.occurrenceId === occurrence.id,
+                        )}
                         personen={personen}
                         heute={toISODate(heute)}
                         standardFrist={toISODate(addDays(heute, 30))}

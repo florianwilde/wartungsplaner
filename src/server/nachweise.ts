@@ -11,6 +11,7 @@ import path from 'node:path'
 import { schreibeAudit } from '@/lib/audit'
 import { formatDate, todayInBerlin } from '@/lib/dates'
 import {
+  ERGEBNIS_BEZEICHNUNG,
   ERLAUBTE_ERGEBNISSE,
   auffaelligePunkte,
   auffaelligeZeilen,
@@ -240,6 +241,78 @@ export async function ladeFeststellungen(
       ergebnis: String(eintrag.antwort.ergebnis),
       bemerkung: antwort?.bemerkung ?? null,
       findingId: findings.find((f) => f.punktId === eintrag.punkt.id)?.id ?? null,
+    }
+  })
+}
+
+export type NachweisStand = {
+  occurrenceId: string
+  nachweisId: string
+  pruefbogen: string
+  status: NachweisStatus
+  vierAugen: boolean
+  erfasstVon: string
+  geprueftVon: string | null
+  /** Feststellungen im Klartext, für die Übernahme als Abweichung */
+  feststellungen: { titel: string; bemerkung: string | null }[]
+}
+
+/**
+ * Stand der Prüfbögen zu mehreren Fälligkeiten.
+ *
+ * Für den Erledigen-Dialog: Er soll zeigen, dass ein Bogen bereits vorliegt,
+ * statt anzubieten, einen weiteren anzulegen. Bewusst eine Abfrage für alle
+ * Fälligkeiten – auf dem Dashboard stehen viele davon nebeneinander.
+ */
+export async function ladeNachweisStand(
+  occurrenceIds: string[],
+): Promise<NachweisStand[]> {
+  if (occurrenceIds.length === 0) return []
+
+  const nachweise = await prisma.nachweis.findMany({
+    where: { occurrenceId: { in: occurrenceIds } },
+    include: {
+      vorlage: { include: { punkte: { orderBy: { position: 'asc' } } } },
+      antworten: true,
+      zeilen: true,
+      erfasstBy: { select: { name: true } },
+      geprueftBy: { select: { name: true } },
+    },
+  })
+
+  return nachweise.map((nachweis) => {
+    const punkte = alsPunkte(nachweis.vorlage.punkte)
+    const antworten = alsAntworten(nachweis.antworten)
+    const zeilen = alsZeilen(nachweis.zeilen)
+
+    const ausPunkten = auffaelligePunkte(punkte, antworten).map((eintrag) => {
+      const antwort = nachweis.antworten.find(
+        (a) => a.punktId === eintrag.punkt.id,
+      )
+      return {
+        titel: `${eintrag.punkt.frage} – ${
+          ERGEBNIS_BEZEICHNUNG[eintrag.antwort.ergebnis!]
+        }`,
+        bemerkung: antwort?.bemerkung ?? null,
+      }
+    })
+
+    const ausZeilen = auffaelligeZeilen(zeilen).map((zeile) => ({
+      titel: `${zeile.zusatz ? `${zeile.bezeichnung} · ${zeile.zusatz}` : zeile.bezeichnung} – ${
+        ERGEBNIS_BEZEICHNUNG[zeile.ergebnis!]
+      }`,
+      bemerkung: zeile.bemerkung,
+    }))
+
+    return {
+      occurrenceId: nachweis.occurrenceId,
+      nachweisId: nachweis.id,
+      pruefbogen: nachweis.vorlage.name,
+      status: nachweis.status as NachweisStatus,
+      vierAugen: nachweis.vorlage.vierAugen,
+      erfasstVon: nachweis.erfasstBy.name,
+      geprueftVon: nachweis.geprueftBy?.name ?? null,
+      feststellungen: [...ausPunkten, ...ausZeilen],
     }
   })
 }

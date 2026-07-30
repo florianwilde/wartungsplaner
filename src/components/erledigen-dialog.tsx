@@ -2,11 +2,13 @@
 
 import { useActionState, useEffect, useState } from 'react'
 import { useFormStatus } from 'react-dom'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   AlertCircle,
   CheckCircle2,
   ClipboardList,
+  FileCheck2,
   Plus,
   Trash2,
   Upload,
@@ -31,6 +33,7 @@ import {
   ERGEBNIS_BEZEICHNUNG,
   SCHWERE_BEZEICHNUNG,
 } from '@/lib/labels'
+import { STATUS_BEZEICHNUNG, type NachweisStatus } from '@/lib/nachweise'
 import { ACCEPT_ATTRIBUT, ERLAUBTE_ENDUNGEN_TEXT } from '@/lib/uploads'
 import { faelligkeitErledigen } from '@/server/actions/durchfuehrungen'
 import { nachweisBeginnen } from '@/server/actions/nachweise'
@@ -56,6 +59,17 @@ export type WaehlbarerBogen = {
   anzahlPunkte: number
   /** true = fest dieser Aufgabe zugeordnet */
   zugeordnet: boolean
+}
+
+/** Ein Prüfbogen, der zu dieser Fälligkeit bereits ausgefüllt wurde. */
+export type VorliegenderNachweis = {
+  nachweisId: string
+  pruefbogen: string
+  status: NachweisStatus
+  vierAugen: boolean
+  erfasstVon: string
+  geprueftVon: string | null
+  feststellungen: { titel: string; bemerkung: string | null }[]
 }
 
 export type ErledigenAufgabe = {
@@ -84,6 +98,7 @@ export function ErledigenDialog({
   heute,
   standardFrist,
   boegen = [],
+  nachweise = [],
   ausloeser,
 }: {
   aufgabe: ErledigenAufgabe
@@ -94,9 +109,24 @@ export function ErledigenDialog({
   standardFrist: string
   /** Prüfbögen, die für diese Aufgabe bereitstehen. */
   boegen?: WaehlbarerBogen[]
+  /** Bereits zu dieser Fälligkeit geführte Prüfbögen. */
+  nachweise?: VorliegenderNachweis[]
   ausloeser?: React.ReactNode
 }) {
   const router = useRouter()
+
+  // Ein abgeschlossener Bogen erledigt die Fälligkeit nicht von selbst – es
+  // fehlen Ergebnis und Abweichungen. Liegt einer vor, wird hier nicht mehr
+  // nach dem Weg gefragt, sondern der Bogen der Durchführung zugeschlagen.
+  const fertige = nachweise.filter((n) => n.status === 'GEGENGEZEICHNET')
+  const offeneBoegen = nachweise.filter((n) => n.status !== 'GEGENGEZEICHNET')
+  const feststellungen = fertige.flatMap((nachweis) =>
+    nachweis.feststellungen.map((f, index) => ({
+      ...f,
+      schluessel: `${nachweis.nachweisId}-${index}`,
+    })),
+  )
+
   const [offen, setOffen] = useState(false)
   const [ergebnis, setErgebnis] = useState<Ergebnis>('OK')
   // Wegwahl: Mit Prüfbogen erfassen oder unmittelbar protokollieren.
@@ -104,7 +134,11 @@ export function ErledigenDialog({
   const [bogenId, setBogenId] = useState(boegen[0]?.id ?? '')
   const [oeffnetBogen, setOeffnetBogen] = useState(false)
   const [abweichungen, setAbweichungen] = useState<Abweichung[]>([])
+  const [uebernommen, setUebernommen] = useState<string[]>([])
   const [dateiAnzahl, setDateiAnzahl] = useState(0)
+
+  // Ein fertiger Bogen zählt als Nachweis; die Dateipflicht ist damit erfüllt.
+  const nachweisPflicht = aufgabe.evidenceRequired && fertige.length === 0
 
   const [status, formAction] = useActionState(
     async (vorher: { fehler?: string; erfolg?: string }, formData: FormData) => {
@@ -119,14 +153,17 @@ export function ErledigenDialog({
     {},
   )
 
-  // Beim Öffnen zurücksetzen, damit kein alter Zustand stehen bleibt.
+  // Beim Öffnen zurücksetzen, damit kein alter Zustand stehen bleibt. Hat der
+  // Bogen Feststellungen, ist „ohne Befund“ die falsche Voreinstellung.
+  const hatFeststellungen = feststellungen.length > 0
   useEffect(() => {
     if (offen) {
-      setErgebnis('OK')
+      setErgebnis(hatFeststellungen ? 'OK_WITH_REMARKS' : 'OK')
       setAbweichungen([])
+      setUebernommen([])
       setDateiAnzahl(0)
     }
-  }, [offen])
+  }, [offen, hatFeststellungen])
 
   const neueAbweichung = () =>
     setAbweichungen((bisher) => [
@@ -141,13 +178,37 @@ export function ErledigenDialog({
       },
     ])
 
+  /** Übernimmt eine Feststellung des Bogens als vorbelegte Abweichung. */
+  const uebernimmFeststellung = (feststellung: {
+    schluessel: string
+    titel: string
+    bemerkung: string | null
+  }) => {
+    setAbweichungen((bisher) => [
+      ...bisher,
+      {
+        schluessel: `abw-${feststellung.schluessel}`,
+        title: feststellung.titel.slice(0, 200),
+        description: feststellung.bemerkung ?? '',
+        severity: 'MEDIUM',
+        responsibleId: personen[0]?.id ?? '',
+        dueDate: standardFrist,
+      },
+    ])
+    setUebernommen((bisher) => [...bisher, feststellung.schluessel])
+    if (ergebnis === 'OK') setErgebnis('OK_WITH_REMARKS')
+  }
+
   const aendere = (schluessel: string, feld: keyof Abweichung, wert: string) =>
     setAbweichungen((bisher) =>
       bisher.map((a) => (a.schluessel === schluessel ? { ...a, [feld]: wert } : a)),
     )
 
-  const entferne = (schluessel: string) =>
+  const entferne = (schluessel: string) => {
     setAbweichungen((bisher) => bisher.filter((a) => a.schluessel !== schluessel))
+    // Wieder anbietbar machen, falls die Feststellung dahintersteckt.
+    setUebernommen((bisher) => bisher.filter((k) => `abw-${k}` !== schluessel))
+  }
 
   return (
     <Dialog open={offen} onOpenChange={setOffen}>
@@ -168,7 +229,61 @@ export function ErledigenDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {boegen.length > 0 ? (
+        {fertige.length > 0 ? (
+          <div className="space-y-2 rounded-lg border border-primary/40 bg-primary/5 p-3">
+            <p className="flex items-center gap-2 text-sm font-medium">
+              <FileCheck2 className="size-4" />
+              {fertige.length === 1
+                ? 'Ein ausgefüllter Prüfbogen liegt vor'
+                : `${fertige.length} ausgefüllte Prüfbögen liegen vor`}
+            </p>
+            {fertige.map((nachweis) => (
+              <p key={nachweis.nachweisId} className="text-xs text-muted-foreground">
+                <Link
+                  href={`/nachweise/${nachweis.nachweisId}`}
+                  className="font-medium text-foreground underline underline-offset-2"
+                >
+                  {nachweis.pruefbogen}
+                </Link>
+                {' · erfasst von '}
+                {nachweis.erfasstVon}
+                {nachweis.geprueftVon
+                  ? ` · gegengezeichnet von ${nachweis.geprueftVon}`
+                  : ''}
+              </p>
+            ))}
+            <p className="text-xs text-muted-foreground">
+              Der Bogen zählt als Nachweis. Sein PDF und die daran hängenden
+              Belege gehen mit dieser Durchführung ein.
+            </p>
+          </div>
+        ) : null}
+
+        {offeneBoegen.length > 0 ? (
+          <div className="space-y-1 rounded-lg border border-border p-3">
+            <p className="text-sm font-medium">Noch nicht abgeschlossen</p>
+            {offeneBoegen.map((nachweis) => (
+              <p key={nachweis.nachweisId} className="text-xs text-muted-foreground">
+                <Link
+                  href={`/nachweise/${nachweis.nachweisId}`}
+                  className="font-medium text-foreground underline underline-offset-2"
+                >
+                  {nachweis.pruefbogen}
+                </Link>
+                {' · '}
+                {STATUS_BEZEICHNUNG[nachweis.status]}
+                {' · erfasst von '}
+                {nachweis.erfasstVon}
+              </p>
+            ))}
+            <p className="text-xs text-muted-foreground">
+              Wird dieser Bogen später abgeschlossen, kommt sein PDF zur
+              Durchführung hinzu.
+            </p>
+          </div>
+        ) : null}
+
+        {boegen.length > 0 && fertige.length === 0 ? (
           <div className="space-y-2">
             <p className="text-sm font-medium">Wie möchten Sie vorgehen?</p>
 
@@ -240,7 +355,7 @@ export function ErledigenDialog({
           </div>
         ) : null}
 
-        {weg === 'bogen' && boegen.length > 0 ? (
+        {weg === 'bogen' && boegen.length > 0 && fertige.length === 0 ? (
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOffen(false)}>
               Abbrechen
@@ -325,10 +440,14 @@ export function ErledigenDialog({
           <div className="space-y-2">
             <Label htmlFor="nachweise">
               Nachweise{' '}
-              {aufgabe.evidenceRequired ? (
+              {nachweisPflicht ? (
                 <span className="text-destructive">(verpflichtend)</span>
               ) : (
-                <span className="text-muted-foreground">(optional)</span>
+                <span className="text-muted-foreground">
+                  {aufgabe.evidenceRequired
+                    ? '(durch den Prüfbogen erfüllt)'
+                    : '(optional)'}
+                </span>
               )}
             </Label>
             <Input
@@ -337,7 +456,7 @@ export function ErledigenDialog({
               type="file"
               multiple
               accept={ACCEPT_ATTRIBUT}
-              required={aufgabe.evidenceRequired}
+              required={nachweisPflicht}
               onChange={(e) => setDateiAnzahl(e.target.files?.length ?? 0)}
               className="cursor-pointer"
             />
@@ -370,6 +489,41 @@ export function ErledigenDialog({
                 Hinzufügen
               </Button>
             </div>
+
+            {feststellungen.length > 0 ? (
+              <div className="space-y-2 rounded-md border border-dashed border-border p-3">
+                <p className="text-xs text-muted-foreground">
+                  Der Prüfbogen weist folgende Feststellungen aus. Was
+                  nachverfolgt werden soll, übernehmen Sie als Abweichung.
+                </p>
+                {feststellungen.map((feststellung) => (
+                  <div
+                    key={feststellung.schluessel}
+                    className="flex flex-wrap items-start justify-between gap-2"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm">{feststellung.titel}</p>
+                      {feststellung.bemerkung ? (
+                        <p className="text-xs text-muted-foreground">
+                          {feststellung.bemerkung}
+                        </p>
+                      ) : null}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={uebernommen.includes(feststellung.schluessel)}
+                      onClick={() => uebernimmFeststellung(feststellung)}
+                    >
+                      {uebernommen.includes(feststellung.schluessel)
+                        ? 'Übernommen'
+                        : 'Als Abweichung übernehmen'}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
 
             {abweichungen.map((abweichung, index) => (
               <div

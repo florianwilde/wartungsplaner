@@ -32,7 +32,7 @@ import {
   warPuenktlich,
 } from '@/lib/scheduling'
 import { erforderlicherBenutzer } from '@/lib/session'
-import { ladeVerfuegbareVorlagen } from '@/server/nachweise'
+import { ladeNachweisStand, ladeVerfuegbareVorlagen } from '@/server/nachweise'
 import { NachweisStarten } from './nachweis-starten'
 import {
   AktivierungSchalter,
@@ -113,6 +113,11 @@ export default async function AufgabenDetailSeite({
 
   const darfErledigen = canExecute(benutzer.role)
   const darfVerwalten = canManageTasks(benutzer.role)
+
+  // Bereits geführte Prüfbögen zu den offenen Fälligkeiten.
+  const nachweisStand = darfErledigen
+    ? await ladeNachweisStand(offene.map((o) => o.id))
+    : []
 
   return (
     <div className="space-y-6">
@@ -240,6 +245,9 @@ export default async function AufgabenDetailSeite({
                           anzahlPunkte: bogen._count.punkte,
                           zugeordnet: bogen.taskId === aufgabe.id,
                         }))}
+                        nachweise={nachweisStand.filter(
+                          (n) => n.occurrenceId === occurrence.id,
+                        )}
                         personen={personen}
                         heute={toISODate(heute)}
                         standardFrist={toISODate(addDays(heute, 30))}

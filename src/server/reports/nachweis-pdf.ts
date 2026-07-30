@@ -413,13 +413,31 @@ export async function erzeugeNachweisPdf(
   const unterschriftY = doc.y + 46
   const feldBreite = (BREITE - 40) / 2
 
-  const feld = (x: number, beschriftung: string, person: string | null) => {
+  /**
+   * Ein Unterschriftenfeld.
+   *
+   * Steht die Person fest, ist auch der Zeitpunkt bekannt: Beides wird über
+   * der Linie gedruckt, und die Beschriftung verspricht dann kein Datumsfeld
+   * mehr, das leer bliebe. Die Linie bleibt für die handschriftliche
+   * Unterschrift auf einem Ausdruck.
+   */
+  const feld = (
+    x: number,
+    rolle: string,
+    person: string | null,
+    zeitpunkt: Date | null,
+  ) => {
     doc
       .moveTo(x, unterschriftY)
       .lineTo(x + feldBreite, unterschriftY)
       .lineWidth(0.7)
       .strokeColor(FARBE.text)
       .stroke()
+
+    const beschriftung =
+      person && zeitpunkt
+        ? `Unterschrift (${rolle})`
+        : `Datum, Unterschrift (${rolle})`
 
     doc
       .font('Helvetica')
@@ -432,15 +450,21 @@ export async function erzeugeNachweisPdf(
         .font('Helvetica')
         .fontSize(8.5)
         .fillColor(FARBE.text)
-        .text(person, x, unterschriftY - 14, { width: feldBreite, lineBreak: false })
+        .text(
+          zeitpunkt ? `${person} · ${formatDate(zeitpunkt)}` : person,
+          x,
+          unterschriftY - 14,
+          { width: feldBreite, lineBreak: false },
+        )
     }
   }
 
-  feld(RAND.links, 'Datum, Unterschrift (Durchführung)', eingabe.erfasstVon)
+  feld(RAND.links, 'Durchführung', eingabe.erfasstVon, eingabe.erfasstAm)
   feld(
     RAND.links + feldBreite + 40,
-    'Datum, Unterschrift (Gegenzeichnung)',
+    'Gegenzeichnung',
     eingabe.geprueftVon,
+    eingabe.geprueftAm,
   )
 
   doc.y = unterschriftY + 26
