@@ -10,10 +10,15 @@ protokolliert jede Durchführung unveränderlich mit Datei-Nachweisen und
 SHA-256-Prüfsumme, verfolgt Abweichungen bis zum Abschluss und erstellt
 auditfertige Reports als PDF und Excel.
 
+> **Anleitungen für den Alltag** – wie man Aufgaben anlegt, Prüfbögen
+> aufsetzt oder Nachweise führt – stehen im [Handbuch](docs/README.md).
+> Diese Datei beschreibt Installation, Konfiguration und Betrieb.
+
 ---
 
 ## Inhalt
 
+- [Handbuch für den Alltag](docs/README.md)
 - [Funktionsumfang](#funktionsumfang)
 - [Rollen und Berechtigungen](#rollen-und-berechtigungen)
 - [Fälligkeitslogik](#fälligkeitslogik)
