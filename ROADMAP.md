@@ -25,12 +25,13 @@ Umgesetzte Fassungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
 | ✅ **1.7.0** | Belege am Prüfbogen: AD-Exporte, Screenshots und Protokolle mit Prüfsumme |
 | ✅ **1.8.0** | Prüfvorgang zu Ende geführt: Benachrichtigung zur Gegenzeichnung, Feststellungen als Abweichungen, Zeilenlisten, Nachweisregister |
 | ✅ **1.9.0** | Nachweise belastbar aufbewahren: Prüfsummenlauf, Archiv-Export, Aufbewahrungsfristen, Passkey-Pflicht, Virenprüfung; dazu Audit-Referenzen als Stammdaten und ein Handbuch |
+| ✅ **1.10.0** | Alltagstauglichkeit: Vertretung bei Abwesenheit, Belege aus der Zwischenablage, Aufgaben duplizieren, Kalender-Abonnement, SVG-Logo im PDF |
 
 ## Vorgesehen
 
 | Fassung | Inhalt |
 | --- | --- |
-| 📋 **1.10.0** | Alltagstauglichkeit: Vertretung, Belege aus der Zwischenablage, Aufgabenvorlagen, iCal |
+| 💡 **1.11.0** | Noch offen – siehe die Ideen unten: Wartungsfenster und Feiertage, mobile Ansicht für die Durchführung |
 
 Quer dazu und unabhängig von einer Fassung: **End-to-End-Tests** und eine
 **CI-Pipeline** – siehe [Technik und Betrieb](#technik-und-betrieb).
@@ -285,7 +286,7 @@ einen Download versucht. Genau dann ist er nicht mehr zu heilen.
 
 ---
 
-## 1.10.0 – Alltagstauglichkeit 📋
+## 1.10.0 – Alltagstauglichkeit ✅
 
 **Warum:** Bis hierher ging es um Vollständigkeit und Belastbarkeit. Diese
 Fassung senkt den Aufwand im laufenden Betrieb.
@@ -313,14 +314,23 @@ Fassung senkt den Aufwand im laufenden Betrieb.
   Abweichungsfristen bleiben bewusst draußen: Sie ändern sich häufig und
   gehören ins Dashboard, nicht in einen Kalender, der nur alle paar Stunden
   abgerufen wird.
-- 💡 **Wartungsfenster und Feiertage** – Fälligkeiten, die auf einen Feiertag
-  oder in eine Betriebsruhe fallen, automatisch verschieben.
-- 💡 **Mobile Ansicht für die Durchführung** – Prüfungen im Serverraum am
-  Telefon abhaken.
 - ✅ **SVG-Logo im PDF-Kopf** – die Reports betteten nur PNG und JPG ein
   (offener Punkt aus 1.5.0). Ein SVG wird jetzt als Vektorgrafik gezeichnet
   und bleibt im Ausdruck scharf; Text im Logo gehört vorher in Pfade
   umgewandelt, weil im PDF keine Schriften nachgeladen werden.
+
+---
+
+## 1.11.0 – noch offen 💡
+
+Aus 1.10.0 übrig geblieben, weil beides eine eigene Fassung verdient:
+
+- 💡 **Wartungsfenster und Feiertage** – Fälligkeiten, die auf einen Feiertag
+  oder in eine Betriebsruhe fallen, automatisch verschieben. Das braucht eine
+  gepflegte Feiertagsliste je Standort und eine Regel, ob vor- oder
+  nachgezogen wird – keine Kleinigkeit nebenbei.
+- 💡 **Mobile Ansicht für die Durchführung** – Prüfungen im Serverraum am
+  Telefon abhaken.
 
 ---
 

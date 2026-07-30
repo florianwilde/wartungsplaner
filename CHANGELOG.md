@@ -14,6 +14,16 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ## [Unveröffentlicht]
 
+Noch keine Änderungen.
+
+---
+
+## [1.10.0] – 2026-07-30
+
+Diese Fassung senkt den Aufwand im laufenden Betrieb. Bis hierher ging es um
+Vollständigkeit und Belastbarkeit – jetzt darum, dass die tägliche Arbeit
+weniger Umwege verlangt.
+
 ### Hinzugefügt
 
 - **Vertretung bei Abwesenheit.** Wer zwei Wochen im Urlaub ist, bekam die
@@ -602,7 +612,8 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.9.0...main
+[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.10.0...main
+[1.10.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.10.0
 [1.9.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.9.0
 [1.8.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.8.0
 [1.7.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.7.0
