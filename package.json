@@ -20,7 +20,8 @@
     "test:aufbewahrung": "tsx scripts/aufbewahrungstest.ts",
     "test:viren": "tsx scripts/virentest.ts",
     "test:vertretung": "tsx scripts/vertretungstest.ts",
-    "test:duplizieren": "tsx scripts/duplizierungstest.ts"
+    "test:duplizieren": "tsx scripts/duplizierungstest.ts",
+    "test:kalender": "tsx scripts/kalendertest.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

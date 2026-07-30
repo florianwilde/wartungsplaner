@@ -94,6 +94,11 @@ model User {
   /// Empfängt Erinnerungen und Übersichten per E-Mail
   notifyByEmail      Boolean      @default(true)
 
+  /// Geheimnis des Kalender-Abonnements; leer = kein Abo eingerichtet.
+  /// Kalenderprogramme können sich nicht anmelden – dieser Wert ist der
+  /// Zugang und lässt sich jederzeit neu erzeugen.
+  kalenderToken   String?   @unique
+
   /// Vertretung bei Abwesenheit: Meldungen gehen dann an diese Person.
   /// Die Zuständigkeit selbst bleibt unberührt – nur die Post wird umgeleitet.
   vertretungId    String?

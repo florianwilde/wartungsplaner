@@ -55,6 +55,20 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
   - **Prüfbögen wahlweise mitkopieren**: Jede Kopie bekommt einen eigenen Bogen
     mit denselben Prüfpunkten, benannt nach seiner Aufgabe.
   - Ohne „sofort aktiv“ entsteht die Aufgabe still, ohne erste Fälligkeit.
+- **Kalender-Abonnement.** Wer Prüfungen plant, plant sie im Kalender – nicht
+  in einer zweiten Anwendung, die man dafür öffnen muss. Unter *Mein Konto*
+  gibt es eine Adresse, die Outlook laufend abruft.
+  - Enthalten sind die offenen und überfälligen Fälligkeiten; vertritt man
+    gerade jemanden, kommen dessen Termine mit und sind als solche
+    gekennzeichnet.
+  - Die Termine sind **ganztägig und unverbindlich** – eine Fälligkeit ist
+    keine Besprechung und blockiert den Tag nicht. Die Erinnerung entspricht
+    der Vorlaufzeit der Aufgabe, damit es keine zweite Zahl gibt, die der
+    ersten widersprechen kann.
+  - Kalenderprogramme können sich nicht anmelden; der Zugang ist deshalb ein
+    Geheimnis in der Adresse. Es lässt sich jederzeit neu erzeugen – die alte
+    Adresse läuft dann ins Leere –, das Aufheben entwertet sie ebenfalls, und
+    ein deaktiviertes Konto liefert nichts mehr. Beides steht im Audit-Log.
 
 ---
 

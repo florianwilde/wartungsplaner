@@ -25,6 +25,8 @@ export const AUDIT_AKTIONEN = {
   USER_PROVISIONED_VIA_OIDC: 'Benutzer über SSO angelegt',
   VERTRETUNG_GESETZT: 'Vertretung hinterlegt',
   VERTRETUNG_AUFGEHOBEN: 'Vertretung aufgehoben',
+  KALENDER_ABO_ERNEUERT: 'Kalender-Abonnement eingerichtet',
+  KALENDER_ABO_AUFGEHOBEN: 'Kalender-Abonnement aufgehoben',
   USER_LINKED_VIA_OIDC: 'Konto mit SSO verknüpft',
   CATEGORY_CREATED: 'Kategorie angelegt',
   CATEGORY_UPDATED: 'Kategorie geändert',

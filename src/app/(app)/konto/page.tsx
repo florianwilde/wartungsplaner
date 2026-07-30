@@ -13,7 +13,9 @@ import { erforderlicherBenutzer } from '@/lib/session'
 import { beschreibeZeitraum } from '@/lib/vertretung'
 import { passkeyHinweis } from '@/lib/webauthn'
 import { appUrl, ladePasskeys } from '@/server/passkeys'
+import { ladeKalenderToken } from '@/server/kalender-abo'
 import { ladeVertretung, ladeVertretungenFuer } from '@/server/vertretung'
+import { KalenderAbo } from './kalender-abo'
 import { PasskeyVerwaltung } from './passkey-verwaltung'
 
 export const metadata: Metadata = { title: 'Mein Konto' }
@@ -55,6 +57,8 @@ export default async function KontoSeite() {
       ])
     : [null, [], []]
 
+  const kalenderToken = await ladeKalenderToken(benutzer.id)
+
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <SeitenKopf
@@ -91,6 +95,12 @@ export default async function KontoSeite() {
           </dl>
         </CardContent>
       </Card>
+
+      <KalenderAbo
+        adresse={
+          kalenderToken ? `${appUrl()}/api/kalender/${kalenderToken}.ics` : null
+        }
+      />
 
       {darfVertreten ? (
         <Card>

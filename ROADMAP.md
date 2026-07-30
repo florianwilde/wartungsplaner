@@ -308,8 +308,12 @@ Fassung senkt den Aufwand im laufenden Betrieb.
   Vergangenheit der Vorlage kommt bewusst nicht mit. Eigene
   „Aufgabenvorlagen“ als Stammdaten braucht es dafür nicht – jede bestehende
   Aufgabe ist die Vorlage.
-- 📋 **Kalender-Abonnement (iCal)** – ein `.ics`-Feed je Person, den Outlook
-  abonniert; Fälligkeiten erscheinen im gewohnten Kalender.
+- ✅ **Kalender-Abonnement (iCal)** – ein `.ics`-Feed je Person, den Outlook
+  abonniert; Fälligkeiten erscheinen im gewohnten Kalender. Ganztägig und
+  unverbindlich, mit der Vorlaufzeit der Aufgabe als Erinnerung. Die
+  Abweichungsfristen bleiben bewusst draußen: Sie ändern sich häufig und
+  gehören ins Dashboard, nicht in einen Kalender, der nur alle paar Stunden
+  abgerufen wird.
 - 💡 **Wartungsfenster und Feiertage** – Fälligkeiten, die auf einen Feiertag
   oder in eine Betriebsruhe fallen, automatisch verschieben.
 - 💡 **Mobile Ansicht für die Durchführung** – Prüfungen im Serverraum am

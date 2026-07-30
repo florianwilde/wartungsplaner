@@ -39,6 +39,7 @@ gebaut ist. Technik, Installation und Betrieb stehen in der
 | [Benutzer und Anmeldung](benutzer-und-anmeldung.md) | Konten, Passkeys, SSO, Passwörter, Passkey-Pflicht |
 | [Benachrichtigungen](benachrichtigungen.md) | Welche Nachrichten wann hinausgehen |
 | [Vertretung bei Abwesenheit](vertretung.md) | Erinnerungen während des Urlaubs umleiten |
+| [Kalender abonnieren](kalender-abo.md) | Fälligkeiten in Outlook anzeigen |
 | [Import und Export](import-und-export.md) | Stammdaten in größerer Zahl pflegen |
 | [Erscheinungsbild](erscheinungsbild.md) | Farben, Logo, Fußzeile der Berichte |
 
