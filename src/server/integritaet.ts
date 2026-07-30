@@ -90,12 +90,26 @@ export async function pruefeNachweise(): Promise<LaufErgebnis> {
   let abweichend = 0
   let unlesbar = 0
 
+  // Nach Ablauf der Aufbewahrungsfrist entfernte Nachweise bleiben außen
+  // vor: Ihre Datei fehlt mit Absicht. Sie hier zu melden hieße, jeden Lauf
+  // mit Beanstandungen enden zu lassen – und echte Verluste gingen darin
+  // unter.
   const anhaenge = await prisma.attachment.findMany({
+    where: { archiviertAm: null },
     select: { id: true, filename: true, storedPath: true, sha256: true },
     orderBy: { uploadedAt: 'asc' },
   })
 
-  const bekanntePfade = new Set<string>()
+  // Ihre Pfade zählen dennoch als bekannt, damit eine zurückgespielte
+  // Sicherung sie nicht als verwaist ausweist.
+  const archivierte = await prisma.attachment.findMany({
+    where: { archiviertAm: { not: null } },
+    select: { storedPath: true },
+  })
+
+  const bekanntePfade = new Set<string>(
+    archivierte.map((a) => a.storedPath.replace(/\\/g, '/')),
+  )
 
   for (const anhang of anhaenge) {
     // Normalisiert vergleichen: In der Datenbank stehen Schrägstriche, das

@@ -114,6 +114,8 @@ model Category {
   /// Hex-Farbe für Ampel/Badges, z. B. "#2563eb"
   color     String   @default("#64748b")
   sortOrder Int      @default(0)
+  /// Aufbewahrungsfrist der Nachweisdateien in Monaten; leer = globale Vorgabe
+  aufbewahrungMonate Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -224,6 +226,12 @@ model Attachment {
   sha256       String
   uploadedById String
   uploadedAt   DateTime @default(now())
+
+  /// Gesetzt, wenn die Datei nach Ablauf der Aufbewahrungsfrist entfernt
+  /// wurde. Der Eintrag bleibt bestehen: Dateiname, Größe und Prüfsumme
+  /// belegen weiterhin, dass es diesen Nachweis gab und wie er lautete.
+  /// Gelöscht wird der Inhalt, nicht die Tatsache.
+  archiviertAm DateTime?
 
   execution  Execution? @relation(fields: [executionId], references: [id], onDelete: Cascade)
   uploadedBy User       @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
@@ -565,6 +573,30 @@ model WebAuthnChallenge {
 // ---------------------------------------------------------------------------
 
 /// Art einer versendeten Benachrichtigung.
+/// Aufbewahrung der Nachweisdateien. Einzelner Datensatz mit der festen ID
+/// "singleton" – analog zum Erscheinungsbild.
+///
+/// Der Bestand wächst sonst unbegrenzt, und hochgeladene Belege enthalten
+/// personenbezogene Daten – ein AD-Export nennt Namen. Nach Ablauf der Frist
+/// wird deshalb die **Datei** entfernt, nicht der Eintrag: Datum, Person,
+/// Ergebnis und Prüfsumme bleiben und belegen weiterhin, dass geprüft wurde.
+model AufbewahrungsEinstellung {
+  id      String  @id @default("singleton")
+  /// Auslieferungszustand: aus. Löschen geschieht nie ungefragt.
+  aktiv   Boolean @default(false)
+  /// Vorgabe in Monaten, sofern die Kategorie nichts eigenes vorgibt
+  standardMonate Int @default(120)
+  /// Zeitpunkt des letzten Laufs
+  letzterLaufAm  DateTime?
+  /// Im letzten Lauf entfernte Dateien
+  letzteAnzahl   Int      @default(0)
+
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+
+  @@map("AufbewahrungsEinstellung")
+}
+
 /// Eine Audit-Referenz, etwa "ISO 27001 A.8.13" oder "TISAX 1.6.1".
 ///
 /// Bewusst als Stammdatum statt als Freitext an der Aufgabe: Nur so lässt

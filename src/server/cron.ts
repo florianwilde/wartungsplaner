@@ -10,6 +10,11 @@ import {
 } from '@/server/benachrichtigungen'
 import { fuehreTagesabgleichAus } from '@/server/faelligkeiten'
 import {
+  fasseAufbewahrungZusammen,
+  fuehreAufbewahrungAus,
+  holeAufbewahrungsEinstellungen,
+} from '@/server/aufbewahrung'
+import {
   fasseLaufZusammen,
   fuehreIntegritaetslaufAus,
 } from '@/server/integritaet'
@@ -27,6 +32,7 @@ const globalForCron = globalThis as unknown as {
   wartungsplanerCronLaeuft: boolean | undefined
   wartungsplanerMailLaeuft: boolean | undefined
   wartungsplanerIntegritaetLaeuft: boolean | undefined
+  wartungsplanerAufbewahrungLaeuft: boolean | undefined
 }
 
 /** Führt den Tagesabgleich aus und verhindert überlappende Läufe. */
@@ -113,6 +119,41 @@ export async function starteIntegritaetslauf(
 }
 
 /**
+ * Wendet die Aufbewahrungsfristen an.
+ *
+ * Läuft nur, wenn sie ausdrücklich eingeschaltet sind. Der Auslieferungs-
+ * zustand ist aus: Gelöscht wird nie ungefragt.
+ */
+export async function starteAufbewahrung(
+  ausgeloestVon: string | null = null,
+  nurVorschau = false,
+) {
+  if (globalForCron.wartungsplanerAufbewahrungLaeuft) {
+    console.warn('Aufbewahrungslauf läuft bereits – Aufruf wird übersprungen.')
+    return null
+  }
+
+  if (!nurVorschau) {
+    const einstellungen = await holeAufbewahrungsEinstellungen()
+    if (!einstellungen.aktiv) return null
+  }
+
+  globalForCron.wartungsplanerAufbewahrungLaeuft = true
+  try {
+    const ergebnis = await fuehreAufbewahrungAus(ausgeloestVon, nurVorschau)
+    console.log(
+      `[Wartungsplaner] Aufbewahrung: ${fasseAufbewahrungZusammen(
+        ergebnis,
+        nurVorschau,
+      )}`,
+    )
+    return ergebnis
+  } finally {
+    globalForCron.wartungsplanerAufbewahrungLaeuft = false
+  }
+}
+
+/**
  * Registriert den täglichen Hintergrundjob.
  * Aufruf ausschließlich über `src/instrumentation.ts` beim Serverstart.
  */
@@ -144,9 +185,17 @@ export function registriereTaeglichenJob(): void {
         .finally(() => {
           // Unabhängig vom Ausgang des Abgleichs: Die Unversehrtheit der
           // Nachweise soll täglich geprüft werden.
-          void starteIntegritaetslauf(null).catch((error) => {
-            console.error('[Wartungsplaner] Integritätslauf fehlgeschlagen:', error)
-          })
+          void starteIntegritaetslauf(null)
+            .catch((error) => {
+              console.error('[Wartungsplaner] Integritätslauf fehlgeschlagen:', error)
+            })
+            .finally(() => {
+              // Zuletzt: Erst prüfen, dann entfernen – so erfasst der
+              // Integritätslauf den Bestand, wie er vor dem Aufräumen war.
+              void starteAufbewahrung(null).catch((error) => {
+                console.error('[Wartungsplaner] Aufbewahrungslauf fehlgeschlagen:', error)
+              })
+            })
         })
     },
     { timezone: APP_TIME_ZONE },

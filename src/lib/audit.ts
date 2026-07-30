@@ -48,6 +48,8 @@ export const AUDIT_AKTIONEN = {
   ARCHIV_ERZEUGT: 'Nachweisarchiv erzeugt',
   CRON_RUN: 'Täglicher Job ausgeführt',
   INTEGRITAETSLAUF: 'Nachweise auf Unversehrtheit geprüft',
+  AUFBEWAHRUNG_AUSGEFUEHRT: 'Aufbewahrungsfristen angewendet',
+  AUFBEWAHRUNG_KONFIGURIERT: 'Aufbewahrungsfristen konfiguriert',
   BRANDING_UPDATED: 'Erscheinungsbild geändert',
   BRANDING_RESET: 'Erscheinungsbild zurückgesetzt',
   NOTIFICATION_SETTINGS_UPDATED: 'Benachrichtigungen konfiguriert',

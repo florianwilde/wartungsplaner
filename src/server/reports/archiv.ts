@@ -57,6 +57,9 @@ export async function sammleArchivInhalt(
 ): Promise<ArchivInhalt> {
   const anhaenge = await prisma.attachment.findMany({
     where: {
+      // Nach Ablauf der Frist entfernte Nachweise sind nicht mehr da; sie
+      // wuerden das Archiv nur mit Fehlmeldungen fuellen.
+      archiviertAm: null,
       execution: {
         executedAt: {
           gte: zeitraum.von,
