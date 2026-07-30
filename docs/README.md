@@ -38,6 +38,7 @@ gebaut ist. Technik, Installation und Betrieb stehen in der
 | --- | --- |
 | [Benutzer und Anmeldung](benutzer-und-anmeldung.md) | Konten, Passkeys, SSO, Passwörter, Passkey-Pflicht |
 | [Benachrichtigungen](benachrichtigungen.md) | Welche Nachrichten wann hinausgehen |
+| [Vertretung bei Abwesenheit](vertretung.md) | Erinnerungen während des Urlaubs umleiten |
 | [Import und Export](import-und-export.md) | Stammdaten in größerer Zahl pflegen |
 | [Erscheinungsbild](erscheinungsbild.md) | Farben, Logo, Fußzeile der Berichte |
 
@@ -56,6 +57,10 @@ Ein abgeschlossener Prüfbogen zählt als Nachweis. Siehe
 **„Ich habe eine Durchführung falsch protokolliert."**
 Sie bleibt bestehen – das ist Absicht. Siehe
 [Fälligkeiten erledigen](faelligkeiten-erledigen.md#warum-sich-nichts-nachträglich-ändern-lässt).
+
+**„Ich bin im Urlaub – wer kümmert sich um meine Prüfungen?"**
+Hinterlegen Sie eine Vertretung; die Erinnerungen gehen dann dorthin. Siehe
+[Vertretung bei Abwesenheit](vertretung.md).
 
 **„Eine Prüfung wurde ausgesetzt und taucht nicht mehr auf."**
 Ausgesetzte Fälligkeiten stehen auf der Seite der Aufgabe und lassen sich dort

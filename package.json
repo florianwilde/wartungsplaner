@@ -18,7 +18,8 @@
     "db:studio": "prisma studio",
     "test:integritaet": "tsx scripts/integritaetstest.ts",
     "test:aufbewahrung": "tsx scripts/aufbewahrungstest.ts",
-    "test:viren": "tsx scripts/virentest.ts"
+    "test:viren": "tsx scripts/virentest.ts",
+    "test:vertretung": "tsx scripts/vertretungstest.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

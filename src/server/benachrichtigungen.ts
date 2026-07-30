@@ -35,7 +35,9 @@ import {
 } from '@/lib/mail-vorlagen'
 import { prisma } from '@/lib/prisma'
 import { bewerteAmpel } from '@/lib/scheduling'
+import { loeseVertretung } from '@/lib/vertretung'
 import { holeBranding } from '@/server/branding'
+import { ladeVertretungsKarte } from '@/server/vertretung'
 import { istMailVersandKonfiguriert, versendeMail } from '@/server/mailer'
 import { versendeGegenzeichnungsErinnerungen } from '@/server/nachweis-benachrichtigungen'
 import {
@@ -116,6 +118,80 @@ async function versendeUndProtokolliere(
 }
 
 // ---------------------------------------------------------------------------
+// Vertretung
+// ---------------------------------------------------------------------------
+
+type Zustaendige = {
+  id: string
+  name: string
+  email: string
+  notifyByEmail: boolean
+}
+
+type Empfaenger = Zustaendige & {
+  /** Name der abwesenden Person, wenn umgeleitet wurde. */
+  inVertretungFuer: string | null
+}
+
+/**
+ * Baut die Zuordnung „zuständige Person → tatsächliche Empfängerin“.
+ *
+ * Einmal je Lauf, nicht je Vorgang: Die Vertretungen ändern sich während
+ * eines Laufs nicht, und eine Abfrage je Fälligkeit wäre spürbar. Ohne
+ * hinterlegte Vertretung fällt der Aufwand ganz weg.
+ */
+export async function baueVertretungsAufloesung(
+  heute: Date,
+): Promise<(person: Zustaendige) => Empfaenger> {
+  const karte = await ladeVertretungsKarte()
+  if (karte.size === 0) {
+    return (person) => ({ ...person, inVertretungFuer: null })
+  }
+
+  const benutzer = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      active: true,
+      notifyByEmail: true,
+    },
+  })
+  const nachId = new Map(benutzer.map((b) => [b.id, b]))
+
+  return (person) => {
+    const { empfaengerId } = loeseVertretung(person.id, karte, heute)
+    if (empfaengerId === person.id) {
+      return { ...person, inVertretungFuer: null }
+    }
+
+    // Ein gesperrtes Konto liest keine Post – dann lieber bei der
+    // zuständigen Person bleiben, als die Meldung verschwinden zu lassen.
+    const ziel = nachId.get(empfaengerId)
+    if (!ziel || !ziel.active) return { ...person, inVertretungFuer: null }
+
+    return {
+      id: ziel.id,
+      name: ziel.name,
+      email: ziel.email,
+      notifyByEmail: ziel.notifyByEmail,
+      inVertretungFuer: person.name,
+    }
+  }
+}
+
+/** Namen der vertretenen Personen einer Sammelnachricht, ohne Wiederholung. */
+function vertreteneNamen(eintraege: { inVertretungFuer: string | null }[]): string[] {
+  return [
+    ...new Set(
+      eintraege
+        .map((e) => e.inVertretungFuer)
+        .filter((name): name is string => name !== null),
+    ),
+  ]
+}
+
+// ---------------------------------------------------------------------------
 // Datenbeschaffung
 // ---------------------------------------------------------------------------
 
@@ -133,6 +209,8 @@ type OffeneFaelligkeit = {
   besitzerName: string
   besitzerEmail: string
   besitzerMoechteMail: boolean
+  /** Gesetzt, wenn die Meldung wegen Abwesenheit umgeleitet wurde. */
+  inVertretungFuer: string | null
 }
 
 async function ladeOffeneFaelligkeiten(heute: Date): Promise<OffeneFaelligkeit[]> {
@@ -161,9 +239,12 @@ async function ladeOffeneFaelligkeiten(heute: Date): Promise<OffeneFaelligkeit[]
     },
   })
 
+  const aufloesen = await baueVertretungsAufloesung(heute)
+
   return offene
     .filter((o) => o.task.owner.active)
     .map((o) => {
+      const empfaenger = aufloesen(o.task.owner)
       const ampel = bewerteAmpel(
         o.dueDate,
         o.task.leadTimeDays,
@@ -184,10 +265,11 @@ async function ladeOffeneFaelligkeiten(heute: Date): Promise<OffeneFaelligkeit[]
           differenceInDays(o.dueDate, heute) - o.task.graceDays,
         ),
         baldFaellig: ampel === 'bald',
-        besitzerId: o.task.owner.id,
-        besitzerName: o.task.owner.name,
-        besitzerEmail: o.task.owner.email,
-        besitzerMoechteMail: o.task.owner.notifyByEmail,
+        besitzerId: empfaenger.id,
+        besitzerName: empfaenger.name,
+        besitzerEmail: empfaenger.email,
+        besitzerMoechteMail: empfaenger.notifyByEmail,
+        inVertretungFuer: empfaenger.inVertretungFuer,
       }
     })
 }
@@ -204,6 +286,8 @@ type OffeneAbweichung = {
   verantwortlichName: string
   verantwortlichEmail: string
   verantwortlichMoechteMail: boolean
+  /** Gesetzt, wenn die Meldung wegen Abwesenheit umgeleitet wurde. */
+  inVertretungFuer: string | null
 }
 
 async function ladeOffeneAbweichungen(heute: Date): Promise<OffeneAbweichung[]> {
@@ -227,21 +311,27 @@ async function ladeOffeneAbweichungen(heute: Date): Promise<OffeneAbweichung[]> 
     },
   })
 
+  const aufloesen = await baueVertretungsAufloesung(heute)
+
   return abweichungen
     .filter((a) => a.responsible.active)
-    .map((a) => ({
-      findingId: a.id,
-      titel: a.title,
-      aufgabe: a.execution.occurrence.task.title,
-      schwere: SCHWERE_BEZEICHNUNG[a.severity],
-      frist: a.dueDate,
-      fristUeberschritten: compareDates(a.dueDate, heute) < 0,
-      tageUeberschritten: Math.max(0, differenceInDays(a.dueDate, heute)),
-      verantwortlichId: a.responsible.id,
-      verantwortlichName: a.responsible.name,
-      verantwortlichEmail: a.responsible.email,
-      verantwortlichMoechteMail: a.responsible.notifyByEmail,
-    }))
+    .map((a) => {
+      const empfaenger = aufloesen(a.responsible)
+      return {
+        findingId: a.id,
+        titel: a.title,
+        aufgabe: a.execution.occurrence.task.title,
+        schwere: SCHWERE_BEZEICHNUNG[a.severity],
+        frist: a.dueDate,
+        fristUeberschritten: compareDates(a.dueDate, heute) < 0,
+        tageUeberschritten: Math.max(0, differenceInDays(a.dueDate, heute)),
+        verantwortlichId: empfaenger.id,
+        verantwortlichName: empfaenger.name,
+        verantwortlichEmail: empfaenger.email,
+        verantwortlichMoechteMail: empfaenger.notifyByEmail,
+        inVertretungFuer: empfaenger.inVertretungFuer,
+      }
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -391,7 +481,12 @@ async function versendeAufgabenMails(
       url: `${rahmen.appUrl}/tasks/${f.taskId}`,
     }))
 
-    const mail = baueAufgabenMail(rahmen, liste[0].besitzerName, eintraege)
+    const mail = baueAufgabenMail(
+      rahmen,
+      liste[0].besitzerName,
+      eintraege,
+      vertreteneNamen(liste),
+    )
     const erfolg = await versendeUndProtokolliere(
       'AUFGABEN',
       liste[0].besitzerEmail,
@@ -456,7 +551,12 @@ async function versendeAbweichungsMails(
       url: `${rahmen.appUrl}/findings`,
     }))
 
-    const mail = baueAbweichungsMail(rahmen, liste[0].verantwortlichName, eintraege)
+    const mail = baueAbweichungsMail(
+      rahmen,
+      liste[0].verantwortlichName,
+      eintraege,
+      vertreteneNamen(liste),
+    )
     const erfolg = await versendeUndProtokolliere(
       'ABWEICHUNGEN',
       liste[0].verantwortlichEmail,
@@ -582,6 +682,7 @@ async function versendeWochenuebersicht(
         fristUeberschritten: a.fristUeberschritten,
         url: `${rahmen.appUrl}/findings`,
       })),
+      vertreteneNamen([...eigeneAufgaben, ...eigeneAbweichungen]),
     )
 
     if (await versendeUndProtokolliere('WOCHENUEBERSICHT', person.email, mail, [key])) {

@@ -33,6 +33,17 @@ wird dagegen bewusst wöchentlich erneut gemeldet.
 kein Grund, eine Gegenzeichnung abzulehnen. Fehler werden protokolliert, nicht
 weitergereicht.
 
+## Bei Abwesenheit
+
+Ist für eine Person eine [Vertretung](vertretung.md) hinterlegt und gilt sie
+heute, gehen deren Erinnerungen und Wochenübersichten an die vertretende
+Person. Die Nachricht sagt oben, für wen sie kommt. Auch die Bitte um
+Gegenzeichnung nimmt diesen Weg – sonst läge ein vorgelegter Prüfbogen bis zur
+Rückkehr.
+
+Die Eskalation an die zentrale Stelle bleibt unverändert: Sie geht ohnehin
+nicht an die zuständige Person.
+
 ## Je Person abschalten
 
 Wer keine Nachrichten möchte, kann das im eigenen Konto abschalten. Die

@@ -7,6 +7,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   TriangleAlert,
+  UserRoundCheck,
 } from 'lucide-react'
 
 import { ErledigenDialog } from '@/components/erledigen-dialog'
@@ -33,6 +34,7 @@ import { canExecute } from '@/lib/rbac'
 import { bewerteAmpel, type Ampel } from '@/lib/scheduling'
 import { erforderlicherBenutzer } from '@/lib/session'
 import { ladeNachweisStand, ladeOffeneGegenzeichnungen } from '@/server/nachweise'
+import { ladeVertretungenFuer } from '@/server/vertretung'
 import {
   ZEITHORIZONT_BEZEICHNUNG,
   ZEITHORIZONT_COOKIE,
@@ -57,6 +59,10 @@ export default async function DashboardSeite() {
   // Hinweis bliebe ein vorgelegter Bogen liegen, bis jemand die Seite
   // „Nachweise“ von sich aus aufruft.
   const offeneGegenzeichnungen = await ladeOffeneGegenzeichnungen(benutzer.id)
+
+  // Wer eine abwesende Person vertritt, muss davon erfahren: Die Prüfungen
+  // stehen unter fremdem Namen und tauchen sonst nirgends auf.
+  const vertretungen = await ladeVertretungenFuer(benutzer.id, heute)
 
   // Einmal alle aktiven Prüfbögen holen und je Fälligkeit zuordnen – eine
   // Abfrage je Zeile wäre bei einer langen Liste spürbar.
@@ -214,6 +220,23 @@ export default async function DashboardSeite() {
             </p>
           </div>
         </Link>
+      ) : null}
+
+      {vertretungen.length > 0 ? (
+        <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-4">
+          <UserRoundCheck className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+          <div className="min-w-0">
+            <p className="font-medium">
+              {vertretungen.length === 1
+                ? `Sie vertreten derzeit ${vertretungen[0].name}`
+                : `Sie vertreten derzeit ${vertretungen.length} Personen`}
+            </p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {vertretungen.map((v) => `${v.name} (${v.zeitraum})`).join(' · ')}
+              {' – deren Erinnerungen gehen an Sie.'}
+            </p>
+          </div>
+        </div>
       ) : null}
 
       {/* --- Kennzahlen --- */}

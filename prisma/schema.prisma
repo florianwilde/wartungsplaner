@@ -94,6 +94,14 @@ model User {
   /// Empfängt Erinnerungen und Übersichten per E-Mail
   notifyByEmail      Boolean      @default(true)
 
+  /// Vertretung bei Abwesenheit: Meldungen gehen dann an diese Person.
+  /// Die Zuständigkeit selbst bleibt unberührt – nur die Post wird umgeleitet.
+  vertretungId    String?
+  /// Erster Tag der Abwesenheit; leer = ab sofort
+  vertretungVon   DateTime? @db.Date
+  /// Letzter Tag der Abwesenheit; leer = bis auf Weiteres
+  vertretungBis   DateTime? @db.Date
+
   ownedTasks          Task[]                @relation("TaskOwner")
   executions          Execution[]
   uploads             Attachment[]
@@ -104,8 +112,11 @@ model User {
   passkeys            Passkey[]
   erfassteNachweise   Nachweis[]            @relation("NachweisErfasser")
   gepruefteNachweise  Nachweis[]            @relation("NachweisPruefer")
+  vertretung          User?                 @relation("Vertretung", fields: [vertretungId], references: [id], onDelete: SetNull)
+  vertritt            User[]                @relation("Vertretung")
 
   @@index([role])
+  @@index([vertretungId])
 }
 
 model Category {

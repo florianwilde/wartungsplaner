@@ -291,8 +291,12 @@ einen Download versucht. Genau dann ist er nicht mehr zu heilen.
 **Warum:** Bis hierher ging es um Vollständigkeit und Belastbarkeit. Diese
 Fassung senkt den Aufwand im laufenden Betrieb.
 
-- 📋 **Vertretung** – je Aufgabe oder je Person eine vertretende Person.
-  Fällt jemand länger aus, laufen die Fälligkeiten heute schlicht über.
+- ✅ **Vertretung** – je Person eine vertretende Person mit Zeitraum. Fällt
+  jemand länger aus, laufen die Fälligkeiten sonst schlicht über. Umgeleitet
+  wird die Post, nicht die Zuständigkeit: Erinnerungen, Wochenübersicht und
+  Gegenzeichnungsbitten gehen an die Vertretung, die Aufgabe bleibt beim
+  Eigentümer. Eine Vertretung *je Aufgabe* wurde bewusst nicht umgesetzt – sie
+  müsste bei jedem Urlaub an jeder Aufgabe einzeln gepflegt werden.
 - 📋 **Belege aus der Zwischenablage** – Screenshot einfügen, statt ihn erst
   als Datei zu speichern. Seit 1.7.0 ist der Screenshot der häufigste Beleg,
   und der Umweg über den Explorer ist der lästigste Teil daran.

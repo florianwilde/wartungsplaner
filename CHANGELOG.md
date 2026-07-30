@@ -14,7 +14,23 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ## [Unveröffentlicht]
 
-Noch keine Änderungen.
+### Hinzugefügt
+
+- **Vertretung bei Abwesenheit.** Wer zwei Wochen im Urlaub ist, bekam die
+  Erinnerungen weiterhin in ein Postfach, das niemand liest; die Fälligkeiten
+  liefen über, und am ersten Arbeitstag stand ein Stapel Überfälliges da.
+  - Zu hinterlegen unter *Mein Konto* – oder unter *Administration →
+    Benutzer* für jemanden, der es selbst nicht mehr konnte. Der Unterschied
+    steht im Audit-Log.
+  - Umgeleitet werden Prüfungserinnerungen, Fristen offener Abweichungen, die
+    Wochenübersicht und die Bitte um Gegenzeichnung. Jede Nachricht nennt,
+    für wen sie kommt; das Dashboard zeigt, wen man gerade vertritt.
+  - **Umgeleitet wird die Post, nicht die Zuständigkeit** – Aufgabe, Berichte
+    und Historie bleiben unverändert.
+  - Der Zeitraum ist einschließlich beider Tage und endet von selbst; niemand
+    muss aufräumen. Verkettung ist erlaubt, Kreise werden abgelehnt, und eine
+    gesperrte Vertretung führt die Meldung zurück zur zuständigen Person,
+    statt sie ins Leere laufen zu lassen.
 
 ---
 

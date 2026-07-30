@@ -25,7 +25,9 @@ import {
   type MailRahmen,
 } from '@/lib/mail-vorlagen'
 import { prisma } from '@/lib/prisma'
+import { loeseVertretung } from '@/lib/vertretung'
 import { holeBranding } from '@/server/branding'
+import { ladeVertretungsKarte } from '@/server/vertretung'
 import { holeBenachrichtigungsEinstellungen } from '@/server/benachrichtigungs-einstellungen'
 import { istMailVersandKonfiguriert, versendeMail } from '@/server/mailer'
 import { schreibeAuditLeise } from '@/lib/audit'
@@ -66,11 +68,20 @@ async function empfaenger(
   ownerId: string,
 ): Promise<{ id: string; name: string; email: string }[]> {
   if (ownerId !== erfasstById) {
-    const owner = await prisma.user.findFirst({
-      where: { id: ownerId, active: true, notifyByEmail: true },
-      select: { id: true, name: true, email: true },
-    })
-    if (owner) return [owner]
+    // Ist die zuständige Person abwesend, bittet die Vertretung um die
+    // Gegenzeichnung – sonst läge der Bogen bis zur Rückkehr.
+    const karte = await ladeVertretungsKarte()
+    const { empfaengerId } = loeseVertretung(ownerId, karte, todayInBerlin())
+
+    // Wer den Bogen erfasst hat, darf ihn nicht gegenzeichnen. Führt die
+    // Vertretung dorthin, bleibt es beim Weg über alle Übrigen.
+    if (empfaengerId !== erfasstById) {
+      const person = await prisma.user.findFirst({
+        where: { id: empfaengerId, active: true, notifyByEmail: true },
+        select: { id: true, name: true, email: true },
+      })
+      if (person) return [person]
+    }
   }
 
   return prisma.user.findMany({

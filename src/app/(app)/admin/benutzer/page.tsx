@@ -11,10 +11,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { istOidcAktiv, oidcAnzeigename } from '@/auth'
-import { formatDateTime } from '@/lib/dates'
+import { formatDateTime, todayInBerlin, toISODate } from '@/lib/dates'
 import { prisma } from '@/lib/prisma'
 import { ROLLEN_BEZEICHNUNG } from '@/lib/rbac'
 import { erforderlicheRolle } from '@/lib/session'
+import { beschreibeZeitraum, istVertretungAktiv } from '@/lib/vertretung'
 import {
   AktivierungSchalter,
   BenutzerAnlegenDialog,
@@ -22,6 +23,7 @@ import {
   PasswortZuruecksetzenDialog,
 } from './benutzer-aktionen'
 import { PasskeysZuruecksetzenButton } from './passkey-zuruecksetzen'
+import { VertretungDialog } from './vertretung-dialog'
 
 export const metadata: Metadata = { title: 'Benutzer' }
 export const dynamic = 'force-dynamic'
@@ -32,11 +34,18 @@ export default async function BenutzerSeite() {
   const benutzer = await prisma.user.findMany({
     orderBy: [{ active: 'desc' }, { name: 'asc' }],
     include: {
+      vertretung: { select: { name: true } },
       _count: { select: { ownedTasks: true, executions: true, passkeys: true } },
     },
   })
 
   const sso = istOidcAktiv()
+  const heute = todayInBerlin()
+
+  // Wählbare Vertretungen: aktive Konten mit Ausführungsrecht.
+  const kandidaten = benutzer
+    .filter((p) => p.active && (p.role === 'ADMIN' || p.role === 'EDITOR'))
+    .map((p) => ({ id: p.id, name: p.name }))
 
   return (
     <Card>
@@ -80,6 +89,19 @@ export default async function BenutzerSeite() {
                     {person.id === admin.id ? (
                       <Badge variant="outline">Sie</Badge>
                     ) : null}
+                    {person.vertretung &&
+                    istVertretungAktiv(
+                      {
+                        vertretungId: person.vertretungId,
+                        von: person.vertretungVon,
+                        bis: person.vertretungBis,
+                      },
+                      heute,
+                    ) ? (
+                      <Badge variant="secondary">
+                        vertreten durch {person.vertretung.name}
+                      </Badge>
+                    ) : null}
                   </div>
                 </TableCell>
                 <TableCell className="whitespace-nowrap text-muted-foreground">
@@ -106,6 +128,31 @@ export default async function BenutzerSeite() {
                         role: person.role,
                       }}
                     />
+                    {person.active &&
+                    (person.role === 'ADMIN' || person.role === 'EDITOR') ? (
+                      <VertretungDialog
+                        personId={person.id}
+                        name={person.name}
+                        personen={kandidaten.filter((k) => k.id !== person.id)}
+                        hinweis={
+                          person.vertretung
+                            ? `Hinterlegt: ${person.vertretung.name} · ${beschreibeZeitraum(
+                                person.vertretungVon,
+                                person.vertretungBis,
+                              )}`
+                            : null
+                        }
+                        start={{
+                          vertretungId: person.vertretungId,
+                          von: person.vertretungVon
+                            ? toISODate(person.vertretungVon)
+                            : '',
+                          bis: person.vertretungBis
+                            ? toISODate(person.vertretungBis)
+                            : '',
+                        }}
+                      />
+                    ) : null}
                     {person.authProvider === 'LOCAL' ? (
                       <PasswortZuruecksetzenDialog
                         userId={person.id}

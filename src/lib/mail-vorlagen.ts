@@ -84,6 +84,34 @@ export function anzahlText(
   return `${anzahl} ${anzahl === 1 ? einzahl : mehrzahl}`
 }
 
+/** Aufzählung in Worten: „A“, „A und B“, „A, B und C“. */
+export function aufzaehlung(namen: string[]): string {
+  if (namen.length === 0) return ''
+  if (namen.length === 1) return namen[0]
+  return `${namen.slice(0, -1).join(', ')} und ${namen[namen.length - 1]}`
+}
+
+/**
+ * Hinweis, wenn eine Nachricht wegen Abwesenheit umgeleitet wurde.
+ *
+ * Ohne ihn wirkte die Nachricht wie ein Irrläufer: Die genannten Prüfungen
+ * gehören jemand anderem, und niemand wüsste, warum sie hier ankommen.
+ */
+export function vertretungsHinweis(namen: string[]): string | null {
+  if (namen.length === 0) return null
+  return `Sie erhalten diese Nachricht als Vertretung für ${aufzaehlung(namen)}.`
+}
+
+/** Hervorgehobener Hinweis über der Aufstellung. */
+function htmlHinweis(text: string): string {
+  return [
+    '<p style="margin:12px 0 0;padding:10px 12px;background:#f3f4f6;',
+    'border-radius:6px;font-size:14px;color:#374151;">',
+    maskiereHtml(text),
+    '</p>',
+  ].join('')
+}
+
 function htmlRahmen(rahmen: MailRahmen, inhalt: string): string {
   const farbe = maskiereHtml(rahmen.markenfarbe)
   const fuss = [rahmen.organisation, rahmen.anwendung]
@@ -135,7 +163,10 @@ export function baueAufgabenMail(
   rahmen: MailRahmen,
   empfaengerName: string,
   eintraege: AufgabenEintrag[],
+  /** Namen abwesender Personen, deren Prüfungen hier mitkommen. */
+  vertreteneNamen: string[] = [],
 ): MailInhalt {
+  const hinweis = vertretungsHinweis(vertreteneNamen)
   const ueberfaellige = eintraege.filter((e) => e.ueberfaellig)
   const anstehende = eintraege.filter((e) => !e.ueberfaellig)
 
@@ -150,6 +181,7 @@ export function baueAufgabenMail(
     `Stand ${formatDate(rahmen.stichtag)} liegen für Sie folgende Prüfungen an.`,
     '',
   ]
+  if (hinweis) textZeilen.push(hinweis, '')
 
   if (ueberfaellige.length > 0) {
     textZeilen.push('ÜBERFÄLLIG', '')
@@ -218,6 +250,7 @@ export function baueAufgabenMail(
     [
       `<p style="margin:0 0 4px;font-size:15px;">Guten Tag ${maskiereHtml(empfaengerName)},</p>`,
       `<p style="margin:0;color:#6b7280;font-size:14px;">Stand ${formatDate(rahmen.stichtag)}</p>`,
+      hinweis ? htmlHinweis(hinweis) : '',
       abschnitt('Überfällig', ueberfaellige, '#b91c1c'),
       abschnitt('Bald fällig', anstehende, '#a16207'),
       htmlSchaltflaeche(rahmen.appUrl, 'Zur Übersicht', rahmen.markenfarbe),
@@ -235,8 +268,11 @@ export function baueAbweichungsMail(
   rahmen: MailRahmen,
   empfaengerName: string,
   eintraege: AbweichungsEintrag[],
+  /** Namen abwesender Personen, deren Abweichungen hier mitkommen. */
+  vertreteneNamen: string[] = [],
 ): MailInhalt {
   const ueberschritten = eintraege.filter((e) => e.fristUeberschritten)
+  const hinweis = vertretungsHinweis(vertreteneNamen)
 
   const betreff = ueberschritten.length > 0
       ? `[${rahmen.anwendung}] ${anzahlText(ueberschritten.length, 'Abweichung', 'Abweichungen')} mit überschrittener Frist`
@@ -248,6 +284,7 @@ export function baueAbweichungsMail(
     'für folgende Abweichungen sind Sie verantwortlich:',
     '',
   ]
+  if (hinweis) textZeilen.push(hinweis, '')
 
   for (const eintrag of eintraege) {
     textZeilen.push(
@@ -272,6 +309,7 @@ export function baueAbweichungsMail(
     [
       `<p style="margin:0 0 16px;font-size:15px;">Guten Tag ${maskiereHtml(empfaengerName)},</p>`,
       '<p style="margin:0 0 8px;font-size:14px;">für folgende Abweichungen sind Sie verantwortlich:</p>',
+      hinweis ? htmlHinweis(hinweis) : '',
       '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">',
       eintraege
         .map((eintrag) =>
@@ -641,10 +679,14 @@ export function baueWochenuebersichtMail(
   empfaengerName: string,
   aufgaben: AufgabenEintrag[],
   abweichungen: AbweichungsEintrag[],
+  /** Namen abwesender Personen, deren Vorgänge hier mitkommen. */
+  vertreteneNamen: string[] = [],
 ): MailInhalt {
   const betreff = `[${rahmen.anwendung}] Wochenübersicht vom ${formatDate(rahmen.stichtag)}`
+  const hinweis = vertretungsHinweis(vertreteneNamen)
 
   const textZeilen: string[] = [`Guten Tag ${empfaengerName},`, '']
+  if (hinweis) textZeilen.push(hinweis, '')
 
   if (aufgaben.length === 0 && abweichungen.length === 0) {
     textZeilen.push(
@@ -701,6 +743,7 @@ export function baueWochenuebersichtMail(
       aufgaben.length === 0 && abweichungen.length === 0
         ? '<p style="margin:0;font-size:14px;">für Sie steht derzeit nichts an – es gibt weder offene Prüfungen noch offene Abweichungen.</p>'
         : '<p style="margin:0;color:#6b7280;font-size:14px;">das ist Ihr aktueller Stand.</p>',
+      hinweis ? htmlHinweis(hinweis) : '',
       liste(
         `Offene Prüfungen (${aufgaben.length})`,
         aufgaben.map(
