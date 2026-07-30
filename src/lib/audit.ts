@@ -50,6 +50,7 @@ export const AUDIT_AKTIONEN = {
   INTEGRITAETSLAUF: 'Nachweise auf Unversehrtheit geprüft',
   AUFBEWAHRUNG_AUSGEFUEHRT: 'Aufbewahrungsfristen angewendet',
   AUFBEWAHRUNG_KONFIGURIERT: 'Aufbewahrungsfristen konfiguriert',
+  SICHERHEIT_KONFIGURIERT: 'Sicherheitseinstellungen geändert',
   BRANDING_UPDATED: 'Erscheinungsbild geändert',
   BRANDING_RESET: 'Erscheinungsbild zurückgesetzt',
   NOTIFICATION_SETTINGS_UPDATED: 'Benachrichtigungen konfiguriert',

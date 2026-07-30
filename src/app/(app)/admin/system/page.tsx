@@ -4,6 +4,13 @@ import type { Metadata } from 'next'
 import { CheckCircle2, XCircle } from 'lucide-react'
 
 import { istOidcAktiv, oidcAnzeigename } from '@/auth'
+import { istPasskeyTauglich } from '@/lib/webauthn'
+import {
+  appUrl,
+  holeSicherheitsEinstellungen,
+  ohnePasskeyJeRolle,
+} from '@/server/sicherheit-einstellungen'
+import { PasskeyPflicht } from './passkey-pflicht'
 import { MarkdownAnzeige } from '@/components/markdown-anzeige'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -59,11 +66,20 @@ export default async function SystemSeite() {
     protokolleintraege,
   ] = anzahlen
 
+  const sicherheit = await holeSicherheitsEinstellungen()
+  const ohnePasskey = await ohnePasskeyJeRolle()
+
   const cronAktiv = process.env.CRON_ENABLED !== 'false'
   const cronZeitplan = process.env.CRON_SCHEDULE?.trim() || '15 2 * * *'
 
   return (
     <div className="space-y-6">
+      <PasskeyPflicht
+        gewaehlt={sicherheit.passkeyPflichtRollen}
+        ohnePasskey={ohnePasskey}
+        passkeysMoeglich={istPasskeyTauglich(appUrl())}
+      />
+
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>

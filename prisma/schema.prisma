@@ -573,6 +573,25 @@ model WebAuthnChallenge {
 // ---------------------------------------------------------------------------
 
 /// Art einer versendeten Benachrichtigung.
+/// Sicherheitseinstellungen. Einzelner Datensatz mit der festen ID
+/// "singleton" – analog zum Erscheinungsbild.
+model SicherheitsEinstellung {
+  id String @id @default("singleton")
+
+  /// Rollen, für die ein hinterlegter Passkey verlangt wird.
+  ///
+  /// Wer sich über SSO anmeldet, ist ausgenommen: Dort gibt es bereits ein
+  /// Verfahren. Ist die Anwendung nicht über HTTPS erreichbar, bleibt die
+  /// Pflicht wirkungslos – sonst führte jede Anmeldung in eine Sackgasse,
+  /// weil der Browser die Registrierung gar nicht anbietet.
+  passkeyPflichtRollen Role[] @default([])
+
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+
+  @@map("SicherheitsEinstellung")
+}
+
 /// Aufbewahrung der Nachweisdateien. Einzelner Datensatz mit der festen ID
 /// "singleton" – analog zum Erscheinungsbild.
 ///

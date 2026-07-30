@@ -1,6 +1,8 @@
 import 'server-only'
 
 import { redirect } from 'next/navigation'
+
+import { brauchtPasskey } from '@/server/sicherheit-einstellungen'
 import type { Role } from '@prisma/client'
 
 import { auth } from '@/auth'
@@ -36,6 +38,12 @@ export async function erforderlicherBenutzer(): Promise<AngemeldeterBenutzer> {
   const benutzer = await holeBenutzer()
   if (!benutzer) redirect('/login')
   if (benutzer.mustChangePassword) redirect('/passwort-aendern')
+
+  // Verlangt die Rolle einen Passkey und fehlt er, geht es zuerst dorthin.
+  // Die Ausnahmen (SSO, kein HTTPS) stecken in brauchtPasskey - hier soll
+  // niemand ausgesperrt werden.
+  if (await brauchtPasskey(benutzer)) redirect('/passkey-einrichten')
+
   return benutzer
 }
 
