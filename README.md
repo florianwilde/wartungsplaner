@@ -468,6 +468,40 @@ Die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 Alle Änderungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert; derselbe
 Text erscheint auch in der Anwendung unter *Administration → System*.
 
+### Releases anlegen
+
+Ein Tag ist nur ein Zeiger auf einen Commit. Ein Release hat Titel,
+Beschreibung und eine eigene Seite, auf die sich verweisen lässt. `release.sh`
+legt es bei GitLab und Gitea an und nimmt den Text aus dem Changelog – so gibt
+es weiterhin nur eine Quelle.
+
+```bash
+./release.sh v1.8.0      # eine Fassung
+./release.sh --alle      # alle vorhandenen Versions-Tags nachtragen
+```
+
+Nötig sind Zugriffstoken in der `.env` (siehe `.env.example`):
+
+| Variable | Woher |
+| --- | --- |
+| `GITLAB_TOKEN` | GitLab → Profil → Access Tokens, Bereich `api` |
+| `GITEA_TOKEN` | Gitea → Einstellungen → Anwendungen, Schreibrecht auf das Repository |
+
+Fehlt ein Token, wird das betreffende Ziel übersprungen und benannt; das
+Skript bricht deswegen nicht ab. Ein bereits vorhandenes Release wird
+aktualisiert, nicht doppelt angelegt – der Aufruf lässt sich also gefahrlos
+wiederholen.
+
+Der übliche Ablauf einer neuen Fassung:
+
+```bash
+# 1. Fassung in package.json setzen, CHANGELOG.md ergänzen, committen
+git tag -a v1.9.0 -m 'Version 1.9.0 - Kurzbeschreibung'
+git push origin main && git push origin v1.9.0
+git push gitea  main && git push gitea  v1.9.0
+./release.sh v1.9.0
+```
+
 **Beim Veröffentlichen einer neuen Fassung:**
 
 ```bash
