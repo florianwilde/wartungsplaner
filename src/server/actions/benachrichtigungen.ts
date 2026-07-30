@@ -29,6 +29,8 @@ const einstellungenSchema = z.object({
   eskalationAktiv: z.boolean(),
   eskalationAbTagen: z.number().int().min(1).max(365),
   eskalationUserId: z.string().trim().nullable(),
+  gegenzeichnungAktiv: z.boolean(),
+  gegenzeichnungAbTagen: z.number().int().min(0).max(90),
   wochenuebersichtAktiv: z.boolean(),
   wochenuebersichtTag: z.number().int().min(1).max(7),
 })
@@ -56,6 +58,8 @@ export async function benachrichtigungenSpeichern(
       eskalationAktiv: formData.get('eskalationAktiv') === 'on',
       eskalationAbTagen: zahl(formData, 'eskalationAbTagen', 7),
       eskalationUserId: rohEskalationUser === '' ? null : rohEskalationUser,
+      gegenzeichnungAktiv: formData.get('gegenzeichnungAktiv') === 'on',
+      gegenzeichnungAbTagen: zahl(formData, 'gegenzeichnungAbTagen', 2),
       wochenuebersichtAktiv: formData.get('wochenuebersichtAktiv') === 'on',
       wochenuebersichtTag: zahl(formData, 'wochenuebersichtTag', 1),
     })

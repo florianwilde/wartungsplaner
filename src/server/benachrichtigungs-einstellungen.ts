@@ -18,6 +18,8 @@ export type BenachrichtigungsEinstellungen = {
   eskalationAktiv: boolean
   eskalationAbTagen: number
   eskalationUserId: string | null
+  gegenzeichnungAktiv: boolean
+  gegenzeichnungAbTagen: number
   wochenuebersichtAktiv: boolean
   /** 1 = Montag … 7 = Sonntag */
   wochenuebersichtTag: number
@@ -32,6 +34,8 @@ export const STANDARD_EINSTELLUNGEN: BenachrichtigungsEinstellungen = {
   eskalationAktiv: false,
   eskalationAbTagen: 7,
   eskalationUserId: null,
+  gegenzeichnungAktiv: true,
+  gegenzeichnungAbTagen: 2,
   wochenuebersichtAktiv: false,
   wochenuebersichtTag: 1,
 }
@@ -52,6 +56,8 @@ export const holeBenachrichtigungsEinstellungen = cache(
         eskalationAktiv: datensatz.eskalationAktiv,
         eskalationAbTagen: datensatz.eskalationAbTagen,
         eskalationUserId: datensatz.eskalationUserId,
+        gegenzeichnungAktiv: datensatz.gegenzeichnungAktiv,
+        gegenzeichnungAbTagen: datensatz.gegenzeichnungAbTagen,
         wochenuebersichtAktiv: datensatz.wochenuebersichtAktiv,
         wochenuebersichtTag: datensatz.wochenuebersichtTag,
       }

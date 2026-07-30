@@ -31,6 +31,10 @@ import {
   type GespeicherteDatei,
 } from '@/server/dateiablage'
 import { protokolliereDurchfuehrung } from '@/server/durchfuehrung-service'
+import {
+  meldeVorlage,
+  meldeZurueckweisung,
+} from '@/server/nachweis-benachrichtigungen'
 import { erzeugeNachweisPdf } from '@/server/reports/nachweis-pdf'
 import { holeBranding } from '@/server/branding'
 
@@ -725,6 +729,15 @@ export async function fuehreUebergangAus(
       tx,
     )
   })
+
+  // Nachricht erst nach dem geschriebenen Zustandswechsel, und ohne den
+  // Vorgang daran zu binden: Ein stummer Mailserver darf keine Gegenzeichnung
+  // verhindern. Die Funktionen fangen ihre Fehler selbst ab.
+  if (uebergang === 'vorlegen') {
+    await meldeVorlage(nachweisId)
+  } else if (uebergang === 'zurueckweisen' && begruendung) {
+    await meldeZurueckweisung(nachweisId, begruendung)
+  }
 
   const feststellungen = auffaelligePunkte(punkte, antworten).map((eintrag) => {
     const antwort = nachweis.antworten.find((a) => a.punktId === eintrag.punkt.id)

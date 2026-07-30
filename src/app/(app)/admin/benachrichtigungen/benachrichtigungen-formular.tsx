@@ -28,6 +28,8 @@ export type BenachrichtigungsWerte = {
   eskalationAktiv: boolean
   eskalationAbTagen: number
   eskalationUserId: string | null
+  gegenzeichnungAktiv: boolean
+  gegenzeichnungAbTagen: number
   wochenuebersichtAktiv: boolean
   wochenuebersichtTag: number
 }
@@ -97,6 +99,7 @@ export function BenachrichtigungenFormular({
   const router = useRouter()
   const [aktiv, setAktiv] = useState(werte.enabled)
   const [eskalation, setEskalation] = useState(werte.eskalationAktiv)
+  const [gegenzeichnung, setGegenzeichnung] = useState(werte.gegenzeichnungAktiv)
   const [wochenuebersicht, setWochenuebersicht] = useState(werte.wochenuebersichtAktiv)
   const [testLaeuft, starteTest] = useTransition()
   const [laufLaeuft, starteLauf] = useTransition()
@@ -289,6 +292,44 @@ export function BenachrichtigungenFormular({
                   ))}
                 </select>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Gegenzeichnung</CardTitle>
+            <CardDescription>
+              Bittet um Gegenzeichnung, sobald ein Prüfnachweis vorgelegt wird –
+              zuerst die verantwortliche Person der Aufgabe. Ohne diese Nachricht
+              bliebe der Vorgang liegen, bis jemand zufällig hineinschaut. Eine
+              Zurückweisung wird der erfassenden Person ebenfalls sofort gemeldet.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <Schalter
+              name="gegenzeichnungAktiv"
+              label="Zur Gegenzeichnung benachrichtigen"
+              beschreibung="Sofort beim Vorlegen und beim Zurückweisen."
+              gesetzt={gegenzeichnung}
+              setzeGesetzt={setGegenzeichnung}
+              deaktiviert={!aktiv}
+            />
+
+            <div className="max-w-xs space-y-2 border-l-2 border-border pl-4">
+              <Label htmlFor="gegenzeichnungAbTagen">Erinnern nach (Tagen)</Label>
+              <Input
+                id="gegenzeichnungAbTagen"
+                name="gegenzeichnungAbTagen"
+                type="number"
+                min={0}
+                max={90}
+                defaultValue={werte.gegenzeichnungAbTagen}
+                disabled={!aktiv || !gegenzeichnung}
+              />
+              <p className="text-xs text-muted-foreground">
+                Wartet ein Nachweis länger, wird wöchentlich erneut erinnert.
+              </p>
             </div>
           </CardContent>
         </Card>

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import {
   AlertTriangle,
   CalendarClock,
+  ClipboardCheck,
   ClipboardList,
   TriangleAlert,
 } from 'lucide-react'
@@ -31,6 +32,7 @@ import { prisma } from '@/lib/prisma'
 import { canExecute } from '@/lib/rbac'
 import { bewerteAmpel, type Ampel } from '@/lib/scheduling'
 import { erforderlicherBenutzer } from '@/lib/session'
+import { ladeOffeneGegenzeichnungen } from '@/server/nachweise'
 import {
   ZEITHORIZONT_BEZEICHNUNG,
   ZEITHORIZONT_COOKIE,
@@ -50,6 +52,11 @@ export default async function DashboardSeite() {
   const horizont = leseZeithorizont(
     (await cookies()).get(ZEITHORIZONT_COOKIE)?.value,
   )
+
+  // Zur Gegenzeichnung vorgelegte Nachweise anderer Personen. Ohne diesen
+  // Hinweis bliebe ein vorgelegter Bogen liegen, bis jemand die Seite
+  // „Nachweise“ von sich aus aufruft.
+  const offeneGegenzeichnungen = await ladeOffeneGegenzeichnungen(benutzer.id)
 
   const [unerledigte, offeneAbweichungen, kategorien] = await Promise.all([
     prisma.occurrence.findMany({
@@ -151,6 +158,31 @@ export default async function DashboardSeite() {
         titel="Dashboard"
         beschreibung={`Angemeldet als ${benutzer.name}. Stichtag ${formatDate(heute)} (Europe/Berlin).`}
       />
+
+      {offeneGegenzeichnungen.length > 0 ? (
+        <Link
+          href="/nachweise"
+          className="flex items-start gap-3 rounded-lg border border-status-warn/40 bg-status-warn/10 p-4 transition-colors hover:bg-status-warn/15"
+        >
+          <ClipboardCheck className="mt-0.5 size-5 shrink-0 text-status-warn" />
+          <div className="min-w-0">
+            <p className="font-medium">
+              {offeneGegenzeichnungen.length === 1
+                ? 'Ein Prüfnachweis wartet auf Ihre Gegenzeichnung'
+                : `${offeneGegenzeichnungen.length} Prüfnachweise warten auf Ihre Gegenzeichnung`}
+            </p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {offeneGegenzeichnungen
+                .slice(0, 3)
+                .map((n) => `${n.vorlage.name} (${n.erfasstBy.name})`)
+                .join(' · ')}
+              {offeneGegenzeichnungen.length > 3
+                ? ` und ${offeneGegenzeichnungen.length - 3} weitere`
+                : ''}
+            </p>
+          </div>
+        </Link>
+      ) : null}
 
       {/* --- Kennzahlen --- */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

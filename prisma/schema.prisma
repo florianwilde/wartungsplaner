@@ -542,6 +542,10 @@ enum NotificationKind {
   ESKALATION
   /// Wöchentliche Übersicht
   WOCHENUEBERSICHT
+  /// Bitte um Gegenzeichnung eines vorgelegten Prüfnachweises
+  GEGENZEICHNUNG
+  /// Rückmeldung an die erfassende Person nach einer Zurückweisung
+  ZURUECKWEISUNG
   /// Testnachricht aus dem Administrationsbereich
   TEST
 }
@@ -565,6 +569,11 @@ model NotificationSetting {
   /// Erst ab so vielen Tagen Überfälligkeit wird eskaliert
   eskalationAbTagen  Int     @default(7)
   eskalationUserId   String?
+
+  /// Bitte um Gegenzeichnung vorgelegter Prüfnachweise
+  gegenzeichnungAktiv     Boolean @default(true)
+  /// Erst nach so vielen Tagen gilt eine Gegenzeichnung als wartend
+  gegenzeichnungAbTagen   Int     @default(2)
 
   /// Wöchentliche Übersicht
   wochenuebersichtAktiv   Boolean @default(false)

@@ -305,6 +305,163 @@ export function baueAbweichungsMail(
 }
 
 // ---------------------------------------------------------------------------
+// Gegenzeichnung
+// ---------------------------------------------------------------------------
+
+export type GegenzeichnungsEintrag = {
+  pruefbogen: string
+  aufgabe: string
+  erfasstVon: string
+  vorgelegtAm: Date
+  /** Anzahl Prüfpunkte mit Befund */
+  feststellungen: number
+  url: string
+  /** Liegt der Vorgang schon länger als vereinbart? */
+  ueberfaellig: boolean
+}
+
+/**
+ * Bitte um Gegenzeichnung.
+ *
+ * Ohne diese Nachricht bliebe ein vorgelegter Nachweis liegen, bis jemand
+ * zufällig auf die Übersicht schaut – das Vier-Augen-Prinzip verlöre damit
+ * seine Wirkung im Alltag.
+ */
+export function baueGegenzeichnungsMail(
+  rahmen: MailRahmen,
+  empfaengerName: string,
+  eintraege: GegenzeichnungsEintrag[],
+): MailInhalt {
+  const wartende = eintraege.filter((e) => e.ueberfaellig)
+
+  const betreff =
+    wartende.length > 0
+      ? `[${rahmen.anwendung}] ${anzahlText(wartende.length, 'Prüfnachweis wartet', 'Prüfnachweise warten')} auf Ihre Gegenzeichnung`
+      : `[${rahmen.anwendung}] ${anzahlText(eintraege.length, 'Prüfnachweis', 'Prüfnachweise')} zur Gegenzeichnung`
+
+  const textZeilen: string[] = [
+    `Guten Tag ${empfaengerName},`,
+    '',
+    'folgende Prüfnachweise sind zur Gegenzeichnung vorgelegt:',
+    '',
+  ]
+
+  for (const eintrag of eintraege) {
+    textZeilen.push(
+      `* ${eintrag.pruefbogen}`,
+      `  zur Aufgabe: ${eintrag.aufgabe}`,
+      `  erfasst von ${eintrag.erfasstVon}, vorgelegt am ${formatDate(eintrag.vorgelegtAm)}${
+        eintrag.ueberfaellig ? ' (wartet bereits)' : ''
+      }`,
+      eintrag.feststellungen > 0
+        ? `  ${anzahlText(eintrag.feststellungen, 'Feststellung', 'Feststellungen')}`
+        : '  ohne Feststellung',
+      `  ${eintrag.url}`,
+      '',
+    )
+  }
+
+  textZeilen.push(
+    'Bitte prüfen Sie den Bogen und zeichnen Sie gegen oder weisen Sie ihn',
+    'mit Begründung zurück. Gegenzeichnen kann nur, wer den Nachweis nicht',
+    'selbst erfasst hat.',
+    '',
+    `Alle Nachweise: ${rahmen.appUrl}/nachweise`,
+    '',
+    'Diese Nachricht wurde automatisch erzeugt.',
+  )
+
+  const html = htmlRahmen(
+    rahmen,
+    [
+      `<p style="margin:0 0 16px;font-size:15px;">Guten Tag ${maskiereHtml(empfaengerName)},</p>`,
+      '<p style="margin:0 0 8px;font-size:14px;">folgende Prüfnachweise sind zur Gegenzeichnung vorgelegt:</p>',
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">',
+      eintraege
+        .map((eintrag) =>
+          [
+            '<tr><td style="padding:8px 0;border-bottom:1px solid #eef0f2;">',
+            `<a href="${maskiereHtml(eintrag.url)}" style="color:${maskiereHtml(rahmen.markenfarbe)};`,
+            'text-decoration:none;font-weight:600;">',
+            maskiereHtml(eintrag.pruefbogen),
+            '</a>',
+            eintrag.ueberfaellig
+              ? ' <span style="color:#b45309;font-size:12px;font-weight:600;">wartet bereits</span>'
+              : '',
+            '<br><span style="color:#6b7280;font-size:13px;">',
+            maskiereHtml(eintrag.aufgabe),
+            ' · erfasst von ',
+            maskiereHtml(eintrag.erfasstVon),
+            ' · vorgelegt ',
+            formatDate(eintrag.vorgelegtAm),
+            eintrag.feststellungen > 0
+              ? ` · ${maskiereHtml(anzahlText(eintrag.feststellungen, 'Feststellung', 'Feststellungen'))}`
+              : ' · ohne Feststellung',
+            '</span></td></tr>',
+          ].join(''),
+        )
+        .join(''),
+      '</table>',
+      '<p style="margin:16px 0 0;font-size:13px;color:#6b7280;">',
+      'Gegenzeichnen kann nur, wer den Nachweis nicht selbst erfasst hat.',
+      '</p>',
+      htmlSchaltflaeche(`${rahmen.appUrl}/nachweise`, 'Nachweise öffnen', rahmen.markenfarbe),
+    ].join(''),
+  )
+
+  return { betreff: einzeilig(betreff), text: textZeilen.join('\n'), html }
+}
+
+/** Rückmeldung an die erfassende Person nach einer Zurückweisung. */
+export function baueZurueckweisungsMail(
+  rahmen: MailRahmen,
+  empfaengerName: string,
+  eintrag: {
+    pruefbogen: string
+    aufgabe: string
+    geprueftVon: string
+    begruendung: string
+    url: string
+  },
+): MailInhalt {
+  const betreff = `[${rahmen.anwendung}] Prüfnachweis „${eintrag.pruefbogen}“ zurückgewiesen`
+
+  const text = [
+    `Guten Tag ${empfaengerName},`,
+    '',
+    `Ihr Prüfnachweis „${eintrag.pruefbogen}“ zur Aufgabe „${eintrag.aufgabe}“`,
+    `wurde von ${eintrag.geprueftVon} zurückgewiesen.`,
+    '',
+    'Begründung:',
+    eintrag.begruendung,
+    '',
+    'Der Bogen steht wieder zur Bearbeitung bereit:',
+    eintrag.url,
+    '',
+    'Diese Nachricht wurde automatisch erzeugt.',
+  ].join('\n')
+
+  const html = htmlRahmen(
+    rahmen,
+    [
+      `<p style="margin:0 0 16px;font-size:15px;">Guten Tag ${maskiereHtml(empfaengerName)},</p>`,
+      '<p style="margin:0 0 12px;font-size:14px;">Ihr Prüfnachweis ',
+      `<strong>${maskiereHtml(eintrag.pruefbogen)}</strong> zur Aufgabe `,
+      `<strong>${maskiereHtml(eintrag.aufgabe)}</strong> wurde von `,
+      `${maskiereHtml(eintrag.geprueftVon)} zurückgewiesen.</p>`,
+      '<div style="margin:0 0 16px;padding:12px;border-left:3px solid #b45309;background:#fdf6ec;',
+      'font-size:14px;color:#78350f;">',
+      maskiereHtml(eintrag.begruendung),
+      '</div>',
+      '<p style="margin:0;font-size:14px;">Der Bogen steht wieder zur Bearbeitung bereit.</p>',
+      htmlSchaltflaeche(eintrag.url, 'Nachweis öffnen', rahmen.markenfarbe),
+    ].join(''),
+  )
+
+  return { betreff: einzeilig(betreff), text, html }
+}
+
+// ---------------------------------------------------------------------------
 // Eskalation
 // ---------------------------------------------------------------------------
 

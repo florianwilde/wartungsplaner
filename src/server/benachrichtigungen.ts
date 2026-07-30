@@ -37,6 +37,7 @@ import { prisma } from '@/lib/prisma'
 import { bewerteAmpel } from '@/lib/scheduling'
 import { holeBranding } from '@/server/branding'
 import { istMailVersandKonfiguriert, versendeMail } from '@/server/mailer'
+import { versendeGegenzeichnungsErinnerungen } from '@/server/nachweis-benachrichtigungen'
 import {
   holeBenachrichtigungsEinstellungen,
   type BenachrichtigungsEinstellungen,
@@ -305,6 +306,13 @@ export async function versendeBenachrichtigungen(
 
   if (einstellungen.eskalationAktiv && einstellungen.eskalationUserId) {
     const ergebnis = await versendeEskalation(rahmen, faelligkeiten, einstellungen, heute)
+    versendet += ergebnis.versendet
+    fehlgeschlagen += ergebnis.fehlgeschlagen
+    ergebnis.empfaenger.forEach((e) => empfaengerAdressen.add(e))
+  }
+
+  if (einstellungen.gegenzeichnungAktiv) {
+    const ergebnis = await versendeGegenzeichnungsErinnerungen(rahmen, heute)
     versendet += ergebnis.versendet
     fehlgeschlagen += ergebnis.fehlgeschlagen
     ergebnis.empfaenger.forEach((e) => empfaengerAdressen.add(e))
