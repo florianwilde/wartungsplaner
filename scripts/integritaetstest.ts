@@ -6,8 +6,19 @@
  * gemeldet wird. Legt eigene Testdaten an und räumt sie wieder auf.
  *
  * Ausführen:  npm run test:integritaet
- * Voraussetzung: laufende Datenbank und beschreibbares Upload-Verzeichnis.
+ *
+ * Voraussetzungen:
+ *   - Datenbank vom Host aus erreichbar. Im Standard-Stack ist der Port
+ *     bewusst nicht veröffentlicht; für die Entwicklung:
+ *     docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
+ *   - Beschreibbares Upload-Verzeichnis. Ohne gesetztes UPLOAD_DIR wäre das
+ *     der Container-Pfad /app/uploads, den es auf dem Rechner nicht gibt –
+ *     der Test weicht deshalb auf ./uploads aus.
  */
+
+// Vor allen Importen, die das Upload-Verzeichnis auflösen.
+process.env.UPLOAD_DIR = process.env.UPLOAD_DIR?.trim() || './uploads'
+
 import { createHash } from 'node:crypto'
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
