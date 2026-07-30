@@ -16,6 +16,9 @@ import {
   fuegeBelegeHinzu,
   fuehreUebergangAus,
   ladeNachweis,
+  leereZeilen,
+  speichereZeilen,
+  uebernehmeZeilen,
   speichereAntworten,
   starteNachweis,
   type AntwortEingabe,
@@ -37,7 +40,7 @@ const feststellungSchema = z.object({
   dueDate: z.string().trim().min(1, 'Bitte eine Frist angeben.'),
 })
 
-const ARTEN = ['BEWERTUNG', 'TEXT', 'ZAHL', 'DATUM', 'ENTSCHEIDUNG'] as const
+const ARTEN = ['BEWERTUNG', 'TEXT', 'ZAHL', 'DATUM', 'ENTSCHEIDUNG', 'LISTE'] as const
 const ERGEBNISSE = [
   'ERFUELLT',
   'NICHT_ERFUELLT',
@@ -286,6 +289,107 @@ export async function nachweisSpeichern(
 
   revalidatePath(`/nachweise/${nachweisId}`)
   return { erfolg: 'Der Zwischenstand wurde gespeichert.' }
+}
+
+/** Übernimmt Zeilen aus einer CSV-Datei in einen Listen-Prüfpunkt. */
+export async function nachweisZeilenUebernehmen(
+  nachweisId: string,
+  _status: NachweisStatusRueckmeldung,
+  formData: FormData,
+): Promise<NachweisStatusRueckmeldung> {
+  try {
+    const benutzer = await benutzerFuerAktion(canExecute)
+
+    const punktId = String(formData.get('punktId') ?? '').trim()
+    if (!punktId) return { fehler: 'Kein Prüfpunkt angegeben.' }
+
+    const datei = formData.get('datei')
+    if (!(datei instanceof File) || datei.size === 0) {
+      return { fehler: 'Bitte eine CSV-Datei auswählen.' }
+    }
+    if (datei.size > 5 * 1024 * 1024) {
+      return { fehler: 'Die Datei ist größer als 5 MB.' }
+    }
+
+    const inhalt = await datei.text()
+    const ergebnis = await uebernehmeZeilen(
+      nachweisId,
+      punktId,
+      inhalt,
+      benutzer.id,
+      formData.get('ersetzen') === 'on',
+    )
+
+    const hinweis =
+      ergebnis.uebersprungen.length > 0
+        ? ` ${ergebnis.uebersprungen.length} übersprungen (${zusammenfassung(ergebnis.uebersprungen)}).`
+        : ''
+
+    revalidatePath(`/nachweise/${nachweisId}`)
+    return {
+      erfolg: `${ergebnis.uebernommen} ${
+        ergebnis.uebernommen === 1 ? 'Zeile' : 'Zeilen'
+      } übernommen.${hinweis}`,
+    }
+  } catch (error) {
+    return { fehler: fehlertext(error) }
+  }
+}
+
+/** Fasst die Gründe übersprungener Zeilen zusammen, ohne sie einzeln zu nennen. */
+function zusammenfassung(eintraege: { grund: string }[]): string {
+  const nachGrund = new Map<string, number>()
+  for (const eintrag of eintraege) {
+    nachGrund.set(eintrag.grund, (nachGrund.get(eintrag.grund) ?? 0) + 1)
+  }
+  return [...nachGrund.entries()].map(([grund, anzahl]) => `${anzahl}× ${grund}`).join(', ')
+}
+
+/** Speichert die Entscheidungen zu den Zeilen einer Liste. */
+export async function nachweisZeilenSpeichern(
+  nachweisId: string,
+  eingaben: { id: string; ergebnis: string | null; bemerkung: string | null }[],
+): Promise<NachweisStatusRueckmeldung> {
+  try {
+    const benutzer = await benutzerFuerAktion(canExecute)
+
+    await speichereZeilen(
+      nachweisId,
+      benutzer.id,
+      eingaben.map((eintrag) => ({
+        id: String(eintrag.id),
+        ergebnis: ERGEBNISSE.includes(eintrag.ergebnis as PruefpunktErgebnis)
+          ? (eintrag.ergebnis as PruefpunktErgebnis)
+          : null,
+        bemerkung: eintrag.bemerkung ? String(eintrag.bemerkung).slice(0, 2000) : null,
+      })),
+    )
+
+    revalidatePath(`/nachweise/${nachweisId}`)
+    return { erfolg: 'Die Zeilen wurden gespeichert.' }
+  } catch (error) {
+    return { fehler: fehlertext(error) }
+  }
+}
+
+/** Entfernt alle Zeilen eines Prüfpunkts. */
+export async function nachweisZeilenLeeren(
+  nachweisId: string,
+  punktId: string,
+): Promise<NachweisStatusRueckmeldung> {
+  try {
+    const benutzer = await benutzerFuerAktion(canExecute)
+    const anzahl = await leereZeilen(nachweisId, punktId, benutzer.id)
+    revalidatePath(`/nachweise/${nachweisId}`)
+    return {
+      erfolg:
+        anzahl === 0
+          ? 'Es waren keine Zeilen vorhanden.'
+          : `${anzahl} ${anzahl === 1 ? 'Zeile' : 'Zeilen'} entfernt.`,
+    }
+  } catch (error) {
+    return { fehler: fehlertext(error) }
+  }
 }
 
 /**

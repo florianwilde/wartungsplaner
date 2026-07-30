@@ -34,15 +34,19 @@ import {
   ERGEBNIS_BEZEICHNUNG,
   ERLAUBTE_ERGEBNISSE,
   pruefeVollstaendigkeit,
+  wendeSammelentscheidungAn,
+  zeilenVon,
   type PruefpunktArt,
   type PruefpunktErgebnis,
 } from '@/lib/nachweise'
 import { ACCEPT_ATTRIBUT, ERLAUBTE_ENDUNGEN_TEXT } from '@/lib/uploads'
- import {
+import { Zeilenliste, type ZeileAnzeige } from './zeilenliste'
+import {
   nachweisBelegEntfernen,
   nachweisBelegeHochladen,
   nachweisSpeichern,
   nachweisUebergang,
+  nachweisZeilenSpeichern,
 } from '@/server/actions/nachweise'
 
 export type BelegAnzeige = {
@@ -92,6 +96,7 @@ export function NachweisFormular({
   punkte: anfangsPunkte,
   bemerkung: anfangsBemerkung,
   belege,
+  zeilen: anfangsZeilen,
   vierAugen,
   aenderbar,
   darfGegenzeichnen,
@@ -101,6 +106,7 @@ export function NachweisFormular({
   punkte: PunktAnzeige[]
   bemerkung: string
   belege: BelegAnzeige[]
+  zeilen: ZeileAnzeige[]
   vierAugen: boolean
   /** Darf die anmeldete Person die Antworten noch ändern? */
   aenderbar: boolean
@@ -111,6 +117,11 @@ export function NachweisFormular({
   const router = useRouter()
   const [punkte, setPunkte] = useState(anfangsPunkte)
   const [bemerkung, setBemerkung] = useState(anfangsBemerkung)
+  const [zeilen, setZeilen] = useState(anfangsZeilen)
+  // Der Zwischenstand wird aus einer Formular-Aktion heraus gespeichert; der
+  // Verweis haelt dabei den aktuellen Stand fest.
+  const zeilenRef = useRef(anfangsZeilen)
+  zeilenRef.current = zeilen
   const [ablehnen, setAblehnen] = useState(false)
   const [grund, setGrund] = useState('')
   const [uebergangLaeuft, starteUebergang] = useTransition()
@@ -157,6 +168,16 @@ export function NachweisFormular({
     async (vorher: { fehler?: string; erfolg?: string }, formData: FormData) => {
       const antwort = await speichern(vorher, formData)
       if (antwort.erfolg) {
+        if (zeilenRef.current.length > 0) {
+          await nachweisZeilenSpeichern(
+            nachweisId,
+            zeilenRef.current.map((z) => ({
+              id: z.id,
+              ergebnis: z.ergebnis,
+              bemerkung: z.bemerkung,
+            })),
+          )
+        }
         toast.success(antwort.erfolg)
         router.refresh()
       }
@@ -174,6 +195,7 @@ export function NachweisFormular({
       pflicht: p.pflicht,
     })),
     punkte.map((p) => ({ punktId: p.id, ergebnis: p.ergebnis, wert: p.wert })),
+    zeilen,
   )
 
   const aendere = (
@@ -195,6 +217,43 @@ export function NachweisFormular({
       ),
     )
 
+  const aendereZeile = (
+    zeilenId: string,
+    feld: 'ergebnis' | 'bemerkung',
+    wert: string,
+  ) =>
+    setZeilen((bisher) =>
+      bisher.map((z) =>
+        z.id === zeilenId
+          ? {
+              ...z,
+              [feld]:
+                feld === 'ergebnis'
+                  ? ((wert || null) as PruefpunktErgebnis | null)
+                  : wert || null,
+            }
+          : z,
+      ),
+    )
+
+  /**
+   * Setzt alle noch offenen Zeilen eines Prüfpunkts auf denselben Wert.
+   *
+   * Bei einer Rezertifizierung ist die überwiegende Mehrheit in Ordnung –
+   * ohne diesen Griff müsste man achtzig Mal dasselbe auswählen, um an die
+   * drei Ausnahmen zu kommen.
+   */
+  const sammelentscheidung = (punktId: string, ergebnis: PruefpunktErgebnis) => {
+    setZeilen((bisher) => {
+      const eigene = wendeSammelentscheidungAn(
+        bisher.filter((z) => z.punktId === punktId),
+        ergebnis,
+      )
+      const nachId = new Map(eigene.map((z) => [z.id, z]))
+      return bisher.map((z) => nachId.get(z.id) ?? z)
+    })
+  }
+
   /** Bringt die Eingaben der Oberfläche in die Form der Server-Aktion. */
   const alsFormular = () => {
     const formular = new FormData()
@@ -213,6 +272,13 @@ export function NachweisFormular({
     return formular
   }
 
+  const alsZeilenEingabe = () =>
+    zeilen.map((z) => ({
+      id: z.id,
+      ergebnis: z.ergebnis,
+      bemerkung: z.bemerkung,
+    }))
+
   const loeseUebergangAus = (
     uebergang: 'vorlegen' | 'gegenzeichnen' | 'zurueckweisen' | 'abschliessen',
     begruendung: string | null = null,
@@ -227,6 +293,13 @@ export function NachweisFormular({
         if (gespeichert.fehler) {
           toast.error(gespeichert.fehler)
           return
+        }
+        if (zeilen.length > 0) {
+          const zeilenStand = await nachweisZeilenSpeichern(nachweisId, alsZeilenEingabe())
+          if (zeilenStand.fehler) {
+            toast.error(zeilenStand.fehler)
+            return
+          }
         }
       }
 
@@ -314,7 +387,17 @@ export function NachweisFormular({
                     ) : null}
                   </div>
 
-                  {ergebnisse.length > 0 ? (
+                  {punkt.art === 'LISTE' ? (
+                    <Zeilenliste
+                      nachweisId={nachweisId}
+                      punktId={punkt.id}
+                      position={punkt.position}
+                      zeilen={zeilenVon(zeilen, punkt.id)}
+                      aenderbar={aenderbar}
+                      aendere={aendereZeile}
+                      sammelentscheidung={sammelentscheidung}
+                    />
+                  ) : ergebnisse.length > 0 ? (
                     <select
                       value={punkt.ergebnis ?? ''}
                       disabled={!aenderbar}
@@ -345,6 +428,7 @@ export function NachweisFormular({
                     />
                   )}
 
+                  {punkt.art === 'LISTE' ? null : (
                   <Textarea
                     value={punkt.bemerkung ?? ''}
                     disabled={!aenderbar}
@@ -353,6 +437,7 @@ export function NachweisFormular({
                     placeholder="Bemerkung (optional) – bei Feststellungen bitte die Maßnahme angeben"
                     className="text-sm"
                   />
+                  )}
                 </div>
               )
             })}

@@ -164,6 +164,15 @@ export default async function NachweisSeite({
         darfGegenzeichnen={darfGegenzeichnen}
         ablehnungsgrund={nachweis.ablehnungsgrund}
         bemerkung={nachweis.bemerkung ?? ''}
+        zeilen={nachweis.zeilen.map((zeile) => ({
+          id: zeile.id,
+          punktId: zeile.punktId,
+          position: zeile.position,
+          bezeichnung: zeile.bezeichnung,
+          zusatz: zeile.zusatz,
+          ergebnis: (zeile.ergebnis as PruefpunktErgebnis | null) ?? null,
+          bemerkung: zeile.bemerkung,
+        }))}
         belege={nachweis.belege.map((beleg) => ({
           id: beleg.id,
           filename: beleg.filename,

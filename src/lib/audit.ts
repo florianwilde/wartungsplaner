@@ -62,6 +62,8 @@ export const AUDIT_AKTIONEN = {
   NACHWEIS_ABGESCHLOSSEN: 'Prüfnachweis abgeschlossen',
   NACHWEIS_BELEG_HINZUGEFUEGT: 'Beleg zum Prüfnachweis hinzugefügt',
   NACHWEIS_BELEG_ENTFERNT: 'Beleg vom Prüfnachweis entfernt',
+  NACHWEIS_ZEILEN_UEBERNOMMEN: 'Zeilen in den Prüfnachweis übernommen',
+  NACHWEIS_ZEILEN_GELEERT: 'Zeilen aus dem Prüfnachweis entfernt',
   REPORT_VORLAGE_ANGELEGT: 'Report-Vorlage angelegt',
   REPORT_VORLAGE_GEAENDERT: 'Report-Vorlage geändert',
   REPORT_VORLAGE_GELOESCHT: 'Report-Vorlage gelöscht',

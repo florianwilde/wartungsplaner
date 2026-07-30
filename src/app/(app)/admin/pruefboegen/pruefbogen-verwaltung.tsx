@@ -37,7 +37,14 @@ import {
 const selectKlassen =
   'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
 
-const ARTEN: PruefpunktArt[] = ['BEWERTUNG', 'ENTSCHEIDUNG', 'TEXT', 'ZAHL', 'DATUM']
+const ARTEN: PruefpunktArt[] = [
+  'BEWERTUNG',
+  'ENTSCHEIDUNG',
+  'LISTE',
+  'TEXT',
+  'ZAHL',
+  'DATUM',
+]
 
 export type PunktEingabe = {
   schluessel: string

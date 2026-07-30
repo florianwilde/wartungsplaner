@@ -11,16 +11,21 @@ import path from 'node:path'
 import { schreibeAudit } from '@/lib/audit'
 import { formatDate, todayInBerlin } from '@/lib/dates'
 import {
+  ERLAUBTE_ERGEBNISSE,
   auffaelligePunkte,
+  auffaelligeZeilen,
   ergebnisPasst,
   istAenderbar,
   pruefeUebergang,
   pruefeVollstaendigkeit,
   type Antwort,
   type NachweisStatus,
+  uebernehmeZeilenAusCsv,
+  zeilenVon,
   type Pruefpunkt,
   type PruefpunktErgebnis,
   type Uebergang,
+  type Zeile,
 } from '@/lib/nachweise'
 import { prisma } from '@/lib/prisma'
 import { baueSpeicherpfad } from '@/lib/uploads'
@@ -56,6 +61,7 @@ export async function ladeNachweis(nachweisId: string) {
       erfasstBy: { select: { id: true, name: true } },
       geprueftBy: { select: { id: true, name: true } },
       attachment: { select: { id: true, filename: true, sha256: true } },
+      zeilen: { orderBy: [{ punktId: 'asc' }, { position: 'asc' }] },
       belege: {
         orderBy: { uploadedAt: 'asc' },
         select: {
@@ -99,6 +105,28 @@ function alsAntworten(
     punktId: a.punktId,
     ergebnis: (a.ergebnis as PruefpunktErgebnis | null) ?? null,
     wert: a.wert,
+  }))
+}
+
+function alsZeilen(
+  zeilen: {
+    id: string
+    punktId: string
+    position: number
+    bezeichnung: string
+    zusatz: string | null
+    ergebnis: string | null
+    bemerkung: string | null
+  }[],
+): Zeile[] {
+  return zeilen.map((z) => ({
+    id: z.id,
+    punktId: z.punktId,
+    position: z.position,
+    bezeichnung: z.bezeichnung,
+    zusatz: z.zusatz,
+    ergebnis: (z.ergebnis as PruefpunktErgebnis | null) ?? null,
+    bemerkung: z.bemerkung,
   }))
 }
 
@@ -307,6 +335,168 @@ export async function erzeugeAbweichungAusFeststellung(
   })
 
   return finding.id
+}
+
+// ---------------------------------------------------------------------------
+// Zeilenlisten
+// ---------------------------------------------------------------------------
+
+export type ZeilenUebernahmeErgebnis = {
+  uebernommen: number
+  uebersprungen: { zeile: number; grund: string }[]
+  kopfzeileErkannt: boolean
+}
+
+/**
+ * Übernimmt Zeilen aus einer CSV-Datei in einen Listen-Prüfpunkt.
+ *
+ * Ohne diesen Weg wäre eine Rezertifizierung von achtzig Konten Handarbeit –
+ * und Handarbeit in dieser Menge erzeugt Tippfehler statt Nachweise.
+ */
+export async function uebernehmeZeilen(
+  nachweisId: string,
+  punktId: string,
+  csvInhalt: string,
+  benutzerId: string,
+  ersetzen: boolean,
+): Promise<ZeilenUebernahmeErgebnis> {
+  const nachweis = await ladeNachweis(nachweisId)
+  if (!nachweis) throw new NachweisFehler('Der Nachweis wurde nicht gefunden.')
+  pruefeBearbeitbar(nachweis, benutzerId)
+
+  const punkt = nachweis.vorlage.punkte.find((p) => p.id === punktId)
+  if (!punkt) {
+    throw new NachweisFehler('Der Prüfpunkt gehört nicht zu diesem Bogen.')
+  }
+  if (punkt.art !== 'LISTE') {
+    throw new NachweisFehler(
+      `Prüfpunkt ${punkt.position} ist keine Zeilenliste – Zeilen lassen sich dort nicht übernehmen.`,
+    )
+  }
+
+  const vorhanden = nachweis.zeilen.filter((z) => z.punktId === punktId)
+  const ergebnis = uebernehmeZeilenAusCsv(
+    csvInhalt,
+    ersetzen ? 0 : vorhanden.length,
+  )
+
+  if (ergebnis.zeilen.length === 0) {
+    throw new NachweisFehler(
+      'In der Datei wurde keine verwertbare Zeile gefunden. Erwartet wird je Zeile mindestens eine Bezeichnung in der ersten Spalte.',
+    )
+  }
+
+  await prisma.$transaction(async (tx) => {
+    if (ersetzen) {
+      await tx.nachweisZeile.deleteMany({ where: { nachweisId, punktId } })
+    }
+
+    const beginn = ersetzen
+      ? 0
+      : vorhanden.reduce((hoechste, z) => Math.max(hoechste, z.position), 0)
+
+    await tx.nachweisZeile.createMany({
+      data: ergebnis.zeilen.map((zeile, index) => ({
+        nachweisId,
+        punktId,
+        position: beginn + index + 1,
+        bezeichnung: zeile.bezeichnung,
+        zusatz: zeile.zusatz,
+      })),
+    })
+
+    await schreibeAudit(
+      {
+        userId: benutzerId,
+        action: 'NACHWEIS_ZEILEN_UEBERNOMMEN',
+        entityType: 'Nachweis',
+        entityId: nachweisId,
+        payload: {
+          pruefpunkt: punkt.position,
+          uebernommen: ergebnis.zeilen.length,
+          uebersprungen: ergebnis.uebersprungen.length,
+          ersetzt: ersetzen,
+        },
+      },
+      tx,
+    )
+  })
+
+  return {
+    uebernommen: ergebnis.zeilen.length,
+    uebersprungen: ergebnis.uebersprungen,
+    kopfzeileErkannt: ergebnis.kopfzeileErkannt,
+  }
+}
+
+export type ZeilenEingabe = {
+  id: string
+  ergebnis: PruefpunktErgebnis | null
+  bemerkung: string | null
+}
+
+/** Speichert die Entscheidungen zu einzelnen Zeilen. */
+export async function speichereZeilen(
+  nachweisId: string,
+  benutzerId: string,
+  eingaben: ZeilenEingabe[],
+): Promise<void> {
+  const nachweis = await ladeNachweis(nachweisId)
+  if (!nachweis) throw new NachweisFehler('Der Nachweis wurde nicht gefunden.')
+  pruefeBearbeitbar(nachweis, benutzerId)
+
+  const bekannt = new Map(nachweis.zeilen.map((z) => [z.id, z]))
+  const erlaubt = ERLAUBTE_ERGEBNISSE.LISTE
+
+  for (const eingabe of eingaben) {
+    if (!bekannt.has(eingabe.id)) {
+      throw new NachweisFehler('Zu diesem Nachweis gehört eine unbekannte Zeile.')
+    }
+    if (eingabe.ergebnis && !erlaubt.includes(eingabe.ergebnis)) {
+      throw new NachweisFehler(
+        `„${eingabe.ergebnis}“ ist als Entscheidung einer Zeile nicht zulässig.`,
+      )
+    }
+  }
+
+  await prisma.$transaction(
+    eingaben.map((eingabe) =>
+      prisma.nachweisZeile.update({
+        where: { id: eingabe.id },
+        data: { ergebnis: eingabe.ergebnis, bemerkung: eingabe.bemerkung },
+      }),
+    ),
+  )
+}
+
+/** Entfernt alle Zeilen eines Prüfpunkts. */
+export async function leereZeilen(
+  nachweisId: string,
+  punktId: string,
+  benutzerId: string,
+): Promise<number> {
+  const nachweis = await ladeNachweis(nachweisId)
+  if (!nachweis) throw new NachweisFehler('Der Nachweis wurde nicht gefunden.')
+  pruefeBearbeitbar(nachweis, benutzerId)
+
+  const anzahl = nachweis.zeilen.filter((z) => z.punktId === punktId).length
+  if (anzahl === 0) return 0
+
+  await prisma.$transaction(async (tx) => {
+    await tx.nachweisZeile.deleteMany({ where: { nachweisId, punktId } })
+    await schreibeAudit(
+      {
+        userId: benutzerId,
+        action: 'NACHWEIS_ZEILEN_GELEERT',
+        entityType: 'Nachweis',
+        entityId: nachweisId,
+        payload: { entfernt: anzahl },
+      },
+      tx,
+    )
+  })
+
+  return anzahl
 }
 
 /** Höchstzahl an Belegen je Prüfbogen. */
@@ -530,7 +720,8 @@ export async function fuehreUebergangAus(
 
   const punkte = alsPunkte(nachweis.vorlage.punkte)
   const antworten = alsAntworten(nachweis.antworten)
-  const stand = pruefeVollstaendigkeit(punkte, antworten)
+  const zeilen = alsZeilen(nachweis.zeilen)
+  const stand = pruefeVollstaendigkeit(punkte, antworten, zeilen)
 
   const pruefung = pruefeUebergang(uebergang, {
     status: nachweis.status as NachweisStatus,
@@ -587,6 +778,13 @@ export async function fuehreUebergangAus(
           belege: nachweis.belege
             .filter((beleg) => beleg.punktId === punkt.id)
             .map((beleg) => beleg.filename),
+          zeilen: zeilenVon(zeilen, punkt.id).map((zeile) => ({
+            position: zeile.position,
+            bezeichnung: zeile.bezeichnung,
+            zusatz: zeile.zusatz,
+            ergebnis: zeile.ergebnis,
+            bemerkung: zeile.bemerkung,
+          })),
         }
       }),
       // Die Belege stehen mit Prüfsumme im PDF: Das Dokument allein belegt
@@ -643,7 +841,10 @@ export async function fuehreUebergangAus(
       // der Gegenzeichnung gilt die Prüfung als durchgeführt – erst dadurch
       // gibt es eine Durchführung, an der das PDF hängen kann. Der Folgetermin
       // entsteht dabei wie bei jeder anderen Erledigung.
-      const feststellungenVorhanden = auffaelligePunkte(punkte, antworten).length > 0
+      const feststellungenVorhanden =
+        auffaelligePunkte(punkte, antworten).length +
+          auffaelligeZeilen(zeilen).length >
+        0
       try {
         const durchfuehrung = await protokolliereDurchfuehrung(
           {
@@ -739,14 +940,25 @@ export async function fuehreUebergangAus(
     await meldeZurueckweisung(nachweisId, begruendung)
   }
 
-  const feststellungen = auffaelligePunkte(punkte, antworten).map((eintrag) => {
-    const antwort = nachweis.antworten.find((a) => a.punktId === eintrag.punkt.id)
-    return {
-      frage: eintrag.punkt.frage,
-      ergebnis: String(eintrag.antwort.ergebnis),
-      bemerkung: antwort?.bemerkung ?? null,
-    }
-  })
+  const feststellungen = [
+    ...auffaelligePunkte(punkte, antworten).map((eintrag) => {
+      const antwort = nachweis.antworten.find((a) => a.punktId === eintrag.punkt.id)
+      return {
+        frage: eintrag.punkt.frage,
+        ergebnis: String(eintrag.antwort.ergebnis),
+        bemerkung: antwort?.bemerkung ?? null,
+      }
+    }),
+    // Eine Zeile mit Befund ist eine Feststellung wie jede andere – sonst
+    // bliebe das entzogene Konto einer Rezertifizierung unerwähnt.
+    ...auffaelligeZeilen(zeilen).map((zeile) => ({
+      frage: zeile.zusatz
+        ? `${zeile.bezeichnung} · ${zeile.zusatz}`
+        : zeile.bezeichnung,
+      ergebnis: String(zeile.ergebnis),
+      bemerkung: zeile.bemerkung,
+    })),
+  ]
 
   return { neuerStatus: pruefung.neuerStatus, attachmentId, feststellungen }
 }

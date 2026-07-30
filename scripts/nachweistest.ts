@@ -20,7 +20,9 @@ import {
   ladeNachweis,
   ladeOffeneGegenzeichnungen,
   speichereAntworten,
+  speichereZeilen,
   starteNachweis,
+  uebernehmeZeilen,
 } from '../src/server/nachweise'
 
 const prisma = new PrismaClient()
@@ -520,6 +522,140 @@ async function main() {
       ),
     'bereits eine Abweichung',
     'Aus derselben Feststellung entsteht keine zweite Abweichung',
+  )
+
+  // --- Zeilenlisten -------------------------------------------------------
+  const listenAufgabe = await prisma.task.create({
+    data: {
+      title: `${PRAEFIX}Rezertifizierung Konten`,
+      categoryId: kategorie.id,
+      ownerId: erfasser.id,
+      intervalType: 'ANNUAL',
+      scheduleMode: 'FIXED',
+      startDate: heute,
+      active: true,
+    },
+  })
+  const listenFaelligkeit = await prisma.occurrence.create({
+    data: { taskId: listenAufgabe.id, dueDate: addDays(heute, 7), status: 'OPEN' },
+  })
+  const listenVorlage = await prisma.pruefbogenVorlage.create({
+    data: {
+      name: `${PRAEFIX}Kontenliste`,
+      taskId: listenAufgabe.id,
+      vierAugen: false,
+      aktiv: true,
+      punkte: {
+        create: [
+          {
+            position: 1,
+            frage: 'Sind die Berechtigungen weiterhin erforderlich?',
+            art: 'LISTE',
+            pflicht: true,
+          },
+        ],
+      },
+    },
+    include: { punkte: true },
+  })
+  const listenPunkt = listenVorlage.punkte[0]
+  const listenNachweis = await starteNachweis(
+    listenFaelligkeit.id,
+    listenVorlage.id,
+    erfasser.id,
+  )
+
+  await erwarteFehler(
+    () => fuehreUebergangAus(listenNachweis, 'abschliessen', erfasser.id, null),
+    'Pflicht',
+    'Eine Liste ohne Zeilen gilt als unbeantwortet',
+  )
+
+  const csv = [
+    'sAMAccountName;Gruppe',
+    'mmueller;Fachanwendung-Admins',
+    'sschmidt;Buchhaltung',
+    'kklein;Vertrieb',
+    'mmueller;Fachanwendung-Admins',
+    ';ohne Namen',
+  ].join('\r\n')
+
+  const uebernahme = await uebernehmeZeilen(
+    listenNachweis,
+    listenPunkt.id,
+    csv,
+    erfasser.id,
+    true,
+  )
+  pruefe(uebernahme.uebernommen === 3, 'Der AD-Export wird zeilenweise übernommen')
+  pruefe(uebernahme.kopfzeileErkannt, 'Die Kopfzeile wird als solche erkannt')
+  pruefe(
+    uebernahme.uebersprungen.length === 2,
+    'Doppelte und namenlose Zeilen werden gemeldet statt still verworfen',
+  )
+
+  await erwarteFehler(
+    () => fuehreUebergangAus(listenNachweis, 'abschliessen', erfasser.id, null),
+    'Pflicht',
+    'Solange Zeilen offen sind, bleibt die Liste unbeantwortet',
+  )
+
+  const mitZeilen = await ladeNachweis(listenNachweis)
+  const zeilen = mitZeilen!.zeilen
+  pruefe(
+    zeilen.length === 3 && zeilen.every((z) => z.ergebnis === null),
+    'Übernommene Zeilen sind zunächst ohne Entscheidung',
+  )
+  pruefe(
+    zeilen[0].bezeichnung === 'mmueller' &&
+      zeilen[0].zusatz === 'Fachanwendung-Admins',
+    'Bezeichnung und Zusatz stammen aus den ersten beiden Spalten',
+  )
+
+  // Sammelentscheidung: alles belassen, eine Ausnahme entziehen.
+  await speichereZeilen(
+    listenNachweis,
+    erfasser.id,
+    zeilen.map((z) => ({
+      id: z.id,
+      ergebnis: z.bezeichnung === 'kklein' ? 'ENTZIEHEN' : 'BELASSEN',
+      bemerkung: z.bezeichnung === 'kklein' ? 'Austritt zum Monatsende' : null,
+    })),
+  )
+
+  const listenErgebnis = await fuehreUebergangAus(
+    listenNachweis,
+    'abschliessen',
+    erfasser.id,
+    null,
+  )
+  pruefe(
+    listenErgebnis.neuerStatus === 'GEGENGEZEICHNET',
+    'Mit entschiedenen Zeilen lässt sich der Bogen abschließen',
+  )
+  pruefe(
+    listenErgebnis.feststellungen.some((f) => f.frage.includes('kklein')),
+    'Die entzogene Zeile erscheint als Feststellung',
+  )
+  pruefe(
+    listenErgebnis.feststellungen.length === 1,
+    'Belassene Zeilen sind keine Feststellung',
+  )
+
+  const listenErledigt = await prisma.occurrence.findUnique({
+    where: { id: listenFaelligkeit.id },
+    include: { execution: { select: { result: true } } },
+  })
+  pruefe(
+    listenErledigt?.execution?.result === 'OK_WITH_REMARKS',
+    'Eine Zeile mit Befund färbt das Ergebnis der Durchführung',
+  )
+
+  await erwarteFehler(
+    () =>
+      uebernehmeZeilen(listenNachweis, listenPunkt.id, csv, erfasser.id, true),
+    'nicht mehr änderbar',
+    'Nach dem Abschluss lassen sich keine Zeilen mehr übernehmen',
   )
 
   // --- Ohne Vier-Augen-Prinzip: abschließen in einem Zug ------------------

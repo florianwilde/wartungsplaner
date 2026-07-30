@@ -304,6 +304,8 @@ enum PruefpunktArt {
   ZAHL
   /// Datum
   DATUM
+  /// Viele gleichartige Zeilen mit derselben Frage, je Zeile eine Entscheidung
+  LISTE
   /// Entscheidung bei Rezertifizierungen
   ENTSCHEIDUNG
 }
@@ -371,6 +373,7 @@ model PruefbogenPunkt {
   antworten NachweisAntwort[]
   belege    Attachment[]
   findings  Finding[]
+  listenzeilen NachweisZeile[]
 
   @@unique([vorlageId, position])
   @@index([vorlageId])
@@ -411,6 +414,8 @@ model Nachweis {
   geprueftBy User?             @relation("NachweisPruefer", fields: [geprueftById], references: [id], onDelete: Restrict)
   attachment Attachment?       @relation(fields: [attachmentId], references: [id], onDelete: SetNull)
   antworten  NachweisAntwort[]
+  /// Zeilen der Zeilenlisten – etwa Konten aus einem AD-Export
+  zeilen     NachweisZeile[]
   /// Hochgeladene Belege (AD-Export, Screenshot, Herstellerprotokoll …)
   belege     Attachment[]      @relation("NachweisBelege")
 
@@ -433,6 +438,30 @@ model NachweisAntwort {
 
   @@unique([nachweisId, punktId])
   @@index([nachweisId])
+}
+
+/// Eine Zeile einer Zeilenliste, etwa ein Konto aus einem AD-Export.
+///
+/// Die Zeilen gehören zum einzelnen Nachweis, nicht zur Vorlage: Welche Konten
+/// oder Regeln es gibt, entscheidet sich erst beim Prüfen.
+model NachweisZeile {
+  id         String              @id @default(cuid())
+  nachweisId String
+  punktId    String
+  position   Int
+  /// Erste Spalte, etwa der Anmeldename
+  bezeichnung String
+  /// Weitere Spalten, etwa Gruppe oder Abteilung
+  zusatz     String?
+  ergebnis   PruefpunktErgebnis?
+  bemerkung  String?
+
+  nachweis Nachweis        @relation(fields: [nachweisId], references: [id], onDelete: Cascade)
+  punkt    PruefbogenPunkt @relation(fields: [punktId], references: [id], onDelete: Cascade)
+
+  @@unique([nachweisId, punktId, position])
+  @@index([nachweisId])
+  @@index([punktId])
 }
 
 // ---------------------------------------------------------------------------

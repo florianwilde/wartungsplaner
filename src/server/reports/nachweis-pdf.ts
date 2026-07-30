@@ -37,6 +37,16 @@ export type NachweisPunkt = {
   bemerkung: string | null
   /** Dateinamen der diesem Punkt zugeordneten Belege */
   belege?: string[]
+  /** Zeilen einer Zeilenliste */
+  zeilen?: NachweisZeile[]
+}
+
+export type NachweisZeile = {
+  position: number
+  bezeichnung: string
+  zusatz: string | null
+  ergebnis: PruefpunktErgebnis | null
+  bemerkung: string | null
 }
 
 export type NachweisBeleg = {
@@ -92,6 +102,16 @@ function kilobyte(bytes: number): string {
 
 /** Lesbare Antwort eines Prüfpunkts. */
 function antwortText(punkt: NachweisPunkt): string {
+  if (punkt.art === 'LISTE') {
+    const zeilen = punkt.zeilen ?? []
+    if (zeilen.length === 0) return 'ohne Zeilen'
+    const auffaellig = zeilen.filter(
+      (z) => z.ergebnis === 'ENTZIEHEN' || z.ergebnis === 'AENDERN',
+    ).length
+    return auffaellig > 0
+      ? `${zeilen.length} Zeilen, ${auffaellig} mit Befund`
+      : `${zeilen.length} Zeilen, ohne Befund`
+  }
   if (punkt.ergebnis) return ERGEBNIS_BEZEICHNUNG[punkt.ergebnis]
   if (punkt.wert && punkt.wert.trim()) return punkt.wert.trim()
   return 'ohne Angabe'
@@ -248,6 +268,50 @@ export async function erzeugeNachweisPdf(
         .text(`Bemerkung: ${punkt.bemerkung}`, RAND.links + 12, doc.y + 2, {
           width: BREITE - 24,
         })
+    }
+
+    // Zeilenliste als eigene Tabelle. Bei einer Rezertifizierung ist gerade
+    // diese Aufstellung der Nachweis – die Summenzeile allein belegt nichts.
+    if (punkt.art === 'LISTE' && punkt.zeilen && punkt.zeilen.length > 0) {
+      doc.y += 4
+      for (const zeile of punkt.zeilen) {
+        platz(doc, 14)
+        const zeilenY = doc.y
+        const beschriftung = zeile.zusatz
+          ? `${zeile.bezeichnung} · ${zeile.zusatz}`
+          : zeile.bezeichnung
+
+        doc
+          .font('Helvetica')
+          .fontSize(8)
+          .fillColor(FARBE.text)
+          .text(`${zeile.position}. ${beschriftung}`, RAND.links + 12, zeilenY, {
+            width: BREITE - 130,
+          })
+
+        doc
+          .font('Helvetica')
+          .fontSize(8)
+          .fillColor(ergebnisFarbe(zeile.ergebnis))
+          .text(
+            zeile.ergebnis ? ERGEBNIS_BEZEICHNUNG[zeile.ergebnis] : 'offen',
+            RAND.links + BREITE - 110,
+            zeilenY,
+            { width: 110, align: 'right', lineBreak: false },
+          )
+
+        doc.y = Math.max(doc.y, zeilenY + 10)
+
+        if (zeile.bemerkung) {
+          doc
+            .font('Helvetica-Oblique')
+            .fontSize(7)
+            .fillColor(FARBE.schwach)
+            .text(zeile.bemerkung, RAND.links + 24, doc.y, { width: BREITE - 140 })
+        }
+        doc.y += 2
+      }
+      doc.y += 4
     }
 
     if (punkt.belege && punkt.belege.length > 0) {
