@@ -125,8 +125,7 @@ Nachweise. Heute ist das Layout fest im Code hinterlegt.
   „Kurzfassung Geschäftsführung“)
 - Vorschau vor dem Erzeugen
 - Seitenformat und Ausrichtung (A4 hoch/quer) je Vorlage
-- ⏳ Logo in den PDF-Kopf auch aus SVG-Dateien – offen; PDF-Reports betten
-  weiterhin nur PNG und JPG ein, in der Oberfläche wirkt das SVG bereits
+- ✅ Logo in den PDF-Kopf auch aus SVG-Dateien – umgesetzt in 1.10.0
 
 ### Dashboard: Zeithorizont wählbar
 
@@ -318,8 +317,10 @@ Fassung senkt den Aufwand im laufenden Betrieb.
   oder in eine Betriebsruhe fallen, automatisch verschieben.
 - 💡 **Mobile Ansicht für die Durchführung** – Prüfungen im Serverraum am
   Telefon abhaken.
-- ⏳ **SVG-Logo im PDF-Kopf** – heute betten die Reports nur PNG und JPG ein
-  (offener Punkt aus 1.5.0).
+- ✅ **SVG-Logo im PDF-Kopf** – die Reports betteten nur PNG und JPG ein
+  (offener Punkt aus 1.5.0). Ein SVG wird jetzt als Vektorgrafik gezeichnet
+  und bleibt im Ausdruck scharf; Text im Logo gehört vorher in Pfade
+  umgewandelt, weil im PDF keine Schriften nachgeladen werden.
 
 ---
 

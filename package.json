@@ -21,7 +21,8 @@
     "test:viren": "tsx scripts/virentest.ts",
     "test:vertretung": "tsx scripts/vertretungstest.ts",
     "test:duplizieren": "tsx scripts/duplizierungstest.ts",
-    "test:kalender": "tsx scripts/kalendertest.ts"
+    "test:kalender": "tsx scripts/kalendertest.ts",
+    "test:logo": "tsx scripts/logotest.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -59,6 +60,7 @@
     "remark-gfm": "^4.0.1",
     "server-only": "^0.0.1",
     "sonner": "^2.0.7",
+    "svg-to-pdfkit": "^0.1.8",
     "tailwind-merge": "^3.3.1",
     "tsx": "^4.20.6",
     "zod": "^4.1.12"

@@ -69,6 +69,19 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
     Geheimnis in der Adresse. Es lässt sich jederzeit neu erzeugen – die alte
     Adresse läuft dann ins Leere –, das Aufheben entwertet sie ebenfalls, und
     ein deaktiviertes Konto liefert nichts mehr. Beides steht im Audit-Log.
+- **SVG-Logo in den PDF-Berichten** – der offene Punkt aus 1.5.0. Bisher
+  betteten die Berichte nur PNG und JPG ein; wer ein SVG hinterlegt hatte –
+  das übliche Format für ein Firmenlogo –, bekam Berichte ohne Logo.
+  - Gezeichnet wird als **Vektorgrafik**, nicht als gerastertes Bild: im
+    Ausdruck scharf, ohne dass jemand eine Auflösung wählen muss.
+  - Seitenverhältnis und Größe kommen aus dem `viewBox`; kleinere Logos
+    werden nicht vergrößert.
+  - Text im SVG erscheint in der Standardschrift des Berichts, weil im PDF
+    keine Schriften nachgeladen werden – Schriftzüge gehören vorher in Pfade
+    umgewandelt.
+  - Ein unbrauchbares Logo verhindert den Bericht nicht: Er entsteht ohne.
+    Auch ein umbenanntes Rasterbild wird am Inhalt erkannt statt an der
+    Endung, damit die Erzeugung nicht mitten im Lauf abbricht.
 
 ---
 

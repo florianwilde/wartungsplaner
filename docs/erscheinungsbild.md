@@ -26,9 +26,20 @@ Corporate Design.
 
 ## Logos
 
-PNG, JPG und SVG. In **PDF-Berichten** lassen sich derzeit nur PNG und JPG
-einbetten; ist ein SVG hinterlegt, führt der Bericht nur den Namen der
-Organisation.
+PNG, JPG und SVG – alle drei erscheinen in der Oberfläche **und** in den
+PDF-Berichten. Ein SVG wird dabei als Vektorgrafik gezeichnet und bleibt auch
+im Ausdruck scharf.
+
+Zwei Einschränkungen, die man beim Entwurf kennen sollte:
+
+- **Text im SVG** wird in der Standardschrift des Berichts gesetzt, weil im
+  PDF keine Schriften nachgeladen werden. Wandeln Sie Schriftzüge vor dem
+  Hochladen in Pfade um – dann sieht das Logo überall gleich aus.
+- Andere Formate (webp, ico) bleiben der Oberfläche vorbehalten; der Bericht
+  führt dann nur den Namen der Organisation.
+
+Lässt sich ein Logo nicht einbetten, entsteht der Bericht trotzdem – ohne
+Logo. Ein Erscheinungsbild darf keinen Nachweis verhindern.
 
 ## Zurücksetzen
 

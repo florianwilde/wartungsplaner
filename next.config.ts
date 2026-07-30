@@ -12,7 +12,14 @@ const nextConfig: NextConfig = {
   // Pakete, die nicht gebündelt, sondern zur Laufzeit aus node_modules geladen
   // werden. pdfkit lädt seine Schriftmetriken über das Dateisystem nach,
   // exceljs und bcryptjs enthalten Node-spezifischen Code.
-  serverExternalPackages: ['pdfkit', 'exceljs', 'bcryptjs', 'node-cron'],
+  serverExternalPackages: [
+    'pdfkit',
+    // Greift auf pdfkit-Interna zu und gehört deshalb neben pdfkit.
+    'svg-to-pdfkit',
+    'exceljs',
+    'bcryptjs',
+    'node-cron',
+  ],
   // Zur Bauzeit eingefrorene Angaben zur laufenden Fassung. Der Commit wird im
   // Dockerfile als Build-Argument durchgereicht.
   env: {

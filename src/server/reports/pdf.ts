@@ -27,6 +27,7 @@ import {
   type ReportKopf,
   type VorschauZeile,
 } from './daten'
+import { zeichneLogo } from './logo'
 
 const RAND = { oben: 92, unten: 62, links: 40, rechts: 40 }
 
@@ -130,13 +131,7 @@ function zeichneDeckblatt(
 ) {
   const mitte = k.seite.hoehe / 2 - 120
 
-  if (kopf.logoDatei) {
-    try {
-      doc.image(kopf.logoDatei, RAND.links, mitte - 90, { fit: [180, 50] })
-    } catch (error) {
-      console.error('Logo auf dem Deckblatt nicht einbettbar:', error)
-    }
-  }
+  zeichneLogo(doc, kopf.logo, RAND.links, mitte - 90, 180, 50)
 
   doc
     .font('Helvetica')
@@ -257,15 +252,10 @@ function zeichneKopfUndFuss(
     doc.page.margins = { top: 0, bottom: 0, left: RAND.links, right: RAND.rechts }
 
     // --- Kopfzeile ---
-    let textAbstand = 0
-    if (kopf.logoDatei) {
-      try {
-        doc.image(kopf.logoDatei, RAND.links, 26, { fit: [130, 26] })
-        textAbstand = 140
-      } catch (error) {
-        console.error('Logo konnte nicht eingebettet werden:', error)
-      }
-    }
+    // Die belegte Breite kommt zurück, damit der Text daneben passt, statt
+    // einen festen Abstand zu raten.
+    const logoBreite = zeichneLogo(doc, kopf.logo, RAND.links, 26, 130, 26)
+    let textAbstand = logoBreite > 0 ? logoBreite + 10 : 0
 
     if (!textAbstand) {
       doc

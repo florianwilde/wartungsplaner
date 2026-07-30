@@ -27,6 +27,7 @@ import { erzeugeVorschau, intervallText, warPuenktlich } from '@/lib/scheduling'
 import { holeBranding } from '@/server/branding'
 import { absoluterPfad } from '@/server/dateiablage'
 
+import { ladeReportLogo, type ReportLogo } from './logo'
 import { REPORT_TITEL, type ReportTyp } from './typen'
 
 export {
@@ -50,8 +51,8 @@ export type ReportKopf = {
   organisation: string
   markenfarbe: string
   fussnote: string | null
-  /** Absoluter Pfad zu einer Logodatei (nur PNG/JPG sind einbettbar). */
-  logoDatei: string | null
+  /** Vorbereitetes Logo: Rasterbild oder Vektorgrafik. */
+  logo: ReportLogo | null
 }
 
 /**
@@ -119,15 +120,14 @@ export async function baueKopf(
 
   const branding = await holeBranding()
 
-  // pdfkit kann ausschließlich PNG und JPEG einbetten. Ein hinterlegtes
-  // SVG-Logo bleibt deshalb der Oberfläche vorbehalten; der Report führt in
-  // dem Fall nur den Namen der Organisation.
-  let logoDatei: string | null = null
-  if (branding.logoPath && /\.(png|jpe?g)$/i.test(branding.logoPath)) {
+  // PNG, JPEG und SVG sind einbettbar; alles andere bleibt weg, und der
+  // Bericht trägt dann nur den Namen der Organisation.
+  let logo: ReportLogo | null = null
+  if (branding.logoPath) {
     try {
-      logoDatei = absoluterPfad(branding.logoPath)
+      logo = await ladeReportLogo(absoluterPfad(branding.logoPath))
     } catch {
-      logoDatei = null
+      logo = null
     }
   }
 
@@ -142,7 +142,7 @@ export async function baueKopf(
     organisation: branding.organisation,
     markenfarbe: branding.primaryColor,
     fussnote: branding.reportFooter,
-    logoDatei,
+    logo,
   }
 }
 
