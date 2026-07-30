@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
-import { starteBenachrichtigungen, starteTagesabgleich } from '@/server/cron'
+import {
+  starteBenachrichtigungen,
+  starteIntegritaetslauf,
+  starteTagesabgleich,
+} from '@/server/cron'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -15,7 +19,8 @@ export const runtime = 'nodejs'
  * Parameter `aufgabe`:
  *   abgleich (Standard)  Fälligkeiten abgleichen
  *   mail                 Benachrichtigungen versenden
- *   alles                beides nacheinander
+ *   integritaet          Nachweise auf Unversehrtheit prüfen
+ *   alles                alle drei nacheinander
  */
 export async function POST(request: NextRequest) {
   const token = process.env.CRON_TOKEN?.trim()
@@ -40,9 +45,12 @@ export async function POST(request: NextRequest) {
   }
 
   const aufgabe = request.nextUrl.searchParams.get('aufgabe') ?? 'abgleich'
-  if (!['abgleich', 'mail', 'alles'].includes(aufgabe)) {
+  if (!['abgleich', 'mail', 'integritaet', 'alles'].includes(aufgabe)) {
     return NextResponse.json(
-      { fehler: 'Unbekannte Aufgabe. Erlaubt: abgleich, mail, alles.' },
+      {
+        fehler:
+          'Unbekannte Aufgabe. Erlaubt: abgleich, mail, integritaet, alles.',
+      },
       { status: 400 },
     )
   }
@@ -70,6 +78,21 @@ export async function POST(request: NextRequest) {
         )
       }
       antwort.benachrichtigungen = ergebnis
+    }
+
+    if (aufgabe === 'integritaet' || aufgabe === 'alles') {
+      const ergebnis = await starteIntegritaetslauf(null)
+      if (!ergebnis) {
+        return NextResponse.json(
+          { hinweis: 'Ein Integritätslauf ist bereits aktiv.' },
+          { status: 409 },
+        )
+      }
+      // Die Einzelbefunde können sehr umfangreich sein; die Zahlen
+      // genügen für den Aufrufer, die Einzelheiten stehen im
+      // Administrationsbereich.
+      const { befunde: _befunde, ...zahlen } = ergebnis
+      antwort.integritaet = zahlen
     }
 
     return NextResponse.json(antwort)

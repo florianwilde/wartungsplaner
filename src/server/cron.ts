@@ -9,6 +9,10 @@ import {
   versendeBenachrichtigungen,
 } from '@/server/benachrichtigungen'
 import { fuehreTagesabgleichAus } from '@/server/faelligkeiten'
+import {
+  fasseLaufZusammen,
+  fuehreIntegritaetslaufAus,
+} from '@/server/integritaet'
 
 const STANDARD_ZEITPLAN = '15 2 * * *'
 // Benachrichtigungen bewusst später am Morgen: Der Abgleich soll vorher
@@ -22,6 +26,7 @@ const globalForCron = globalThis as unknown as {
   wartungsplanerMailCron: ScheduledTask | undefined
   wartungsplanerCronLaeuft: boolean | undefined
   wartungsplanerMailLaeuft: boolean | undefined
+  wartungsplanerIntegritaetLaeuft: boolean | undefined
 }
 
 /** Führt den Tagesabgleich aus und verhindert überlappende Läufe. */
@@ -83,6 +88,31 @@ export async function starteBenachrichtigungen(
 }
 
 /**
+ * Prüft die Unversehrtheit der abgelegten Nachweise.
+ *
+ * Läuft im Anschluss an den Tagesabgleich mit, ohne ihn zu blockieren: Der
+ * Abgleich ist für den Betrieb wichtig, die Integritätsprüfung für die
+ * Beweiskraft – beides soll unabhängig voneinander gelingen können.
+ */
+export async function starteIntegritaetslauf(
+  ausgeloestVon: string | null = null,
+) {
+  if (globalForCron.wartungsplanerIntegritaetLaeuft) {
+    console.warn('Integritätslauf läuft bereits – Aufruf wird übersprungen.')
+    return null
+  }
+
+  globalForCron.wartungsplanerIntegritaetLaeuft = true
+  try {
+    const ergebnis = await fuehreIntegritaetslaufAus(ausgeloestVon)
+    console.log(`[Wartungsplaner] Nachweise: ${fasseLaufZusammen(ergebnis)}`)
+    return ergebnis
+  } finally {
+    globalForCron.wartungsplanerIntegritaetLaeuft = false
+  }
+}
+
+/**
  * Registriert den täglichen Hintergrundjob.
  * Aufruf ausschließlich über `src/instrumentation.ts` beim Serverstart.
  */
@@ -107,9 +137,17 @@ export function registriereTaeglichenJob(): void {
   globalForCron.wartungsplanerCron = cron.schedule(
     gueltigerZeitplan,
     () => {
-      void starteTagesabgleich(null).catch((error) => {
-        console.error('[Wartungsplaner] Tagesabgleich fehlgeschlagen:', error)
-      })
+      void starteTagesabgleich(null)
+        .catch((error) => {
+          console.error('[Wartungsplaner] Tagesabgleich fehlgeschlagen:', error)
+        })
+        .finally(() => {
+          // Unabhängig vom Ausgang des Abgleichs: Die Unversehrtheit der
+          // Nachweise soll täglich geprüft werden.
+          void starteIntegritaetslauf(null).catch((error) => {
+            console.error('[Wartungsplaner] Integritätslauf fehlgeschlagen:', error)
+          })
+        })
     },
     { timezone: APP_TIME_ZONE },
   )

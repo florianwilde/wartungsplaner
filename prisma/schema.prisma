@@ -100,6 +100,7 @@ model User {
   responsibleFindings Finding[]             @relation("FindingResponsible")
   auditLogs           AuditLog[]
   eskalationFuer      NotificationSetting[] @relation("EskalationsEmpfaenger")
+  integritaetsLaeufe  IntegritaetsLauf[]    @relation("IntegritaetsLaeufe")
   passkeys            Passkey[]
   erfassteNachweise   Nachweis[]            @relation("NachweisErfasser")
   gepruefteNachweise  Nachweis[]            @relation("NachweisPruefer")
@@ -562,6 +563,37 @@ model WebAuthnChallenge {
 // ---------------------------------------------------------------------------
 
 /// Art einer versendeten Benachrichtigung.
+/// Ergebnis eines Integritätslaufs über die abgelegten Nachweise.
+///
+/// Die Anwendung verspricht Revisionssicherheit über Prüfsummen. Ohne einen
+/// regelmäßigen Abgleich fiele ein stiller Verlust im Ablageverzeichnis erst
+/// auf, wenn Jahre später jemand einen Download versucht – dann ist er nicht
+/// mehr zu heilen.
+model IntegritaetsLauf {
+  id          String   @id @default(cuid())
+  gestartetAm DateTime @default(now())
+  dauerMs     Int
+  /// Auslösende Person; leer beim geplanten Lauf
+  ausgeloestById String?
+
+  /// Anzahl geprüfter Nachweise
+  geprueft    Int
+  /// Datei fehlt im Ablageverzeichnis
+  fehlend     Int
+  /// Datei vorhanden, aber die Prüfsumme stimmt nicht
+  abweichend  Int
+  /// Datei im Ablageverzeichnis ohne Eintrag in der Datenbank
+  verwaist    Int
+  /// Nicht lesbar (Rechte, Datenträgerfehler)
+  unlesbar    Int
+  /// Einzelheiten zu den Beanstandungen
+  befundeJson Json?
+
+  ausgeloestBy User? @relation("IntegritaetsLaeufe", fields: [ausgeloestById], references: [id], onDelete: SetNull)
+
+  @@index([gestartetAm])
+}
+
 enum NotificationKind {
   /// Sammelmail über bald fällige und überfällige Aufgaben
   AUFGABEN

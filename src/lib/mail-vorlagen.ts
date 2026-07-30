@@ -462,6 +462,109 @@ export function baueZurueckweisungsMail(
 }
 
 // ---------------------------------------------------------------------------
+// Integrität der Nachweise
+// ---------------------------------------------------------------------------
+
+export type IntegritaetsMeldung = {
+  geprueft: number
+  fehlend: number
+  abweichend: number
+  unlesbar: number
+  verwaist: number
+  befunde: { art: string; dateiname: string }[]
+}
+
+/**
+ * Meldung über beanstandete Nachweise.
+ *
+ * Bewusst deutlich formuliert: Ein veränderter oder fehlender Nachweis ist
+ * kein Betriebshinweis, sondern ein Schaden an der Beweiskraft der Ablage.
+ */
+export function baueIntegritaetsMail(
+  rahmen: MailRahmen,
+  empfaengerName: string,
+  meldung: IntegritaetsMeldung,
+): MailInhalt {
+  const schwer = meldung.fehlend + meldung.abweichend + meldung.unlesbar
+  const betreff = `[${rahmen.anwendung}] Prüfung der Nachweise: ${anzahlText(
+    schwer,
+    'Beanstandung',
+    'Beanstandungen',
+  )}`
+
+  const zaehlung: string[] = []
+  if (meldung.abweichend > 0) {
+    zaehlung.push(`${meldung.abweichend} mit abweichender Prüfsumme`)
+  }
+  if (meldung.fehlend > 0) zaehlung.push(`${meldung.fehlend} fehlend`)
+  if (meldung.unlesbar > 0) zaehlung.push(`${meldung.unlesbar} nicht lesbar`)
+
+  const textZeilen = [
+    `Guten Tag ${empfaengerName},`,
+    '',
+    `bei der Prüfung von ${meldung.geprueft} Nachweisen wurden Beanstandungen`,
+    'festgestellt:',
+    '',
+    ...zaehlung.map((z) => `* ${z}`),
+    '',
+    'Betroffen sind unter anderem:',
+    '',
+    ...meldung.befunde.map((b) => `* ${b.dateiname} (${b.art})`),
+    '',
+    'Ein fehlender oder veränderter Nachweis lässt sich nicht nachträglich',
+    'wiederherstellen. Bitte prüfen Sie die Sicherung und das Ablageverzeichnis.',
+    '',
+    `Einzelheiten: ${rahmen.appUrl}/admin/integritaet`,
+    '',
+    'Diese Nachricht wurde automatisch erzeugt.',
+  ]
+
+  if (meldung.verwaist > 0) {
+    textZeilen.splice(
+      textZeilen.length - 4,
+      0,
+      `Zusätzlich liegen ${meldung.verwaist} Dateien ohne Eintrag in der`,
+      'Datenbank im Ablageverzeichnis. Sie beeinträchtigen die Nachweiskette',
+      'nicht, sollten aber geklärt werden.',
+      '',
+    )
+  }
+
+  const html = htmlRahmen(
+    rahmen,
+    [
+      `<p style="margin:0 0 16px;font-size:15px;">Guten Tag ${maskiereHtml(empfaengerName)},</p>`,
+      `<p style="margin:0 0 12px;font-size:14px;">bei der Prüfung von ${meldung.geprueft} `,
+      'Nachweisen wurden Beanstandungen festgestellt:</p>',
+      '<ul style="margin:0 0 16px;padding-left:20px;font-size:14px;color:#b91c1c;">',
+      zaehlung.map((z) => `<li>${maskiereHtml(z)}</li>`).join(''),
+      '</ul>',
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">',
+      meldung.befunde
+        .map(
+          (b) =>
+            '<tr><td style="padding:6px 0;border-bottom:1px solid #eef0f2;">' +
+            `${maskiereHtml(b.dateiname)}<br>` +
+            `<span style="color:#6b7280;font-size:13px;">${maskiereHtml(b.art)}</span>` +
+            '</td></tr>',
+        )
+        .join(''),
+      '</table>',
+      '<p style="margin:16px 0 0;font-size:14px;">Ein fehlender oder veränderter ',
+      'Nachweis lässt sich nicht nachträglich wiederherstellen. Bitte prüfen Sie ',
+      'die Sicherung und das Ablageverzeichnis.</p>',
+      htmlSchaltflaeche(
+        `${rahmen.appUrl}/admin/integritaet`,
+        'Einzelheiten ansehen',
+        rahmen.markenfarbe,
+      ),
+    ].join(''),
+  )
+
+  return { betreff: einzeilig(betreff), text: textZeilen.join('\n'), html }
+}
+
+// ---------------------------------------------------------------------------
 // Eskalation
 // ---------------------------------------------------------------------------
 

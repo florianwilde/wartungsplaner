@@ -43,6 +43,7 @@ export const AUDIT_AKTIONEN = {
   FINDING_CLOSED: 'Abweichung geschlossen',
   REPORT_GENERATED: 'Report erzeugt',
   CRON_RUN: 'Täglicher Job ausgeführt',
+  INTEGRITAETSLAUF: 'Nachweise auf Unversehrtheit geprüft',
   BRANDING_UPDATED: 'Erscheinungsbild geändert',
   BRANDING_RESET: 'Erscheinungsbild zurückgesetzt',
   NOTIFICATION_SETTINGS_UPDATED: 'Benachrichtigungen konfiguriert',
