@@ -16,6 +16,20 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ### Hinzugefügt
 
+- **Einspielbarer Prüfplan nach ISO/IEC 27001:2022 und TISAX (VDA ISA 6)**
+  unter [beispiele/pruefplan/](beispiele/pruefplan/LIESMICH.md): sechs
+  Kategorien, 49 Audit-Referenzen und 30 wiederkehrende Prüfungen mit
+  Intervall, Fristen und Prüfanleitung in Markdown.
+  - Wer die Anwendung neu aufsetzt, steht sonst vor einer leeren Liste und
+    der Frage, was überhaupt regelmäßig zu prüfen ist.
+  - Die Startdaten sind über ein Jahr verteilt – zwanzig Jahresprüfungen am
+    selben Tag wären kein Plan, sondern ein Stau.
+  - Zwei Prüfungen dazu: `npm run test:beispiele` liest die Dateien mit dem
+    Parser der Anwendung und lässt dieselbe Prüfung darüberlaufen;
+    `npm run test:einspielen` spielt sie in eine leere Datenbank ein und
+    prüft das Ergebnis. Die erste hat prompt zwei Semikolons in
+    Beschreibungstexten gefunden, die die Zeilen zerlegt hätten.
+
 - **Mehrere Aufgaben und Audit-Referenzen markieren und bearbeiten.** Wer
   zwanzig Aufgaben aus einem missglückten Import loswerden will, klickt
   sich sonst zwanzigmal durch dieselbe Bestätigung.

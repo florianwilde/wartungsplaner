@@ -28,6 +28,8 @@
     "test:kalender": "tsx scripts/kalendertest.ts",
     "test:logo": "tsx scripts/logotest.ts",
     "test:ausgabe": "tsx scripts/ausgabetest.ts",
+    "test:beispiele": "tsx scripts/pruefe-beispieldateien.ts",
+    "test:einspielen": "bash scripts/einspieltest.sh",
     "test:migrationen": "bash scripts/migrationstest.sh",
     "test:e2e": "playwright test",
     "screenshots": "bash scripts/screenshots.sh",

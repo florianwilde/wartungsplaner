@@ -1,0 +1,50 @@
+rahmenwerk;kuerzel;bezeichnung;beschreibung;aktiv;reihenfolge
+ISO 27001;6.1;Kapitel 6.1 – Maßnahmen zum Umgang mit Risiken und Chancen;Grundlage der Risikobewertung im ISMS.;ja;10
+ISO 27001;7.3;Kapitel 7.3 – Bewusstsein;Awareness aller Mitarbeitenden für Informationssicherheit.;ja;20
+ISO 27001;8.2;Kapitel 8.2 – Informationssicherheitsrisikobeurteilung;Durchführung der Risikobeurteilung in geplanten Abständen.;ja;30
+ISO 27001;9.1;Kapitel 9.1 – Überwachung, Messung, Analyse, Bewertung;Kennzahlen zur Wirksamkeit des ISMS.;ja;40
+ISO 27001;9.2;Kapitel 9.2 – Internes Audit;Auditprogramm über den Zertifizierungszyklus.;ja;50
+ISO 27001;9.3;Kapitel 9.3 – Managementbewertung;Jährliche Bewertung durch die Leitung.;ja;60
+ISO 27001;A.5.1;Richtlinien für Informationssicherheit;Regelmäßige Überprüfung und Freigabe der IS-Richtlinien.;ja;100
+ISO 27001;A.5.9;Inventar der Informationen und zugehörigen Werte;Asset-Inventar inklusive Eigentümerschaft und Klassifizierung.;ja;110
+ISO 27001;A.5.16–5.18;Identitätsmanagement bis Zugangsrechte;Technische Accounts, Dienstkonten und externe Zugänge.;ja;120
+ISO 27001;A.5.18;Zugangsrechte;Rezertifizierung der Berechtigungen.;ja;130
+ISO 27001;A.5.19–5.22;Informationssicherheit in Lieferantenbeziehungen;Bewertung und Steuerung von Dienstleistern.;ja;140
+ISO 27001;A.5.21;Umgang mit Informationssicherheit in der IKT-Lieferkette;Nachweise und Zertifikate der Lieferanten.;ja;150
+ISO 27001;A.5.23;Informationssicherheit bei Nutzung von Cloud-Diensten;Vertrags- und Sicherheitsbedingungen der Cloud-Anbieter.;ja;160
+ISO 27001;A.5.24–5.27;Umgang mit Informationssicherheitsvorfällen;Planung, Bewertung, Reaktion und Lernen aus Vorfällen.;ja;170
+ISO 27001;A.5.29;Informationssicherheit bei Störungen;Notfallpläne, Übungen und Business Impact Analyse.;ja;180
+ISO 27001;A.5.30;IKT-Bereitschaft für Business Continuity;Wiederanlauf kritischer IT-Services, RTO und RPO.;ja;190
+ISO 27001;A.5.31–5.36;Rechtliche und vertragliche Anforderungen;Rechtskataster und Einhaltung der Vorgaben.;ja;200
+ISO 27001;A.6.1–6.6;Personelle Maßnahmen;On- und Offboarding, Vertraulichkeitsverpflichtungen.;ja;210
+ISO 27001;A.6.3;Sensibilisierung und Schulung;Awareness-Programm und Nachweis der Teilnahme.;ja;220
+ISO 27001;A.7.1–7.2;Physische Sicherheitsbereiche und Zutritt;Zutrittsrechte, Ausweise, Schlüssel, Besucherregelung.;ja;230
+ISO 27001;A.7.11–7.13;Versorgungseinrichtungen und Wartung;USV, Klima, Brandschutz und Instandhaltung.;ja;240
+ISO 27001;A.8.2;Privilegierte Zugangsrechte;Administrative, Domänen- und Notfallkonten.;ja;250
+ISO 27001;A.8.8;Umgang mit technischen Schwachstellen;Schwachstellenscans, Patchstand, Penetrationstests.;ja;260
+ISO 27001;A.8.13;Sicherung von Informationen;Datensicherung und nachgewiesene Wiederherstellbarkeit.;ja;270
+ISO 27001;A.8.15;Protokollierung;Aufzeichnung sicherheitsrelevanter Ereignisse.;ja;280
+ISO 27001;A.8.16;Überwachung von Aktivitäten;Monitoring-Regeln und Alarmierung.;ja;290
+ISO 27001;A.8.19;Installation von Software auf Systemen im Betrieb;Kontrollierter Patch- und Softwarestand.;ja;300
+ISO 27001;A.8.20–8.22;Netzwerksicherheit und Segmentierung;Firewall-Regeln, Netzdienste, Trennung von Netzen.;ja;310
+ISO 27001;A.8.24;Verwendung von Kryptografie;Zertifikate, Schlüssel und Algorithmen.;ja;320
+VDA ISA 6;1.1.1;Informationssicherheitsrichtlinien;Vorhandensein und regelmäßige Überprüfung der Richtlinien.;ja;400
+VDA ISA 6;1.2;Verantwortung der Leitung;Managementbewertung des ISMS.;ja;410
+VDA ISA 6;1.3;Verwaltung der Assets;Asset-Inventar und Klassifizierung.;ja;420
+VDA ISA 6;1.4;Risikomanagement;Bewertung und Behandlung von Risiken.;ja;430
+VDA ISA 6;1.5;Bewertung und Verbesserung;Interne Audits und Wirksamkeitsmessung.;ja;440
+VDA ISA 6;1.6;Business Continuity Management;Notfallvorsorge, Übungen und Business Impact Analyse.;ja;450
+VDA ISA 6;1.6.1;Umgang mit Sicherheitsvorfällen;Incident-Response-Prozess und Übungen.;ja;460
+VDA ISA 6;2.1;Personelle Sicherheit;On- und Offboarding, Verpflichtungen.;ja;470
+VDA ISA 6;2.1.3;Sensibilisierung und Schulung;Awareness-Programm für alle Mitarbeitenden.;ja;480
+VDA ISA 6;3;Physische Sicherheit und Umgebungssicherheit;Zutritt, Gebäude, Versorgungseinrichtungen.;ja;490
+VDA ISA 6;4.1;Zugangsverwaltung;Verwaltung von Zugängen und Konten.;ja;500
+VDA ISA 6;4.1.2;Verwaltung technischer Zugänge;Dienstkonten, externe Zugänge, Schnittstellen.;ja;510
+VDA ISA 6;4.2;Berechtigungsverwaltung;Vergabe und Entzug von Berechtigungen.;ja;520
+VDA ISA 6;4.2.1;Rezertifizierung von Berechtigungen;Wiederkehrende Überprüfung aller Zugriffsrechte.;ja;530
+VDA ISA 6;5.1;Kryptografie;Einsatz und Verwaltung kryptografischer Verfahren.;ja;540
+VDA ISA 6;5.2;IT-Sicherheit im Betrieb;Schwachstellen, Patches, Protokollierung, Datensicherung.;ja;550
+VDA ISA 6;5.3;Netzwerksicherheit;Segmentierung, Firewalls, Fernzugriffe.;ja;560
+VDA ISA 6;6;Lieferantenbeziehungen;Steuerung und Bewertung von Dienstleistern.;ja;570
+VDA ISA 6;6.1;Nachweise der Lieferanten;Gültigkeit und Geltungsbereich von Labels und Zertifikaten.;ja;580
+VDA ISA 6;7;Compliance;Rechtliche und vertragliche Anforderungen.;ja;590

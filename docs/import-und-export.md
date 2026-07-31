@@ -105,6 +105,17 @@ keinen geführten Nachweis. Brauchen Sie andere Prüfpunkte, legen Sie einen
 Bogen unter neuem Namen an und setzen den alten auf inaktiv – die
 bisherigen Nachweise bleiben damit lesbar.
 
+## Fertiger Ausgangsbestand
+
+Unter [beispiele/pruefplan/](../beispiele/pruefplan/LIESMICH.md) liegt ein
+einspielbarer Prüfplan nach ISO/IEC 27001:2022 und TISAX (VDA ISA 6):
+sechs Kategorien, 49 Audit-Referenzen und 30 wiederkehrende Prüfungen mit
+Intervall, Fristen und Prüfanleitung.
+
+Vor dem Einspielen sind zwei Dinge anzupassen: die verantwortliche Person
+(dort steht ein Platzhalter) und die Startdaten. Einzelheiten stehen in der
+LIESMICH-Datei daneben.
+
 ## Protokollierung
 
 Jeder Import und Export erzeugt einen Audit-Eintrag mit Anzahl und Art der

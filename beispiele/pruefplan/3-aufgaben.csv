@@ -1,0 +1,365 @@
+titel;beschreibung;kategorie;verantwortlich;intervall;intervalltage;rhythmus;startdatum;vorlauftage;karenztage;nachweispflicht;kritikalitaet;auditreferenzen;aktiv;pruefanleitung
+Internes Audit des ISMS;"Auditprogramm über den Drei-Jahres-Zyklus; alle Bereiche mindestens einmal abdecken.";Governance & Managementsystem;admin@example.com;ANNUAL;;FIXED;2026-09-15;30;14;ja;HIGH;ISO 27001 9.2, VDA ISA 6 1.5;ja;"## Erwartung des Prüfers
+
+Ein Auditprogramm, das über den Zertifizierungszyklus alle Bereiche des Geltungsbereichs mindestens einmal abdeckt.
+
+## Ablauf
+
+1. Auditplan gegen das Programm abgleichen
+2. Audit durchführen, Feststellungen aufnehmen
+3. Auditbericht erstellen und freigeben
+4. Maßnahmen aus Feststellungen nachverfolgen
+
+## Nachweis
+
+Auditprogramm, Auditplan, Auditbericht, Maßnahmenverfolgung."
+Managementbewertung (Management Review);Bewertung des ISMS durch die Leitung mit Ergebnissen und Maßnahmen.;Governance & Managementsystem;admin@example.com;ANNUAL;;FIXED;2026-11-16;30;14;ja;HIGH;ISO 27001 9.3, VDA ISA 6 1.2;ja;"## Erwartung des Prüfers
+
+Ein Protokoll mit den Eingaben nach Kapitel 9.3, den Ergebnissen und den beschlossenen Maßnahmen.
+
+## Eingaben
+
+- Stand der Maßnahmen aus der letzten Bewertung
+- Änderungen bei internen und externen Themen
+- Rückmeldungen zur Informationssicherheitsleistung, Kennzahlen
+- Ergebnisse der Risikobeurteilung und interner Audits
+- Verbesserungsmöglichkeiten
+
+## Nachweis
+
+Protokoll der Managementbewertung mit Datum, Teilnehmern und Beschlüssen."
+Risikobewertung / Risiko-Review;Jährlich und zusätzlich anlassbezogen bei wesentlichen Änderungen: neue Systeme, Standorte, Vorfälle.;Governance & Managementsystem;admin@example.com;ANNUAL;;FIXED;2027-03-16;30;14;ja;HIGH;ISO 27001 6.1, ISO 27001 8.2, VDA ISA 6 1.4;ja;"## Erwartung des Prüfers
+
+Eine nachvollziehbare, wiederholbare Beurteilung mit dokumentierten Kriterien.
+
+## Ablauf
+
+1. Risikoinventar auf Aktualität prüfen
+2. Neue Risiken aufnehmen, bewertete Risiken erneut einschätzen
+3. Behandlungsentscheidungen treffen und begründen
+4. Erklärung zur Anwendbarkeit abgleichen
+
+## Anlassbezogen zusätzlich
+
+Bei neuen Systemen, neuen Standorten, wesentlichen Prozessänderungen und nach Sicherheitsvorfällen."
+Review der Informationssicherheitsrichtlinien;Versionierung und Freigabe dokumentieren, auch wenn keine Änderung nötig ist.;Governance & Managementsystem;admin@example.com;ANNUAL;;FIXED;2027-01-19;21;14;ja;MEDIUM;ISO 27001 A.5.1, VDA ISA 6 1.1.1;ja;"## Erwartung des Prüfers
+
+Ein datierter Freigabevermerk – auch dann, wenn inhaltlich nichts geändert wurde. Eine Richtlinie ohne Prüfvermerk gilt als ungeprüft.
+
+## Ablauf
+
+1. Alle geltenden Richtlinien auflisten
+2. Auf Aktualität und Widerspruchsfreiheit prüfen
+3. Änderungen einarbeiten, Version hochzählen
+4. Freigabe durch die Leitung dokumentieren
+5. Bei Änderungen: Mitarbeitende informieren"
+Kennzahlen und Wirksamkeitsmessung auswerten;KPIs wie Patchstand, Anzahl Vorfälle und Schulungsquote auswerten.;Governance & Managementsystem;admin@example.com;QUARTERLY;;FIXED;2026-09-30;14;7;ja;MEDIUM;ISO 27001 9.1, VDA ISA 6 1.5;ja;"## Erwartung des Prüfers
+
+Definierte Kennzahlen mit Zielwerten, regelmäßig erhoben und bewertet – nicht nur erhoben.
+
+## Beispiele für Kennzahlen
+
+- Patchstand kritischer Systeme
+- Anzahl und Schwere der Sicherheitsvorfälle
+- Teilnahmequote der Awareness-Schulung
+- Anteil fristgerecht durchgeführter Prüfungen
+- Offene Abweichungen über Frist
+
+## Nachweis
+
+Kennzahlenübersicht mit Bewertung und abgeleiteten Maßnahmen."
+Asset-Inventar aktualisieren und prüfen;Rollierend über das Jahr, inklusive Eigentümerschaft und Klassifizierung.;Governance & Managementsystem;admin@example.com;ANNUAL;;FIXED;2027-02-16;30;21;ja;MEDIUM;ISO 27001 A.5.9, VDA ISA 6 1.3;ja;"## Erwartung des Prüfers
+
+Ein vollständiges Inventar mit benanntem Eigentümer je Wert und einer Klassifizierung.
+
+## Prüfpunkte
+
+1. Vollständigkeit gegen Beschaffung und Netzwerkscan abgleichen
+2. Eigentümerschaft je Asset benannt und aktuell
+3. Klassifizierung vergeben und plausibel
+4. Ausgemusterte Assets als solche gekennzeichnet"
+Prüfung rechtlicher und vertraglicher Anforderungen;Rechtskataster pflegen und Kundenanforderungen einbeziehen, etwa OEM-Vorgaben.;Governance & Managementsystem;admin@example.com;ANNUAL;;FIXED;2027-04-20;30;14;ja;MEDIUM;ISO 27001 A.5.31–5.36, VDA ISA 6 7;ja;"## Erwartung des Prüfers
+
+Ein gepflegtes Verzeichnis der anwendbaren Anforderungen mit Bezug auf die jeweilige Umsetzung.
+
+## Prüfpunkte
+
+1. Rechtskataster auf Aktualität prüfen
+2. Neue oder geänderte Vorgaben aufnehmen
+3. Kundenanforderungen aus Verträgen abgleichen
+4. Umsetzungsnachweis je Anforderung benennen"
+Rezertifizierung aller Zugriffsberechtigungen;Kritische Systeme zusätzlich halbjährlich. Ergebnis und entzogene Rechte dokumentieren.;Zugriffs- & Identitätsmanagement;admin@example.com;ANNUAL;;FIXED;2027-03-02;30;14;ja;HIGH;ISO 27001 A.5.18, VDA ISA 6 4.2.1;ja;"## Erwartung des Prüfers
+
+Ein Nachweis je geprüftem Konto mit Entscheidung – nicht nur die Aussage, dass geprüft wurde. Entzogene Rechte müssen belegbar sein.
+
+## Ablauf
+
+1. Auszug der Berechtigungen je System erstellen (Stichtag festhalten)
+2. Je Konto entscheiden: belassen, entziehen, ändern
+3. Entzüge beauftragen und Umsetzung nachhalten
+4. Auszug, Entscheidungen und Umsetzungsnachweis ablegen
+
+## Umfang
+
+Active Directory, Fileserver, ERP und alle weiteren Systeme mit personenbezogenen Berechtigungen."
+Review privilegierter und administrativer Konten;Admin-, Domänen- und Notfallkonten. Vier-Augen-Prinzip empfohlen.;Zugriffs- & Identitätsmanagement;admin@example.com;QUARTERLY;;FIXED;2026-08-25;14;7;ja;HIGH;ISO 27001 A.8.2, VDA ISA 6 4.1, VDA ISA 6 4.2;ja;"## Erwartung des Prüfers
+
+Privilegierte Konten sind namentlich zugeordnet, begründet und werden häufiger geprüft als gewöhnliche.
+
+## Prüfpunkte
+
+1. Alle Mitglieder privilegierter Gruppen auflisten
+2. Je Konto: Ist die Berechtigung noch begründet?
+3. Notfallkonten: Verwahrung und Verwendung prüfen
+4. Verwaiste und Sammelkonten aufdecken
+
+## Hinweis
+
+Die Gegenzeichnung durch eine zweite Person ist hier ausdrücklich empfohlen."
+Prüfung technischer Accounts, Dienstkonten und externer Zugänge;Auch VPN-Zugänge von Dienstleistern und API-Schlüssel einbeziehen.;Zugriffs- & Identitätsmanagement;admin@example.com;ANNUAL;;FIXED;2027-05-18;21;14;ja;HIGH;ISO 27001 A.5.16–5.18, VDA ISA 6 4.1.2;ja;"## Erwartung des Prüfers
+
+Auch nicht-personenbezogene Zugänge haben einen Verantwortlichen und einen Zweck.
+
+## Umfang
+
+- Dienstkonten in Betriebssystemen und Anwendungen
+- API-Schlüssel und Zugriffstoken
+- VPN- und Fernwartungszugänge von Dienstleistern
+- Schnittstellenkonten zwischen Systemen
+
+## Prüfpunkte
+
+1. Zweck und Verantwortlicher je Konto benannt
+2. Zugang noch benötigt?
+3. Anmeldedaten turnusgemäß gewechselt
+4. Rechte auf das Notwendige begrenzt"
+Prüfung physischer Zutrittsrechte;Ausweise und Schlüssel, einschließlich Besucherregelung und Schließanlagenverwaltung.;Zugriffs- & Identitätsmanagement;admin@example.com;ANNUAL;;FIXED;2027-06-15;21;14;ja;MEDIUM;ISO 27001 A.7.1–7.2, VDA ISA 6 3;ja;"## Erwartung des Prüfers
+
+Eine aktuelle Zuordnung von Ausweisen und Schlüsseln zu Personen, abgeglichen mit dem Personalbestand.
+
+## Prüfpunkte
+
+1. Schließplan und Ausweisliste gegen den Personalbestand abgleichen
+2. Zutritt zu Sicherheitsbereichen: nur begründete Personen
+3. Rückgabe bei Austritten belegt
+4. Besucherregelung und Besucherbuch geprüft"
+Backup-Restore-Test;Wiederherstellbarkeit nachweisen. Kritische Systeme zusätzlich quartalsweise.;IT-Betrieb & technische Sicherheit;admin@example.com;ANNUAL;;AFTER_COMPLETION;2026-08-18;21;7;ja;HIGH;ISO 27001 A.8.13, VDA ISA 6 5.2;ja;"## Erwartung des Prüfers
+
+Ein Testprotokoll mit Dauer und Ergebnis. Die Aussage, dass Sicherungen laufen, genügt nicht – nachzuweisen ist die Wiederherstellung.
+
+## Ablauf
+
+1. Zu prüfendes System und Sicherungsstand festlegen
+2. Rücksicherung in eine getrennte Umgebung durchführen
+3. Start- und Endzeit festhalten, Dauer gegen die zugesagte Wiederanlaufzeit prüfen
+4. Stichproben auf Vollständigkeit und Lesbarkeit der Daten
+5. Abweichungen aufnehmen
+
+## Nachweis
+
+Testprotokoll mit System, Sicherungsstand, Dauer, Stichproben und Ergebnis."
+Schwachstellenscans;Intern und extern. Bei hohem Schutzbedarf monatlich.;IT-Betrieb & technische Sicherheit;admin@example.com;QUARTERLY;;FIXED;2026-08-25;14;7;ja;HIGH;ISO 27001 A.8.8, VDA ISA 6 5.2;ja;"## Erwartung des Prüfers
+
+Regelmäßige Scans **und** der Nachweis, dass die Funde abgearbeitet werden.
+
+## Ablauf
+
+1. Scan intern und extern durchführen
+2. Funde nach Schwere bewerten
+3. Behebungsfristen je Schwere festlegen
+4. Offene Funde aus dem Vorlauf nachhalten
+
+## Nachweis
+
+Scanbericht und Nachverfolgung der Behebung."
+Penetrationstest;Nicht ausdrücklich gefordert, aber Prüfererwartung bei hohem Schutzbedarf.;IT-Betrieb & technische Sicherheit;admin@example.com;ANNUAL;;FIXED;2026-10-19;30;21;ja;MEDIUM;ISO 27001 A.8.8, VDA ISA 6 5.2, VDA ISA 6 5.3;ja;"## Erwartung des Prüfers
+
+Ein Bericht mit Geltungsbereich, Methodik und Befunden – dazu die Nachverfolgung der Maßnahmen.
+
+## Ablauf
+
+1. Geltungsbereich und Testfenster festlegen
+2. Test durch geeigneten Dienstleister durchführen lassen
+3. Befunde bewerten und priorisieren
+4. Maßnahmen umsetzen und Wirksamkeit nachprüfen"
+Patchmanagement-Kontrolle;Laufender Prozess mit monatlichem Review des Patchstands.;IT-Betrieb & technische Sicherheit;admin@example.com;MONTHLY;;FIXED;2026-08-10;7;5;ja;HIGH;ISO 27001 A.8.8, ISO 27001 A.8.19, VDA ISA 6 5.2;ja;"## Erwartung des Prüfers
+
+Ein belegter Patchstand über die Zeit, nicht eine Momentaufnahme.
+
+## Prüfpunkte
+
+1. Patchstand je Systemgruppe auswerten
+2. Abweichungen begründen (Ausnahmen dokumentiert und befristet)
+3. Kritische Sicherheitsupdates: Frist eingehalten?
+4. Systeme ohne Herstellerunterstützung gesondert ausweisen"
+Log-Auswertung und Review der Monitoring-Regeln;"Monitoring läuft laufend; die Anwendungsfälle und Alarmregeln jährlich überprüfen.";IT-Betrieb & technische Sicherheit;admin@example.com;ANNUAL;;FIXED;2026-11-09;21;14;ja;MEDIUM;ISO 27001 A.8.15, ISO 27001 A.8.16, VDA ISA 6 5.2;ja;"## Erwartung des Prüfers
+
+Nicht nur, dass protokolliert wird, sondern dass die Protokolle ausgewertet werden und die Regeln dem Bedrohungsbild entsprechen.
+
+## Prüfpunkte
+
+1. Welche Quellen liefern Protokolle? Lücken benennen
+2. Aufbewahrungsdauer gegen Vorgaben prüfen
+3. Alarmregeln auf Wirksamkeit und Fehlalarme durchsehen
+4. Stichprobe: Wurde ein Alarm bearbeitet und dokumentiert?"
+Firewall- und Netzwerkregel-Review;Nicht mehr benötigte Regeln entfernen und die Segmentierung prüfen.;IT-Betrieb & technische Sicherheit;admin@example.com;ANNUAL;;FIXED;2027-02-09;21;14;ja;HIGH;ISO 27001 A.8.20–8.22, VDA ISA 6 5.3;ja;"## Erwartung des Prüfers
+
+Jede Regel hat einen Zweck und einen Antragsteller. Historisch gewachsene Regeln ohne Begründung sind ein typischer Befund.
+
+## Ablauf
+
+1. Regelwerk exportieren
+2. Je Regel: Zweck, Antrag und Notwendigkeit prüfen
+3. Nicht mehr benötigte Regeln entfernen
+4. Segmentierung gegen das Netzkonzept prüfen
+5. Fernzugriffe gesondert betrachten"
+Prüfung der Kryptografie;Zertifikate, Schlüssel und Algorithmen gegen den Stand der Technik prüfen.;IT-Betrieb & technische Sicherheit;admin@example.com;ANNUAL;;FIXED;2027-04-13;30;14;ja;MEDIUM;ISO 27001 A.8.24, VDA ISA 6 5.1;ja;"## Erwartung des Prüfers
+
+Eine Übersicht der eingesetzten Verfahren mit Bewertung gegen den Stand der Technik – und ein Verfahren für ablaufende Zertifikate.
+
+## Prüfpunkte
+
+1. Zertifikatsübersicht mit Ablaufdaten
+2. Verfahren zur rechtzeitigen Erneuerung belegt
+3. Eingesetzte Algorithmen und Schlüssellängen bewerten
+4. Schlüsselverwahrung und Zugriff darauf prüfen"
+Wartung und Prüfung der Infrastruktur;USV, Klima und Brandschutz gemäß Herstellervorgabe. Wartungsverträge und Protokolle als Nachweis.;IT-Betrieb & technische Sicherheit;admin@example.com;ANNUAL;;FIXED;2027-05-11;30;21;ja;MEDIUM;ISO 27001 A.7.11–7.13, VDA ISA 6 3;ja;"## Erwartung des Prüfers
+
+Wartung nach Herstellervorgabe, belegt durch Protokolle des Dienstleisters.
+
+## Umfang
+
+- Unterbrechungsfreie Stromversorgung inklusive Batterietest
+- Klimatisierung des Serverraums
+- Brandmelde- und Löschanlage
+- Zutrittssicherung der Technikräume
+
+## Nachweis
+
+Wartungsprotokolle, Prüfberichte, gegebenenfalls Sachverständigenbescheinigungen."
+Security-Awareness-Schulung aller Mitarbeitenden;Zusätzlich beim Onboarding. Teilnahmequote als Kennzahl verfolgen.;Personal & Awareness;admin@example.com;ANNUAL;;FIXED;2026-09-21;30;21;ja;MEDIUM;ISO 27001 7.3, ISO 27001 A.6.3, VDA ISA 6 2.1.3;ja;"## Erwartung des Prüfers
+
+Nicht nur ein Angebot, sondern eine belegte Teilnahme – möglichst nahe an 100 Prozent.
+
+## Ablauf
+
+1. Inhalte auf Aktualität prüfen (aktuelle Bedrohungslage aufnehmen)
+2. Schulung durchführen oder bereitstellen
+3. Teilnahme je Person erfassen
+4. Nichtteilnehmer nachverfolgen
+5. Teilnahmequote als Kennzahl melden"
+Phishing-Simulation;Gute Praxis, keine Pflicht. Ergebnisse in das Awareness-Programm einfließen lassen.;Personal & Awareness;admin@example.com;SEMIANNUAL;;FIXED;2026-09-28;14;14;ja;LOW;ISO 27001 A.6.3, VDA ISA 6 2.1;ja;"## Erwartung des Prüfers
+
+Wird eine Simulation durchgeführt, erwartet der Prüfer, dass die Ergebnisse zu Maßnahmen führen.
+
+## Hinweise zur Durchführung
+
+1. Vorab mit der Arbeitnehmervertretung und dem Datenschutz abstimmen
+2. Auswertung ausschließlich in aggregierter Form
+3. Keine namentliche Auswertung einzelner Personen
+4. Ergebnis in die nächste Schulung einarbeiten"
+Review On- und Offboarding sowie Vertraulichkeitsverpflichtungen;Stichprobe: Wurden Rechte bei Austritten zeitnah entzogen?;Personal & Awareness;admin@example.com;ANNUAL;;FIXED;2027-06-08;21;14;ja;HIGH;ISO 27001 A.6.1–6.6, VDA ISA 6 2.1;ja;"## Erwartung des Prüfers
+
+Eine Stichprobe echter Austritte mit dem Nachweis, dass Zugänge zeitnah entzogen wurden.
+
+## Ablauf
+
+1. Liste der Ein- und Austritte des Zeitraums ziehen
+2. Stichprobe festlegen (mindestens fünf Vorgänge oder alle)
+3. Je Vorgang prüfen: Konten gesperrt, Ausweis zurück, Geräte zurück
+4. Zeitraum zwischen Austritt und Sperrung messen
+5. Vertraulichkeitsverpflichtung unterschrieben vorhanden?"
+Notfallübung / BCM-Test;Ausfallszenario mit Wiederanlauf. In VDA ISA 6 deutlich verschärft.;Notfall- & Kontinuitätsmanagement;admin@example.com;ANNUAL;;FIXED;2026-10-12;30;21;ja;HIGH;ISO 27001 A.5.29, ISO 27001 A.5.30, VDA ISA 6 1.6;ja;"## Erwartung des Prüfers
+
+Eine tatsächlich durchgeführte Übung mit Protokoll und Lessons Learned. Eine Richtlinie allein genügt seit VDA ISA 6 nicht mehr.
+
+## Ablauf
+
+1. Szenario festlegen (Ausfall eines kritischen Systems, Standorts oder Dienstleisters)
+2. Übung mit den Beteiligten durchführen
+3. Ablauf, Zeiten und Entscheidungen protokollieren
+4. Lessons Learned festhalten
+5. Maßnahmen ableiten und nachverfolgen
+
+## Nachweis
+
+Übungsprotokoll mit Datum, Teilnehmern, Szenario, Ablauf und Lessons Learned."
+Test der IKT-Bereitschaft (Disaster Recovery);Wiederanlauf kritischer IT-Services testen und RTO sowie RPO bestätigen.;Notfall- & Kontinuitätsmanagement;admin@example.com;ANNUAL;;FIXED;2026-11-23;30;21;ja;HIGH;ISO 27001 A.5.30, VDA ISA 6 1.6, VDA ISA 6 5.2;ja;"## Erwartung des Prüfers
+
+Gemessene Wiederanlaufzeiten im Vergleich zu den zugesagten Werten – nicht die Zusage allein.
+
+## Ablauf
+
+1. Kritische Services und ihre Vorgaben für Wiederanlaufzeit und Datenverlust benennen
+2. Wiederanlauf testen
+3. Tatsächliche Zeiten messen und gegenüberstellen
+4. Abweichungen bewerten und Maßnahmen ableiten"
+Review der Notfallpläne und der Business Impact Analyse;Jährlich und zusätzlich nach organisatorischen oder technischen Änderungen.;Notfall- & Kontinuitätsmanagement;admin@example.com;ANNUAL;;FIXED;2027-03-09;30;14;ja;HIGH;ISO 27001 A.5.29, VDA ISA 6 1.6;ja;"## Erwartung des Prüfers
+
+Eine Business Impact Analyse, die die kritischen Prozesse und ihre Abhängigkeiten benennt, sowie dazu passende Notfallpläne.
+
+## Prüfpunkte
+
+1. Kritische Prozesse noch zutreffend?
+2. Abhängigkeiten von IT-Systemen und Dienstleistern aktuell?
+3. Wiederanlaufzeiten und Datenverlusttoleranzen bestätigt?
+4. Notfallpläne auf Aktualität geprüft (Rufnummern, Zuständigkeiten, Abläufe)
+5. Verteilung der Pläne sichergestellt, auch bei Ausfall der IT"
+Incident-Response-Übung und Prozess-Review;Tabletop-Übung. Zusätzlich Lessons Learned nach jedem realen Vorfall.;Notfall- & Kontinuitätsmanagement;admin@example.com;ANNUAL;;FIXED;2027-06-22;21;14;ja;HIGH;ISO 27001 A.5.24–5.27, VDA ISA 6 1.6.1;ja;"## Erwartung des Prüfers
+
+Ein geübter Prozess mit klaren Rollen, Meldewegen und Eskalationsstufen.
+
+## Ablauf der Übung
+
+1. Szenario vorbereiten (etwa Verschlüsselungsangriff, Datenabfluss)
+2. Am Tisch durchspielen: Wer meldet an wen? Wer entscheidet?
+3. Meldepflichten prüfen (Aufsichtsbehörde, Kunden, Versicherung)
+4. Schwachstellen im Prozess festhalten
+
+## Zusätzlich
+
+Nach jedem realen Vorfall eine Nachbetrachtung mit Lessons Learned."
+Krisenstabsübung;Bei sehr hohem Schutzbedarf erwartet.;Notfall- & Kontinuitätsmanagement;admin@example.com;ANNUAL;;FIXED;2026-11-30;30;21;ja;MEDIUM;ISO 27001 A.5.29, VDA ISA 6 1.6;ja;"## Erwartung des Prüfers
+
+Der Krisenstab ist benannt, erreichbar und hat geübt.
+
+## Ablauf
+
+1. Krisenstab und Vertretungen benennen, Erreichbarkeit prüfen
+2. Szenario mit Auswirkung auf das gesamte Unternehmen wählen
+3. Entscheidungsfähigkeit und Kommunikation üben
+4. Interne und externe Kommunikation durchspielen
+5. Protokoll und Lessons Learned festhalten"
+Lieferantenbewertung und Review der Dienstleistersicherheit;Risikobasiert: kritische Lieferanten intensiver prüfen.;Lieferanten & Dritte;admin@example.com;ANNUAL;;FIXED;2027-04-06;30;14;ja;MEDIUM;ISO 27001 A.5.19–5.22, VDA ISA 6 6;ja;"## Erwartung des Prüfers
+
+Eine Einstufung der Lieferanten nach Kritikalität und eine daran ausgerichtete Prüftiefe.
+
+## Ablauf
+
+1. Lieferantenverzeichnis auf Vollständigkeit prüfen
+2. Kritikalität je Lieferant festlegen oder bestätigen
+3. Kritische Lieferanten: Nachweise anfordern und bewerten
+4. Vertragliche Sicherheitsanforderungen abgleichen
+5. Auffälligkeiten als Abweichung aufnehmen"
+Prüfung der TISAX-Label und Zertifikate der Lieferanten;Gültigkeit und Geltungsbereich der Labels über das ENX-Portal prüfen.;Lieferanten & Dritte;admin@example.com;ANNUAL;;FIXED;2027-02-23;30;14;ja;MEDIUM;ISO 27001 A.5.21, VDA ISA 6 6.1;ja;"## Erwartung des Prüfers
+
+Nicht nur, dass ein Label vorliegt, sondern dass Gültigkeit und Geltungsbereich zur beauftragten Leistung passen.
+
+## Prüfpunkte
+
+1. Label im ENX-Portal nachschlagen
+2. Gültigkeitsdatum prüfen, ablaufende Labels vormerken
+3. Geltungsbereich mit der beauftragten Leistung abgleichen
+4. Schutzbedarfsstufe gegen die eigene Anforderung prüfen
+5. Bei ISO-Zertifikaten: Geltungsbereich und Aussteller prüfen"
+Cloud-Dienste-Review;Vertrags- und Sicherheitsbedingungen, Subunternehmer und Datenstandorte.;Lieferanten & Dritte;admin@example.com;ANNUAL;;FIXED;2027-07-06;30;14;ja;MEDIUM;ISO 27001 A.5.23, VDA ISA 6 6;ja;"## Erwartung des Prüfers
+
+Ein Verzeichnis der genutzten Cloud-Dienste – einschließlich derer, die ohne Beteiligung der IT beschafft wurden.
+
+## Prüfpunkte
+
+1. Verzeichnis der Cloud-Dienste auf Vollständigkeit prüfen
+2. Verarbeitete Daten und deren Schutzbedarf je Dienst
+3. Datenstandorte und eingesetzte Subunternehmer
+4. Vertragliche Regelungen inklusive Auftragsverarbeitung
+5. Verfahren zum Ausstieg und zur Datenrückgabe"
