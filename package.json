@@ -23,6 +23,7 @@
     "test:duplizieren": "tsx scripts/duplizierungstest.ts",
     "test:kalender": "tsx scripts/kalendertest.ts",
     "test:logo": "tsx scripts/logotest.ts",
+    "test:migrationen": "bash scripts/migrationstest.sh",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

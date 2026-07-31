@@ -36,6 +36,12 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ### Hinzugefügt
 
+- **Migrationstest** (`npm run test:migrationen`) – wendet alle Migrationen
+  auf eine leere Datenbank an und vergleicht das Ergebnis mit dem Schema.
+  Anlass war eine Migration, die auf dem Entwicklungsrechner lief und auf dem
+  Server scheiterte, weil sie als Differenz zu einem Zwischenstand entstanden
+  war. Auf einer frischen Installation wäre die Anwendung damit nicht
+  gestartet.
 - **End-to-End-Tests mit Playwright** (`npm run test:e2e`) – die
   dringendste Maßnahme der Roadmap. Geprüft wird die laufende Anwendung im
   Browser: Anmeldung, Rückkehr zur ursprünglich gewünschten Seite,
