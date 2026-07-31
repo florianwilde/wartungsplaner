@@ -109,8 +109,8 @@ bisherigen Nachweise bleiben damit lesbar.
 
 Unter [beispiele/pruefplan/](../beispiele/pruefplan/LIESMICH.md) liegt ein
 einspielbarer Prüfplan nach ISO/IEC 27001:2022 und TISAX (VDA ISA 6):
-sechs Kategorien, 49 Audit-Referenzen und 30 wiederkehrende Prüfungen mit
-Intervall, Fristen und Prüfanleitung.
+sechs Kategorien, 49 Audit-Referenzen, 30 wiederkehrende Prüfungen mit
+Intervall, Fristen und Prüfanleitung sowie neun Prüfbögen.
 
 Vor dem Einspielen sind zwei Dinge anzupassen: die verantwortliche Person
 (dort steht ein Platzhalter) und die Startdaten. Einzelheiten stehen in der

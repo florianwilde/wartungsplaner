@@ -16,6 +16,7 @@ import {
   pruefeAufgaben,
   pruefeAuditReferenzen,
   pruefeKategorien,
+  pruefePruefboegen,
   type ImportFehler,
 } from '../src/lib/import-export'
 
@@ -80,6 +81,19 @@ function main() {
     `Aufgaben ohne Fehler (${aufgaben.length} Zeilen)`,
   )
   if (aufgabenVorschau.fehler.length > 0) zeigeFehler(aufgabenVorschau.fehler)
+
+  // --- Prüfbögen ----------------------------------------------------------
+  const boegen = lies('4-pruefboegen.csv')
+  const bogenVorschau = pruefePruefboegen(
+    boegen,
+    [],
+    aufgabenVorschau.eintraege.map((e) => e.daten.title),
+  )
+  pruefe(
+    bogenVorschau.fehler.length === 0,
+    `Prüfbögen ohne Fehler (${boegen.length} Zeilen, ${bogenVorschau.anlegen} Bögen)`,
+  )
+  if (bogenVorschau.fehler.length > 0) zeigeFehler(bogenVorschau.fehler)
 
   // --- Verweise zwischen den Dateien --------------------------------------
   // Der Import legt unbekannte Referenzen stillschweigend an. Ein Tippfehler

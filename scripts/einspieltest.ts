@@ -12,11 +12,13 @@ import {
   pruefeAufgaben,
   pruefeAuditReferenzen,
   pruefeKategorien,
+  pruefePruefboegen,
 } from '../src/lib/import-export'
 import {
   schreibeAufgaben,
   schreibeAuditReferenzen,
   schreibeKategorien,
+  schreibePruefboegen,
 } from '../src/server/import'
 
 const prisma = new PrismaClient()
@@ -77,6 +79,41 @@ async function main() {
   }
   const aufgaben = await schreibeAufgaben(aufgabenVorschau, benutzer.id)
   pruefe(aufgaben.angelegt === 30, `Aufgaben: 30 angelegt (${aufgaben.angelegt})`)
+
+  // --- 4. Prüfbögen -------------------------------------------------------
+  const bogenVorschau = pruefePruefboegen(
+    lies('4-pruefboegen.csv'),
+    [],
+    (await prisma.task.findMany({ select: { title: true } })).map((a) => a.title),
+  )
+  pruefe(bogenVorschau.fehler.length === 0, 'Prüfbögen: Vorschau ohne Fehler')
+  if (bogenVorschau.fehler.length > 0) {
+    for (const fehler of bogenVorschau.fehler.slice(0, 5)) {
+      console.error(`         Zeile ${fehler.zeile}: ${fehler.meldung}`)
+    }
+  }
+  const boegen = await schreibePruefboegen(bogenVorschau, benutzer.id)
+  pruefe(boegen.angelegt === 9, `Prüfbögen: 9 angelegt (${boegen.angelegt})`)
+
+  const gespeicherteBoegen = await prisma.pruefbogenVorlage.findMany({
+    include: { punkte: true, task: true },
+  })
+  pruefe(
+    gespeicherteBoegen.every((b) => b.punkte.length >= 6),
+    'Jeder Bogen hat mindestens sechs Prüfpunkte',
+  )
+  pruefe(
+    gespeicherteBoegen.every((b) => b.taskId !== null),
+    'Jeder Bogen ist einer Aufgabe zugeordnet',
+  )
+  pruefe(
+    gespeicherteBoegen.some((b) => b.punkte.some((p) => p.art === 'LISTE')),
+    'Zeilenlisten für Rezertifizierungen sind dabei',
+  )
+  pruefe(
+    gespeicherteBoegen.filter((b) => b.vierAugen).length >= 6,
+    'Die meisten Bögen verlangen eine Gegenzeichnung',
+  )
 
   // --- Ergebnis prüfen ----------------------------------------------------
   const gespeichert = await prisma.task.findMany({

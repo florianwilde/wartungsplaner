@@ -53,8 +53,16 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 - **Einspielbarer Prüfplan nach ISO/IEC 27001:2022 und TISAX (VDA ISA 6)**
   unter [beispiele/pruefplan/](beispiele/pruefplan/LIESMICH.md): sechs
-  Kategorien, 49 Audit-Referenzen und 30 wiederkehrende Prüfungen mit
-  Intervall, Fristen und Prüfanleitung in Markdown.
+  Kategorien, 49 Audit-Referenzen, 30 wiederkehrende Prüfungen mit
+  Intervall, Fristen und Prüfanleitung in Markdown sowie **neun Prüfbögen**
+  mit insgesamt 72 Prüfpunkten.
+  - Vier der Bögen nutzen eine **Zeilenliste**: Bei Rezertifizierungen,
+    privilegierten Konten, Firewall-Regeln und Zutrittsrechten wird der
+    Auszug aus dem System übernommen und je Zeile entschieden. Genau das
+    erwartet ein Prüfer – einen Nachweis je Eintrag, nicht die Aussage,
+    dass geprüft wurde.
+  - Prüfbögen gibt es nur dort, wo eine strukturierte Liste trägt. Für ein
+    Management Review entsteht der Nachweis als Protokoll, das man anhängt.
   - Wer die Anwendung neu aufsetzt, steht sonst vor einer leeren Liste und
     der Frage, was überhaupt regelmäßig zu prüfen ist.
   - Die Startdaten sind über ein Jahr verteilt – zwanzig Jahresprüfungen am

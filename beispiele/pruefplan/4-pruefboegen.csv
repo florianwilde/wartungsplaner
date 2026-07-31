@@ -1,0 +1,73 @@
+pruefbogen;beschreibung;aufgabe;vier_augen;aktiv;position;frage;hinweis;art;pflicht
+Restore-Test;Ablauf und Nachweis einer Rücksicherung. Belegt die Wiederherstellbarkeit, nicht nur den Sicherungslauf.;Backup-Restore-Test;ja;ja;1;Welches System wurde zurückgesichert?;Genaue Bezeichnung, damit der Nachweis zuordenbar ist;TEXT;ja
+Restore-Test;Ablauf und Nachweis einer Rücksicherung. Belegt die Wiederherstellbarkeit, nicht nur den Sicherungslauf.;Backup-Restore-Test;ja;ja;2;Stichtag des verwendeten Sicherungsstandes;;DATUM;ja
+Restore-Test;Ablauf und Nachweis einer Rücksicherung. Belegt die Wiederherstellbarkeit, nicht nur den Sicherungslauf.;Backup-Restore-Test;ja;ja;3;Erfolgte die Rücksicherung in eine getrennte Umgebung?;Niemals über den Produktivbestand zurücksichern;BEWERTUNG;ja
+Restore-Test;Ablauf und Nachweis einer Rücksicherung. Belegt die Wiederherstellbarkeit, nicht nur den Sicherungslauf.;Backup-Restore-Test;ja;ja;4;Dauer der Rücksicherung in Minuten;Von Start bis zur Verfügbarkeit der Daten;ZAHL;ja
+Restore-Test;Ablauf und Nachweis einer Rücksicherung. Belegt die Wiederherstellbarkeit, nicht nur den Sicherungslauf.;Backup-Restore-Test;ja;ja;5;Wurde die zugesagte Wiederanlaufzeit eingehalten?;Gegen die Vorgabe aus der Business Impact Analyse prüfen;BEWERTUNG;ja
+Restore-Test;Ablauf und Nachweis einer Rücksicherung. Belegt die Wiederherstellbarkeit, nicht nur den Sicherungslauf.;Backup-Restore-Test;ja;ja;6;Waren die zurückgesicherten Daten vollständig und lesbar?;Stichprobe an Dateien oder Datensätzen öffnen;BEWERTUNG;ja
+Restore-Test;Ablauf und Nachweis einer Rücksicherung. Belegt die Wiederherstellbarkeit, nicht nur den Sicherungslauf.;Backup-Restore-Test;ja;ja;7;Welche Stichproben wurden geprüft?;Konkret benennen, nicht nur "Stichproben genommen";TEXT;ja
+Restore-Test;Ablauf und Nachweis einer Rücksicherung. Belegt die Wiederherstellbarkeit, nicht nur den Sicherungslauf.;Backup-Restore-Test;ja;ja;8;Wurde die Testumgebung nach dem Test wieder abgeräumt?;Zurückgesicherte Produktivdaten sind ein Datenschutzrisiko;BEWERTUNG;ja
+Restore-Test;Ablauf und Nachweis einer Rücksicherung. Belegt die Wiederherstellbarkeit, nicht nur den Sicherungslauf.;Backup-Restore-Test;ja;ja;9;Beobachtungen und abgeleitete Maßnahmen;;TEXT;nein
+Rezertifizierung Zugriffsberechtigungen;Durchsicht der Berechtigungen je System. Die Zeilenliste nimmt den Auszug der Konten auf.;Rezertifizierung aller Zugriffsberechtigungen;ja;ja;1;Geprüftes System;AD, Fileserver, ERP – je Bogen ein System;TEXT;ja
+Rezertifizierung Zugriffsberechtigungen;Durchsicht der Berechtigungen je System. Die Zeilenliste nimmt den Auszug der Konten auf.;Rezertifizierung aller Zugriffsberechtigungen;ja;ja;2;Stichtag des Auszugs;;DATUM;ja
+Rezertifizierung Zugriffsberechtigungen;Durchsicht der Berechtigungen je System. Die Zeilenliste nimmt den Auszug der Konten auf.;Rezertifizierung aller Zugriffsberechtigungen;ja;ja;3;Anzahl geprüfter Konten;;ZAHL;ja
+Rezertifizierung Zugriffsberechtigungen;Durchsicht der Berechtigungen je System. Die Zeilenliste nimmt den Auszug der Konten auf.;Rezertifizierung aller Zugriffsberechtigungen;ja;ja;4;Entscheidung je Konto;Zeilen aus dem CSV-Auszug übernehmen, dann je Zeile entscheiden;LISTE;ja
+Rezertifizierung Zugriffsberechtigungen;Durchsicht der Berechtigungen je System. Die Zeilenliste nimmt den Auszug der Konten auf.;Rezertifizierung aller Zugriffsberechtigungen;ja;ja;5;Wurden die Entzüge beauftragt?;Ohne Umsetzung ist die Rezertifizierung wertlos;BEWERTUNG;ja
+Rezertifizierung Zugriffsberechtigungen;Durchsicht der Berechtigungen je System. Die Zeilenliste nimmt den Auszug der Konten auf.;Rezertifizierung aller Zugriffsberechtigungen;ja;ja;6;Wurde die Umsetzung der Entzüge nachgeprüft?;;BEWERTUNG;ja
+Rezertifizierung Zugriffsberechtigungen;Durchsicht der Berechtigungen je System. Die Zeilenliste nimmt den Auszug der Konten auf.;Rezertifizierung aller Zugriffsberechtigungen;ja;ja;7;Gab es Konten ohne zuordenbare Person?;Sammel- und Funktionskonten gesondert begründen;BEWERTUNG;ja
+Privilegierte Konten;Quartalsweise Durchsicht der administrativen Zugänge.;Review privilegierter und administrativer Konten;ja;ja;1;Geprüfte Gruppen und Systeme;Domänen-Admins, Backup-Operatoren, DB-Administratoren;TEXT;ja
+Privilegierte Konten;Quartalsweise Durchsicht der administrativen Zugänge.;Review privilegierter und administrativer Konten;ja;ja;2;Anzahl privilegierter Konten;;ZAHL;ja
+Privilegierte Konten;Quartalsweise Durchsicht der administrativen Zugänge.;Review privilegierter und administrativer Konten;ja;ja;3;Entscheidung je privilegiertem Konto;Je Konto: Berechtigung noch begründet?;LISTE;ja
+Privilegierte Konten;Quartalsweise Durchsicht der administrativen Zugänge.;Review privilegierter und administrativer Konten;ja;ja;4;Ist jedes Konto einer namentlich benannten Person zugeordnet?;;BEWERTUNG;ja
+Privilegierte Konten;Quartalsweise Durchsicht der administrativen Zugänge.;Review privilegierter und administrativer Konten;ja;ja;5;Sind Notfallkonten sicher verwahrt und ihre Verwendung protokolliert?;Versiegelter Umschlag oder Passwort-Tresor;BEWERTUNG;ja
+Privilegierte Konten;Quartalsweise Durchsicht der administrativen Zugänge.;Review privilegierter und administrativer Konten;ja;ja;6;Werden administrative Zugänge mit zweitem Faktor geschützt?;;BEWERTUNG;ja
+Privilegierte Konten;Quartalsweise Durchsicht der administrativen Zugänge.;Review privilegierter und administrativer Konten;ja;ja;7;Wurden verwaiste oder unbenutzte Konten gefunden?;Letzte Anmeldung als Anhaltspunkt;BEWERTUNG;ja
+Firewall-Regelwerk;Durchsicht des Regelwerks und der Segmentierung.;Firewall- und Netzwerkregel-Review;ja;ja;1;Geprüftes Gerät oder Regelwerk;;TEXT;ja
+Firewall-Regelwerk;Durchsicht des Regelwerks und der Segmentierung.;Firewall- und Netzwerkregel-Review;ja;ja;2;Stand des Regelwerks (Datum des Exports);;DATUM;ja
+Firewall-Regelwerk;Durchsicht des Regelwerks und der Segmentierung.;Firewall- und Netzwerkregel-Review;ja;ja;3;Anzahl der Regeln im Regelwerk;;ZAHL;ja
+Firewall-Regelwerk;Durchsicht des Regelwerks und der Segmentierung.;Firewall- und Netzwerkregel-Review;ja;ja;4;Entscheidung je Regel;Zeilen aus dem Export übernehmen: belassen, entziehen oder ändern;LISTE;ja
+Firewall-Regelwerk;Durchsicht des Regelwerks und der Segmentierung.;Firewall- und Netzwerkregel-Review;ja;ja;5;Hat jede Regel einen erkennbaren Zweck?;Historisch gewachsene Regeln ohne Begründung sind ein typischer Befund;BEWERTUNG;ja
+Firewall-Regelwerk;Durchsicht des Regelwerks und der Segmentierung.;Firewall- und Netzwerkregel-Review;ja;ja;6;Gibt es Regeln mit "any" in Quelle, Ziel oder Dienst?;Wenn ja: begründen oder einschränken;BEWERTUNG;ja
+Firewall-Regelwerk;Durchsicht des Regelwerks und der Segmentierung.;Firewall- und Netzwerkregel-Review;ja;ja;7;Entspricht die Segmentierung dem Netzkonzept?;;BEWERTUNG;ja
+Firewall-Regelwerk;Durchsicht des Regelwerks und der Segmentierung.;Firewall- und Netzwerkregel-Review;ja;ja;8;Sind Fernzugriffe auf das Notwendige begrenzt und protokolliert?;;BEWERTUNG;ja
+Firewall-Regelwerk;Durchsicht des Regelwerks und der Segmentierung.;Firewall- und Netzwerkregel-Review;ja;ja;9;Anzahl entfernter Regeln;;ZAHL;nein
+Patchstand;Monatliche Kontrolle des Patchstandes je Systemgruppe.;Patchmanagement-Kontrolle;nein;ja;1;Stichtag der Auswertung;;DATUM;ja
+Patchstand;Monatliche Kontrolle des Patchstandes je Systemgruppe.;Patchmanagement-Kontrolle;nein;ja;2;Anteil aktueller Server in Prozent;;ZAHL;ja
+Patchstand;Monatliche Kontrolle des Patchstandes je Systemgruppe.;Patchmanagement-Kontrolle;nein;ja;3;Anteil aktueller Arbeitsplätze in Prozent;;ZAHL;ja
+Patchstand;Monatliche Kontrolle des Patchstandes je Systemgruppe.;Patchmanagement-Kontrolle;nein;ja;4;Wurden kritische Sicherheitsupdates innerhalb der Frist eingespielt?;Frist aus der eigenen Vorgabe, üblich sind 7 bis 14 Tage;BEWERTUNG;ja
+Patchstand;Monatliche Kontrolle des Patchstandes je Systemgruppe.;Patchmanagement-Kontrolle;nein;ja;5;Welche Systeme sind nicht auf aktuellem Stand und warum?;Ausnahmen befristen und begründen;TEXT;nein
+Patchstand;Monatliche Kontrolle des Patchstandes je Systemgruppe.;Patchmanagement-Kontrolle;nein;ja;6;Gibt es Systeme ohne Herstellerunterstützung?;Wenn ja: gesondert ausweisen und Maßnahmen benennen;BEWERTUNG;ja
+Zutrittsrechte;Abgleich von Ausweisen und Schlüsseln mit dem Personalbestand.;Prüfung physischer Zutrittsrechte;ja;ja;1;Stichtag des Abgleichs;;DATUM;ja
+Zutrittsrechte;Abgleich von Ausweisen und Schlüsseln mit dem Personalbestand.;Prüfung physischer Zutrittsrechte;ja;ja;2;Anzahl ausgegebener Ausweise und Schlüssel;;ZAHL;ja
+Zutrittsrechte;Abgleich von Ausweisen und Schlüsseln mit dem Personalbestand.;Prüfung physischer Zutrittsrechte;ja;ja;3;Entscheidung je Ausweis oder Schlüssel;Zeilen aus der Schließplanverwaltung übernehmen;LISTE;ja
+Zutrittsrechte;Abgleich von Ausweisen und Schlüsseln mit dem Personalbestand.;Prüfung physischer Zutrittsrechte;ja;ja;4;Stimmt die Zuordnung mit dem Personalbestand überein?;;BEWERTUNG;ja
+Zutrittsrechte;Abgleich von Ausweisen und Schlüsseln mit dem Personalbestand.;Prüfung physischer Zutrittsrechte;ja;ja;5;Ist der Zutritt zum Serverraum auf begründete Personen begrenzt?;;BEWERTUNG;ja
+Zutrittsrechte;Abgleich von Ausweisen und Schlüsseln mit dem Personalbestand.;Prüfung physischer Zutrittsrechte;ja;ja;6;Wurde die Rückgabe bei allen Austritten belegt?;;BEWERTUNG;ja
+Zutrittsrechte;Abgleich von Ausweisen und Schlüsseln mit dem Personalbestand.;Prüfung physischer Zutrittsrechte;ja;ja;7;Wird die Besucherregelung eingehalten?;Besucherbuch stichprobenartig prüfen;BEWERTUNG;ja
+Notfallübung;Protokoll einer BCM-Übung mit Lessons Learned.;Notfallübung / BCM-Test;ja;ja;1;Geübtes Szenario;Ausfall eines Systems, Standorts oder Dienstleisters;TEXT;ja
+Notfallübung;Protokoll einer BCM-Übung mit Lessons Learned.;Notfallübung / BCM-Test;ja;ja;2;Datum der Übung;;DATUM;ja
+Notfallübung;Protokoll einer BCM-Übung mit Lessons Learned.;Notfallübung / BCM-Test;ja;ja;3;Teilnehmende Personen und Rollen;;TEXT;ja
+Notfallübung;Protokoll einer BCM-Übung mit Lessons Learned.;Notfallübung / BCM-Test;ja;ja;4;Wurden die Notfallpläne tatsächlich verwendet?;Ein Plan, den niemand aufschlägt, ist nicht geprüft;BEWERTUNG;ja
+Notfallübung;Protokoll einer BCM-Übung mit Lessons Learned.;Notfallübung / BCM-Test;ja;ja;5;Waren die hinterlegten Kontaktdaten aktuell und erreichbar?;;BEWERTUNG;ja
+Notfallübung;Protokoll einer BCM-Übung mit Lessons Learned.;Notfallübung / BCM-Test;ja;ja;6;Dauer bis zur Handlungsfähigkeit in Minuten;;ZAHL;nein
+Notfallübung;Protokoll einer BCM-Übung mit Lessons Learned.;Notfallübung / BCM-Test;ja;ja;7;Wurde die zugesagte Wiederanlaufzeit erreicht?;;BEWERTUNG;ja
+Notfallübung;Protokoll einer BCM-Übung mit Lessons Learned.;Notfallübung / BCM-Test;ja;ja;8;Lessons Learned;Was hat nicht funktioniert? Ohne diesen Punkt ist die Übung unvollständig;TEXT;ja
+Notfallübung;Protokoll einer BCM-Übung mit Lessons Learned.;Notfallübung / BCM-Test;ja;ja;9;Abgeleitete Maßnahmen mit Verantwortlichkeit;;TEXT;ja
+Disaster Recovery;Messung der Wiederanlaufzeiten kritischer IT-Services.;Test der IKT-Bereitschaft (Disaster Recovery);ja;ja;1;Geprüfter Service;;TEXT;ja
+Disaster Recovery;Messung der Wiederanlaufzeiten kritischer IT-Services.;Test der IKT-Bereitschaft (Disaster Recovery);ja;ja;2;Zugesagte Wiederanlaufzeit (RTO) in Stunden;Aus der Business Impact Analyse;ZAHL;ja
+Disaster Recovery;Messung der Wiederanlaufzeiten kritischer IT-Services.;Test der IKT-Bereitschaft (Disaster Recovery);ja;ja;3;Tatsächliche Wiederanlaufzeit in Stunden;;ZAHL;ja
+Disaster Recovery;Messung der Wiederanlaufzeiten kritischer IT-Services.;Test der IKT-Bereitschaft (Disaster Recovery);ja;ja;4;Zugesagter maximaler Datenverlust (RPO) in Stunden;;ZAHL;ja
+Disaster Recovery;Messung der Wiederanlaufzeiten kritischer IT-Services.;Test der IKT-Bereitschaft (Disaster Recovery);ja;ja;5;Tatsächlicher Datenverlust in Stunden;;ZAHL;ja
+Disaster Recovery;Messung der Wiederanlaufzeiten kritischer IT-Services.;Test der IKT-Bereitschaft (Disaster Recovery);ja;ja;6;Wurden RTO und RPO eingehalten?;;BEWERTUNG;ja
+Disaster Recovery;Messung der Wiederanlaufzeiten kritischer IT-Services.;Test der IKT-Bereitschaft (Disaster Recovery);ja;ja;7;War der Service nach dem Wiederanlauf vollständig nutzbar?;Fachliche Stichprobe durch die Anwender;BEWERTUNG;ja
+Disaster Recovery;Messung der Wiederanlaufzeiten kritischer IT-Services.;Test der IKT-Bereitschaft (Disaster Recovery);ja;ja;8;Beobachtungen und Maßnahmen;;TEXT;nein
+Lieferantenbewertung;Bewertung eines Dienstleisters, risikobasiert nach Kritikalität.;Lieferantenbewertung und Review der Dienstleistersicherheit;nein;ja;1;Bewerteter Lieferant;;TEXT;ja
+Lieferantenbewertung;Bewertung eines Dienstleisters, risikobasiert nach Kritikalität.;Lieferantenbewertung und Review der Dienstleistersicherheit;nein;ja;2;Erbrachte Leistung und verarbeitete Daten;;TEXT;ja
+Lieferantenbewertung;Bewertung eines Dienstleisters, risikobasiert nach Kritikalität.;Lieferantenbewertung und Review der Dienstleistersicherheit;nein;ja;3;Ist die Kritikalität festgelegt und noch zutreffend?;;BEWERTUNG;ja
+Lieferantenbewertung;Bewertung eines Dienstleisters, risikobasiert nach Kritikalität.;Lieferantenbewertung und Review der Dienstleistersicherheit;nein;ja;4;Liegen die vereinbarten Sicherheitsnachweise vor?;Zertifikat, Label oder Selbstauskunft;BEWERTUNG;ja
+Lieferantenbewertung;Bewertung eines Dienstleisters, risikobasiert nach Kritikalität.;Lieferantenbewertung und Review der Dienstleistersicherheit;nein;ja;5;Gültigkeit der Nachweise bis;;DATUM;nein
+Lieferantenbewertung;Bewertung eines Dienstleisters, risikobasiert nach Kritikalität.;Lieferantenbewertung und Review der Dienstleistersicherheit;nein;ja;6;Sind Sicherheitsanforderungen vertraglich vereinbart?;;BEWERTUNG;ja
+Lieferantenbewertung;Bewertung eines Dienstleisters, risikobasiert nach Kritikalität.;Lieferantenbewertung und Review der Dienstleistersicherheit;nein;ja;7;Liegt eine Vereinbarung zur Auftragsverarbeitung vor, sofern nötig?;;BEWERTUNG;ja
+Lieferantenbewertung;Bewertung eines Dienstleisters, risikobasiert nach Kritikalität.;Lieferantenbewertung und Review der Dienstleistersicherheit;nein;ja;8;Sind Fernzugänge des Dienstleisters geprüft und begrenzt?;;BEWERTUNG;ja
+Lieferantenbewertung;Bewertung eines Dienstleisters, risikobasiert nach Kritikalität.;Lieferantenbewertung und Review der Dienstleistersicherheit;nein;ja;9;Gab es im Zeitraum sicherheitsrelevante Vorfälle beim Lieferanten?;;BEWERTUNG;ja
+Lieferantenbewertung;Bewertung eines Dienstleisters, risikobasiert nach Kritikalität.;Lieferantenbewertung und Review der Dienstleistersicherheit;nein;ja;10;Ergebnis der Bewertung und Maßnahmen;;TEXT;nein

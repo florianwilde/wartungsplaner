@@ -1,7 +1,9 @@
 # Prüfplan nach ISO/IEC 27001:2022 und TISAX (VDA ISA 6)
 
-Ein einspielbarer Ausgangsbestand: **6 Kategorien**, **49 Audit-Referenzen**
-und **30 wiederkehrende Prüfungen** mit Intervall, Fristen und Prüfanleitung.
+Ein einspielbarer Ausgangsbestand: **6 Kategorien**, **49 Audit-Referenzen**,
+**30 wiederkehrende Prüfungen** mit Intervall, Fristen und Prüfanleitung
+sowie **9 Prüfbögen** für die Prüfungen, bei denen eine strukturierte Liste
+trägt.
 
 Gedacht als Startpunkt, nicht als fertiges ISMS. Was hier steht, entspricht
 marktüblicher Praxis und typischer Prüfererwartung – **verbindlich ist Ihre
@@ -31,6 +33,7 @@ Die Dateien bauen aufeinander auf. In dieser Reihenfolge einspielen:
 | 1 | `1-kategorien.csv` | Kategorien |
 | 2 | `2-audit-referenzen.csv` | Audit-Referenzen |
 | 3 | `3-aufgaben.csv` | Aufgaben |
+| 4 | `4-pruefboegen.csv` | Prüfbögen |
 
 Jeder Schritt zeigt zuerst eine Vorschau. Erst nach Ihrer Bestätigung wird
 geschrieben; ein einziger fehlerhafter Datensatz verhindert den ganzen Lauf.
@@ -51,6 +54,30 @@ geschrieben; ein einziger fehlerhafter Datensatz verhindert den ganzen Lauf.
 | Lieferanten & Dritte | 3 |
 
 Intervalle: 1 monatlich, 3 quartalsweise, 1 halbjährlich, 25 jährlich.
+
+### Die neun Prüfbögen
+
+| Bogen | Zur Aufgabe | Punkte | Gegenzeichnung |
+| --- | --- | ---: | --- |
+| Restore-Test | Backup-Restore-Test | 9 | ja |
+| Rezertifizierung Zugriffsberechtigungen | Rezertifizierung aller Zugriffsberechtigungen | 7 | ja |
+| Privilegierte Konten | Review privilegierter und administrativer Konten | 7 | ja |
+| Firewall-Regelwerk | Firewall- und Netzwerkregel-Review | 9 | ja |
+| Patchstand | Patchmanagement-Kontrolle | 6 | nein |
+| Zutrittsrechte | Prüfung physischer Zutrittsrechte | 7 | ja |
+| Notfallübung | Notfallübung / BCM-Test | 9 | ja |
+| Disaster Recovery | Test der IKT-Bereitschaft | 8 | ja |
+| Lieferantenbewertung | Lieferantenbewertung und Review der Dienstleistersicherheit | 10 | nein |
+
+Vier davon nutzen eine **Zeilenliste**: Bei Rezertifizierungen,
+privilegierten Konten, Firewall-Regeln und Zutrittsrechten wird der Auszug
+aus dem System als CSV übernommen, und je Zeile fällt eine Entscheidung –
+belassen, entziehen oder ändern. Genau das erwartet ein Prüfer: einen
+Nachweis je Eintrag, nicht die Aussage, dass geprüft wurde.
+
+Die **Gegenzeichnung** ist überall dort verlangt, wo eine zweite Person
+einen Unterschied macht. Beim monatlichen Patchstand und der
+Lieferantenbewertung wäre sie nur Aufwand.
 
 Jede Aufgabe bringt eine **Prüfanleitung in Markdown** mit: was der Prüfer
 erwartet, wie vorzugehen ist und welcher Nachweis entsteht. Sie erscheint auf
@@ -73,10 +100,14 @@ den Aufgaben zu.
 
 ## Was fehlt
 
-**Prüfbögen.** Aus einer Aufgabenliste lassen sich keine sinnvollen
-Prüfpunkte ableiten – die hängen an Ihren Systemen. Anhaltspunkte stehen in
-den Prüfanleitungen der jeweiligen Aufgabe; das Format für den Import
-beschreibt [Import und Export](../../docs/import-und-export.md#prüfbögen).
+**Prüfbögen für die übrigen 21 Prüfungen.** Beigelegt sind die neun, bei
+denen eine strukturierte Liste trägt. Für ein Management Review oder eine
+Awareness-Schulung ist ein Prüfbogen der falsche Weg – dort entsteht der
+Nachweis als Protokoll oder Teilnehmerliste, die man anhängt.
+
+**Ihre Systeme in den Zeilenlisten.** Die vier Bögen mit Zeilenliste sind
+vorbereitet, aber leer: Die Zeilen kommen bei jeder Durchführung frisch aus
+dem Auszug Ihres Systems.
 
 **Ihre Zuständigkeiten und Schutzbedarfe.** Kritikalität und Nachweispflicht
 sind vorbelegt, aber pauschal. Bei sehr hohem Schutzbedarf erwartet TISAX
