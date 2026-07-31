@@ -1,6 +1,6 @@
 # Wartungsplaner
 
-Interne Webanwendung zur Planung und revisionssicheren Nachweisführung
+Webanwendung zur Planung und revisionssicheren Nachweisführung
 wiederkehrender IT-Prüf- und Wartungsaufgaben – zum Beispiel Restore-Tests,
 Reviews von Zugriffs- und Zutrittsberechtigungen, Patch-Status-Kontrollen oder
 der jährliche USV-Test.
@@ -126,7 +126,7 @@ Alle Datums- und Zeitangaben beziehen sich auf die Zeitzone **Europe/Berlin**.
 benötigt – Node.js, PostgreSQL und alle Abhängigkeiten stecken im Stack.
 
 ```bash
-git clone https://github.com/florianwilde/wartungsplaner.git
+git clone https://github.com/<konto>/wartungsplaner.git
 cd wartungsplaner
 
 # 1. Konfiguration anlegen
@@ -304,20 +304,21 @@ Benutzer und wird im Audit-Log protokolliert.
 | **Browsersymbol** | Symbol im Browsertab |
 | **Report-Fußzeile** | Freitext, z. B. „Vertraulich – nur zur internen Verwendung“ |
 
-**Auslieferungszustand:** Die Anwendung startet im Corporate Design der
-Beispiel GmbH – Markenfarben `#1b7cb5` (Primär) und `#2f9bd8` (Akzent),
-abgeleitet aus der Bildmarke, sowie ein mitgeliefertes Logo als SVG.
+**Auslieferungszustand:** bewusst neutral – ein sachliches Blau
+(`#2563eb` Primär, `#0ea5e9` Akzent), ein schlichtes Kreislaufsymbol als
+Logo und **kein Organisationsname**. Der Platz in Fußzeile und Berichten
+gehört Ihrer Firma; ein fremder Name dort wäre schlimmer als gar keiner.
 
-> **Für ein typografisch exaktes Logo** laden Sie die Originaldatei hoch. Das
-> mitgelieferte SVG ist eine Nachbildung; der Schriftzug nutzt eine
-> Systemschrift und trifft die Hausschrift daher nicht exakt.
+> **Vor dem ersten Bericht** sollten Sie unter *Administration →
+> Erscheinungsbild* wenigstens die Organisation eintragen und Ihr Logo
+> hochladen. Alles andere funktioniert auch ohne.
 
 Hinweise:
 
 - **Dateiformate:** svg, png, jpg, webp, ico – maximal 2 MB je Datei.
-- **PDF-Reports** können nur PNG und JPG einbetten. Ist ein SVG hinterlegt,
-  erscheint im Report-Kopf statt des Logos der Anwendungsname. Laden Sie für
-  die Reports zusätzlich eine PNG-Fassung hoch.
+- **PDF-Reports** betten PNG, JPG und SVG ein; ein SVG wird als
+  Vektorgrafik gezeichnet. Text im SVG erscheint dabei in der
+  Standardschrift – Schriftzüge gehören vorher in Pfade umgewandelt.
 - **Kontrast:** Die Oberfläche prüft die gewählte Primärfarbe gegen
   WCAG 2.1 Stufe AA (4,5:1) und warnt, wenn Schaltflächen schlecht lesbar
   würden. Die Schriftfarbe darauf wird automatisch passend gewählt.
@@ -719,4 +720,22 @@ Zentrale Dateien:
 
 ## Lizenz
 
-Interne Anwendung. Alle Rechte vorbehalten.
+[MIT](LICENSE) – Copyright (c) 2026 Florian Wilde IT SysOp.
+
+Sie dürfen die Software nutzen, ändern und weitergeben, auch kommerziell.
+Einzige Auflage ist, den Lizenztext samt Urheberrechtsvermerk beizulegen.
+Eine Gewährleistung besteht nicht.
+
+### Verwendete Software
+
+Alle Abhängigkeiten stehen unter freizügigen Lizenzen (überwiegend MIT,
+daneben Apache-2.0, ISC und BSD); keine verlangt, dass abgeleitete Werke
+offengelegt werden. Die jeweiligen Lizenztexte liegen den Paketen unter
+`node_modules` bei. Zwei Hinweise für den Fall einer Weitergabe als
+fertiges Abbild:
+
+- **`jszip`** (über `exceljs`) steht wahlweise unter MIT oder GPL-3.0 –
+  hier gilt MIT.
+- **`sharp`** bringt plattformabhängig `libvips` unter LGPL-3.0 mit. Es
+  wird dynamisch eingebunden und nicht verändert; das ist mit einer
+  Weitergabe unter MIT vereinbar.

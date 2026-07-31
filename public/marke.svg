@@ -1,17 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Bildmarke">
-  <title>Bildmarke</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Wartungsplaner">
+  <title>Wartungsplaner</title>
   <defs>
     <linearGradient id="markeVerlauf" x1="18%" y1="8%" x2="72%" y2="96%">
-      <stop offset="0%" stop-color="#2f9bd8" />
-      <stop offset="55%" stop-color="#217fbd" />
-      <stop offset="100%" stop-color="#175a8c" />
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="55%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#1e3a8a" />
     </linearGradient>
   </defs>
 
   <!--
     Offener Ring als Kreislauf-Symbol: Der Spalt oben links und die
     Pfeilspitze deuten die Wiederkehr an - passend zu wiederkehrenden
-    Pruefungen. Die Farben stammen aus der Bildmarke der Firma Hofmann.
+    Pruefungen. Bewusst ohne Bezug zu einer bestimmten Firma; wer ein eigenes
+    Logo hinterlegt, ersetzt diese Datei unter /admin/erscheinungsbild.
   -->
   <g fill="none" stroke="url(#markeVerlauf)" stroke-width="21">
     <circle

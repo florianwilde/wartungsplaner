@@ -18,7 +18,7 @@ import {
 const RAHMEN: MailRahmen = {
   anwendung: 'Wartungsplaner',
   organisation: 'Beispiel GmbH',
-  markenfarbe: '#1b7cb5',
+  markenfarbe: '#2563eb',
   appUrl: 'https://wartungsplaner.example.de',
   stichtag: dateOnly(2026, 7, 29),
 }
@@ -121,7 +121,7 @@ describe('baueAufgabenMail', () => {
     expect(mail.html).toContain('<!doctype html>')
     expect(mail.html).toContain('</html>')
     expect(mail.html).toContain('https://wartungsplaner.example.de/tasks/abc')
-    expect(mail.html).toContain('#1b7cb5')
+    expect(mail.html).toContain('#2563eb')
     expect(mail.html).toContain('Beispiel GmbH')
   })
 
@@ -164,7 +164,7 @@ describe('baueAbweichungsMail', () => {
 
 describe('baueEskalationsMail', () => {
   it('nennt Schwelle und Verantwortliche', () => {
-    const mail = baueEskalationsMail(RAHMEN, 'Herr Hofmann', 7, [
+    const mail = baueEskalationsMail(RAHMEN, 'Frau Beispiel', 7, [
       { ...AUFGABE_UEBERFAELLIG, verantwortlich: 'Frau Meier' },
     ])
     expect(mail.betreff).toContain('seit mehr als 7 Tagen überfällig')

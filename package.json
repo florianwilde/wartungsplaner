@@ -2,6 +2,9 @@
   "name": "wartungsplaner",
   "version": "1.10.0",
   "private": true,
+  "license": "MIT",
+  "author": "Florian Wilde IT SysOp",
+  "description": "Planung und revisionssichere Nachweisführung wiederkehrender IT-Prüf- und Wartungsaufgaben",
   "type": "module",
   "scripts": {
     "dev": "next dev",

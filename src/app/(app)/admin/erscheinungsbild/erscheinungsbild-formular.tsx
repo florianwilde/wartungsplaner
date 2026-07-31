@@ -19,6 +19,7 @@ import {
   normalisiereHex,
 } from '@/lib/farben'
 import { BILD_ACCEPT_ATTRIBUT, BILD_ENDUNGEN_TEXT } from '@/lib/bilder'
+import { STANDARD_BRANDING } from '@/lib/branding'
 import {
   erscheinungsbildSpeichern,
   erscheinungsbildZuruecksetzen,
@@ -203,8 +204,8 @@ export function ErscheinungsbildFormular({
     {},
   )
 
-  const primaerGueltig = normalisiereHex(primaer) ?? '#1b7cb5'
-  const akzentGueltig = normalisiereHex(akzent) ?? '#2f9bd8'
+  const primaerGueltig = normalisiereHex(primaer) ?? STANDARD_BRANDING.primaryColor
+  const akzentGueltig = normalisiereHex(akzent) ?? STANDARD_BRANDING.accentColor
   const vordergrund = lesbareVordergrundfarbe(primaerGueltig)
 
   return (

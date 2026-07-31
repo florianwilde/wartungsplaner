@@ -140,7 +140,7 @@ export async function exportiereAllesJson(): Promise<string> {
 /** Leere Vorlagendatei mit Kopfzeile und einer Beispielzeile. */
 export function vorlageCsv(art: ImportArt): string {
   const beispiele: Record<ImportArt, CsvZeile> = {
-    kategorien: { name: 'Beispielkategorie', farbe: '#1b7cb5', reihenfolge: '10' },
+    kategorien: { name: 'Beispielkategorie', farbe: '#2563eb', reihenfolge: '10' },
     aufgaben: {
       titel: 'Beispielprüfung',
       beschreibung: 'Kurzbeschreibung der Prüfung',

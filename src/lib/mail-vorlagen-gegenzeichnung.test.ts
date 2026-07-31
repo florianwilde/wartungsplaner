@@ -11,7 +11,7 @@ import {
 const RAHMEN: MailRahmen = {
   anwendung: 'Wartungsplaner',
   organisation: 'Beispiel GmbH',
-  markenfarbe: '#1b7cb5',
+  markenfarbe: '#2563eb',
   appUrl: 'https://wartungsplaner.example.de',
   stichtag: dateOnly(2026, 7, 30),
 }

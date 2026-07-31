@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { schreibeAudit } from '@/lib/audit'
+import { STANDARD_BRANDING } from '@/lib/branding'
 import { normalisiereHex } from '@/lib/farben'
 import { prisma } from '@/lib/prisma'
 import { canAdminister } from '@/lib/rbac'
@@ -141,16 +142,10 @@ export async function erscheinungsbildZuruecksetzen(): Promise<ErscheinungsbildS
 
     await prisma.$transaction(async (tx) => {
       await speichereBranding(
-        {
-          appName: 'Wartungsplaner',
-          organisation: 'Beispiel GmbH',
-          primaryColor: '#1b7cb5',
-          accentColor: '#2f9bd8',
-          logoPath: null,
-          logoDarkPath: null,
-          faviconPath: null,
-          reportFooter: null,
-        },
+        // Bewusst der Standard aus @/lib/branding statt wiederholter Werte:
+        // Zwei Quellen fuer denselben Auslieferungszustand laufen frueher
+        // oder spaeter auseinander.
+        { ...STANDARD_BRANDING },
         admin.id,
         tx,
       )

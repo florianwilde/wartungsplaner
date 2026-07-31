@@ -1,9 +1,11 @@
 /**
  * Erscheinungsbild: Standardwerte und Ableitung der CSS-Variablen.
  *
- * Die Werte stammen aus der Bildmarke der Firma Hofmann und lassen sich unter
- * `/admin/erscheinungsbild` jederzeit anpassen. Dieses Modul enthält bewusst
- * keine Datenbankzugriffe, damit die Ableitung testbar bleibt.
+ * Der Auslieferungszustand ist bewusst neutral gehalten: ein sachliches Blau
+ * und kein Organisationsname. Beides gehört unter
+ * `/admin/erscheinungsbild` auf die eigene Marke gesetzt. Dieses Modul
+ * enthält bewusst keine Datenbankzugriffe, damit die Ableitung testbar
+ * bleibt.
  */
 import { leiteFarbschemaAb } from '@/lib/farben'
 
@@ -18,12 +20,18 @@ export type Branding = {
   reportFooter: string | null
 }
 
-/** Auslieferungszustand (Corporate Design Hofmann). */
+/**
+ * Auslieferungszustand: neutral.
+ *
+ * Ohne Organisationsnamen – der Platz gehört der eigenen Firma, und ein
+ * fremder Name in Berichten wäre schlimmer als gar keiner. Die Farben sind
+ * ein sachliches Blau ohne Markenbezug.
+ */
 export const STANDARD_BRANDING: Branding = {
   appName: 'Wartungsplaner',
-  organisation: 'Beispiel GmbH',
-  primaryColor: '#1b7cb5',
-  accentColor: '#2f9bd8',
+  organisation: '',
+  primaryColor: '#2563eb',
+  accentColor: '#0ea5e9',
   logoPath: null,
   logoDarkPath: null,
   faviconPath: null,

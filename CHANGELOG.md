@@ -14,6 +14,30 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ## [Unveröffentlicht]
 
+### Geändert
+
+- **Der Auslieferungszustand ist neutral.** Die Anwendung startete bisher
+  im Corporate Design des ursprünglichen Anwenders – fremde Markenfarben,
+  fremder Firmenname in Fußzeile und Berichten. Für eine Software, die
+  andere einsetzen sollen, ist das der falsche Startpunkt.
+  - Farben jetzt ein sachliches Blau (`#2563eb` / `#0ea5e9`), das Logo ein
+    schlichtes Kreislaufsymbol, die **Organisation leer**. Wo kein Name
+    hinterlegt ist, steht auch keiner – in der Fußzeile ebenso wie im
+    Bericht.
+  - **Bestehende Installationen ändern sich nicht**: Das Erscheinungsbild
+    steht in der Datenbank. Betroffen sind nur Neuinstallationen und das
+    Zurücksetzen unter *Administration → Erscheinungsbild*.
+  - Das Zurücksetzen greift jetzt auf denselben Standard zurück, den auch
+    eine Neuinstallation verwendet. Zwei Quellen für einen
+    Auslieferungszustand laufen sonst früher oder später auseinander.
+
+### Hinzugefügt
+
+- **MIT-Lizenz.** Das Projekt lässt sich damit weitergeben, einsetzen und
+  ändern – auch kommerziell. Alle Abhängigkeiten stehen unter freizügigen
+  Lizenzen; keine verlangt die Offenlegung abgeleiteter Werke. Die
+  Einzelheiten stehen im [README](README.md#lizenz).
+
 ### Behoben
 
 - **Die Sitzung überlebte das Abmelden.** Nach dem Klick auf *Abmelden*
@@ -573,8 +597,8 @@ Durchsicht der gesamten Anwendung mit folgenden Härtungen:
   Anwendungsname, Organisation, Primär- und Akzentfarbe, Logo für helle und
   dunkle Oberflächen sowie Browsersymbol lassen sich ohne Neustart ändern.
   Änderungen wirken sofort für alle Benutzer und werden protokolliert.
-- **Corporate Design der Beispiel GmbH** als Auslieferungszustand:
-  Markenfarben aus der Bildmarke, mitgeliefertes Logo als SVG.
+- **Auslieferungszustand** mit Standardfarben und einem mitgelieferten Logo
+  als SVG, damit die Anwendung ohne Einrichtung ansehnlich aussieht.
 - **Kontrastprüfung nach WCAG 2.1** bei der Farbwahl: Die Oberfläche weist
   darauf hin, wenn eine gewählte Primärfarbe die Stufe AA (4,5:1) für
   Schaltflächen nicht erreicht. Die Vordergrundfarbe wird automatisch passend
@@ -648,16 +672,16 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/-/compare/v1.10.0...main
-[1.10.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.10.0
-[1.9.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.9.0
-[1.8.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.8.0
-[1.7.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.7.0
-[1.6.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.6.0
-[1.5.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.5.0
-[1.4.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.4.0
-[1.3.5]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.3.5
-[1.3.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.3.0
-[1.2.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.2.0
-[1.1.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.1.0
-[1.0.0]: https://github.com/florianwilde/wartungsplaner/-/tags/v1.0.0
+[Unveröffentlicht]: https://github.com/<konto>/wartungsplaner/compare/v1.10.0...main
+[1.10.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.10.0
+[1.9.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.9.0
+[1.8.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.8.0
+[1.7.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.7.0
+[1.6.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.6.0
+[1.5.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.5.0
+[1.4.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.4.0
+[1.3.5]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.3.5
+[1.3.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.3.0
+[1.2.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.2.0
+[1.1.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.1.0
+[1.0.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.0.0
