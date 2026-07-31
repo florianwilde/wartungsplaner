@@ -638,6 +638,7 @@ npm run dev                   # http://localhost:3000
 | `npm test` | Unit-Tests (Vitest) |
 | `npm run test:watch` | Unit-Tests im Watch-Modus |
 | `npm run test:integration` | Integrationstest gegen die laufende Datenbank |
+| `npm run test:ausgabe` | Excel, ZIP und PDF erzeugen und zurücklesen |
 | `npm run test:migrationen` | Migrationen gegen eine leere Datenbank prüfen |
 | `npm run test:e2e` | End-to-End-Tests im Browser gegen die laufende Anwendung |
 | `npm run db:migrate` | Migration erzeugen und anwenden |

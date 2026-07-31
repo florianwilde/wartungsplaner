@@ -45,10 +45,24 @@ test('meldet an und wieder ab', async ({ page }) => {
   await meldeAn(page, KONTEN.admin)
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
 
+  const vorher = await prisma.user.findUniqueOrThrow({
+    where: { email: KONTEN.admin },
+    select: { sitzungsstand: true },
+  })
+
   await page.getByRole('button', { name: /Adminkonto/ }).click()
   await page.getByRole('menuitem', { name: /Abmelden/ }).click()
 
   await expect(page).toHaveURL(/\/login/)
+
+  // Der Sitzungsstand ist die serverseitige Hälfte der Abmeldung: Ohne ihn
+  // könnte ein vorgeladener Seitenaufruf das Cookie wieder ausstellen.
+  // Getrennt geprüft, damit ein Fehlschlag zeigt, welche Hälfte versagt hat.
+  const nachher = await prisma.user.findUniqueOrThrow({
+    where: { email: KONTEN.admin },
+    select: { sitzungsstand: true },
+  })
+  expect(nachher.sitzungsstand).toBeGreaterThan(vorher.sitzungsstand)
 
   // Nach dem Abmelden darf die geschützte Seite nicht mehr aufgehen.
   await page.goto('/')

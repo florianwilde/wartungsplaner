@@ -14,6 +14,32 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ## [Unveröffentlicht]
 
+### Sicherheit
+
+- **Lieferkette durchgesehen.** `npm audit` meldete 16 Schwachstellen, 15
+  davon hoch eingestuft. Nach der Durchsicht sind es zwölf – und für die
+  beiden verbliebenen Ursachen ist begründet, warum sie hier nicht greifen.
+  - **Behoben durch erzwungene Fassungen** (`overrides`): `postcss` (drei
+    Meldungen, u. a. Pfaddurchgriff – Next.js brachte intern 8.4.31 mit),
+    `sharp` (CVEs in libvips) und `uuid` (fehlende Bereichsprüfung, über
+    `exceljs`).
+  - **Nicht erreichbar und deshalb belassen:** die Meldung zu
+    `brace-expansion` – `archiver` wird ausschließlich mit `.append()`
+    verwendet, nie mit Glob-Mustern – und die zu `nodemailer`, weil
+    Nachrichten nur aus Empfänger, Betreff und Text gebaut werden. Die
+    behobene Fassung 9.x lässt sich zudem nicht einsetzen, ohne `npm ci` zu
+    brechen: `next-auth` verlangt als Peer `^7 || ^8`.
+  - **Festgehalten** in [SICHERHEIT.md](SICHERHEIT.md#lieferkette), samt der
+    Feststellung, dass die Anmeldung auf einer Vorabfassung von `next-auth`
+    läuft – eine stabile Fassung 5 gibt es bisher nicht.
+
+### Hinzugefügt
+
+- **Ausgabetest** (`npm run test:ausgabe`) – erzeugt Excel, ZIP und PDF und
+  liest die Excel-Mappe wieder ein. Nötig geworden durch die erzwungenen
+  Paketfassungen: Ein Eingriff in `exceljs` fällt weder bei der Typprüfung
+  noch in den Unit-Tests auf, sondern erst an der erzeugten Datei.
+
 ### Geändert
 
 - **Der Auslieferungszustand ist neutral.** Die Anwendung startete bisher

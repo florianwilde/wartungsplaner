@@ -345,8 +345,17 @@ Aus 1.10.0 übrig geblieben, weil beides eine eigene Fassung verdient:
     Erledigen-Vorgang mit Abweichung, Nachweispflicht und Folgetermin.
   - Noch offen: der Prüfbogen mit Gegenzeichnung durch eine zweite Person –
     der aufwendigste Ablauf und deshalb der lohnendste nächste Schritt.
-- 📋 **CI-Pipeline in GitLab** – Typprüfung, Unit-Tests, Integrationstests,
-  Build und Image bei jedem Commit; ein Tag erzeugt eine Fassung.
+- 📋 **CI-Pipeline** – Typprüfung, Unit-Tests, Integrationstests, Build und
+  Image bei jedem Commit; ein Tag erzeugt eine Fassung. Dazu `npm audit` als
+  eigener Schritt, damit neue Meldungen auffallen, statt bei der nächsten
+  Durchsicht entdeckt zu werden.
+- 📋 **Lieferkette klein halten** – 439 Pakete im Produktionscontainer, davon
+  rund 250 für Oberfläche und Build. Bei jeder neuen Abhängigkeit die Frage,
+  ob sie sich vermeiden lässt; der Stand ist in
+  [SICHERHEIT.md](SICHERHEIT.md#lieferkette) festgehalten.
+- ⏳ **Weg von der Vorabfassung von `next-auth`** – die Anmeldung läuft auf
+  `5.0.0-beta.32`, eine stabile Fassung 5 gibt es nicht. Sobald sie erscheint,
+  hat der Wechsel Vorrang.
 - 📋 **Wiederherstellungstest der Anwendung selbst** – `backup.sh` schreibt
   Sicherungen, ob sie sich einspielen lassen, ist nie geprüft worden. Für ein
   Werkzeug, das Restore-Tests verwaltet, eine unangenehme Lücke.

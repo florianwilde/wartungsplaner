@@ -175,19 +175,76 @@ Bewusste Entscheidungen, die bei geändertem Betriebsmodell zu überdenken sind:
    Für den Betrieb mit einem Container ist das ausreichend; andernfalls wäre
    ein gemeinsamer Speicher (etwa Redis) nötig. Die Schnittstelle in
    `src/lib/anmeldeversuche.ts` ist darauf vorbereitet.
-2. **Keine Zwei-Faktor-Authentisierung.** Passkeys sind für Fassung 1.4.0
-   vorgesehen (siehe [ROADMAP.md](ROADMAP.md)).
+2. **Passkeys sind möglich, aber nicht durchgängig erzwungen.** Seit 1.4.0
+   vorhanden, seit 1.9.0 je Rolle erzwingbar – ohne HTTPS bleibt die
+   Pflicht jedoch wirkungslos, und SSO-Konten sind ausgenommen.
 3. **`style-src` erlaubt `unsafe-inline`.** Siehe Begründung oben.
-4. **Nachweisdateien werden nicht auf Schadsoftware geprüft.** Sie werden nur
-   heruntergeladen, nie ausgeführt, und stammen ausschließlich von
-   angemeldeten Mitarbeitenden. Eine Anbindung an einen Virenscanner ließe
-   sich in `src/server/dateiablage.ts` ergänzen.
+4. **Die Virenprüfung ist freiwillig.** Seit 1.9.0 vorhanden, aber nur
+   wirksam, wenn ein ClamAV-Dienst konfiguriert ist (`CLAMAV_HOST`). Ohne
+   ihn werden Dateien ungeprüft angenommen.
 5. **Keine Ende-zu-Ende-Verschlüsselung der Nachweise.** Der Schutz ergibt sich
    aus Dateisystemrechten und dem Zugriffsschutz der Anwendung.
 
 ---
 
+## Lieferkette
+
+Stand 31.07.2026. Die Anwendung bringt **36 direkte Abhängigkeiten** mit;
+im Produktionscontainer liegen daraus **439 Pakete**. Wer das nachrechnen
+will:
+
+```bash
+npm ls --omit=dev --all --parseable | wc -l
+npm audit --omit=dev
+```
+
+### Erzwungene Fassungen
+
+In `package.json` stehen unter `overrides` drei Pakete, die tiefer im Baum
+liegen und dort in verwundbaren Fassungen gezogen würden:
+
+| Paket | Erzwungen | Grund |
+| --- | --- | --- |
+| `postcss` | `^8.5.25` | Next.js bringt intern 8.4.31 mit; drei Meldungen, u. a. Pfaddurchgriff über `sourceMappingURL` |
+| `sharp` | `^0.35.3` | CVEs in libvips |
+| `uuid` | `^11.1.1` | fehlende Bereichsprüfung; kommt über `exceljs` |
+
+Nach jeder Änderung an diesen Fassungen gehört `npm run test:ausgabe`
+ausgeführt: Ein Eingriff in `exceljs` oder `archiver` fällt weder bei der
+Typprüfung noch in den Unit-Tests auf – erst die erzeugte Datei zeigt es.
+
+### Verbleibende Meldungen und warum sie hier nicht greifen
+
+Zwei Meldungen bleiben bestehen. Beide sind in dieser Anwendung nicht
+auslösbar – das ist eine Einschätzung, keine Entwarnung, und sie gehört bei
+jedem Update erneut geprüft:
+
+| Meldung | Weg hierher | Einschätzung |
+| --- | --- | --- |
+| `brace-expansion` – Speicherüberlauf durch unbegrenzte Expansion | `exceljs` → `archiver` → `glob` → `minimatch` | **Nicht erreichbar.** `archiver` wird ausschließlich mit `.append()` verwendet, nie mit Glob-Mustern (siehe `src/server/reports/archiv.ts`). Muster kämen ohnehin nie von außen. Behoben ist die Meldung erst ab 5.0.8; die Fassung erzwingen hieße, eine andere Hauptfassung in `minimatch` 3 zu schieben |
+| `nodemailer` – `raw` umgeht `disableFileAccess`/`disableUrlAccess` | direkt | **Nicht erreichbar.** Nachrichten werden ausschließlich aus `from`, `to`, `subject`, `text` und `html` gebaut; die Option `raw` wird nirgends verwendet, Anhänge gibt es nicht. Die behobene Fassung 9.x lässt sich nicht einsetzen, ohne `npm ci` zu brechen: `next-auth` verlangt als Peer `^7 \|\| ^8` |
+
+### Anmeldung auf einer Vorabfassung
+
+**`next-auth` läuft in der Fassung `5.0.0-beta.32`.** Eine stabile Fassung 5
+gibt es bisher nicht; `latest` verweist auf 4.24.15, das eine andere
+Schnittstelle hat und den App Router nicht in gleicher Weise unterstützt.
+Ein Wechsel wäre ein Umbau der gesamten Anmeldung, kein Fassungswechsel.
+
+Die Fassung ist deshalb **exakt festgenagelt** (ohne `^`), damit kein
+unbeabsichtigter Sprung passiert. Sobald eine stabile Fassung 5 erscheint,
+gehört der Wechsel vorgezogen.
+
+---
+
 ## Meldung von Schwachstellen
 
-Vermutete Schwachstellen bitte **nicht** als öffentliches Issue erfassen,
-sondern direkt an die IT-Leitung melden.
+Vermutete Schwachstellen bitte **nicht** als öffentliches Issue erfassen.
+
+- **Im Betrieb einer Installation:** an die dortige IT-Leitung.
+- **Am Projekt selbst:** über die private Meldefunktion von GitHub
+  („Report a vulnerability" im Reiter *Security*).
+
+Bitte geben Sie an, was Sie beobachtet haben und wie es sich nachstellen
+lässt. Eine Rückmeldung erfolgt, sobald der Sachverhalt eingeschätzt ist;
+zugesagte Fristen gibt es bei einem Projekt dieser Größe nicht.
