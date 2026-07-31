@@ -1,9 +1,8 @@
 'use client'
 
-import { useActionState, useState } from 'react'
-import { useFormStatus } from 'react-dom'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { AlertCircle, CheckCircle2, Eye, Upload } from 'lucide-react'
+import { AlertCircle, Eye, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
@@ -37,22 +36,29 @@ const ARTEN: ImportArt[] = [
   'pruefboegen',
 ]
 
-function PruefenButton() {
-  const { pending } = useFormStatus()
+// Der Ladezustand wird ausdrücklich durchgereicht statt über
+// `useFormStatus` gezogen: Beide Formulare teilen sich einen Vorgang, und
+// der Zustand gehört dorthin, wo er entsteht.
+function PruefenButton({ laeuft }: { laeuft: boolean }) {
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" disabled={laeuft}>
       <Eye className="size-4" />
-      {pending ? 'Wird geprüft …' : 'Datei prüfen'}
+      {laeuft ? 'Wird geprüft …' : 'Datei prüfen'}
     </Button>
   )
 }
 
-function SchreibenButton({ anzahl }: { anzahl: number }) {
-  const { pending } = useFormStatus()
+function SchreibenButton({
+  anzahl,
+  laeuft,
+}: {
+  anzahl: number
+  laeuft: boolean
+}) {
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" disabled={laeuft}>
       <Upload className="size-4" />
-      {pending ? 'Wird geschrieben …' : `${anzahl} Änderungen übernehmen`}
+      {laeuft ? 'Wird geschrieben …' : `${anzahl} Änderungen übernehmen`}
     </Button>
   )
 }
@@ -67,22 +73,42 @@ export function ImportFormular() {
   const router = useRouter()
   const [art, setArt] = useState<ImportArt>('kategorien')
 
-  const [status, pruefen] = useActionState<ImportStatus, FormData>(
-    async (vorher, formData) => importVorschau(vorher, formData),
-    {},
-  )
+  // Vorschau und Schreibvorgang liegen bewusst in eigenem Zustand statt in
+  // `useActionState`: Dessen Ergebnis bleibt bis zum nächsten Aufruf
+  // stehen. Nach einem Import zeigte die Vorschau der *nächsten* Datei
+  // deshalb die Erfolgsmeldung der vorigen – und der Übernehmen-Knopf war
+  // weg, bis jemand die Seite neu lud. Wer drei Dateien nacheinander
+  // einspielt, lief zuverlässig hinein.
+  const [status, setStatus] = useState<ImportStatus>({})
+  const [schreibFehler, setSchreibFehler] = useState<string | null>(null)
+  const [laeuft, starte] = useTransition()
 
-  const [schreibStatus, schreiben] = useActionState<ImportStatus, FormData>(
-    async (vorher, formData) => {
-      const antwort = await importAusfuehren(vorher, formData)
-      if (antwort.erfolg) {
-        toast.success(antwort.erfolg)
-        router.refresh()
+  // Zählt bei jedem abgeschlossenen Import hoch und setzt damit das
+  // Dateifeld zurück – sonst steht dort noch die eben eingespielte Datei.
+  const [lauf, setLauf] = useState(0)
+
+  const pruefen = (formData: FormData) =>
+    starte(async () => {
+      setSchreibFehler(null)
+      setStatus(await importVorschau({}, formData))
+    })
+
+  const schreiben = (formData: FormData) =>
+    starte(async () => {
+      const antwort = await importAusfuehren({}, formData)
+      if (antwort.fehler) {
+        setSchreibFehler(antwort.fehler)
+        return
       }
-      return antwort
-    },
-    {},
-  )
+      toast.success(antwort.erfolg ?? 'Übernommen.', { duration: 8000 })
+      // Die Vorschau ist mit dem Schreiben verbraucht: Sie beschreibt einen
+      // Stand, den es nicht mehr gibt. Weg damit, damit die nächste Datei
+      // an der Reihe ist.
+      setStatus({})
+      setSchreibFehler(null)
+      setLauf((wert) => wert + 1)
+      router.refresh()
+    })
 
   const zuUebernehmen =
     (status.zeilen ?? []).filter((z) => z.vorgang !== 'unveraendert').length
@@ -127,6 +153,7 @@ export function ImportFormular() {
               <div className="space-y-2">
                 <Label htmlFor="datei">CSV-Datei</Label>
                 <Input
+                  key={lauf}
                   id="datei"
                   name="datei"
                   type="file"
@@ -157,7 +184,7 @@ export function ImportFormular() {
               </p>
             ) : null}
 
-            <PruefenButton />
+            <PruefenButton laeuft={laeuft} />
           </form>
         </CardContent>
       </Card>
@@ -239,24 +266,17 @@ export function ImportFormular() {
                   bleiben unangetastet.
                 </p>
 
-                {schreibStatus.fehler ? (
+                {schreibFehler ? (
                   <p
                     role="alert"
                     className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
                   >
                     <AlertCircle className="mt-0.5 size-4 shrink-0" />
-                    {schreibStatus.fehler}
+                    {schreibFehler}
                   </p>
                 ) : null}
 
-                {schreibStatus.erfolg ? (
-                  <p className="flex items-start gap-2 rounded-md bg-status-ok/10 p-3 text-sm text-status-ok">
-                    <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-                    {schreibStatus.erfolg}
-                  </p>
-                ) : (
-                  <SchreibenButton anzahl={zuUebernehmen} />
-                )}
+                <SchreibenButton anzahl={zuUebernehmen} laeuft={laeuft} />
               </form>
             ) : null}
           </CardContent>

@@ -14,6 +14,19 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ## [Unveröffentlicht]
 
+### Behoben
+
+- **Nach einem Import fehlte der Übernehmen-Knopf.** Wer eine zweite Datei
+  prüfte, sah in der Vorschau die Erfolgsmeldung des vorigen Laufs statt
+  der Schaltfläche – und kam ohne Neuladen der Seite nicht weiter. Wer den
+  Prüfplan mit drei Dateien nacheinander einspielt, lief zuverlässig hinein.
+  - Ursache: Das Ergebnis von `useActionState` bleibt bis zum nächsten
+    Aufruf stehen. Die Erfolgsmeldung des ersten Imports galt damit auch für
+    die Vorschau des zweiten.
+  - Die Vorschau wird jetzt mit dem Schreiben verworfen – sie beschreibt
+    einen Stand, den es nicht mehr gibt –, und das Dateifeld wird geleert.
+    Nach dem Import ist die nächste Datei an der Reihe, ohne Umweg.
+
 ### Hinzugefügt
 
 - **Aufgaben samt Nachweisen löschen** – für Testdaten und Fehlimporte.
