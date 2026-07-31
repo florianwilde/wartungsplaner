@@ -11,16 +11,25 @@
  * Aufgabentitel, E-Mail-Adresse), nicht über technische IDs. So bleiben
  * Daten zwischen Installationen übertragbar.
  */
+import type { PruefpunktArt } from '@prisma/client'
+
 import { leseJaNein, type CsvZeile } from '@/lib/csv'
 import { parseISODate, toISODate } from '@/lib/dates'
 import { normalisiereHex } from '@/lib/farben'
 
-export type ImportArt = 'kategorien' | 'aufgaben' | 'benutzer'
+export type ImportArt =
+  | 'kategorien'
+  | 'aufgaben'
+  | 'benutzer'
+  | 'referenzen'
+  | 'pruefboegen'
 
 export const IMPORT_BEZEICHNUNG: Record<ImportArt, string> = {
   kategorien: 'Kategorien',
   aufgaben: 'Aufgaben',
   benutzer: 'Benutzer',
+  referenzen: 'Audit-Referenzen',
+  pruefboegen: 'Prüfbögen',
 }
 
 /** Höchstzahl Zeilen je Import – schützt vor versehentlich riesigen Dateien. */
@@ -543,6 +552,554 @@ function fasseZusammen<T>(
     aktualisieren: eintraege.filter((e) => e.vorgang === 'aktualisieren').length,
     unveraendert: eintraege.filter((e) => e.vorgang === 'unveraendert').length,
   }
+}
+
+/**
+ * Strenge Fassung von `leseJaNein`.
+ *
+ * `leseJaNein` fällt bei unbekannten Werten auf den Standard zurück – beim
+ * Import wäre das eine stille Falschauskunft: Aus „vielleicht" würde
+ * klaglos „ja". Diese Fassung meldet stattdessen `null`, damit der Aufrufer
+ * eine Zeilenmeldung erzeugen kann. Ein leeres Feld bleibt zulässig und
+ * ergibt den Standard.
+ */
+function leseJaNeinStreng(wert: string, standard: boolean): boolean | null {
+  const text = wert.trim().toLowerCase()
+  if (text === '') return standard
+  if (['ja', 'j', 'wahr', 'true', '1', 'x', 'yes', 'y'].includes(text)) return true
+  if (['nein', 'n', 'falsch', 'false', '0', 'no'].includes(text)) return false
+  return null
+}
+
+// ---------------------------------------------------------------------------
+// Audit-Referenzen
+// ---------------------------------------------------------------------------
+
+export type ReferenzDaten = {
+  kuerzel: string
+  bezeichnung: string
+  rahmenwerk: string | null
+  beschreibung: string | null
+  aktiv: boolean
+  sortOrder: number
+}
+
+export const REFERENZ_SPALTEN = [
+  'rahmenwerk',
+  'kuerzel',
+  'bezeichnung',
+  'beschreibung',
+  'aktiv',
+  'reihenfolge',
+] as const
+
+/**
+ * Schlüssel einer Referenz: Rahmenwerk und Kurzzeichen zusammen.
+ *
+ * „A.8.13" allein sagt nichts – dieselbe Kennung kann in ISO 27001 und in
+ * einem anderen Rahmenwerk Verschiedenes bedeuten. Die Datenbank hält es
+ * genauso (`@@unique([rahmenwerk, kuerzel])`).
+ */
+function referenzSchluessel(rahmenwerk: string | null, kuerzel: string): string {
+  return `${(rahmenwerk ?? '').toLowerCase()}|${kuerzel.toLowerCase()}`
+}
+
+export function pruefeAuditReferenzen(
+  zeilen: CsvZeile[],
+  vorhandene: ReferenzDaten[],
+): ImportVorschau<ReferenzDaten> {
+  const fehler: ImportFehler[] = []
+  const eintraege: ImportEintrag<ReferenzDaten>[] = []
+  const gesehen = new Set<string>()
+
+  const bestand = new Map(
+    vorhandene.map((r) => [referenzSchluessel(r.rahmenwerk, r.kuerzel), r]),
+  )
+
+  zeilen.forEach((zeile, index) => {
+    const zeilennummer = index + 2
+
+    const kuerzel = (zeile.kuerzel ?? '').trim()
+    if (kuerzel.length < 1) {
+      fehler.push({
+        zeile: zeilennummer,
+        spalte: 'kuerzel',
+        meldung: 'Das Kurzzeichen fehlt.',
+      })
+      return
+    }
+    if (kuerzel.length > 40) {
+      fehler.push({
+        zeile: zeilennummer,
+        spalte: 'kuerzel',
+        meldung: 'Das Kurzzeichen darf höchstens 40 Zeichen haben.',
+      })
+      return
+    }
+
+    const bezeichnung = (zeile.bezeichnung ?? '').trim()
+    if (bezeichnung.length < 3) {
+      fehler.push({
+        zeile: zeilennummer,
+        spalte: 'bezeichnung',
+        meldung: 'Die Bezeichnung muss mindestens 3 Zeichen haben.',
+      })
+      return
+    }
+    if (bezeichnung.length > 200) {
+      fehler.push({
+        zeile: zeilennummer,
+        spalte: 'bezeichnung',
+        meldung: 'Die Bezeichnung darf höchstens 200 Zeichen haben.',
+      })
+      return
+    }
+
+    const rahmenwerk = (zeile.rahmenwerk ?? '').trim() || null
+    if (rahmenwerk && rahmenwerk.length > 80) {
+      fehler.push({
+        zeile: zeilennummer,
+        spalte: 'rahmenwerk',
+        meldung: 'Das Rahmenwerk darf höchstens 80 Zeichen haben.',
+      })
+      return
+    }
+
+    const schluessel = referenzSchluessel(rahmenwerk, kuerzel)
+    if (gesehen.has(schluessel)) {
+      fehler.push({
+        zeile: zeilennummer,
+        spalte: 'kuerzel',
+        meldung: `„${anzeige(rahmenwerk, kuerzel)}“ kommt in der Datei mehrfach vor.`,
+      })
+      return
+    }
+    gesehen.add(schluessel)
+
+    const beschreibung = (zeile.beschreibung ?? '').trim() || null
+    if (beschreibung && beschreibung.length > 2000) {
+      fehler.push({
+        zeile: zeilennummer,
+        spalte: 'beschreibung',
+        meldung: 'Die Beschreibung darf höchstens 2000 Zeichen haben.',
+      })
+      return
+    }
+
+    const rohAktiv = (zeile.aktiv ?? '').trim()
+    const aktiv = leseJaNeinStreng(rohAktiv, true)
+    if (aktiv === null) {
+      fehler.push({
+        zeile: zeilennummer,
+        spalte: 'aktiv',
+        meldung: 'Bitte „ja" oder „nein" angeben.',
+      })
+      return
+    }
+
+    const rohReihenfolge = (zeile.reihenfolge ?? '').trim()
+    const sortOrder = rohReihenfolge === '' ? 0 : Number(rohReihenfolge)
+    if (!Number.isInteger(sortOrder) || sortOrder < 0 || sortOrder > 9999) {
+      fehler.push({
+        zeile: zeilennummer,
+        spalte: 'reihenfolge',
+        meldung: 'Die Reihenfolge muss eine ganze Zahl zwischen 0 und 9999 sein.',
+      })
+      return
+    }
+
+    const daten: ReferenzDaten = {
+      kuerzel,
+      bezeichnung,
+      rahmenwerk,
+      beschreibung,
+      aktiv,
+      sortOrder,
+    }
+    const alt = bestand.get(schluessel)
+
+    if (!alt) {
+      eintraege.push({
+        zeile: zeilennummer,
+        schluessel: anzeige(rahmenwerk, kuerzel),
+        vorgang: 'anlegen',
+        daten,
+        aenderungen: [],
+      })
+      return
+    }
+
+    const aenderungen: string[] = []
+    if (alt.bezeichnung !== daten.bezeichnung) aenderungen.push('Bezeichnung')
+    if ((alt.beschreibung ?? '') !== (daten.beschreibung ?? '')) {
+      aenderungen.push('Beschreibung')
+    }
+    if (alt.aktiv !== daten.aktiv) aenderungen.push('Aktiv')
+    if (alt.sortOrder !== daten.sortOrder) aenderungen.push('Reihenfolge')
+    if (alt.kuerzel !== daten.kuerzel) aenderungen.push('Schreibweise')
+
+    eintraege.push({
+      zeile: zeilennummer,
+      schluessel: anzeige(rahmenwerk, kuerzel),
+      vorgang: aenderungen.length > 0 ? 'aktualisieren' : 'unveraendert',
+      daten,
+      aenderungen,
+    })
+  })
+
+  return fasseZusammen('referenzen', eintraege, fehler)
+}
+
+/** Lesbare Kennung für Meldungen und Vorschau. */
+function anzeige(rahmenwerk: string | null, kuerzel: string): string {
+  return rahmenwerk ? `${rahmenwerk} ${kuerzel}` : kuerzel
+}
+
+// ---------------------------------------------------------------------------
+// Prüfbögen
+// ---------------------------------------------------------------------------
+
+export type PruefpunktDaten = {
+  position: number
+  frage: string
+  hinweis: string | null
+  art: PruefpunktArt
+  pflicht: boolean
+}
+
+export type PruefbogenDaten = {
+  name: string
+  beschreibung: string | null
+  /** Titel der fest zugeordneten Aufgabe; leer = für alle Aufgaben wählbar */
+  aufgabe: string | null
+  vierAugen: boolean
+  aktiv: boolean
+  punkte: PruefpunktDaten[]
+}
+
+export const PRUEFBOGEN_SPALTEN = [
+  'pruefbogen',
+  'beschreibung',
+  'aufgabe',
+  'vier_augen',
+  'aktiv',
+  'position',
+  'frage',
+  'hinweis',
+  'art',
+  'pflicht',
+] as const
+
+const PRUEFPUNKT_ARTEN: PruefpunktArt[] = [
+  'BEWERTUNG',
+  'TEXT',
+  'ZAHL',
+  'DATUM',
+  'LISTE',
+  'ENTSCHEIDUNG',
+]
+
+/** Bestand eines Prüfbogens, soweit für den Abgleich nötig. */
+export type PruefbogenBestand = {
+  name: string
+  beschreibung: string | null
+  aufgabe: string | null
+  vierAugen: boolean
+  aktiv: boolean
+  punkte: PruefpunktDaten[]
+  /**
+   * Wurde mit diesem Bogen bereits geprüft?
+   *
+   * Dann bleiben die Prüfpunkte unangetastet: An ihnen hängen Antworten,
+   * Belege und Abweichungen. Sie zu ersetzen hieße, geführte Nachweise
+   * nachträglich zu verändern.
+   */
+  hatNachweise: boolean
+}
+
+/**
+ * Prüft eine Prüfbogen-Datei.
+ *
+ * Anders als bei den übrigen Arten steht ein Datensatz **nicht** in einer
+ * Zeile: Ein Bogen entsteht aus allen Zeilen mit demselben Namen, je Zeile
+ * ein Prüfpunkt. Die Angaben zum Bogen (Beschreibung, Vier-Augen-Pflicht)
+ * stehen dabei in jeder seiner Zeilen; maßgeblich ist die erste.
+ */
+export function pruefePruefboegen(
+  zeilen: CsvZeile[],
+  vorhandene: PruefbogenBestand[],
+  /** Titel aller vorhandenen Aufgaben – für die Zuordnung. */
+  aufgabenTitel: string[],
+): ImportVorschau<PruefbogenDaten> {
+  const fehler: ImportFehler[] = []
+  const bestand = new Map(vorhandene.map((b) => [b.name.toLowerCase(), b]))
+  const aufgaben = new Map(aufgabenTitel.map((t) => [t.toLowerCase(), t]))
+
+  /** Gesammelte Zeilen je Bogen, in der Reihenfolge des Auftretens. */
+  const gesammelt = new Map<
+    string,
+    { name: string; ersteZeile: number; zeilen: { nummer: number; zeile: CsvZeile }[] }
+  >()
+
+  zeilen.forEach((zeile, index) => {
+    const zeilennummer = index + 2
+    const name = (zeile.pruefbogen ?? '').trim()
+
+    if (name.length < 3) {
+      fehler.push({
+        zeile: zeilennummer,
+        spalte: 'pruefbogen',
+        meldung: 'Der Name des Prüfbogens muss mindestens 3 Zeichen haben.',
+      })
+      return
+    }
+    if (name.length > 120) {
+      fehler.push({
+        zeile: zeilennummer,
+        spalte: 'pruefbogen',
+        meldung: 'Der Name des Prüfbogens darf höchstens 120 Zeichen haben.',
+      })
+      return
+    }
+
+    const schluessel = name.toLowerCase()
+    const eintrag = gesammelt.get(schluessel) ?? {
+      name,
+      ersteZeile: zeilennummer,
+      zeilen: [],
+    }
+    eintrag.zeilen.push({ nummer: zeilennummer, zeile })
+    gesammelt.set(schluessel, eintrag)
+  })
+
+  const eintraege: ImportEintrag<PruefbogenDaten>[] = []
+
+  for (const [schluessel, gruppe] of gesammelt) {
+    const kopf = gruppe.zeilen[0].zeile
+    const kopfZeile = gruppe.zeilen[0].nummer
+
+    const beschreibung = (kopf.beschreibung ?? '').trim() || null
+    if (beschreibung && beschreibung.length > 2000) {
+      fehler.push({
+        zeile: kopfZeile,
+        spalte: 'beschreibung',
+        meldung: 'Die Beschreibung darf höchstens 2000 Zeichen haben.',
+      })
+      continue
+    }
+
+    const rohAufgabe = (kopf.aufgabe ?? '').trim()
+    let aufgabe: string | null = null
+    if (rohAufgabe !== '') {
+      const treffer = aufgaben.get(rohAufgabe.toLowerCase())
+      if (!treffer) {
+        fehler.push({
+          zeile: kopfZeile,
+          spalte: 'aufgabe',
+          meldung: `Die Aufgabe „${rohAufgabe}“ gibt es nicht. Erst die Aufgaben einspielen, dann die Prüfbögen.`,
+        })
+        continue
+      }
+      aufgabe = treffer
+    }
+
+    const vierAugen = leseJaNeinStreng(kopf.vier_augen ?? '', false)
+    if (vierAugen === null) {
+      fehler.push({
+        zeile: kopfZeile,
+        spalte: 'vier_augen',
+        meldung: 'Bitte „ja" oder „nein" angeben.',
+      })
+      continue
+    }
+
+    const aktiv = leseJaNeinStreng(kopf.aktiv ?? '', true)
+    if (aktiv === null) {
+      fehler.push({
+        zeile: kopfZeile,
+        spalte: 'aktiv',
+        meldung: 'Bitte „ja" oder „nein" angeben.',
+      })
+      continue
+    }
+
+    // --- Prüfpunkte ---------------------------------------------------------
+    const punkte: PruefpunktDaten[] = []
+    const positionen = new Set<number>()
+    let punktFehler = false
+
+    for (const { nummer, zeile } of gruppe.zeilen) {
+      const frage = (zeile.frage ?? '').trim()
+      if (frage.length < 3) {
+        fehler.push({
+          zeile: nummer,
+          spalte: 'frage',
+          meldung: 'Die Frage muss mindestens 3 Zeichen haben.',
+        })
+        punktFehler = true
+        continue
+      }
+      if (frage.length > 500) {
+        fehler.push({
+          zeile: nummer,
+          spalte: 'frage',
+          meldung: 'Die Frage darf höchstens 500 Zeichen haben.',
+        })
+        punktFehler = true
+        continue
+      }
+
+      // Ohne Angabe zählt die Reihenfolge in der Datei – das ist die
+      // Erwartung, wenn jemand eine Liste untereinander schreibt.
+      const rohPosition = (zeile.position ?? '').trim()
+      const position = rohPosition === '' ? punkte.length + 1 : Number(rohPosition)
+      if (!Number.isInteger(position) || position < 1 || position > 999) {
+        fehler.push({
+          zeile: nummer,
+          spalte: 'position',
+          meldung: 'Die Position muss eine ganze Zahl zwischen 1 und 999 sein.',
+        })
+        punktFehler = true
+        continue
+      }
+      if (positionen.has(position)) {
+        fehler.push({
+          zeile: nummer,
+          spalte: 'position',
+          meldung: `Die Position ${position} kommt in „${gruppe.name}“ mehrfach vor.`,
+        })
+        punktFehler = true
+        continue
+      }
+      positionen.add(position)
+
+      const rohArt = (zeile.art ?? '').trim().toUpperCase() || 'BEWERTUNG'
+      if (!PRUEFPUNKT_ARTEN.includes(rohArt as PruefpunktArt)) {
+        fehler.push({
+          zeile: nummer,
+          spalte: 'art',
+          meldung: `Unbekannte Art „${rohArt}“. Erlaubt: ${PRUEFPUNKT_ARTEN.join(', ')}.`,
+        })
+        punktFehler = true
+        continue
+      }
+
+      const pflicht = leseJaNeinStreng(zeile.pflicht ?? '', true)
+      if (pflicht === null) {
+        fehler.push({
+          zeile: nummer,
+          spalte: 'pflicht',
+          meldung: 'Bitte „ja" oder „nein" angeben.',
+        })
+        punktFehler = true
+        continue
+      }
+
+      const hinweis = (zeile.hinweis ?? '').trim() || null
+      if (hinweis && hinweis.length > 500) {
+        fehler.push({
+          zeile: nummer,
+          spalte: 'hinweis',
+          meldung: 'Der Hinweis darf höchstens 500 Zeichen haben.',
+        })
+        punktFehler = true
+        continue
+      }
+
+      punkte.push({ position, frage, hinweis, art: rohArt as PruefpunktArt, pflicht })
+    }
+
+    if (punktFehler) continue
+
+    if (punkte.length === 0) {
+      fehler.push({
+        zeile: kopfZeile,
+        spalte: 'frage',
+        meldung: `„${gruppe.name}“ enthält keinen einzigen Prüfpunkt.`,
+      })
+      continue
+    }
+
+    punkte.sort((a, b) => a.position - b.position)
+
+    const daten: PruefbogenDaten = {
+      name: gruppe.name,
+      beschreibung,
+      aufgabe,
+      vierAugen,
+      aktiv,
+      punkte,
+    }
+    const alt = bestand.get(schluessel)
+
+    if (!alt) {
+      eintraege.push({
+        zeile: kopfZeile,
+        schluessel: gruppe.name,
+        vorgang: 'anlegen',
+        daten,
+        aenderungen: [],
+      })
+      continue
+    }
+
+    const aenderungen: string[] = []
+    if ((alt.beschreibung ?? '') !== (beschreibung ?? '')) aenderungen.push('Beschreibung')
+    if ((alt.aufgabe ?? '') !== (aufgabe ?? '')) aenderungen.push('Aufgabe')
+    if (alt.vierAugen !== vierAugen) aenderungen.push('Vier-Augen-Prinzip')
+    if (alt.aktiv !== aktiv) aenderungen.push('Aktiv')
+    if (alt.name !== gruppe.name) aenderungen.push('Schreibweise')
+
+    const punkteGleich = vergleichePunkte(alt.punkte, punkte)
+    if (!punkteGleich) {
+      if (alt.hatNachweise) {
+        // Ablehnen statt stillschweigend übergehen: Wer die Prüfpunkte in der
+        // Datei ändert, erwartet, dass sie ankommen.
+        fehler.push({
+          zeile: kopfZeile,
+          spalte: 'frage',
+          meldung:
+            `Mit „${gruppe.name}“ wurde bereits geprüft – die Prüfpunkte lassen sich ` +
+            'nicht mehr ändern, weil daran Antworten und Belege hängen. Legen Sie ' +
+            'einen Bogen unter neuem Namen an.',
+        })
+        continue
+      }
+      aenderungen.push('Prüfpunkte')
+    }
+
+    eintraege.push({
+      zeile: kopfZeile,
+      schluessel: gruppe.name,
+      vorgang: aenderungen.length > 0 ? 'aktualisieren' : 'unveraendert',
+      daten,
+      aenderungen,
+    })
+  }
+
+  return fasseZusammen('pruefboegen', eintraege, fehler)
+}
+
+/** Inhaltlicher Vergleich zweier Prüfpunktlisten. */
+function vergleichePunkte(a: PruefpunktDaten[], b: PruefpunktDaten[]): boolean {
+  if (a.length !== b.length) return false
+
+  const sortiert = (liste: PruefpunktDaten[]) =>
+    [...liste].sort((x, y) => x.position - y.position)
+
+  const links = sortiert(a)
+  const rechts = sortiert(b)
+
+  return links.every((punkt, index) => {
+    const gegen = rechts[index]
+    return (
+      punkt.position === gegen.position &&
+      punkt.frage === gegen.frage &&
+      (punkt.hinweis ?? '') === (gegen.hinweis ?? '') &&
+      punkt.art === gegen.art &&
+      punkt.pflicht === gegen.pflicht
+    )
+  })
 }
 
 /**

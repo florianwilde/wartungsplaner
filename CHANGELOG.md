@@ -14,6 +14,45 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ## [Unveröffentlicht]
 
+### Hinzugefügt
+
+- **Audit-Referenzen und Prüfbögen lassen sich importieren.** Bisher waren
+  nur Kategorien, Aufgaben und Benutzer über eine Liste zu pflegen –
+  ausgerechnet die beiden Bereiche mit den meisten Einzelfeldern fehlten.
+  Wer einen Normenkatalog abbildet, tippt sonst hundert Anforderungen ab.
+  - **Audit-Referenzen**: Rahmenwerk, Kurzzeichen, Bezeichnung,
+    Beschreibung, Status. Zugeordnet wird über Rahmenwerk *und* Kurzzeichen
+    zusammen – dieselbe Kennung bedeutet in einem anderen Rahmenwerk etwas
+    anderes. Die Zuordnung zu Aufgaben bleibt unangetastet; sie steht in der
+    Aufgabendatei.
+  - **Prüfbögen**: eine Zeile je Prüfpunkt, gruppiert über den Namen des
+    Bogens. Redundant, aber der einzige Weg, eine geschachtelte Struktur in
+    einer Tabelle abzubilden, die sich in Excel bearbeiten lässt.
+  - **Ein bereits benutzter Prüfbogen verliert seine Prüfpunkte nicht.** An
+    ihnen hängen Antworten, Belege und Abweichungen geführter Nachweise; ein
+    Austausch würde sie mitlöschen und einen abgeschlossenen Nachweis
+    nachträglich verändern. Der Lauf wird abgelehnt und nennt den Bogen.
+    Beschreibung, Zuordnung, Vier-Augen-Pflicht und Status bleiben änderbar.
+  - Ein unverständlicher Ja-Nein-Wert wird bei den neuen Bereichen
+    **abgelehnt** statt auf den Standard zurückzufallen. Aus „vielleicht"
+    klaglos „ja" zu machen wäre eine stille Falschauskunft.
+  - Export und Vorlagendateien gibt es für beide Bereiche ebenfalls.
+
+### Behoben
+
+- **Endlosschleife zwischen Anmeldeseite und Dashboard.** Wurde das
+  Sitzungs-Cookie nach dem Abmelden durch einen vorgeladenen Seitenaufruf
+  wiederhergestellt, schickte die Seite zur Anmeldung und die Middleware
+  zurück – der Browser brach mit `ERR_TOO_MANY_REDIRECTS` ab, und die
+  Anwendung war bis zum Löschen der Cookies unbenutzbar.
+  - Ursache: Die Middleware läuft in der Edge-Laufzeit und kann das Cookie
+    nur entschlüsseln, nicht prüfen. Ein Token, das der Server längst
+    verworfen hat, sieht dort weiterhin gültig aus.
+  - Die Weiterleitung von der Anmeldeseite übernimmt jetzt die Seite selbst;
+    sie kennt den tatsächlichen Stand.
+  - Gefunden von den End-to-End-Tests, die den Fehler dreimal sporadisch
+    angezeigt hatten, bevor die verschärfte Prüfung ihn festnageln konnte.
+
 ### Sicherheit
 
 - **Lieferkette durchgesehen.** `npm audit` meldete 16 Schwachstellen, 15

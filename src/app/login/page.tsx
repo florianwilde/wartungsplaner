@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 
 import { istOidcAktiv, oidcAnzeigename } from '@/auth'
 import { FarbschemaUmschalter } from '@/components/farbschema-umschalter'
 import { Markenzeichen } from '@/components/markenzeichen'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { holeBenutzer } from '@/lib/session'
 import { versionKurz } from '@/lib/version'
 import { istPasskeyTauglich } from '@/lib/webauthn'
 import { appUrl } from '@/server/passkeys'
@@ -29,6 +31,15 @@ export default async function LoginSeite({
   searchParams: Promise<{ weiter?: string; fehler?: string; error?: string }>
 }) {
   const params = await searchParams
+
+  // Wer bereits angemeldet ist, hat auf der Anmeldeseite nichts verloren.
+  // Bewusst hier und nicht in der Middleware: Dort lässt sich das Cookie nur
+  // entschlüsseln, nicht prüfen – ein nach dem Abmelden wiederhergestelltes
+  // Cookie ergäbe sonst eine Endlosschleife zwischen Anmeldeseite und
+  // Dashboard.
+  const angemeldet = await holeBenutzer()
+  if (angemeldet) redirect(params.weiter?.startsWith('/') ? params.weiter : '/')
+
   const branding = await holeBranding()
   const weiter = params.weiter?.startsWith('/') ? params.weiter : '/'
   const fehlerSchluessel = params.fehler ?? params.error

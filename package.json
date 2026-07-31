@@ -24,6 +24,7 @@
     "test:viren": "tsx scripts/virentest.ts",
     "test:vertretung": "tsx scripts/vertretungstest.ts",
     "test:duplizieren": "tsx scripts/duplizierungstest.ts",
+    "test:import": "tsx scripts/importtest.ts",
     "test:kalender": "tsx scripts/kalendertest.ts",
     "test:logo": "tsx scripts/logotest.ts",
     "test:ausgabe": "tsx scripts/ausgabetest.ts",

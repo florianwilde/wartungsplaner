@@ -13,11 +13,14 @@ export const dynamic = 'force-dynamic'
 export default async function ImportExportSeite() {
   await erforderlicheRolle('ADMIN')
 
-  const [kategorien, aufgaben, benutzer] = await Promise.all([
-    prisma.category.count(),
-    prisma.task.count(),
-    prisma.user.count(),
-  ])
+  const [kategorien, aufgaben, benutzer, referenzen, pruefboegen] =
+    await Promise.all([
+      prisma.category.count(),
+      prisma.task.count(),
+      prisma.user.count(),
+      prisma.auditReferenz.count(),
+      prisma.pruefbogenVorlage.count(),
+    ])
 
   const bereiche = [
     {
@@ -39,6 +42,20 @@ export default async function ImportExportSeite() {
       anzahl: benutzer,
       beschreibung: 'Name, E-Mail, Rolle und Status. Ohne Passwörter.',
     },
+    {
+      art: 'referenzen' as const,
+      titel: 'Audit-Referenzen',
+      anzahl: referenzen,
+      beschreibung:
+        'Anforderungen aus Normen: Rahmenwerk, Kurzzeichen und Bezeichnung. Ohne die Zuordnung zu Aufgaben.',
+    },
+    {
+      art: 'pruefboegen' as const,
+      titel: 'Prüfbögen',
+      anzahl: pruefboegen,
+      beschreibung:
+        'Vorlagen samt Prüfpunkten – eine Zeile je Prüfpunkt. Ohne geführte Nachweise.',
+    },
   ]
 
   return (
@@ -54,7 +71,7 @@ export default async function ImportExportSeite() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-5">
             {bereiche.map((bereich) => (
               <div
                 key={bereich.art}

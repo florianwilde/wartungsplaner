@@ -11,12 +11,16 @@ import {
   fasseVorschauZusammen,
   normalisiereReferenzliste,
   pruefeAufgaben,
+  pruefeAuditReferenzen,
   pruefeBenutzer,
   pruefeKategorien,
+  pruefePruefboegen,
   type AufgabeDaten,
   type BenutzerDaten,
   type ImportArt,
   type KategorieDaten,
+  type PruefbogenDaten,
+  type ReferenzDaten,
   type ImportFehler,
   type ImportVorschau,
 } from '@/lib/import-export'
@@ -26,8 +30,10 @@ import { canAdminister } from '@/lib/rbac'
 import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
 import {
   schreibeAufgaben,
+  schreibeAuditReferenzen,
   schreibeBenutzer,
   schreibeKategorien,
+  schreibePruefboegen,
 } from '@/server/import'
 
 /** Für die Anzeige aufbereitete Vorschau (ohne die vollständigen Daten). */
@@ -50,7 +56,13 @@ export type ImportStatus = {
   schreibbar?: boolean
 }
 
-const ARTEN: ImportArt[] = ['kategorien', 'aufgaben', 'benutzer']
+const ARTEN: ImportArt[] = [
+  'kategorien',
+  'aufgaben',
+  'benutzer',
+  'referenzen',
+  'pruefboegen',
+]
 
 /** Liest die Datei bzw. den durchgereichten Inhalt aus dem Formular. */
 async function leseInhalt(formData: FormData): Promise<string | null> {
@@ -76,6 +88,8 @@ type GepruefteDaten =
   | { art: 'kategorien'; vorschau: ImportVorschau<KategorieDaten> }
   | { art: 'aufgaben'; vorschau: ImportVorschau<AufgabeDaten> }
   | { art: 'benutzer'; vorschau: ImportVorschau<BenutzerDaten> }
+  | { art: 'referenzen'; vorschau: ImportVorschau<ReferenzDaten> }
+  | { art: 'pruefboegen'; vorschau: ImportVorschau<PruefbogenDaten> }
 
 /** Führt die Prüfung gegen den aktuellen Datenbestand aus. */
 async function pruefe(
@@ -87,6 +101,56 @@ async function pruefe(
       select: { name: true, color: true, sortOrder: true },
     })
     return { art: 'kategorien', vorschau: pruefeKategorien(zeilen, vorhandene) }
+  }
+
+  if (art === 'referenzen') {
+    const vorhandene = await prisma.auditReferenz.findMany({
+      select: {
+        kuerzel: true,
+        bezeichnung: true,
+        rahmenwerk: true,
+        beschreibung: true,
+        aktiv: true,
+        sortOrder: true,
+      },
+    })
+    return { art: 'referenzen', vorschau: pruefeAuditReferenzen(zeilen, vorhandene) }
+  }
+
+  if (art === 'pruefboegen') {
+    const [boegen, aufgabenTitel] = await Promise.all([
+      prisma.pruefbogenVorlage.findMany({
+        include: {
+          punkte: { orderBy: { position: 'asc' } },
+          task: { select: { title: true } },
+          _count: { select: { nachweise: true } },
+        },
+      }),
+      prisma.task.findMany({ select: { title: true } }),
+    ])
+
+    return {
+      art: 'pruefboegen',
+      vorschau: pruefePruefboegen(
+        zeilen,
+        boegen.map((bogen) => ({
+          name: bogen.name,
+          beschreibung: bogen.beschreibung,
+          aufgabe: bogen.task?.title ?? null,
+          vierAugen: bogen.vierAugen,
+          aktiv: bogen.aktiv,
+          punkte: bogen.punkte.map((punkt) => ({
+            position: punkt.position,
+            frage: punkt.frage,
+            hinweis: punkt.hinweis,
+            art: punkt.art,
+            pflicht: punkt.pflicht,
+          })),
+          hatNachweise: bogen._count.nachweise > 0,
+        })),
+        aufgabenTitel.map((a) => a.title),
+      ),
+    }
   }
 
   if (art === 'benutzer') {
@@ -249,19 +313,29 @@ export async function importAusfuehren(
       }
     }
 
-    // Die Unterscheidung nach `geprueft.art` liefert die passenden Typen -
+    // Die Unterscheidung nach `geprueft.art` liefert die passenden Typen –
     // eine Umwandlung ist nicht nötig.
-    const ergebnis =
-      geprueft.art === 'kategorien'
-        ? await schreibeKategorien(geprueft.vorschau, admin.id)
-        : geprueft.art === 'benutzer'
-          ? await schreibeBenutzer(geprueft.vorschau, admin.id)
-          : await schreibeAufgaben(geprueft.vorschau, admin.id)
+    const ergebnis = await (async () => {
+      switch (geprueft.art) {
+        case 'kategorien':
+          return schreibeKategorien(geprueft.vorschau, admin.id)
+        case 'benutzer':
+          return schreibeBenutzer(geprueft.vorschau, admin.id)
+        case 'referenzen':
+          return schreibeAuditReferenzen(geprueft.vorschau, admin.id)
+        case 'pruefboegen':
+          return schreibePruefboegen(geprueft.vorschau, admin.id)
+        case 'aufgaben':
+          return schreibeAufgaben(geprueft.vorschau, admin.id)
+      }
+    })()
 
     revalidatePath('/admin/import-export')
     revalidatePath('/tasks')
     revalidatePath('/admin/kategorien')
     revalidatePath('/admin/benutzer')
+    revalidatePath('/admin/audit-referenzen')
+    revalidatePath('/admin/pruefboegen')
     revalidatePath('/')
 
     return {

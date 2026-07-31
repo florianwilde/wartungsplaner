@@ -19,6 +19,8 @@ import type {
   BenutzerDaten,
   ImportVorschau,
   KategorieDaten,
+  PruefbogenDaten,
+  ReferenzDaten,
 } from '@/lib/import-export'
 import { prisma } from '@/lib/prisma'
 import { erzeugeErsteFaelligkeit } from '@/server/faelligkeiten'
@@ -332,4 +334,167 @@ function zerlegeAnzeigenamen(name: string): {
     rahmenwerk: teile.slice(0, -1).join(' '),
     kuerzel: teile.at(-1)!,
   }
+}
+
+
+// ---------------------------------------------------------------------------
+// Audit-Referenzen
+// ---------------------------------------------------------------------------
+
+/**
+ * Spielt Audit-Referenzen ein.
+ *
+ * Zugeordnet wird über Rahmenwerk und Kurzzeichen zusammen – dieselbe
+ * Kennung kann in zwei Rahmenwerken Verschiedenes bedeuten.
+ *
+ * Zuordnungen zu Aufgaben bleiben unangetastet: Der Import pflegt die
+ * Stammdaten, nicht die Zuweisung.
+ */
+export async function schreibeAuditReferenzen(
+  vorschau: ImportVorschau<ReferenzDaten>,
+  benutzerId: string,
+): Promise<ImportErgebnis> {
+  const ergebnis: ImportErgebnis = { angelegt: 0, aktualisiert: 0, uebersprungen: 0 }
+
+  await prisma.$transaction(async (tx) => {
+    for (const eintrag of vorschau.eintraege) {
+      if (eintrag.vorgang === 'unveraendert') {
+        ergebnis.uebersprungen++
+        continue
+      }
+
+      const { kuerzel, rahmenwerk } = eintrag.daten
+      const vorhanden = await tx.auditReferenz.findFirst({
+        where: {
+          kuerzel: { equals: kuerzel, mode: 'insensitive' },
+          rahmenwerk:
+            rahmenwerk === null
+              ? null
+              : { equals: rahmenwerk, mode: 'insensitive' },
+        },
+        select: { id: true },
+      })
+
+      if (vorhanden) {
+        await tx.auditReferenz.update({
+          where: { id: vorhanden.id },
+          data: eintrag.daten,
+        })
+        ergebnis.aktualisiert++
+      } else {
+        await tx.auditReferenz.create({ data: eintrag.daten })
+        ergebnis.angelegt++
+      }
+    }
+
+    await schreibeAudit(
+      {
+        userId: benutzerId,
+        action: 'IMPORT_AUSGEFUEHRT',
+        entityType: 'AuditReferenz',
+        entityId: null,
+        payload: { bereich: 'Audit-Referenzen', ...ergebnis },
+      },
+      tx,
+    )
+  })
+
+  return ergebnis
+}
+
+// ---------------------------------------------------------------------------
+// Prüfbögen
+// ---------------------------------------------------------------------------
+
+/**
+ * Spielt Prüfbögen samt ihrer Prüfpunkte ein.
+ *
+ * **Die Prüfpunkte eines bereits benutzten Bogens werden nie ersetzt.** An
+ * ihnen hängen Antworten, Belege und Abweichungen geführter Nachweise; ein
+ * Austausch würde diese Datensätze über die Fremdschlüssel mitlöschen und
+ * damit einen abgeschlossenen Nachweis nachträglich verändern. Die Prüfung
+ * in `@/lib/import-export` lehnt solche Dateien deshalb schon vorher ab –
+ * hier steht die zweite Absicherung, falls sich zwischen Vorschau und
+ * Bestätigung etwas geändert hat.
+ */
+export async function schreibePruefboegen(
+  vorschau: ImportVorschau<PruefbogenDaten>,
+  benutzerId: string,
+): Promise<ImportErgebnis> {
+  const ergebnis: ImportErgebnis = { angelegt: 0, aktualisiert: 0, uebersprungen: 0 }
+
+  await prisma.$transaction(async (tx) => {
+    for (const eintrag of vorschau.eintraege) {
+      if (eintrag.vorgang === 'unveraendert') {
+        ergebnis.uebersprungen++
+        continue
+      }
+
+      const { name, beschreibung, aufgabe, vierAugen, aktiv, punkte } = eintrag.daten
+
+      let taskId: string | null = null
+      if (aufgabe) {
+        const gefunden = await tx.task.findFirst({
+          where: { title: { equals: aufgabe, mode: 'insensitive' } },
+          select: { id: true },
+        })
+        if (!gefunden) {
+          throw new Error(
+            `Die Aufgabe „${aufgabe}" gibt es nicht mehr. Bitte die Vorschau erneut erzeugen.`,
+          )
+        }
+        taskId = gefunden.id
+      }
+
+      const vorhanden = await tx.pruefbogenVorlage.findFirst({
+        where: { name: { equals: name, mode: 'insensitive' } },
+        select: { id: true, _count: { select: { nachweise: true } } },
+      })
+
+      if (!vorhanden) {
+        await tx.pruefbogenVorlage.create({
+          data: {
+            name,
+            beschreibung,
+            taskId,
+            vierAugen,
+            aktiv,
+            updatedById: benutzerId,
+            punkte: { create: punkte },
+          },
+        })
+        ergebnis.angelegt++
+        continue
+      }
+
+      await tx.pruefbogenVorlage.update({
+        where: { id: vorhanden.id },
+        data: { name, beschreibung, taskId, vierAugen, aktiv, updatedById: benutzerId },
+      })
+
+      // Nur wenn noch nie mit dem Bogen geprüft wurde, dürfen die
+      // Prüfpunkte neu geschrieben werden.
+      if (vorhanden._count.nachweise === 0) {
+        await tx.pruefbogenPunkt.deleteMany({ where: { vorlageId: vorhanden.id } })
+        await tx.pruefbogenPunkt.createMany({
+          data: punkte.map((punkt) => ({ ...punkt, vorlageId: vorhanden.id })),
+        })
+      }
+
+      ergebnis.aktualisiert++
+    }
+
+    await schreibeAudit(
+      {
+        userId: benutzerId,
+        action: 'IMPORT_AUSGEFUEHRT',
+        entityType: 'PruefbogenVorlage',
+        entityId: null,
+        payload: { bereich: 'Prüfbögen', ...ergebnis },
+      },
+      tx,
+    )
+  })
+
+  return ergebnis
 }

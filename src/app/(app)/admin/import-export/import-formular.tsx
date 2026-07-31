@@ -29,7 +29,13 @@ import {
 const selectKlassen =
   'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
 
-const ARTEN: ImportArt[] = ['kategorien', 'aufgaben', 'benutzer']
+const ARTEN: ImportArt[] = [
+  'kategorien',
+  'aufgaben',
+  'benutzer',
+  'referenzen',
+  'pruefboegen',
+]
 
 function PruefenButton() {
   const { pending } = useFormStatus()
@@ -110,8 +116,11 @@ export function ImportFormular() {
                   ))}
                 </select>
                 <p className="text-xs text-muted-foreground">
-                  Aufgaben setzen voraus, dass Kategorien und Verantwortliche
-                  bereits vorhanden sind.
+                  {art === 'pruefboegen'
+                    ? 'Eine Zeile je Prüfpunkt: Für einen Bogen mit fünf Punkten steht sein Name fünfmal untereinander.'
+                    : art === 'aufgaben'
+                      ? 'Setzt voraus, dass Kategorien, Verantwortliche und Audit-Referenzen bereits vorhanden sind.'
+                      : 'Zugeordnet wird über den fachlichen Schlüssel, nicht über interne Kennungen.'}
                 </p>
               </div>
 

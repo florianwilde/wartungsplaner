@@ -105,9 +105,15 @@ export default auth((request) => {
   // serverseitig in `erforderlicherBenutzer()` gegen den aktuellen
   // Datenbankstand.
 
-  if (angemeldet && pfad === '/login') {
-    return umleiten(new URL('/', ursprung))
-  }
+  // Angemeldete von der Anmeldeseite wegzuleiten ist ausdrücklich NICHT
+  // Sache dieser Datei: Hier lässt sich das Sitzungs-Cookie nur entschlüsseln,
+  // nicht prüfen (die Edge-Laufzeit hat keine Datenbank). Ein Token, das der
+  // Server längst verworfen hat – etwa nach dem Abmelden –, sieht hier
+  // weiterhin gültig aus. Die Folge wäre eine Endlosschleife: Die Seite
+  // schickt zur Anmeldung, die Middleware schickt zurück.
+  //
+  // Die Weiterleitung übernimmt deshalb die Anmeldeseite selbst; sie kennt
+  // den tatsächlichen Stand.
 
   return weiter()
 })

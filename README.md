@@ -658,6 +658,7 @@ npm run dev                   # http://localhost:3000
 | `npm run test:integration` | Integrationstest gegen die laufende Datenbank |
 | `npm run test:ausgabe` | Excel, ZIP und PDF erzeugen und zurücklesen |
 | `npm run test:migrationen` | Migrationen gegen eine leere Datenbank prüfen |
+| `npm run test:import` | Import von Audit-Referenzen und Prüfbögen |
 | `npm run test:e2e` | End-to-End-Tests im Browser gegen die laufende Anwendung |
 | `npm run screenshots` | Bildschirmfotos aus einer eigens gestarteten Demo-Instanz |
 | `npm run db:migrate` | Migration erzeugen und anwenden |

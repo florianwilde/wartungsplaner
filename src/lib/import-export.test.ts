@@ -5,11 +5,15 @@ import {
   darfGeschriebenWerden,
   fasseVorschauZusammen,
   pruefeAufgaben,
+  pruefeAuditReferenzen,
+  pruefePruefboegen,
   pruefeBenutzer,
   pruefeKategorien,
   type AufgabenBestand,
   type BenutzerDaten,
   type KategorieDaten,
+  type PruefbogenBestand,
+  type ReferenzDaten,
 } from './import-export'
 
 // ---------------------------------------------------------------------------
@@ -404,5 +408,294 @@ describe('fasseVorschauZusammen', () => {
     expect(fasseVorschauZusammen(vorschau)).toBe(
       '1 anlegen, 1 aktualisieren, 0 unverändert.',
     )
+  })
+})
+
+
+// ---------------------------------------------------------------------------
+// Audit-Referenzen
+// ---------------------------------------------------------------------------
+
+const BESTAND_REFERENZEN: ReferenzDaten[] = [
+  {
+    kuerzel: 'A.8.13',
+    bezeichnung: 'Sicherung von Informationen',
+    rahmenwerk: 'ISO 27001',
+    beschreibung: null,
+    aktiv: true,
+    sortOrder: 10,
+  },
+]
+
+const referenzZeilen = (...zeilen: string[]) =>
+  leseCsv(
+    [
+      'rahmenwerk;kuerzel;bezeichnung;beschreibung;aktiv;reihenfolge',
+      ...zeilen,
+    ].join('\n'),
+  )
+
+describe('pruefeAuditReferenzen', () => {
+  it('legt eine unbekannte Referenz an', () => {
+    const vorschau = pruefeAuditReferenzen(
+      referenzZeilen('ISO 27001;A.5.18;Zugangsrechte;;ja;20'),
+      BESTAND_REFERENZEN,
+    )
+    expect(vorschau.fehler).toEqual([])
+    expect(vorschau.anlegen).toBe(1)
+    expect(vorschau.eintraege[0].schluessel).toBe('ISO 27001 A.5.18')
+  })
+
+  it('erkennt eine vorhandene Referenz als unverändert', () => {
+    const vorschau = pruefeAuditReferenzen(
+      referenzZeilen('ISO 27001;A.8.13;Sicherung von Informationen;;ja;10'),
+      BESTAND_REFERENZEN,
+    )
+    expect(vorschau.unveraendert).toBe(1)
+    expect(vorschau.anlegen).toBe(0)
+  })
+
+  it('nennt die geänderten Felder', () => {
+    const vorschau = pruefeAuditReferenzen(
+      referenzZeilen(
+        'ISO 27001;A.8.13;Sicherung von Daten;Neue Erläuterung;nein;10',
+      ),
+      BESTAND_REFERENZEN,
+    )
+    expect(vorschau.aktualisieren).toBe(1)
+    expect(vorschau.eintraege[0].aenderungen).toEqual([
+      'Bezeichnung',
+      'Beschreibung',
+      'Aktiv',
+    ])
+  })
+
+  it('unterscheidet dasselbe Kurzzeichen in verschiedenen Rahmenwerken', () => {
+    // Dieselbe Kennung bedeutet in einem anderen Rahmenwerk etwas anderes –
+    // das darf der Abgleich nicht zusammenwerfen.
+    const vorschau = pruefeAuditReferenzen(
+      referenzZeilen('TISAX;A.8.13;Etwas ganz anderes;;ja;10'),
+      BESTAND_REFERENZEN,
+    )
+    expect(vorschau.anlegen).toBe(1)
+  })
+
+  it('weist ein doppeltes Kurzzeichen in derselben Datei ab', () => {
+    const vorschau = pruefeAuditReferenzen(
+      referenzZeilen(
+        'ISO 27001;A.5.18;Zugangsrechte;;ja;10',
+        'ISO 27001;a.5.18;Nochmal;;ja;20',
+      ),
+      BESTAND_REFERENZEN,
+    )
+    expect(vorschau.fehler).toHaveLength(1)
+    expect(vorschau.fehler[0].meldung).toContain('mehrfach')
+  })
+
+  it('verlangt Kurzzeichen und Bezeichnung', () => {
+    const vorschau = pruefeAuditReferenzen(
+      referenzZeilen(';;;;ja;0', 'ISO 27001;A.1;ab;;ja;0'),
+      [],
+    )
+    expect(vorschau.fehler).toHaveLength(2)
+    expect(vorschau.fehler[0].spalte).toBe('kuerzel')
+    expect(vorschau.fehler[1].spalte).toBe('bezeichnung')
+  })
+
+  it('lehnt einen unverständlichen Ja-Nein-Wert ab, statt zu raten', () => {
+    // Aus einer unklaren Angabe klaglos "ja" zu machen wäre eine stille
+    // Falschauskunft.
+    const vorschau = pruefeAuditReferenzen(
+      referenzZeilen('ISO 27001;A.5.18;Zugangsrechte;;vielleicht;10'),
+      [],
+    )
+    expect(vorschau.fehler).toHaveLength(1)
+    expect(vorschau.fehler[0].spalte).toBe('aktiv')
+  })
+
+  it('kommt ohne Rahmenwerk aus', () => {
+    const vorschau = pruefeAuditReferenzen(
+      referenzZeilen(';Eigene-1;Interne Vorgabe;;ja;0'),
+      [],
+    )
+    expect(vorschau.fehler).toEqual([])
+    expect(vorschau.eintraege[0].schluessel).toBe('Eigene-1')
+    expect(vorschau.eintraege[0].daten.rahmenwerk).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Prüfbögen
+// ---------------------------------------------------------------------------
+
+const bogenZeilen = (...zeilen: string[]) =>
+  leseCsv(
+    [
+      'pruefbogen;beschreibung;aufgabe;vier_augen;aktiv;position;frage;hinweis;art;pflicht',
+      ...zeilen,
+    ].join('\n'),
+  )
+
+const BESTAND_BOEGEN: PruefbogenBestand[] = [
+  {
+    name: 'Rezertifizierung',
+    beschreibung: 'Halbjährliche Durchsicht',
+    aufgabe: null,
+    vierAugen: true,
+    aktiv: true,
+    punkte: [
+      {
+        position: 1,
+        frage: 'Sind alle privilegierten Konten begründet?',
+        hinweis: null,
+        art: 'BEWERTUNG',
+        pflicht: true,
+      },
+    ],
+    hatNachweise: false,
+  },
+]
+
+describe('pruefePruefboegen', () => {
+  it('fasst mehrere Zeilen zu einem Bogen zusammen', () => {
+    const vorschau = pruefePruefboegen(
+      bogenZeilen(
+        'Restore-Test;Ablauf der Rücksicherung;;ja;ja;1;Ist die Sicherung lesbar?;;BEWERTUNG;ja',
+        'Restore-Test;Ablauf der Rücksicherung;;ja;ja;2;Dauer der Rücksicherung;in Minuten;ZAHL;nein',
+      ),
+      [],
+      [],
+    )
+    expect(vorschau.fehler).toEqual([])
+    expect(vorschau.anlegen).toBe(1)
+    expect(vorschau.eintraege[0].daten.punkte).toHaveLength(2)
+    expect(vorschau.eintraege[0].daten.vierAugen).toBe(true)
+    expect(vorschau.eintraege[0].daten.punkte[1].art).toBe('ZAHL')
+  })
+
+  it('nummeriert ohne Positionsangabe in der Reihenfolge der Datei', () => {
+    const vorschau = pruefePruefboegen(
+      bogenZeilen(
+        'Bogen;;;nein;ja;;Erste Frage;;BEWERTUNG;ja',
+        'Bogen;;;nein;ja;;Zweite Frage;;BEWERTUNG;ja',
+      ),
+      [],
+      [],
+    )
+    expect(vorschau.eintraege[0].daten.punkte.map((p) => p.position)).toEqual([
+      1, 2,
+    ])
+  })
+
+  it('weist eine doppelte Position ab', () => {
+    const vorschau = pruefePruefboegen(
+      bogenZeilen(
+        'Bogen;;;nein;ja;1;Erste Frage;;BEWERTUNG;ja',
+        'Bogen;;;nein;ja;1;Zweite Frage;;BEWERTUNG;ja',
+      ),
+      [],
+      [],
+    )
+    expect(vorschau.fehler).toHaveLength(1)
+    expect(vorschau.fehler[0].spalte).toBe('position')
+  })
+
+  it('weist einen Bogen ohne Prüfpunkt ab', () => {
+    const vorschau = pruefePruefboegen(
+      bogenZeilen('Leerer Bogen;;;nein;ja;1;;;BEWERTUNG;ja'),
+      [],
+      [],
+    )
+    expect(vorschau.fehler.length).toBeGreaterThan(0)
+    expect(vorschau.anlegen).toBe(0)
+  })
+
+  it('weist eine unbekannte Art ab und nennt die erlaubten', () => {
+    const vorschau = pruefePruefboegen(
+      bogenZeilen('Bogen;;;nein;ja;1;Eine Frage;;MEINUNG;ja'),
+      [],
+      [],
+    )
+    expect(vorschau.fehler[0].spalte).toBe('art')
+    expect(vorschau.fehler[0].meldung).toContain('BEWERTUNG')
+  })
+
+  it('ordnet einer vorhandenen Aufgabe zu', () => {
+    const vorschau = pruefePruefboegen(
+      bogenZeilen('Bogen;;Restore-Test ERP;nein;ja;1;Eine Frage;;BEWERTUNG;ja'),
+      [],
+      ['Restore-Test ERP'],
+    )
+    expect(vorschau.fehler).toEqual([])
+    expect(vorschau.eintraege[0].daten.aufgabe).toBe('Restore-Test ERP')
+  })
+
+  it('weist eine unbekannte Aufgabe ab', () => {
+    const vorschau = pruefePruefboegen(
+      bogenZeilen('Bogen;;Gibt es nicht;nein;ja;1;Eine Frage;;BEWERTUNG;ja'),
+      [],
+      ['Restore-Test ERP'],
+    )
+    expect(vorschau.fehler).toHaveLength(1)
+    expect(vorschau.fehler[0].spalte).toBe('aufgabe')
+  })
+
+  it('erkennt einen unveränderten Bogen', () => {
+    const vorschau = pruefePruefboegen(
+      bogenZeilen(
+        'Rezertifizierung;Halbjährliche Durchsicht;;ja;ja;1;Sind alle privilegierten Konten begründet?;;BEWERTUNG;ja',
+      ),
+      BESTAND_BOEGEN,
+      [],
+    )
+    expect(vorschau.unveraendert).toBe(1)
+    expect(vorschau.eintraege[0].aenderungen).toEqual([])
+  })
+
+  it('meldet geänderte Prüfpunkte als Änderung', () => {
+    const vorschau = pruefePruefboegen(
+      bogenZeilen(
+        'Rezertifizierung;Halbjährliche Durchsicht;;ja;ja;1;Sind alle privilegierten Konten begründet?;;BEWERTUNG;ja',
+        'Rezertifizierung;Halbjährliche Durchsicht;;ja;ja;2;Neue Frage;;TEXT;nein',
+      ),
+      BESTAND_BOEGEN,
+      [],
+    )
+    expect(vorschau.aktualisieren).toBe(1)
+    expect(vorschau.eintraege[0].aenderungen).toContain('Prüfpunkte')
+  })
+
+  it('verweigert das Ändern der Prüfpunkte eines benutzten Bogens', () => {
+    // An den Punkten hängen Antworten und Belege geführter Nachweise. Sie zu
+    // ersetzen hieße, einen abgeschlossenen Nachweis nachträglich zu ändern.
+    const benutzt: PruefbogenBestand[] = [
+      { ...BESTAND_BOEGEN[0], hatNachweise: true },
+    ]
+    const vorschau = pruefePruefboegen(
+      bogenZeilen(
+        'Rezertifizierung;Halbjährliche Durchsicht;;ja;ja;1;Ganz andere Frage;;BEWERTUNG;ja',
+      ),
+      benutzt,
+      [],
+    )
+    expect(vorschau.fehler).toHaveLength(1)
+    expect(vorschau.fehler[0].meldung).toContain('bereits geprüft')
+    expect(vorschau.aktualisieren).toBe(0)
+  })
+
+  it('lässt Beschreibung und Aktiv-Status eines benutzten Bogens zu', () => {
+    // Die Angaben zum Bogen berühren keinen geführten Nachweis.
+    const benutzt: PruefbogenBestand[] = [
+      { ...BESTAND_BOEGEN[0], hatNachweise: true },
+    ]
+    const vorschau = pruefePruefboegen(
+      bogenZeilen(
+        'Rezertifizierung;Neue Beschreibung;;ja;nein;1;Sind alle privilegierten Konten begründet?;;BEWERTUNG;ja',
+      ),
+      benutzt,
+      [],
+    )
+    expect(vorschau.fehler).toEqual([])
+    expect(vorschau.eintraege[0].aenderungen).toEqual(['Beschreibung', 'Aktiv'])
   })
 })
