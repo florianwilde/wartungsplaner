@@ -29,6 +29,7 @@
     "test:ausgabe": "tsx scripts/ausgabetest.ts",
     "test:migrationen": "bash scripts/migrationstest.sh",
     "test:e2e": "playwright test",
+    "screenshots": "bash scripts/screenshots.sh",
     "test:e2e:ui": "playwright test --ui"
   },
   "overrides": {

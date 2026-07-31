@@ -35,6 +35,21 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ### Hinzugefügt
 
+- **Bildschirmfotos und ein englisches Kurz-README** – für die
+  Veröffentlichung auf GitHub. Wer ein Projekt findet, entscheidet in
+  Sekunden, ob er weiterliest; dafür braucht es ein Bild und einen Absatz in
+  der Weltsprache.
+  - `npm run screenshots` startet eine **eigene Demo-Instanz** in einem
+    getrennten Compose-Projekt, füllt sie mit Beispieldaten, nimmt acht
+    Bilder auf und räumt sie wieder ab. Der laufende Betrieb bleibt
+    unberührt, und in die Bilder gerät nichts, was jemandem gehört.
+  - Die Aufnahme prüft **vor** jedem Bild, dass die erwartete Seite zu sehen
+    ist. Beim ersten Lauf hat genau das acht Bilder der Seite
+    „Passwort ändern" verhindert.
+  - `scripts/demodaten.ts` ergänzt eine Wegwerf-Instanz um Historie:
+    erledigte Prüfungen, offene Abweichungen, Audit-Referenzen und einen
+    gegengezeichneten Prüfbogen. Verlangt `DEMO_BESTAETIGT=ja`, damit es
+    nicht versehentlich auf einem Produktivbestand landet.
 - **Ausgabetest** (`npm run test:ausgabe`) – erzeugt Excel, ZIP und PDF und
   liest die Excel-Mappe wieder ein. Nötig geworden durch die erzwungenen
   Paketfassungen: Ein Eingriff in `exceljs` fällt weder bei der Typprüfung

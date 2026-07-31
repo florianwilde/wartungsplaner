@@ -1,0 +1,17 @@
+# Zusatz für die Demo-Instanz, aus der die Bildschirmfotos entstehen.
+#
+# Die Hauptdatei vergibt feste Containernamen; ohne diese Überlagerung stieße
+# eine zweite Instanz mit dem laufenden Betrieb zusammen. Eigene Namen plus
+# ein eigener Compose-Projektname (`-p wartungsplaner-demo`) trennen beides
+# vollständig – auch die Volumes.
+#
+# Verwendung: über `npm run screenshots`, nicht von Hand.
+
+services:
+  db:
+    container_name: wartungsplaner-demo-db
+    ports:
+      - '127.0.0.1:${POSTGRES_PORT:-55433}:5432'
+
+  app:
+    container_name: wartungsplaner-demo-app

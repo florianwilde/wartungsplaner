@@ -14,6 +14,24 @@ auditfertige Reports als PDF und Excel.
 > aufsetzt oder Nachweise führt – stehen im [Handbuch](docs/README.md).
 > Diese Datei beschreibt Installation, Konfiguration und Betrieb.
 
+*[English summary](README.en.md)*
+
+---
+
+## Bildschirmfotos
+
+| | |
+| --- | --- |
+| ![Dashboard](docs/bilder/dashboard.png) | ![Aufgaben](docs/bilder/aufgaben.png) |
+| **Dashboard** – Ampel je Kategorie, nächste Fälligkeiten, offene Abweichungen | **Aufgaben** – wiederkehrende Prüfungen mit Intervall, Zuständigkeit und Audit-Referenz |
+| ![Abweichungen](docs/bilder/abweichungen.png) | ![Prüfnachweise](docs/bilder/nachweise.png) |
+| **Abweichungen** – Feststellungen mit Frist und Verantwortlichkeit | **Prüfnachweise** – strukturierte Prüfbögen mit Vier-Augen-Prinzip |
+| ![Reports](docs/bilder/reports.png) | ![Dunkles Farbschema](docs/bilder/dashboard-dunkel.png) |
+| **Reports** – fünf Auswertungen als PDF und Excel | **Dunkles Farbschema** – umschaltbar, auch nach Systemvorgabe |
+
+Die Bilder entstehen aus einer Demo-Instanz mit Beispieldaten
+(`npm run screenshots`) – nie aus einem echten Bestand.
+
 ---
 
 ## Inhalt
@@ -641,6 +659,7 @@ npm run dev                   # http://localhost:3000
 | `npm run test:ausgabe` | Excel, ZIP und PDF erzeugen und zurücklesen |
 | `npm run test:migrationen` | Migrationen gegen eine leere Datenbank prüfen |
 | `npm run test:e2e` | End-to-End-Tests im Browser gegen die laufende Anwendung |
+| `npm run screenshots` | Bildschirmfotos aus einer eigens gestarteten Demo-Instanz |
 | `npm run db:migrate` | Migration erzeugen und anwenden |
 | `npm run db:deploy` | Migrationen anwenden (Produktion) |
 | `npm run db:seed` | Seed ausführen |
