@@ -16,6 +16,24 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ### Hinzugefügt
 
+- **Mehrere Aufgaben und Audit-Referenzen markieren und bearbeiten.** Wer
+  zwanzig Aufgaben aus einem missglückten Import loswerden will, klickt
+  sich sonst zwanzigmal durch dieselbe Bestätigung.
+  - In der Aufgabenliste: **Deaktivieren**, **Aktivieren**, **Löschen**.
+    Bei den Audit-Referenzen: **Löschen**.
+  - **Gelöscht wird nur, was keine Historie hat.** An einer Aufgabe mit
+    protokollierter Durchführung hängen über die Fremdschlüssel
+    Fälligkeiten, Nachweisdateien, Abweichungen und Prüfbögen – das
+    Datenmodell räumt sie beim Löschen mit ab. Die Schaltfläche ist dann
+    gesperrt, und darunter steht, wie viele Aufgaben es betrifft und was
+    stattdessen zu tun ist.
+  - Referenzen mit zugeordneten Aufgaben bleiben wie bisher geschützt.
+  - **Ganz oder gar nicht:** Blockiert ein einziger markierter Eintrag,
+    wird der Vorgang abgelehnt und nennt die betroffenen Einträge beim
+    Namen. Ein halb ausgeführtes Löschen hinterließe die Frage, was nun
+    gilt – und die Antwort wäre nicht mehr zu rekonstruieren.
+  - Höchstens 200 Einträge je Vorgang, gegen ein verrutschtes „alles".
+
 - **Audit-Referenzen und Prüfbögen lassen sich importieren.** Bisher waren
   nur Kategorien, Aufgaben und Benutzer über eine Liste zu pflegen –
   ausgerechnet die beiden Bereiche mit den meisten Einzelfeldern fehlten.

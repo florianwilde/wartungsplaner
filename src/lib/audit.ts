@@ -38,6 +38,7 @@ export const AUDIT_AKTIONEN = {
   TASK_UPDATED: 'Aufgabe geändert',
   TASK_ACTIVATED: 'Aufgabe aktiviert',
   TASK_DEACTIVATED: 'Aufgabe deaktiviert',
+  TASK_GELOESCHT: 'Aufgabe gelöscht',
   OCCURRENCE_CREATED: 'Fälligkeit erzeugt',
   OCCURRENCE_OVERDUE: 'Fälligkeit als überfällig markiert',
   OCCURRENCE_SUSPENDED: 'Fälligkeit ausgesetzt',

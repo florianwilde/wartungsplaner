@@ -70,6 +70,17 @@ Der vollständige Text steht im Kurzzeichen. Das Ordnen nach Rahmenwerken ist
 eine fachliche Entscheidung – tragen Sie es in der Verwaltung nach. Referenzen
 ohne Rahmenwerk stehen dort in einer eigenen Gruppe am Ende.
 
+## Mehrere auf einmal löschen
+
+Jede Referenz lässt sich markieren; über der Liste erscheint dann
+**Markierte löschen**. Es gilt dieselbe Regel wie beim einzelnen Löschen:
+Referenzen mit zugeordneten Aufgaben bleiben geschützt – sonst verschwände
+stillschweigend die Angabe, welche Anforderung eine Prüfung abdeckt.
+
+Blockiert eine einzige markierte Referenz, wird der ganze Vorgang
+abgelehnt und nennt sie beim Namen. Zum Ausmustern gibt es das Kennzeichen
+**aktiv**.
+
 ## Import und Export
 
 Der Aufgaben-Export führt die Referenzen als Spalte `auditreferenzen`, mit

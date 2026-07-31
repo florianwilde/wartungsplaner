@@ -90,6 +90,21 @@ Die erste Fälligkeit entsteht sofort zum Startdatum. Jede Nacht prüft die
 Anwendung den Bestand: Sie setzt überfällige Termine, und wo keine offene
 Fälligkeit mehr besteht, legt sie die nächste an.
 
+## Mehrere Aufgaben auf einmal bearbeiten
+
+In der Aufgabenliste lässt sich jede Zeile markieren; über der Liste
+erscheint dann ein Balken mit den Sammelaktionen **Deaktivieren**,
+**Aktivieren** und **Löschen**.
+
+**Gelöscht wird nur, was keine Historie hat.** Sobald an einer markierten
+Aufgabe eine protokollierte Durchführung hängt, ist die Schaltfläche
+gesperrt, und darunter steht, wie viele Aufgaben es betrifft. Der Grund
+steht im nächsten Abschnitt.
+
+Sammelaktionen gelten **ganz oder gar nicht**: Blockiert ein einziger
+Eintrag, wird der Vorgang abgelehnt und nennt die betroffenen Aufgaben.
+Ein halb ausgeführtes Löschen hinterließe die Frage, was nun gilt.
+
 ## Aufgaben deaktivieren statt löschen
 
 Wird eine Prüfung nicht mehr benötigt, **deaktivieren** Sie die Aufgabe. Die

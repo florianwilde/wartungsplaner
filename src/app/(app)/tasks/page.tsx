@@ -30,6 +30,7 @@ import {
   sortiereReferenzen,
 } from '@/lib/audit-referenzen'
 import { erforderlicherBenutzer } from '@/lib/session'
+import { AufgabenTabelle } from './aufgaben-tabelle'
 import { FilterLeiste, type FilterFeld } from './filter-leiste'
 
 export const metadata: Metadata = { title: 'Aufgaben' }
@@ -125,6 +126,11 @@ export default async function AufgabenSeite({
         take: 1,
         select: { id: true, dueDate: true, status: true },
       },
+      // Entscheidet, ob sich die Aufgabe löschen lässt: Mit auch nur
+      // einer Durchführung hängt Historie daran.
+      _count: {
+        select: { occurrences: { where: { execution: { isNot: null } } } },
+      },
     },
   })
 
@@ -217,92 +223,49 @@ export default async function AufgabenSeite({
       {aufgaben.length === 0 ? (
         <LeerHinweis text="Zu den gewählten Filtern gibt es keine Aufgaben." />
       ) : (
-        <div className="rounded-lg border border-border bg-card">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Aufgabe</TableHead>
-                <TableHead>Kategorie</TableHead>
-                <TableHead>Verantwortlich</TableHead>
-                <TableHead>Intervall</TableHead>
-                <TableHead>Nächste Fälligkeit</TableHead>
-                <TableHead>Kritikalität</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {aufgaben.map((aufgabe) => {
-                const naechste = aufgabe.occurrences[0]
-                return (
-                  <TableRow key={aufgabe.id}>
-                    <TableCell>
-                      <Link
-                        href={`/tasks/${aufgabe.id}`}
-                        className="font-medium hover:underline"
-                      >
-                        {aufgabe.title}
-                      </Link>
-                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                        {!aufgabe.active ? (
-                          <Badge variant="secondary">Deaktiviert</Badge>
-                        ) : null}
-                        {aufgabe.evidenceRequired ? (
-                          <Badge variant="outline">Nachweis nötig</Badge>
-                        ) : null}
-                        {aufgabe.auditReferenzen.map((zuordnung) => (
-                          <Badge
-                            key={zuordnung.referenzId}
-                            variant="outline"
-                            title={langName(zuordnung.referenz)}
-                          >
-                            {zuordnung.referenz.kuerzel}
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="flex items-center gap-2 whitespace-nowrap">
-                        <KategoriePunkt farbe={aufgabe.category.color} />
-                        {aufgabe.category.name}
-                      </span>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {aufgabe.owner.name}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">
-                      {intervallText(aufgabe.intervalType, aufgabe.intervalValue)}
-                    </TableCell>
-                    <TableCell>
-                      {naechste ? (
-                        <div className="flex items-center gap-2 whitespace-nowrap">
-                          <span>{formatDate(naechste.dueDate)}</span>
-                          {naechste.status === 'SUSPENDED' ? (
-                            <FaelligkeitsStatusBadge status="SUSPENDED" />
-                          ) : (
-                            <AmpelBadge
-                              ampel={bewerteAmpel(
-                                naechste.dueDate,
-                                aufgabe.leadTimeDays,
-                                aufgabe.graceDays,
-                                heute,
-                              )}
-                            />
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">–</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <KritikalitaetBadge kritikalitaet={aufgabe.criticality} />
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </div>
+        <AufgabenTabelle
+          darfVerwalten={canManageTasks(benutzer.role)}
+          aufgaben={aufgaben.map((aufgabe) => {
+            const naechste = aufgabe.occurrences[0]
+            return {
+              id: aufgabe.id,
+              titel: aufgabe.title,
+              aktiv: aufgabe.active,
+              nachweispflicht: aufgabe.evidenceRequired,
+              referenzen: aufgabe.auditReferenzen.map((zuordnung) => ({
+                id: zuordnung.referenzId,
+                kuerzel: zuordnung.referenz.kuerzel,
+                langname: langName(zuordnung.referenz),
+              })),
+              kategorie: {
+                name: aufgabe.category.name,
+                farbe: aufgabe.category.color,
+              },
+              verantwortlich: aufgabe.owner.name,
+              intervall: intervallText(
+                aufgabe.intervalType,
+                aufgabe.intervalValue,
+              ),
+              kritikalitaet: aufgabe.criticality,
+              naechste: naechste
+                ? {
+                    datum: formatDate(naechste.dueDate),
+                    status: naechste.status,
+                    // Der Stichtag gehört auf den Server: Sonst bewertet
+                    // der Browser des Betrachters mit seiner eigenen Uhr.
+                    ampel: bewerteAmpel(
+                      naechste.dueDate,
+                      aufgabe.leadTimeDays,
+                      aufgabe.graceDays,
+                      heute,
+                    ),
+                  }
+                : null,
+              durchfuehrungen: aufgabe._count.occurrences,
+            }
+          })}
+        />
       )}
-
       <p className="text-xs text-muted-foreground">
         {aufgaben.length} {aufgaben.length === 1 ? 'Aufgabe' : 'Aufgaben'} angezeigt.
       </p>

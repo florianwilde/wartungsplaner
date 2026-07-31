@@ -8,6 +8,13 @@ import { ArrowRight, Pencil, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
+import {
+  AlleAuswaehlen,
+  Sammelleiste,
+  ZeileAuswaehlen,
+  useSammelauswahl,
+} from '@/components/sammelauswahl'
+import { referenzenSammelLoeschen } from '@/server/actions/sammelaktionen'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -98,16 +105,75 @@ export function ReferenzenVerwaltung({
       }
     })
 
+  const alleIds = referenzen.map((r) => r.id)
+  const auswahl = useSammelauswahl(alleIds)
+  const [sammelLaeuft, starteSammel] = useTransition()
+
+  /** Löscht die markierten Referenzen – zugeordnete bleiben geschützt. */
+  const markierteLoeschen = () => {
+    const anzahl = auswahl.markiert.length
+    if (
+      !confirm(
+        `${anzahl} ${anzahl === 1 ? 'Referenz' : 'Referenzen'} löschen? ` +
+          'Referenzen mit zugeordneten Aufgaben werden dabei abgelehnt.',
+      )
+    ) {
+      return
+    }
+
+    starteSammel(async () => {
+      const antwort = await referenzenSammelLoeschen(auswahl.markiert)
+      if (antwort.fehler) {
+        // Die Meldung nennt die blockierenden Einträge und ist deshalb
+        // länger als üblich – sie darf nicht nach zwei Sekunden weg sein.
+        toast.error(antwort.fehler, { duration: 12000 })
+        return
+      }
+      toast.success(antwort.erfolg ?? 'Gelöscht.')
+      auswahl.leeren()
+      router.refresh()
+    })
+  }
+
   const gruppen = nachRahmenwerk(referenzen)
 
   return (
     <>
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {referenzen.length > 0 ? (
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+            <AlleAuswaehlen
+              alleMarkiert={auswahl.alleMarkiert}
+              teilweise={auswahl.teilweise}
+              onChange={auswahl.alleUmschalten}
+            />
+            Alle markieren
+          </label>
+        ) : (
+          <span />
+        )}
         <Button onClick={() => setNeu(true)}>
           <Plus className="size-4" />
           Referenz anlegen
         </Button>
       </div>
+
+      <Sammelleiste
+        anzahl={auswahl.markiert.length}
+        einzahl="Referenz"
+        mehrzahl="Referenzen"
+        onAbwaehlen={auswahl.leeren}
+      >
+        <Button
+          variant="destructive"
+          size="sm"
+          disabled={sammelLaeuft}
+          onClick={markierteLoeschen}
+        >
+          <Trash2 className="size-4" />
+          {sammelLaeuft ? 'Wird gelöscht …' : 'Markierte löschen'}
+        </Button>
+      </Sammelleiste>
 
       {referenzen.length === 0 ? (
         <Card>
@@ -138,9 +204,21 @@ export function ReferenzenVerwaltung({
                 {gruppe.eintraege.map((referenz) => (
                   <li
                     key={referenz.id}
-                    className="flex flex-wrap items-start justify-between gap-3 rounded-md border border-border p-3"
+                    className={`flex flex-wrap items-start justify-between gap-3 rounded-md border p-3 ${
+                      auswahl.istMarkiert(referenz.id)
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border'
+                    }`}
                   >
-                    <div className="min-w-0">
+                    <div className="flex min-w-0 flex-1 items-start gap-3">
+                      <span className="kein-druck mt-1">
+                        <ZeileAuswaehlen
+                          markiert={auswahl.istMarkiert(referenz.id)}
+                          onChange={() => auswahl.umschalten(referenz.id)}
+                          bezeichnung={referenz.kuerzel}
+                        />
+                      </span>
+                      <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium">{referenz.kuerzel}</span>
                         {!referenz.aktiv ? (
@@ -169,6 +247,7 @@ export function ReferenzenVerwaltung({
                           {referenz.beschreibung}
                         </p>
                       ) : null}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-1">
