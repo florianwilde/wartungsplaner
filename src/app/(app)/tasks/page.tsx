@@ -225,6 +225,7 @@ export default async function AufgabenSeite({
       ) : (
         <AufgabenTabelle
           darfVerwalten={canManageTasks(benutzer.role)}
+          istAdmin={benutzer.role === 'ADMIN'}
           aufgaben={aufgaben.map((aufgabe) => {
             const naechste = aufgabe.occurrences[0]
             return {

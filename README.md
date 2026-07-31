@@ -659,6 +659,7 @@ npm run dev                   # http://localhost:3000
 | `npm run test:ausgabe` | Excel, ZIP und PDF erzeugen und zurücklesen |
 | `npm run test:migrationen` | Migrationen gegen eine leere Datenbank prüfen |
 | `npm run test:import` | Import von Audit-Referenzen und Prüfbögen |
+| `npm run test:erzwingen` | Löschen samt Nachweisen: Protokoll und Dateiablage |
 | `npm run test:beispiele` | Beispieldateien gegen die Importregeln prüfen |
 | `npm run test:einspielen` | Beispieldateien in eine leere Datenbank einspielen |
 | `npm run test:e2e` | End-to-End-Tests im Browser gegen die laufende Anwendung |

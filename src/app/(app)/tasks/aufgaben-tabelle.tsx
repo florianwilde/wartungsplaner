@@ -1,9 +1,9 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { CircleSlash, CirclePlay, Trash2 } from 'lucide-react'
+import { CircleSlash, CirclePlay, ShieldAlert, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import {
@@ -34,6 +34,7 @@ import {
 } from '@/server/actions/sammelaktionen'
 import type { Ampel } from '@/lib/scheduling'
 import type { Criticality, OccurrenceStatus } from '@prisma/client'
+import { ErzwungenLoeschenDialog } from './erzwungen-loeschen-dialog'
 
 /**
  * Eine Zeile der Aufgabenliste.
@@ -64,13 +65,17 @@ export type AufgabenZeile = {
 export function AufgabenTabelle({
   aufgaben,
   darfVerwalten,
+  istAdmin,
 }: {
   aufgaben: AufgabenZeile[]
   darfVerwalten: boolean
+  /** Nur Administratoren dürfen Nachweise vernichten. */
+  istAdmin: boolean
 }) {
   const router = useRouter()
   const auswahl = useSammelauswahl(aufgaben.map((a) => a.id))
   const [laeuft, starte] = useTransition()
+  const [erzwingenOffen, setErzwingenOffen] = useState(false)
 
   const markierte = aufgaben.filter((a) => auswahl.istMarkiert(a.id))
   const mitHistorie = markierte.filter((a) => a.durchfuehrungen > 0).length
@@ -155,6 +160,21 @@ export function AufgabenTabelle({
             <Trash2 className="size-4" />
             Löschen
           </Button>
+
+          {/* Der Ausnahmeweg erscheint nur, wenn er gebraucht wird – und
+              nur für Administratoren. */}
+          {istAdmin && mitHistorie > 0 ? (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={laeuft}
+              onClick={() => setErzwingenOffen(true)}
+              className="border-destructive/50 text-destructive hover:bg-destructive/10"
+            >
+              <ShieldAlert className="size-4" />
+              Mit Nachweisen löschen …
+            </Button>
+          ) : null}
         </Sammelleiste>
       ) : null}
 
@@ -167,7 +187,19 @@ export function AufgabenTabelle({
             : `${mitHistorie} markierte Aufgaben haben bereits Durchführungen und lassen sich deshalb nicht löschen`}
           {' '}– die Historie bliebe sonst nicht erhalten. Deaktivieren Sie
           {mitHistorie === 1 ? ' sie ' : ' diese '}stattdessen.
+          {istAdmin
+            ? ' Für Testdaten und Fehlimporte gibt es „Mit Nachweisen löschen“ – der Vorgang wird protokolliert.'
+            : ''}
         </p>
+      ) : null}
+
+      {istAdmin ? (
+        <ErzwungenLoeschenDialog
+          ids={auswahl.markiert}
+          offen={erzwingenOffen}
+          onSchliessen={() => setErzwingenOffen(false)}
+          onErledigt={auswahl.leeren}
+        />
       ) : null}
 
       <div className="rounded-lg border border-border bg-card">

@@ -98,3 +98,102 @@ export function fasseErgebnisZusammen(
 ): string {
   return `${anzahl} ${anzahl === 1 ? einzahl : mehrzahl} ${vorgang}.`
 }
+
+// ---------------------------------------------------------------------------
+// Erzwungenes Löschen
+// ---------------------------------------------------------------------------
+
+/**
+ * Was ein erzwungenes Löschen vernichten würde.
+ *
+ * Die Zahlen stehen vor der Bestätigung auf dem Bildschirm und danach im
+ * Audit-Log. Der Grundsatz dahinter: Wenn ein Nachweis schon verschwinden
+ * muss, darf wenigstens die Tatsache nicht verschwinden, dass es ihn gab.
+ */
+export type Verlust = {
+  aufgaben: number
+  faelligkeiten: number
+  durchfuehrungen: number
+  nachweisdateien: number
+  abweichungen: number
+  pruefnachweise: number
+  pruefboegen: number
+}
+
+/** Mindestlänge der Begründung – „test" hilft in zwei Jahren niemandem. */
+export const MIN_BEGRUENDUNG = 15
+
+export type ErzwingenPruefung =
+  | { ok: true }
+  | { ok: false; fehler: string }
+
+/**
+ * Prüft die Angaben vor einem erzwungenen Löschen.
+ *
+ * Verlangt eine Begründung und die wörtliche Bestätigung. Beides ist Absicht:
+ * Ein Klick auf „OK" passiert versehentlich, das Abtippen eines Wortes nicht.
+ */
+export function pruefeErzwingen(eingabe: {
+  ids: string[]
+  begruendung: string
+  bestaetigung: string
+}): ErzwingenPruefung {
+  if (eingabe.ids.length === 0) {
+    return { ok: false, fehler: 'Es ist nichts markiert.' }
+  }
+  if (eingabe.ids.length > MAX_SAMMELAKTION) {
+    return {
+      ok: false,
+      fehler: `Höchstens ${MAX_SAMMELAKTION} Einträge auf einmal.`,
+    }
+  }
+
+  const begruendung = eingabe.begruendung.trim()
+  if (begruendung.length < MIN_BEGRUENDUNG) {
+    return {
+      ok: false,
+      fehler:
+        `Bitte begründen Sie die Löschung mit mindestens ${MIN_BEGRUENDUNG} Zeichen. ` +
+        'Die Begründung steht später im Audit-Log und ist das Einzige, was von ' +
+        'den Nachweisen übrig bleibt.',
+    }
+  }
+  if (begruendung.length > 1000) {
+    return { ok: false, fehler: 'Die Begründung darf höchstens 1000 Zeichen haben.' }
+  }
+
+  if (eingabe.bestaetigung.trim().toUpperCase() !== BESTAETIGUNGSWORT) {
+    return {
+      ok: false,
+      fehler: `Bitte „${BESTAETIGUNGSWORT}" zur Bestätigung eingeben.`,
+    }
+  }
+
+  return { ok: true }
+}
+
+/** Wort, das zur Bestätigung abgetippt werden muss. */
+export const BESTAETIGUNGSWORT = 'LOESCHEN'
+
+/**
+ * Der Verlust in Worten – für Bestätigungsdialog und Audit-Eintrag.
+ *
+ * Nur was tatsächlich betroffen ist, wird genannt: Eine Aufzählung mit fünf
+ * Nullen darin liest niemand zu Ende.
+ */
+export function beschreibeVerlust(verlust: Verlust): string {
+  const teile: string[] = []
+  const nenne = (anzahl: number, einzahl: string, mehrzahl: string) => {
+    if (anzahl > 0) teile.push(`${anzahl} ${anzahl === 1 ? einzahl : mehrzahl}`)
+  }
+
+  nenne(verlust.aufgaben, 'Aufgabe', 'Aufgaben')
+  nenne(verlust.faelligkeiten, 'Fälligkeit', 'Fälligkeiten')
+  nenne(verlust.durchfuehrungen, 'Durchführung', 'Durchführungen')
+  nenne(verlust.pruefnachweise, 'Prüfnachweis', 'Prüfnachweise')
+  nenne(verlust.nachweisdateien, 'Nachweisdatei', 'Nachweisdateien')
+  nenne(verlust.abweichungen, 'Abweichung', 'Abweichungen')
+  nenne(verlust.pruefboegen, 'Prüfbogen', 'Prüfbögen')
+
+  return teile.join(', ')
+}

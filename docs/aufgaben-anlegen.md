@@ -105,6 +105,27 @@ Sammelaktionen gelten **ganz oder gar nicht**: Blockiert ein einziger
 Eintrag, wird der Vorgang abgelehnt und nennt die betroffenen Aufgaben.
 Ein halb ausgeführtes Löschen hinterließe die Frage, was nun gilt.
 
+### Wenn doch etwas weg muss
+
+Testdaten aus der Einführungsphase oder ein misslungener Import lassen
+sich nicht deaktivieren – die sollen wirklich verschwinden. Dafür gibt es
+für **Administratoren** die Schaltfläche **„Mit Nachweisen löschen"**.
+Sie erscheint nur, wenn unter den markierten Aufgaben welche mit Historie
+sind.
+
+Der Dialog zeigt zuerst, was verlorenginge – Fälligkeiten,
+Durchführungen, Nachweisdateien, Abweichungen – und verlangt dann eine
+**Begründung** und das abgetippte Wort `LOESCHEN`.
+
+> **Der Vorgang steht anschließend im Audit-Log**: mit Ihrem Namen, dem
+> Umfang, den Prüfsummen der entfernten Dateien und Ihrer Begründung. Das
+> Protokoll ist unveränderlich und übersteht die Löschung. Für ein Audit
+> bleibt damit nachvollziehbar, dass es die Nachweise gab und warum sie
+> entfernt wurden.
+
+Für eine Prüfung, die nur nicht mehr stattfinden soll, ist das der
+falsche Weg. Dafür steht das Deaktivieren im nächsten Abschnitt.
+
 ## Aufgaben deaktivieren statt löschen
 
 Wird eine Prüfung nicht mehr benötigt, **deaktivieren** Sie die Aufgabe. Die

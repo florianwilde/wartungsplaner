@@ -187,6 +187,66 @@ Bewusste Entscheidungen, die bei geändertem Betriebsmodell zu überdenken sind:
 
 ---
 
+## Löschen von Nachweisen
+
+Die Anwendung schützt Nachweise: Eine Aufgabe mit protokollierter
+Durchführung lässt sich nicht löschen, zum Ausmustern gibt es das
+Deaktivieren. Für Testdaten und Fehlimporte gibt es davon **eine**
+Ausnahme.
+
+### Der Ausnahmeweg
+
+*Aufgaben → markieren → „Mit Nachweisen löschen"* entfernt eine Aufgabe
+samt Fälligkeiten, Durchführungen, Nachweisdateien, Abweichungen und
+Prüfbögen.
+
+Bedingungen:
+
+| | |
+| --- | --- |
+| **Rolle** | nur Administratoren – das Verwalten von Aufgaben genügt nicht |
+| **Begründung** | Pflichtfeld, mindestens 15 Zeichen |
+| **Bestätigung** | das Wort `LOESCHEN` muss abgetippt werden |
+| **Umfang** | wird vor der Bestätigung angezeigt, frisch aus der Datenbank ermittelt |
+| **Höchstzahl** | 200 Aufgaben je Vorgang |
+
+### Warum kein dauerhafter Modus
+
+Ein einschaltbarer „Super-Admin-Modus" wäre bequemer und deshalb
+gefährlicher: Er wird eingeschaltet, vergessen, und dann verschwindet
+nebenbei etwas Echtes. Der Weg ist bewusst eine Einzelhandlung, die sich
+nicht vorab freischalten lässt.
+
+### Was bestehen bleibt
+
+Der Audit-Eintrag entsteht **vor** dem Löschen, in derselben Transaktion,
+und enthält:
+
+- den Namen der handelnden Person und den Zeitpunkt
+- die Titel der gelöschten Aufgaben
+- den Umfang: Zahl der Fälligkeiten, Durchführungen, Nachweisdateien,
+  Abweichungen, Prüfnachweise und Prüfbögen
+- **Dateiname und SHA-256-Prüfsumme jeder entfernten Nachweisdatei**
+- die Begründung im Wortlaut
+
+Das Audit-Log ist durch einen Datenbank-Trigger unveränderlich und
+übersteht die Löschung. Der Grundsatz dahinter: Wenn ein Nachweis schon
+verschwinden muss, darf wenigstens die Tatsache nicht verschwinden, dass
+es ihn gab – und die Prüfsumme belegt später, welche Datei genau fehlt.
+
+Die Dateien werden auch von der Platte entfernt, nicht nur ihre Einträge.
+Sonst meldete der nächste Prüfsummenlauf sie als herrenlos.
+
+### Was das für ein Audit bedeutet
+
+Ein Prüfer, der eine Lücke in der Nachweiskette findet, findet im
+Audit-Log den zugehörigen Eintrag mit Begründung. Das ist keine
+Rechtfertigung für eine Löschung, aber es macht sie nachvollziehbar.
+**Für das Ausmustern laufender Prüfungen ist dieser Weg der falsche** –
+dafür gibt es das Deaktivieren, bei dem die Historie erhalten bleibt.
+
+---
+
 ## Lieferkette
 
 Stand 31.07.2026. Die Anwendung bringt **36 direkte Abhängigkeiten** mit;

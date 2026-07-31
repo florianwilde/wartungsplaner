@@ -16,6 +16,28 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ### Hinzugefügt
 
+- **Aufgaben samt Nachweisen löschen** – für Testdaten und Fehlimporte.
+  Bisher blieb eine Aufgabe mit protokollierter Durchführung für immer
+  stehen; das ist für echte Prüfungen richtig, für die Reste einer
+  Einführungsphase nicht.
+  - **Kein dauerhafter Modus, sondern eine Einzelhandlung.** Ein
+    einschaltbarer „Super-Admin-Modus" wäre bequemer und deshalb
+    gefährlicher: Er wird eingeschaltet, vergessen, und dann verschwindet
+    nebenbei etwas Echtes.
+  - Nur für Administratoren. Verlangt eine **Begründung** (mindestens 15
+    Zeichen) und das abgetippte Wort `LOESCHEN` – ein Klick auf „OK"
+    passiert versehentlich, das Abtippen nicht.
+  - Der Dialog zeigt **vor** der Bestätigung, was verlorenginge, frisch
+    aus der Datenbank ermittelt.
+  - **Der Audit-Eintrag entsteht vor dem Löschen** und hält Titel, Umfang,
+    Begründung und die **SHA-256-Prüfsummen der entfernten Dateien** fest.
+    Das Protokoll ist durch einen Datenbank-Trigger unveränderlich und
+    übersteht die Löschung: Wenn ein Nachweis schon verschwinden muss,
+    bleibt wenigstens die Tatsache, dass es ihn gab.
+  - Die Dateien werden auch von der Platte entfernt – sonst meldete der
+    nächste Prüfsummenlauf sie als herrenlos.
+  - Einzelheiten in [SICHERHEIT.md](SICHERHEIT.md#löschen-von-nachweisen).
+
 - **Einspielbarer Prüfplan nach ISO/IEC 27001:2022 und TISAX (VDA ISA 6)**
   unter [beispiele/pruefplan/](beispiele/pruefplan/LIESMICH.md): sechs
   Kategorien, 49 Audit-Referenzen und 30 wiederkehrende Prüfungen mit

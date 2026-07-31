@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  BESTAETIGUNGSWORT,
   MAX_SAMMELAKTION,
+  beschreibeVerlust,
   fasseErgebnisZusammen,
+  pruefeErzwingen,
   pruefeSammelloeschung,
   type Kandidat,
 } from './sammelaktion'
@@ -91,5 +94,92 @@ describe('fasseErgebnisZusammen', () => {
     expect(fasseErgebnisZusammen(0, 'Aufgabe', 'Aufgaben', 'gelöscht')).toBe(
       '0 Aufgaben gelöscht.',
     )
+  })
+})
+
+
+describe('pruefeErzwingen', () => {
+  const eingabe = (teil: Partial<Parameters<typeof pruefeErzwingen>[0]> = {}) => ({
+    ids: ['a'],
+    begruendung: 'Testdaten aus der Einführungsphase, mit der IT-Leitung abgestimmt.',
+    bestaetigung: BESTAETIGUNGSWORT,
+    ...teil,
+  })
+
+  it('lässt eine vollständige Eingabe zu', () => {
+    expect(pruefeErzwingen(eingabe())).toEqual({ ok: true })
+  })
+
+  it('verlangt eine Markierung', () => {
+    expect(pruefeErzwingen(eingabe({ ids: [] })).ok).toBe(false)
+  })
+
+  it('verlangt eine tragfähige Begründung', () => {
+    // „test" hilft in zwei Jahren niemandem, der wissen will, warum ein
+    // Nachweis fehlt.
+    const ergebnis = pruefeErzwingen(eingabe({ begruendung: 'test' }))
+    expect(ergebnis.ok).toBe(false)
+    if (!ergebnis.ok) expect(ergebnis.fehler).toContain('Audit-Log')
+  })
+
+  it('zählt Leerraum nicht als Begründung', () => {
+    expect(pruefeErzwingen(eingabe({ begruendung: '   ' + ' '.repeat(30) })).ok).toBe(
+      false,
+    )
+  })
+
+  it('begrenzt die Länge der Begründung', () => {
+    expect(pruefeErzwingen(eingabe({ begruendung: 'x'.repeat(1001) })).ok).toBe(false)
+  })
+
+  it('verlangt das abgetippte Bestätigungswort', () => {
+    // Ein Klick auf „OK" passiert versehentlich, das Abtippen eines Wortes
+    // nicht.
+    const ergebnis = pruefeErzwingen(eingabe({ bestaetigung: 'ja' }))
+    expect(ergebnis.ok).toBe(false)
+    if (!ergebnis.ok) expect(ergebnis.fehler).toContain(BESTAETIGUNGSWORT)
+  })
+
+  it('nimmt die Bestätigung auch in Kleinschreibung an', () => {
+    expect(pruefeErzwingen(eingabe({ bestaetigung: ' loeschen ' })).ok).toBe(true)
+  })
+
+  it('begrenzt die Anzahl je Vorgang', () => {
+    const viele = Array.from({ length: MAX_SAMMELAKTION + 1 }, (_, i) => `id-${i}`)
+    expect(pruefeErzwingen(eingabe({ ids: viele })).ok).toBe(false)
+  })
+})
+
+describe('beschreibeVerlust', () => {
+  const leer = {
+    aufgaben: 0,
+    faelligkeiten: 0,
+    durchfuehrungen: 0,
+    nachweisdateien: 0,
+    abweichungen: 0,
+    pruefnachweise: 0,
+    pruefboegen: 0,
+  }
+
+  it('nennt nur, was tatsächlich betroffen ist', () => {
+    // Eine Aufzählung mit fünf Nullen darin liest niemand zu Ende.
+    const text = beschreibeVerlust({
+      ...leer,
+      aufgaben: 2,
+      durchfuehrungen: 7,
+      nachweisdateien: 3,
+    })
+    expect(text).toBe('2 Aufgaben, 7 Durchführungen, 3 Nachweisdateien')
+    expect(text).not.toContain('0')
+  })
+
+  it('beugt die Einzahl richtig', () => {
+    expect(beschreibeVerlust({ ...leer, aufgaben: 1, durchfuehrungen: 1 })).toBe(
+      '1 Aufgabe, 1 Durchführung',
+    )
+  })
+
+  it('liefert bei nichts Betroffenem eine leere Zeichenkette', () => {
+    expect(beschreibeVerlust(leer)).toBe('')
   })
 })
