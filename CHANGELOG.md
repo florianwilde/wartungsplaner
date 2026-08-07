@@ -12,10 +12,48 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ---
 
-## [Unveröffentlicht]
+## [1.11.0] – 2026-08-07
+
+### Geändert
+
+- **Eine frische Installation ist leer.** Der Seed legt nur noch das
+  Verwaltungskonto an. Bisher kamen sechs Kategorien und zwölf erfundene
+  Aufgaben mit – „Restore-Test ERP-System“, „Offboarding-Stichprobe“ –,
+  die niemand beschlossen hatte.
+  - Wer die Anwendung neu ausrollt, räumt eine solche Liste entweder auf
+    oder lebt mit Prüfungen, die es gar nicht geben sollte. Beides ist im
+    Audit schlechter als ein leeres Blatt: Welche Prüfung in welchem
+    Abstand läuft, ist eine Entscheidung der Organisation.
+  - Einen Ausgangsbestand gibt es weiterhin, aber zum Einspielen bei
+    Bedarf: `beispiele/pruefplan/` mit sechs Kategorien, 49
+    Audit-Referenzen nach ISO/IEC 27001:2022 und VDA ISA 6, 30 Prüfungen
+    mit Prüfanleitung und neun Prüfbögen.
+  - **Bestehende Installationen sind nicht betroffen.** Der Seed läuft
+    ohnehin nur, wenn die Datenbank noch keinen Benutzer enthält.
 
 ### Behoben
 
+- **Datenbankmeldungen erreichten den Browser.** Schlug eine Server Action
+  an einer Stelle fehl, die nicht die Anwendung selbst geprüft hatte,
+  wurde der Text des Fehlers unverändert angezeigt – bei einer verletzten
+  Eindeutigkeit nennt Prisma darin Tabelle, Spalte und Indexnamen. Solche
+  Meldungen werden jetzt protokolliert und durch einen neutralen Satz
+  ersetzt; Fehler der Anwendung selbst erscheinen weiterhin im Wortlaut.
+- **Der Dialog zum erzwungenen Löschen konnte hängen bleiben.** Der Umfang
+  wird beim Öffnen frisch ermittelt; schlug dieser Aufruf fehl, blieb der
+  Dialog dauerhaft im Ladezustand, ohne zu sagen, warum.
+- **Die Obergrenze für Nachweisdateien stand dreimal als „25 MB“ in der
+  Oberfläche.** Eine Änderung der Konstanten hätte drei stille Falschangaben
+  hinterlassen. Der Text wird jetzt abgeleitet.
+- Ein unsichtbares Byte-Order-Mark stand wörtlich in einem regulären
+  Ausdruck, ein Verweis wurde während des Renderns beschrieben, deutsche
+  Anführungszeichen wurden oben nicht geschlossen, und in `tasks/page.tsx`
+  standen Importe, die seit der Auslagerung der Tabelle niemand mehr
+  braucht.
+- **`npm ci` scheiterte in einer sauberen Umgebung.** `@eslint/js` löste
+  sich auf Version 10 auf und verlangte damit ESLint 10, festgelegt ist
+  aber 9. Betroffen waren der Containerbau und die CI, nicht der laufende
+  Betrieb.
 - **Nach einem Import fehlte der Übernehmen-Knopf.** Wer eine zweite Datei
   prüfte, sah in der Vorschau die Erfolgsmeldung des vorigen Laufs statt
   der Schaltfläche – und kam ohne Neuladen der Seite nicht weiter. Wer den
@@ -29,6 +67,17 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ### Hinzugefügt
 
+- **ESLint und Prettier** mit `npm run lint`, `npm run format` und
+  `npm run pruefen` (Formatierung, Regeln, Typen, Unit-Tests in einem
+  Aufruf). Der erste Lauf hat die oben genannten Fehler gefunden; der
+  Bestand meldet jetzt nichts mehr.
+- **CI auf GitHub Actions** – dieselben Prüfungen, dazu das Übersetzen und
+  ein Einspiellauf der Beispieldateien gegen eine echte PostgreSQL-Instanz.
+- **`.gitattributes` und `.editorconfig`.** Im Repository lagen Dateien mit
+  gemischten Zeilenenden; Textdateien werden jetzt einheitlich mit LF
+  abgelegt.
+- **`SECURITY.md`, `CONTRIBUTING.md` und Issue-Vorlagen** für die
+  Veröffentlichung auf GitHub.
 - **Aufgaben samt Nachweisen löschen** – für Testdaten und Fehlimporte.
   Bisher blieb eine Aufgabe mit protokollierter Durchführung für immer
   stehen; das ist für echte Prüfungen richtig, für die Reste einer
@@ -827,7 +876,8 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/<konto>/wartungsplaner/compare/v1.10.0...main
+[Unveröffentlicht]: https://github.com/<konto>/wartungsplaner/compare/v1.11.0...main
+[1.11.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.11.0
 [1.10.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.10.0
 [1.9.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.9.0
 [1.8.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.8.0

@@ -60,8 +60,16 @@ docker compose up -d --build
 ```
 
 Then open <http://localhost:3000> and sign in with the seeded administrator.
-The database schema is applied automatically; example tasks are created on
-first start.
+The database schema is applied automatically.
+
+**A fresh installation is empty** — the seed creates the administrator
+account and nothing else. Which checks run at which interval is your
+organisation's decision, not the application's. A ready-made starting set
+covering ISO/IEC 27001:2022 and TISAX (VDA ISA 6) ships in
+[`beispiele/pruefplan/`](beispiele/pruefplan/) and is imported on demand via
+_Administration → Import und Export_: 6 categories, 49 audit references, 30
+recurring checks with instructions, 9 checklists. The files are German, as
+is everything else — see below.
 
 Full installation, configuration and operations guide (in German):
 [README.md](README.md).
@@ -86,11 +94,12 @@ Compose stack.
 
 | Command                    |                                                           |
 | -------------------------- | --------------------------------------------------------- |
-| `npm test`                 | 522 unit tests covering scheduling, dates, evidence rules |
+| `npm test`                 | 567 unit tests covering scheduling, dates, evidence rules |
 | `npm run test:integration` | against a real PostgreSQL instance                        |
 | `npm run test:e2e`         | Playwright, drives the running application                |
 | `npm run test:migrationen` | applies all migrations to an empty database               |
 | `npm run test:ausgabe`     | generates Excel, ZIP and PDF and reads them back          |
+| `npm run pruefen`          | formatting, lint rules, types and unit tests in one go    |
 
 ## Status and support
 

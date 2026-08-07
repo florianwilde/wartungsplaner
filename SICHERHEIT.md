@@ -1,8 +1,8 @@
 # Sicherheit
 
 Dieses Dokument beschreibt die Schutzmaßnahmen des Wartungsplaners, das
-Ergebnis der Durchsicht vom 29.07.2026 und die bewusst in Kauf genommenen
-Einschränkungen.
+Ergebnis der Durchsichten vom 29.07.2026 und 07.08.2026 sowie die bewusst
+in Kauf genommenen Einschränkungen.
 
 ---
 
@@ -163,6 +163,49 @@ Behoben:
 Geprüft und für unbedenklich befunden: SQL-Injection, Path Traversal,
 offene Weiterleitungen, Benutzerauskunft bei der Anmeldung, Rechteprüfung in
 Seiten und Server Actions, Unveränderlichkeit der Durchführungen.
+
+---
+
+## Ergebnis der Durchsicht vom 07.08.2026
+
+Vollständige Durchsicht des Bestands (244 Quelldateien) vor der
+Veröffentlichung als Open Source.
+
+Behoben:
+
+| Befund                                         | Bewertung                                                                                                                        | Behebung                                                                                |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Datenbankmeldungen erreichten den Browser      | **niedrig** – Prisma nennt in seinen Meldungen Tabellen, Spalten und Indexnamen; verwertbar nur für bereits angemeldete Personen | `src/lib/fehler.ts` erkennt Fehler des Datenbankzugriffs, protokolliert und ersetzt sie |
+| Unbehandelte Zusage im Lösch-Dialog            | **niedrig** – kein Sicherheitsfehler, aber der Dialog blieb bei einem Fehlschlag ohne Erklärung im Ladezustand                   | `.catch` mit Meldung an die Person                                                      |
+| `npm ci` scheiterte in einer sauberen Umgebung | **niedrig** – Containerbau und CI, nicht der laufende Betrieb                                                                    | `@eslint/js` auf die passende Hauptversion festgelegt                                   |
+
+Geprüft und für unbedenklich befunden:
+
+- **Rechteprüfung** in allen Server Actions und allen zwölf API-Routen.
+  Die vier Routen ohne Anmeldezwang (Auth.js selbst, Healthcheck, Logo für
+  die Anmeldeseite, Passkey-Anmeldung) sind es begründet.
+- **Path Traversal** – `absoluterPfad()` löst jeden aus der Datenbank
+  gelesenen Pfad auf und weist alles zurück, was das Upload-Verzeichnis
+  verlässt.
+- **Auslieferung von Nachweisen** – stets als Download, mit
+  `X-Content-Type-Options: nosniff` und `Cache-Control: private, no-store`;
+  jeder Abruf wird protokolliert.
+- **Weiterleitungen aus Server Actions** werden nirgends von einem
+  `try`/`catch` verschluckt (ein Fallstrick des App Routers).
+- **Löschverhalten der Fremdschlüssel** – alle 31 besitzenden Beziehungen
+  deklarieren `onDelete` ausdrücklich, keine verlässt sich auf die Vorgabe.
+- **Wettläufe beim Nachziehen von Fälligkeiten** – gegen doppelte Termine
+  schützt `@@unique([taskId, dueDate])`, gegen doppelte Benachrichtigungen
+  `@@unique([kind, key])`; der Konflikt wird abgefangen und protokolliert.
+- **Sommerzeitumstellung** in der Terminberechnung, durch Tests gedeckt.
+- Kein `dangerouslySetInnerHTML` mit Benutzereingaben, kein `eval`, ein
+  einziges Roh-SQL (`SELECT 1` im Healthcheck), keine Zugangsdaten in
+  Protokollausgaben.
+
+Nicht als Sicherheitsbefund, aber im selben Lauf behoben: dreizehn wortgleiche
+Kopien der Fehlerbehandlung, zwei Fassungen derselben Anzeigefunktion,
+vier Kopien des Steuerzeichenfilters und eine dreifach fest verdrahtete
+Dateigrößen-Obergrenze.
 
 ---
 

@@ -10,6 +10,31 @@ Unternehmens-SSO. Siehe [Benutzer und Anmeldung](benutzer-und-anmeldung.md).
 
 Nach fünf Fehlversuchen ist die Anmeldung für 15 Minuten gesperrt.
 
+## Beim ersten Mal ist alles leer
+
+Eine frische Installation enthält nur Ihr Verwaltungskonto – keine
+Kategorien, keine Aufgaben, keine Audit-Referenzen. Das ist so gewollt:
+Welche Prüfungen in welchem Abstand laufen, entscheidet Ihre Organisation,
+nicht die Anwendung.
+
+Zwei Wege zum Anfang:
+
+**Mit dem beiliegenden Prüfplan starten.** Unter `beispiele/pruefplan/`
+liegt ein Ausgangsbestand nach ISO/IEC 27001:2022 und VDA ISA 6: sechs
+Kategorien, 49 Audit-Referenzen, 30 wiederkehrende Prüfungen mit
+Prüfanleitung und neun Prüfbögen. Eingespielt wird er über
+[Import und Export](import-und-export.md) – vier Dateien in fester
+Reihenfolge. Was Sie vorher anpassen sollten (die verantwortlichen Personen
+und die Startdaten), steht in der LIESMICH.md daneben.
+
+Danach durchgehen und streichen, was für Sie nicht gilt. Ein übernommener
+Prüfplan, den niemand geprüft hat, ist im Audit schlechter als eine kurze
+Liste, hinter der jemand steht.
+
+**Bei null anfangen.** Erst unter _Administration → Kategorien_ die
+Gliederung anlegen, dann unter _Aufgaben_ die eigenen Prüfungen erfassen –
+siehe [Aufgaben anlegen](aufgaben-anlegen.md).
+
 ## Das Dashboard
 
 Die erste Seite nach der Anmeldung beantwortet die Frage: _Was ist jetzt zu

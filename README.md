@@ -29,8 +29,9 @@ _[English summary](README.en.md)_
 | ![Reports](docs/bilder/reports.png)                                           | ![Dunkles Farbschema](docs/bilder/dashboard-dunkel.png)                                 |
 | **Reports** – fünf Auswertungen als PDF und Excel                             | **Dunkles Farbschema** – umschaltbar, auch nach Systemvorgabe                           |
 
-Die Bilder entstehen aus einer Demo-Instanz mit Beispieldaten
-(`npm run screenshots`) – nie aus einem echten Bestand.
+Die Bilder entstehen aus einer Wegwerf-Instanz (`npm run screenshots`),
+befüllt mit genau dem Prüfplan aus [`beispiele/pruefplan/`](beispiele/pruefplan/) –
+nie aus einem echten Bestand.
 
 ---
 
@@ -66,7 +67,7 @@ Die Bilder entstehen aus einer Demo-Instanz mit Beispieldaten
 | **Erledigen-Dialog**                | Ergebnis, Kommentar, Mehrfach-Upload von Nachweisen und Anlegen von Abweichungen in einem Schritt                                                                   |
 | **Abweichungen** (`/findings`)      | Liste mit Status, Schweregrad und Frist; Bearbeiten und Schließen mit Maßnahmenkommentar                                                                            |
 | **Kalender** (`/calendar`)          | Monatsansicht aller Fälligkeiten mit farbcodierten Kategorien                                                                                                       |
-| **Reports** (`/reports`)            | Vier Auswertungen als PDF und Excel, jeweils mit Zeitraum- und Kategorienfilter                                                                                     |
+| **Reports** (`/reports`)            | Fünf Auswertungen als PDF und Excel, jeweils mit Zeitraum-, Kategorien- und Referenzfilter                                                                          |
 | **Administration** (`/admin`)       | Benutzerverwaltung, Kategorien, Erscheinungsbild, Systemübersicht und lesende, filterbare Audit-Log-Ansicht                                                         |
 
 ### Reports
@@ -77,6 +78,8 @@ Die Bilder entstehen aus einer Demo-Instanz mit Beispieldaten
    Ergebnis und Anhangsliste inklusive SHA-256
 3. **Abweichungsbericht** – alle Abweichungen mit Status und Maßnahmen
 4. **Fälligkeitsvorschau** – kommende Prüfungen der nächsten X Monate
+5. **Nachweisregister** – alle Nachweisdateien mit Prüfsumme, Größe und
+   Zuordnung, für die Vorlage beim Auditor
 
 Jeder Report trägt im Kopf Anwendungsname, Zeitraum, Kategorienfilter sowie
 Erstellungsdatum und erstellende Person; PDF-Berichte zusätzlich eine
@@ -175,9 +178,22 @@ Beim ersten Start geschieht automatisch:
 3. der Seed – **nur wenn die Datenbank noch keinen Benutzer enthält**. Bestehende
    Daten werden dadurch niemals überschrieben.
 
-Der Seed legt an: den Administrator, sechs Kategorien (Backup & Restore,
-Berechtigungen, Zutritt, Infrastruktur, Sicherheit, Dokumentation) und elf
-realistische Beispielaufgaben mit ausformulierten Prüfanleitungen.
+Der Seed legt **ausschließlich das erste Verwaltungskonto** an. Sonst
+nichts: keine Kategorien, keine Aufgaben, keine Referenzen. Eine frische
+Installation ist leer.
+
+Das ist Absicht. Welche Prüfungen in welchem Abstand laufen, ist eine
+Entscheidung Ihrer Organisation – wer eine fremde Liste vorgesetzt bekommt,
+räumt sie entweder auf oder lebt mit Prüfungen, die nie jemand beschlossen
+hat.
+
+Einen fertigen Ausgangsbestand gibt es trotzdem, aber zum Einspielen bei
+Bedarf: [`beispiele/pruefplan/`](beispiele/pruefplan/) enthält 6 Kategorien,
+49 Audit-Referenzen nach ISO/IEC 27001:2022 und VDA ISA 6, 30 wiederkehrende
+Prüfungen mit Prüfanleitung und 9 Prüfbögen. Eingespielt wird über
+**Administration → Import und Export**; die Reihenfolge und was Sie vorher
+anpassen sollten, steht in
+[`beispiele/pruefplan/LIESMICH.md`](beispiele/pruefplan/LIESMICH.md).
 
 ### Der Stack im Überblick
 
@@ -294,11 +310,18 @@ Benutzerverwaltung gezielt anlegen.
 3. Unter **Administration → Benutzer** die Kolleginnen und Kollegen anlegen
    (Rolle _Bearbeiter_ für die ausführende IT, _Auditor_ für Revision und
    Geschäftsführung).
-4. Unter **Administration → Kategorien** die Gliederung an die eigene
-   Organisation anpassen.
-5. Unter **Aufgaben** die Beispielaufgaben prüfen: Verantwortliche zuweisen,
-   Intervalle, Vorlauf- und Karenztage anpassen, nicht benötigte Aufgaben
-   deaktivieren und eigene ergänzen.
+4. Den Bestand aufbauen – zwei Wege:
+   - **Mit dem beiliegenden Prüfplan starten:** Unter **Administration →
+     Import und Export** die vier Dateien aus
+     [`beispiele/pruefplan/`](beispiele/pruefplan/) der Reihe nach einspielen.
+     Vorher in `3-aufgaben.csv` die Platzhalter-Adresse `admin@example.com`
+     durch echte Adressen ersetzen und die Startdaten anpassen. Danach
+     durchgehen und streichen, was für Sie nicht gilt.
+   - **Bei null anfangen:** Unter **Administration → Kategorien** die
+     Gliederung anlegen, dann unter **Aufgaben** die eigenen Prüfungen
+     erfassen.
+5. Unter **Aufgaben** die Angaben durchsehen: Verantwortliche zuweisen,
+   Intervalle, Vorlauf- und Karenztage an die eigene Praxis anpassen.
 6. Unter **Administration → Erscheinungsbild** das Logo hochladen und die
    Farben feinjustieren (siehe nächster Abschnitt).
 7. Das Dashboard zeigt danach den aktuellen Stand; der tägliche Job hält die
@@ -582,8 +605,8 @@ docker compose up -d
 ```
 
 > Prüfen Sie die Wiederherstellung regelmäßig – am besten als eigene Aufgabe im
-> Wartungsplaner. Die Beispielaufgabe „Restore-Test ERP-System“ ist eine
-> passende Vorlage.
+> Wartungsplaner. Der beiliegende Prüfplan bringt dafür „Backup-Restore-Test“
+> samt Prüfbogen mit.
 
 ---
 
@@ -640,7 +663,7 @@ cp .env.example .env          # DATABASE_URL auf localhost belassen
 # Nur die Datenbank, mit auf 127.0.0.1 veröffentlichtem Port
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
 npx prisma migrate dev        # Schema anlegen
-npm run db:seed               # Beispieldaten
+npm run db:seed               # legt nur das Verwaltungskonto an
 
 npm run dev                   # http://localhost:3000
 ```
@@ -652,6 +675,11 @@ npm run dev                   # http://localhost:3000
 | `npm run dev`              | Entwicklungsserver                                        |
 | `npm run build`            | Prisma-Client erzeugen und Production-Build               |
 | `npm start`                | Production-Server starten                                 |
+| `npm run pruefen`          | Formatierung, Regeln, Typen und Unit-Tests in einem Lauf  |
+| `npm run lint`             | ESLint (meldet keine Warnung im aktuellen Stand)          |
+| `npm run lint:fix`         | ESLint mit automatischer Korrektur                        |
+| `npm run format`           | Prettier über den gesamten Bestand                        |
+| `npm run format:check`     | Formatierung prüfen, ohne zu ändern                       |
 | `npm run typecheck`        | TypeScript prüfen                                         |
 | `npm test`                 | Unit-Tests (Vitest)                                       |
 | `npm run test:watch`       | Unit-Tests im Watch-Modus                                 |
@@ -666,7 +694,7 @@ npm run dev                   # http://localhost:3000
 | `npm run screenshots`      | Bildschirmfotos aus einer eigens gestarteten Demo-Instanz |
 | `npm run db:migrate`       | Migration erzeugen und anwenden                           |
 | `npm run db:deploy`        | Migrationen anwenden (Produktion)                         |
-| `npm run db:seed`          | Seed ausführen                                            |
+| `npm run db:seed`          | Verwaltungskonto anlegen                                  |
 | `npm run db:studio`        | Prisma Studio                                             |
 
 ### Tests

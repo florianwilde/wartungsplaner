@@ -47,6 +47,12 @@ gebaut ist. Technik, Installation und Betrieb stehen in der
 
 ## Wenn etwas nicht weitergeht
 
+**„Die Anwendung ist frisch installiert und vollkommen leer."**
+So ist es gedacht – angelegt wird nur Ihr Verwaltungskonto. Einen fertigen
+Prüfplan nach ISO 27001 und TISAX gibt es zum Einspielen unter
+`beispiele/pruefplan/`. Siehe
+[Erste Schritte](erste-schritte.md#beim-ersten-mal-ist-alles-leer).
+
 **„Der Prüfbogen gehört jemand anderem und ich kann ihn nicht ausfüllen."**
 Auf der Seite des Nachweises stehen zwei Auswege: übernehmen oder verwerfen.
 Siehe [Prüfnachweise führen](pruefnachweise-fuehren.md#einen-fremden-entwurf-übernehmen).
