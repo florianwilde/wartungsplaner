@@ -147,7 +147,7 @@ Alle Datums- und Zeitangaben beziehen sich auf die Zeitzone **Europe/Berlin**.
 benötigt – Node.js, PostgreSQL und alle Abhängigkeiten stecken im Stack.
 
 ```bash
-git clone https://github.com/<konto>/wartungsplaner.git
+git clone https://github.com/florianwilde/wartungsplaner.git
 cd wartungsplaner
 
 # 1. Konfiguration anlegen

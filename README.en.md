@@ -50,7 +50,7 @@ is. This application answers those three questions by construction:
 Requires Docker and Docker Compose — nothing else.
 
 ```bash
-git clone https://github.com/<account>/wartungsplaner.git
+git clone https://github.com/florianwilde/wartungsplaner.git
 cd wartungsplaner
 
 cp .env.example .env

@@ -876,17 +876,17 @@ Erste einsatzfähige Fassung.
 - **Seed-Daten**: Administrator, sechs Kategorien und elf realistische
   Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
-[Unveröffentlicht]: https://github.com/<konto>/wartungsplaner/compare/v1.11.0...main
-[1.11.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.11.0
-[1.10.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.10.0
-[1.9.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.9.0
-[1.8.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.8.0
-[1.7.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.7.0
-[1.6.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.6.0
-[1.5.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.5.0
-[1.4.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.4.0
-[1.3.5]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.3.5
-[1.3.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.3.0
-[1.2.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.2.0
-[1.1.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.1.0
-[1.0.0]: https://github.com/<konto>/wartungsplaner/releases/tag/v1.0.0
+[Unveröffentlicht]: https://github.com/florianwilde/wartungsplaner/compare/v1.11.0...main
+[1.11.0]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.11.0
+[1.10.0]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.10.0
+[1.9.0]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.9.0
+[1.8.0]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.8.0
+[1.7.0]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.7.0
+[1.6.0]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.6.0
+[1.5.0]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.5.0
+[1.4.0]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.4.0
+[1.3.5]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.3.5
+[1.3.0]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.3.0
+[1.2.0]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.2.0
+[1.1.0]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.1.0
+[1.0.0]: https://github.com/florianwilde/wartungsplaner/releases/tag/v1.0.0
