@@ -123,9 +123,7 @@ export async function kategorieAendern(
 }
 
 /** Löscht eine Kategorie – nur zulässig, solange ihr keine Aufgabe zugeordnet ist. */
-export async function kategorieLoeschen(
-  kategorieId: string,
-): Promise<KategorieStatus> {
+export async function kategorieLoeschen(kategorieId: string): Promise<KategorieStatus> {
   try {
     const admin = await benutzerFuerAktion(canAdminister)
 

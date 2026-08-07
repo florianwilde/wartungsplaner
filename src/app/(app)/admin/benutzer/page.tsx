@@ -1,7 +1,13 @@
 import type { Metadata } from 'next'
 
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -104,19 +110,19 @@ export default async function BenutzerSeite() {
                     ) : null}
                   </div>
                 </TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">
+                <TableCell className="text-muted-foreground whitespace-nowrap">
                   {person.email}
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
                   {ROLLEN_BEZEICHNUNG[person.role]}
                 </TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">
+                <TableCell className="text-muted-foreground whitespace-nowrap">
                   {person.authProvider === 'OIDC' ? 'SSO' : 'Passwort'}
                 </TableCell>
-                <TableCell className="whitespace-nowrap tabular-nums text-muted-foreground">
+                <TableCell className="text-muted-foreground whitespace-nowrap tabular-nums">
                   {person._count.passkeys}
                 </TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">
+                <TableCell className="text-muted-foreground whitespace-nowrap">
                   {person.lastLoginAt ? formatDateTime(person.lastLoginAt) : 'nie'}
                 </TableCell>
                 <TableCell>
@@ -167,10 +173,7 @@ export default async function BenutzerSeite() {
                       />
                     ) : null}
                     {person.id !== admin.id ? (
-                      <AktivierungSchalter
-                        userId={person.id}
-                        aktiv={person.active}
-                      />
+                      <AktivierungSchalter userId={person.id} aktiv={person.active} />
                     ) : null}
                   </div>
                 </TableCell>
@@ -179,7 +182,7 @@ export default async function BenutzerSeite() {
           </TableBody>
         </Table>
 
-        <p className="mt-4 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-4 text-xs">
           {benutzer.length} Konten, davon {benutzer.filter((b) => b.active).length}{' '}
           aktiv.
         </p>

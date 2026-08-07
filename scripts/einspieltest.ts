@@ -59,10 +59,7 @@ async function main() {
   const referenzVorschau = pruefeAuditReferenzen(lies('2-audit-referenzen.csv'), [])
   pruefe(referenzVorschau.fehler.length === 0, 'Referenzen: Vorschau ohne Fehler')
   const referenzen = await schreibeAuditReferenzen(referenzVorschau, benutzer.id)
-  pruefe(
-    referenzen.angelegt === 49,
-    `Referenzen: 49 angelegt (${referenzen.angelegt})`,
-  )
+  pruefe(referenzen.angelegt === 49, `Referenzen: 49 angelegt (${referenzen.angelegt})`)
 
   // --- 3. Aufgaben --------------------------------------------------------
   const aufgabenVorschau = pruefeAufgaben(

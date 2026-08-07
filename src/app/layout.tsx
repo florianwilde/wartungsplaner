@@ -43,9 +43,7 @@ export default async function RootLayout({
   // Der Nonce stammt aus proxy.ts und gehört zur Content-Security-Policy.
   const nonce = (await headers()).get('x-nonce') ?? undefined
 
-  const farbschema = leseFarbschema(
-    (await cookies()).get(FARBSCHEMA_COOKIE)?.value,
-  )
+  const farbschema = leseFarbschema((await cookies()).get(FARBSCHEMA_COOKIE)?.value)
 
   // Die Farbwerte sind zuvor auf #rrggbb normalisiert worden; es gelangt
   // damit ausschließlich validiertes CSS in die Seite.

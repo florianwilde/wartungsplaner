@@ -187,7 +187,9 @@ export async function fuehreTagesabgleichAus(
       intervalType: true,
       intervalValue: true,
       scheduleMode: true,
-      _count: { select: { occurrences: { where: { status: { in: [...UNERLEDIGT] } } } } },
+      _count: {
+        select: { occurrences: { where: { status: { in: [...UNERLEDIGT] } } } },
+      },
     },
   })
 

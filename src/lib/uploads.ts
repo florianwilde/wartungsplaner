@@ -68,8 +68,7 @@ export function bereinigeDateinamen(dateiname: string): string {
 }
 
 export type DateiPruefung =
-  | { ok: true; endung: string; mimeType: string }
-  | { ok: false; fehler: string }
+  { ok: true; endung: string; mimeType: string } | { ok: false; fehler: string }
 
 /**
  * Prüft eine hochgeladene Datei gegen Whitelist und Größenbegrenzung.
@@ -165,11 +164,7 @@ export function nameFuerEinfuegung(
  * `JJJJ/MM/<id>.<endung>`. Die Aufteilung nach Monaten hält die Verzeichnisse
  * klein und erleichtert die Sicherung.
  */
-export function baueSpeicherpfad(
-  id: string,
-  endung: string,
-  zeitpunkt: Date,
-): string {
+export function baueSpeicherpfad(id: string, endung: string, zeitpunkt: Date): string {
   const jahr = zeitpunkt.getUTCFullYear()
   const monat = String(zeitpunkt.getUTCMonth() + 1).padStart(2, '0')
   return `${jahr}/${monat}/${id}.${endung}`

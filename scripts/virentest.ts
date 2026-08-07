@@ -32,8 +32,7 @@ function pruefe(bedingung: boolean, beschreibung: string) {
 // Die EICAR-Testzeichenkette, bewusst zusammengesetzt, damit diese Datei
 // selbst nicht als Fund gemeldet wird.
 const EICAR =
-  'X5O!P%@AP[4\\PZX54(P^)7CC)7}' +
-  '$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
+  'X5O!P%@AP[4\\PZX54(P^)7CC)7}' + '$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
 
 async function main() {
   console.log('Virentest startet …\n')

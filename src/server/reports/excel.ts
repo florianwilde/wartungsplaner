@@ -49,9 +49,7 @@ function schreibeKopf(blatt: ExcelJS.Worksheet, kopf: ReportKopf): number {
     ['Kategorien', kopf.kategorienText],
     ['Erstellt am', formatDateTime(kopf.erstelltAm)],
     ['Erstellt von', kopf.erstelltVon],
-    ...(kopf.fussnote
-      ? ([['Hinweis', kopf.fussnote]] as [string, string][])
-      : []),
+    ...(kopf.fussnote ? ([['Hinweis', kopf.fussnote]] as [string, string][]) : []),
   ]
 
   zeilen.forEach(([bezeichnung, wert], index) => {

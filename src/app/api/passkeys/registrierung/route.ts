@@ -2,11 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 import { schreibeAuditLeise } from '@/lib/audit'
 import { holeBenutzer } from '@/lib/session'
-import {
-  istPasskeyTauglich,
-  pruefePasskeyName,
-  schlageNamenVor,
-} from '@/lib/webauthn'
+import { istPasskeyTauglich, pruefePasskeyName, schlageNamenVor } from '@/lib/webauthn'
 import {
   appUrl,
   schliesseRegistrierungAb,

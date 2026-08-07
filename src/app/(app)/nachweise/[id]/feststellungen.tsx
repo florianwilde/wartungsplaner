@@ -8,7 +8,13 @@ import { AlertTriangle, ArrowRight, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -94,7 +100,7 @@ export function Feststellungen({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="size-4 text-status-warn" />
+            <AlertTriangle className="text-status-warn size-4" />
             Feststellungen
           </CardTitle>
           <CardDescription>
@@ -110,18 +116,18 @@ export function Feststellungen({
             {feststellungen.map((eintrag) => (
               <li
                 key={eintrag.punktId}
-                className="flex flex-wrap items-start justify-between gap-3 rounded-md border border-border p-3"
+                className="border-border flex flex-wrap items-start justify-between gap-3 rounded-md border p-3"
               >
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
                     {eintrag.position}. {eintrag.frage}
                   </p>
-                  <p className="mt-1 text-xs text-destructive">
+                  <p className="text-destructive mt-1 text-xs">
                     {ERGEBNIS_BEZEICHNUNG[eintrag.ergebnis as PruefpunktErgebnis] ??
                       eintrag.ergebnis}
                   </p>
                   {eintrag.bemerkung ? (
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       {eintrag.bemerkung}
                     </p>
                   ) : null}
@@ -130,7 +136,7 @@ export function Feststellungen({
                 {eintrag.findingId ? (
                   <Link
                     href={`/findings#${eintrag.findingId}`}
-                    className="flex items-center gap-1.5 text-sm text-status-ok hover:underline"
+                    className="text-status-ok flex items-center gap-1.5 text-sm hover:underline"
                   >
                     <CheckCircle2 className="size-4" />
                     Abweichung angelegt
@@ -239,17 +245,13 @@ export function Feststellungen({
               </div>
 
               {status.fehler ? (
-                <p role="alert" className="text-sm text-destructive">
+                <p role="alert" className="text-destructive text-sm">
                   {status.fehler}
                 </p>
               ) : null}
 
               <DialogFooter>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setOffen(null)}
-                >
+                <Button type="button" variant="ghost" onClick={() => setOffen(null)}>
                   Abbrechen
                 </Button>
                 <AnlegenButton />

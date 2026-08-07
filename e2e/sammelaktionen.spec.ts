@@ -47,7 +47,9 @@ test('löscht mehrere Aufgaben ohne Historie', async ({ page }) => {
   await page.getByRole('button', { name: 'Löschen', exact: true }).click()
 
   await expect
-    .poll(async () => prisma.task.count({ where: { id: { in: [a.aufgabe.id, b.aufgabe.id] } } }))
+    .poll(async () =>
+      prisma.task.count({ where: { id: { in: [a.aufgabe.id, b.aufgabe.id] } } }),
+    )
     .toBe(0)
 })
 
@@ -72,7 +74,9 @@ test('löscht keine Aufgabe, an der eine Durchführung hängt', async ({ page })
 
   // Die Schaltfläche ist gesperrt, und daneben steht warum – ein gesperrter
   // Knopf ohne Begründung ist eine Sackgasse.
-  await expect(page.getByRole('button', { name: 'Löschen', exact: true })).toBeDisabled()
+  await expect(
+    page.getByRole('button', { name: 'Löschen', exact: true }),
+  ).toBeDisabled()
   await expect(page.getByText(/hat bereits Durchführungen/)).toBeVisible()
 
   // Beide Aufgaben stehen unverändert da.

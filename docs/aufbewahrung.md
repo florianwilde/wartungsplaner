@@ -11,13 +11,13 @@ wie lange die Dateien vorgehalten werden.
 
 Nach Ablauf der Frist wird die **Datei** entfernt, **nicht der Eintrag**.
 
-| Bleibt | Entfällt |
-| --- | --- |
+| Bleibt                                                     | Entfällt                           |
+| ---------------------------------------------------------- | ---------------------------------- |
 | Die Durchführung mit Datum, Person, Ergebnis und Kommentar | Der Inhalt der hochgeladenen Datei |
-| Dateiname, Größe und SHA-256-Prüfsumme des Nachweises | Damit auch der Download |
-| Abweichungen samt Maßnahmen | |
-| Prüfnachweise und ihre Antworten | |
-| Das Audit-Log | |
+| Dateiname, Größe und SHA-256-Prüfsumme des Nachweises      | Damit auch der Download            |
+| Abweichungen samt Maßnahmen                                |                                    |
+| Prüfnachweise und ihre Antworten                           |                                    |
+| Das Audit-Log                                              |                                    |
 
 Gelöscht wird also der Inhalt, nicht die Tatsache: Es bleibt belegbar, dass es
 diesen Nachweis gab, wie er hieß und welche Prüfsumme er trug. Wer die Datei

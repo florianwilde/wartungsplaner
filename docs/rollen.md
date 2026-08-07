@@ -5,11 +5,11 @@
 Jedes Konto hat genau eine Rolle. Sie entscheidet, was sichtbar und was
 möglich ist.
 
-| Rolle | Darf |
-| --- | --- |
-| **Administrator** | alles: Stammdaten, Benutzer, Prüfbögen, Audit-Referenzen, Erscheinungsbild, Benachrichtigungen |
-| **Bearbeiter** | Prüfungen durchführen, Nachweise hochladen, Prüfbögen ausfüllen und gegenzeichnen, Abweichungen bearbeiten |
-| **Prüfer** | alles lesen, nichts ändern |
+| Rolle             | Darf                                                                                                       |
+| ----------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Administrator** | alles: Stammdaten, Benutzer, Prüfbögen, Audit-Referenzen, Erscheinungsbild, Benachrichtigungen             |
+| **Bearbeiter**    | Prüfungen durchführen, Nachweise hochladen, Prüfbögen ausfüllen und gegenzeichnen, Abweichungen bearbeiten |
+| **Prüfer**        | alles lesen, nichts ändern                                                                                 |
 
 ## Was das im Alltag bedeutet
 

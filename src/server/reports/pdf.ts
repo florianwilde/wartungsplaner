@@ -165,7 +165,10 @@ function zeichneDeckblatt(
     .stroke()
 
   const eckdaten: [string, string][] = [
-    ['Zeitraum', `${formatDate(kopf.zeitraum.von)} bis ${formatDate(kopf.zeitraum.bis)}`],
+    [
+      'Zeitraum',
+      `${formatDate(kopf.zeitraum.von)} bis ${formatDate(kopf.zeitraum.bis)}`,
+    ],
     ['Kategorien', kopf.kategorienText],
     ['Erstellt am', formatDateTime(kopf.erstelltAm)],
     ['Erstellt von', kopf.erstelltVon],
@@ -369,9 +372,7 @@ function absatz(doc: Doc, k: Kontext, text: string, groesse = 8.5) {
   doc.font('Helvetica').fontSize(groesse)
   const hoehe = doc.heightOfString(text, { width: k.inhaltBreite })
   sichereHoehe(doc, k, hoehe)
-  doc
-    .fillColor(FARBE.schwach)
-    .text(text, RAND.links, doc.y, { width: k.inhaltBreite })
+  doc.fillColor(FARBE.schwach).text(text, RAND.links, doc.y, { width: k.inhaltBreite })
   doc.moveDown(0.4)
 }
 
@@ -458,7 +459,10 @@ function tabelle(
     const fett = optionen.fettZeile?.(index) ?? false
 
     let x = RAND.links
-    doc.font(fett ? 'Helvetica-Bold' : 'Helvetica').fontSize(groesse).fillColor(farbe)
+    doc
+      .font(fett ? 'Helvetica-Bold' : 'Helvetica')
+      .fontSize(groesse)
+      .fillColor(farbe)
     spalten.forEach((spalte, s) => {
       doc.text(zeile[s] ?? '', x + polsterX, y + polsterY, {
         width: spalte.breite - polsterX * 2,
@@ -501,10 +505,7 @@ function spaltenFuer(
 }
 
 /** Wählt aus einem Datensatz die Werte der gewählten Spalten. */
-function zeileAus(
-  werte: Record<string, string>,
-  schluessel: string[],
-): string[] {
+function zeileAus(werte: Record<string, string>, schluessel: string[]): string[] {
   return schluessel.map((k) => werte[k] ?? '')
 }
 
@@ -829,11 +830,7 @@ export function erzeugeNachweisregisterPdf(
     )
 
     if (nachweise.length === 0) {
-      absatz(
-        doc,
-        k,
-        'Im gewählten Zeitraum wurde kein Prüfnachweis abgeschlossen.',
-      )
+      absatz(doc, k, 'Im gewählten Zeitraum wurde kein Prüfnachweis abgeschlossen.')
       return
     }
 

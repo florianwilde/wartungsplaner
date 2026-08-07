@@ -56,9 +56,7 @@ export function relativeLeuchtdichte(hex: string): number {
   const { r, g, b } = hexZuRgb(hex)
   const kanal = (wert: number) => {
     const anteil = wert / 255
-    return anteil <= 0.03928
-      ? anteil / 12.92
-      : Math.pow((anteil + 0.055) / 1.055, 2.4)
+    return anteil <= 0.03928 ? anteil / 12.92 : Math.pow((anteil + 0.055) / 1.055, 2.4)
   }
   return 0.2126 * kanal(r) + 0.7152 * kanal(g) + 0.0722 * kanal(b)
 }

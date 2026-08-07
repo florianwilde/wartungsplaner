@@ -167,7 +167,9 @@ export async function schreibeAufgaben(
     prisma.user.findMany({ select: { id: true, email: true } }),
   ])
   const kategorieId = new Map(kategorien.map((k) => [k.name.toLowerCase(), k.id]))
-  const benutzerIdNachEmail = new Map(benutzer.map((b) => [b.email.toLowerCase(), b.id]))
+  const benutzerIdNachEmail = new Map(
+    benutzer.map((b) => [b.email.toLowerCase(), b.id]),
+  )
 
   await prisma.$transaction(async (tx) => {
     for (const eintrag of vorschau.eintraege) {
@@ -291,7 +293,10 @@ async function loeseReferenzenAuf(
 ): Promise<string[]> {
   const namen = [
     ...new Set(
-      liste.split(',').map((eintrag) => eintrag.trim()).filter(Boolean),
+      liste
+        .split(',')
+        .map((eintrag) => eintrag.trim())
+        .filter(Boolean),
     ),
   ]
   if (namen.length === 0) return []
@@ -336,7 +341,6 @@ function zerlegeAnzeigenamen(name: string): {
   }
 }
 
-
 // ---------------------------------------------------------------------------
 // Audit-Referenzen
 // ---------------------------------------------------------------------------
@@ -368,9 +372,7 @@ export async function schreibeAuditReferenzen(
         where: {
           kuerzel: { equals: kuerzel, mode: 'insensitive' },
           rahmenwerk:
-            rahmenwerk === null
-              ? null
-              : { equals: rahmenwerk, mode: 'insensitive' },
+            rahmenwerk === null ? null : { equals: rahmenwerk, mode: 'insensitive' },
         },
         select: { id: true },
       })

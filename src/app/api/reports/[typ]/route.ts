@@ -1,7 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { schreibeAuditLeise } from '@/lib/audit'
-import { addMonths, formatDate, parseISODate, startOfMonth, todayInBerlin } from '@/lib/dates'
+import {
+  addMonths,
+  formatDate,
+  parseISODate,
+  startOfMonth,
+  todayInBerlin,
+} from '@/lib/dates'
 import { canViewReports } from '@/lib/rbac'
 import { holeBenutzer } from '@/lib/session'
 import {
@@ -101,7 +107,13 @@ export async function GET(
       const monate = begrenze(Number(suche.get('monate') ?? '6'), 1, 36, 6)
       const vorschau = await ladeVorschau(monate, kategorien, referenzen)
       zeitraum = vorschau.zeitraum
-      const kopf = await baueKopf(reportTyp, zeitraum, benutzer.name, kategorien, referenzen)
+      const kopf = await baueKopf(
+        reportTyp,
+        zeitraum,
+        benutzer.name,
+        kategorien,
+        referenzen,
+      )
 
       inhalt =
         format === 'pdf'
@@ -109,7 +121,13 @@ export async function GET(
           : await erzeugeVorschauExcel(kopf, vorschau.zeilen)
     } else {
       zeitraum = leseZeitraum(suche.get('von'), suche.get('bis'), heute)
-      const kopf = await baueKopf(reportTyp, zeitraum, benutzer.name, kategorien, referenzen)
+      const kopf = await baueKopf(
+        reportTyp,
+        zeitraum,
+        benutzer.name,
+        kategorien,
+        referenzen,
+      )
 
       if (reportTyp === 'compliance') {
         const daten = await ladeCompliance(zeitraum, kategorien, referenzen)

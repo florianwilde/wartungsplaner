@@ -4,7 +4,13 @@ import { KeyRound } from 'lucide-react'
 
 import { SeitenKopf } from '@/components/seiten-kopf'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { VertretungsFormular } from '@/components/vertretung-formular'
 import { formatDateTime, toISODate } from '@/lib/dates'
 import { prisma } from '@/lib/prisma'
@@ -88,18 +94,14 @@ export default async function KontoSeite() {
             />
             <Zeile
               label="Letzte Anmeldung"
-              wert={
-                konto.lastLoginAt ? formatDateTime(konto.lastLoginAt) : 'noch nie'
-              }
+              wert={konto.lastLoginAt ? formatDateTime(konto.lastLoginAt) : 'noch nie'}
             />
           </dl>
         </CardContent>
       </Card>
 
       <KalenderAbo
-        adresse={
-          kalenderToken ? `${appUrl()}/api/kalender/${kalenderToken}.ics` : null
-        }
+        adresse={kalenderToken ? `${appUrl()}/api/kalender/${kalenderToken}.ics` : null}
       />
 
       {darfVertreten ? (
@@ -107,15 +109,14 @@ export default async function KontoSeite() {
           <CardHeader>
             <CardTitle>Vertretung bei Abwesenheit</CardTitle>
             <CardDescription>
-              Wer Sie vertritt, erhält für die Dauer Ihrer Abwesenheit die
-              Erinnerungen zu Ihren Prüfungen und Abweichungen. Die
-              Zuständigkeit selbst bleibt bei Ihnen – umgeleitet wird nur die
-              Post.
+              Wer Sie vertritt, erhält für die Dauer Ihrer Abwesenheit die Erinnerungen
+              zu Ihren Prüfungen und Abweichungen. Die Zuständigkeit selbst bleibt bei
+              Ihnen – umgeleitet wird nur die Post.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {vertretung?.vertretungName ? (
-              <p className="rounded-md bg-muted p-3 text-sm">
+              <p className="bg-muted rounded-md p-3 text-sm">
                 {vertretung.aktiv ? 'Aktiv: ' : 'Hinterlegt: '}
                 <span className="font-medium">{vertretung.vertretungName}</span>
                 {' · '}
@@ -134,9 +135,9 @@ export default async function KontoSeite() {
             />
 
             {vertreteneListe.length > 0 ? (
-              <div className="rounded-md border border-border p-3 text-sm">
+              <div className="border-border rounded-md border p-3 text-sm">
                 <p className="font-medium">Sie vertreten derzeit</p>
-                <ul className="mt-1 space-y-0.5 text-muted-foreground">
+                <ul className="text-muted-foreground mt-1 space-y-0.5">
                   {vertreteneListe.map((person) => (
                     <li key={person.personId}>
                       {person.name} · {person.zeitraum}
@@ -196,7 +197,7 @@ function Zeile({
       <dd className="text-right">
         <span className="font-medium">{wert}</span>
         {zusatz ? (
-          <span className="block text-xs text-muted-foreground">{zusatz}</span>
+          <span className="text-muted-foreground block text-xs">{zusatz}</span>
         ) : null}
       </dd>
     </div>

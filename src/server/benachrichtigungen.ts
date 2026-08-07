@@ -351,12 +351,20 @@ export async function versendeBenachrichtigungen(
   }
 
   if (!istMailVersandKonfiguriert()) {
-    return { ...leer, uebersprungen: 'Kein Mailserver konfiguriert (SMTP_HOST fehlt).', dauerMs: Date.now() - beginn }
+    return {
+      ...leer,
+      uebersprungen: 'Kein Mailserver konfiguriert (SMTP_HOST fehlt).',
+      dauerMs: Date.now() - beginn,
+    }
   }
 
   const einstellungen = await holeBenachrichtigungsEinstellungen()
   if (!einstellungen.enabled) {
-    return { ...leer, uebersprungen: 'Der Versand ist im Administrationsbereich deaktiviert.', dauerMs: Date.now() - beginn }
+    return {
+      ...leer,
+      uebersprungen: 'Der Versand ist im Administrationsbereich deaktiviert.',
+      dauerMs: Date.now() - beginn,
+    }
   }
 
   const branding = await holeBranding()
@@ -395,7 +403,12 @@ export async function versendeBenachrichtigungen(
   }
 
   if (einstellungen.eskalationAktiv && einstellungen.eskalationUserId) {
-    const ergebnis = await versendeEskalation(rahmen, faelligkeiten, einstellungen, heute)
+    const ergebnis = await versendeEskalation(
+      rahmen,
+      faelligkeiten,
+      einstellungen,
+      heute,
+    )
     versendet += ergebnis.versendet
     fehlgeschlagen += ergebnis.fehlgeschlagen
     ergebnis.empfaenger.forEach((e) => empfaengerAdressen.add(e))
@@ -412,7 +425,12 @@ export async function versendeBenachrichtigungen(
     einstellungen.wochenuebersichtAktiv &&
     wochentagIso(heute) === einstellungen.wochenuebersichtTag
   ) {
-    const ergebnis = await versendeWochenuebersicht(rahmen, faelligkeiten, abweichungen, heute)
+    const ergebnis = await versendeWochenuebersicht(
+      rahmen,
+      faelligkeiten,
+      abweichungen,
+      heute,
+    )
     versendet += ergebnis.versendet
     fehlgeschlagen += ergebnis.fehlgeschlagen
     ergebnis.empfaenger.forEach((e) => empfaengerAdressen.add(e))
@@ -440,7 +458,8 @@ async function versendeAufgabenMails(
   faelligkeiten: OffeneFaelligkeit[],
 ): Promise<TeilErgebnis> {
   const relevant = faelligkeiten.filter(
-    (f) => (f.baldFaellig || f.ueberfaellig) && f.besitzerMoechteMail && f.besitzerEmail,
+    (f) =>
+      (f.baldFaellig || f.ueberfaellig) && f.besitzerMoechteMail && f.besitzerEmail,
   )
 
   // Schlüssel: bald fällige Termine einmalig, überfällige wöchentlich erneut.
@@ -449,10 +468,7 @@ async function versendeAufgabenMails(
       ? `occurrence:${f.occurrenceId}:ueberfaellig:${wiederholungsStufe(f.tageUeberschritten)}`
       : `occurrence:${f.occurrenceId}:faellig`
 
-  const gemeldet = await bereitsGemeldet(
-    'AUFGABEN',
-    relevant.map(schluesselFuer),
-  )
+  const gemeldet = await bereitsGemeldet('AUFGABEN', relevant.map(schluesselFuer))
   const neu = relevant.filter((f) => !gemeldet.has(schluesselFuer(f)))
 
   const proBenutzer = new Map<string, OffeneFaelligkeit[]>()
@@ -524,10 +540,7 @@ async function versendeAbweichungsMails(
       ? `finding:${a.findingId}:ueberschritten:${wiederholungsStufe(a.tageUeberschritten)}`
       : `finding:${a.findingId}:frist`
 
-  const gemeldet = await bereitsGemeldet(
-    'ABWEICHUNGEN',
-    relevant.map(schluesselFuer),
-  )
+  const gemeldet = await bereitsGemeldet('ABWEICHUNGEN', relevant.map(schluesselFuer))
   const neu = relevant.filter((a) => !gemeldet.has(schluesselFuer(a)))
 
   const proBenutzer = new Map<string, OffeneAbweichung[]>()
@@ -620,7 +633,9 @@ async function versendeEskalation(
     eintraege,
   )
 
-  if (await versendeUndProtokolliere('ESKALATION', empfaenger.email, mail, [schluessel])) {
+  if (
+    await versendeUndProtokolliere('ESKALATION', empfaenger.email, mail, [schluessel])
+  ) {
     ergebnis.versendet++
     ergebnis.empfaenger.push(empfaenger.email)
   } else {

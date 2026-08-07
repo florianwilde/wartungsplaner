@@ -17,11 +17,7 @@ import {
 import { cn } from '@/lib/utils'
 import type { Ampel } from '@/lib/scheduling'
 
-export function FaelligkeitsStatusBadge({
-  status,
-}: {
-  status: OccurrenceStatus
-}) {
+export function FaelligkeitsStatusBadge({ status }: { status: OccurrenceStatus }) {
   const variante = {
     OPEN: 'neutral',
     DONE: 'ok',
@@ -29,9 +25,7 @@ export function FaelligkeitsStatusBadge({
     SUSPENDED: 'secondary',
   } as const
 
-  return (
-    <Badge variant={variante[status]}>{STATUS_BEZEICHNUNG[status]}</Badge>
-  )
+  return <Badge variant={variante[status]}>{STATUS_BEZEICHNUNG[status]}</Badge>
 }
 
 export function AmpelBadge({ ampel }: { ampel: Ampel }) {
@@ -47,9 +41,7 @@ export function ErgebnisBadge({ ergebnis }: { ergebnis: ExecutionResult }) {
     DEVIATION: 'danger',
   } as const
 
-  return (
-    <Badge variant={variante[ergebnis]}>{ERGEBNIS_BEZEICHNUNG[ergebnis]}</Badge>
-  )
+  return <Badge variant={variante[ergebnis]}>{ERGEBNIS_BEZEICHNUNG[ergebnis]}</Badge>
 }
 
 export function SchwereBadge({ schwere }: { schwere: Severity }) {
@@ -60,9 +52,7 @@ export function SchwereBadge({ schwere }: { schwere: Severity }) {
     CRITICAL: 'danger',
   } as const
 
-  return (
-    <Badge variant={variante[schwere]}>{SCHWERE_BEZEICHNUNG[schwere]}</Badge>
-  )
+  return <Badge variant={variante[schwere]}>{SCHWERE_BEZEICHNUNG[schwere]}</Badge>
 }
 
 export function AbweichungStatusBadge({ status }: { status: FindingStatus }) {
@@ -73,17 +63,11 @@ export function AbweichungStatusBadge({ status }: { status: FindingStatus }) {
   } as const
 
   return (
-    <Badge variant={variante[status]}>
-      {ABWEICHUNG_STATUS_BEZEICHNUNG[status]}
-    </Badge>
+    <Badge variant={variante[status]}>{ABWEICHUNG_STATUS_BEZEICHNUNG[status]}</Badge>
   )
 }
 
-export function KritikalitaetBadge({
-  kritikalitaet,
-}: {
-  kritikalitaet: Criticality
-}) {
+export function KritikalitaetBadge({ kritikalitaet }: { kritikalitaet: Criticality }) {
   const variante = {
     LOW: 'neutral',
     MEDIUM: 'secondary',

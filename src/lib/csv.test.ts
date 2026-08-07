@@ -1,13 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  BOM,
-  jaNein,
-  leseCsv,
-  leseJaNein,
-  maskiereCsvFeld,
-  schreibeCsv,
-} from './csv'
+import { BOM, jaNein, leseCsv, leseJaNein, maskiereCsvFeld, schreibeCsv } from './csv'
 
 describe('leseCsv', () => {
   it('liest Kopfzeile und Datenzeilen', () => {

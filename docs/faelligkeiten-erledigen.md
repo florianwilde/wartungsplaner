@@ -46,7 +46,7 @@ damit von Hand:
   Bogen Feststellungen enthält, sonst „In Ordnung“. Ändern können Sie es
   jederzeit.
 - **Die Feststellungen des Bogens stehen im Abschnitt Abweichungen.** Ein Klick
-  auf *Als Abweichung übernehmen* legt daraus einen Eintrag mit Titel und
+  auf _Als Abweichung übernehmen_ legt daraus einen Eintrag mit Titel und
   Bemerkung an; Schwere, Verantwortlichkeit und Frist ergänzen Sie. Was nicht
   nachverfolgt werden muss, lassen Sie stehen.
 - **Die Nachweispflicht ist erfüllt** – der Bogen zählt als Nachweis. Weitere
@@ -63,11 +63,11 @@ Bogen später abgeschlossen, kommt sein PDF zur bestehenden Durchführung hinzu.
 
 ### Ergebnis
 
-| Ergebnis | Bedeutung |
-| --- | --- |
-| **In Ordnung** | Die Prüfung verlief vollständig ohne Beanstandung. |
-| **In Ordnung mit Bemerkungen** | Kleinere Auffälligkeiten, kein Handlungsbedarf mit Frist. |
-| **Abweichung** | Es wurde etwas festgestellt, das nachverfolgt werden muss. |
+| Ergebnis                       | Bedeutung                                                  |
+| ------------------------------ | ---------------------------------------------------------- |
+| **In Ordnung**                 | Die Prüfung verlief vollständig ohne Beanstandung.         |
+| **In Ordnung mit Bemerkungen** | Kleinere Auffälligkeiten, kein Handlungsbedarf mit Frist.  |
+| **Abweichung**                 | Es wurde etwas festgestellt, das nachverfolgt werden muss. |
 
 Beim Ergebnis **Abweichung** verlangt die Anwendung mindestens eine erfasste
 Abweichung. Eine Feststellung ohne Verantwortlichkeit und Frist verliert sich

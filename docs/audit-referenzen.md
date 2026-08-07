@@ -21,13 +21,13 @@ einem Griff zu beantworten.
 
 ## Eine Referenz anlegen
 
-| Feld | Bedeutung |
-| --- | --- |
-| **Rahmenwerk** | Norm oder Regelwerk, etwa `ISO 27001`, `TISAX`, `DSGVO`. Freie Eingabe; häufige Werte werden vorgeschlagen. |
-| **Kurzzeichen** | Die Kennung der Anforderung, etwa `A.8.13`. Pflichtangabe. |
-| **Bezeichnung** | Klartext, etwa „Informationssicherung“. Ohne Angabe steht das Kurzzeichen für sich. |
-| **Beschreibung** | Was die Anforderung verlangt – für alle, die die Norm nicht auswendig kennen. |
-| **Aktiv** | Nur aktive Referenzen werden zur Zuordnung angeboten. |
+| Feld             | Bedeutung                                                                                                   |
+| ---------------- | ----------------------------------------------------------------------------------------------------------- |
+| **Rahmenwerk**   | Norm oder Regelwerk, etwa `ISO 27001`, `TISAX`, `DSGVO`. Freie Eingabe; häufige Werte werden vorgeschlagen. |
+| **Kurzzeichen**  | Die Kennung der Anforderung, etwa `A.8.13`. Pflichtangabe.                                                  |
+| **Bezeichnung**  | Klartext, etwa „Informationssicherung“. Ohne Angabe steht das Kurzzeichen für sich.                         |
+| **Beschreibung** | Was die Anforderung verlangt – für alle, die die Norm nicht auswendig kennen.                               |
+| **Aktiv**        | Nur aktive Referenzen werden zur Zuordnung angeboten.                                                       |
 
 Innerhalb eines Rahmenwerks ist das Kurzzeichen eindeutig. Dasselbe
 Kurzzeichen darf in verschiedenen Rahmenwerken vorkommen – `A.8.13` bedeutet

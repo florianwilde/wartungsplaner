@@ -52,10 +52,7 @@ export async function vorlageSpeichern(
       }
     }
 
-    const spalten = normalisiereSpalten(
-      typ,
-      formData.getAll('spalten').map(String),
-    )
+    const spalten = normalisiereSpalten(typ, formData.getAll('spalten').map(String))
 
     const gespeichert = await speichereVorlage(
       {
@@ -100,9 +97,7 @@ export async function vorlageSpeichern(
 }
 
 /** Löscht eine Vorlage. */
-export async function vorlageLoeschen(
-  vorlagenId: string,
-): Promise<VorlagenStatus> {
+export async function vorlageLoeschen(vorlagenId: string): Promise<VorlagenStatus> {
   try {
     const admin = await benutzerFuerAktion(canAdminister)
 

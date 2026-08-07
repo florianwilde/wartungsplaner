@@ -31,33 +31,31 @@ export default async function PasskeyEinrichtenSeite() {
   if (!(await brauchtPasskey(benutzer))) redirect('/')
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-12">
+    <main className="bg-muted/40 flex min-h-screen items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <span className="bg-primary/10 text-primary mb-2 flex size-10 items-center justify-center rounded-lg">
             <Fingerprint className="size-5" />
           </span>
           <CardTitle>Passkey einrichten</CardTitle>
           <CardDescription>
-            Für {ROLLEN_BEZEICHNUNG[benutzer.role]} ist ein Passkey
-            verpflichtend. Bevor Sie fortfahren können, hinterlegen Sie bitte
-            einen.
+            Für {ROLLEN_BEZEICHNUNG[benutzer.role]} ist ein Passkey verpflichtend. Bevor
+            Sie fortfahren können, hinterlegen Sie bitte einen.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <p className="text-sm text-muted-foreground">
-            Ein Passkey ersetzt das Passwort durch Windows Hello, Touch ID oder
-            einen Sicherheitsschlüssel. Er lässt sich nicht abphishen und nicht
-            wiederverwenden – bei einem Konto mit weitreichenden Rechten wiegt
-            das schwer.
+          <p className="text-muted-foreground text-sm">
+            Ein Passkey ersetzt das Passwort durch Windows Hello, Touch ID oder einen
+            Sicherheitsschlüssel. Er lässt sich nicht abphishen und nicht
+            wiederverwenden – bei einem Konto mit weitreichenden Rechten wiegt das
+            schwer.
           </p>
 
           <PasskeyEinrichtung />
 
-          <p className="text-xs text-muted-foreground">
-            Angemeldet als {benutzer.email}. Der geheime Teil des Schlüssels
-            verlässt Ihr Gerät nicht; die Anwendung speichert nur den
-            öffentlichen Teil.
+          <p className="text-muted-foreground text-xs">
+            Angemeldet als {benutzer.email}. Der geheime Teil des Schlüssels verlässt
+            Ihr Gerät nicht; die Anwendung speichert nur den öffentlichen Teil.
           </p>
         </CardContent>
       </Card>

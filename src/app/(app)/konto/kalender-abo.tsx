@@ -6,12 +6,15 @@ import { CalendarPlus, Copy, RefreshCw, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import {
-  kalenderAboAufheben,
-  kalenderAboErneuern,
-} from '@/server/actions/kalender'
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { kalenderAboAufheben, kalenderAboErneuern } from '@/server/actions/kalender'
 
 /**
  * Kalender-Abonnement im eigenen Konto.
@@ -63,9 +66,9 @@ export function KalenderAbo({ adresse }: { adresse: string | null }) {
       <CardHeader>
         <CardTitle>Kalender abonnieren</CardTitle>
         <CardDescription>
-          Ihre offenen Fälligkeiten als Kalender, den Outlook laufend abruft –
-          so stehen die Prüfungen dort, wo Sie ohnehin planen. Vertreten Sie
-          jemanden, kommen dessen Termine mit.
+          Ihre offenen Fälligkeiten als Kalender, den Outlook laufend abruft – so stehen
+          die Prüfungen dort, wo Sie ohnehin planen. Vertreten Sie jemanden, kommen
+          dessen Termine mit.
         </CardDescription>
       </CardHeader>
 
@@ -94,11 +97,11 @@ export function KalenderAbo({ adresse }: { adresse: string | null }) {
               </Button>
             </div>
 
-            <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
-              Die Adresse ist wie ein Passwort zu behandeln: Wer sie hat, sieht
-              Ihre Fälligkeiten. Geben Sie sie nicht weiter. Besteht der
-              Verdacht, dass sie in falsche Hände geraten ist, erzeugen Sie eine
-              neue – die alte läuft dann ins Leere.
+            <p className="bg-muted text-muted-foreground rounded-md p-3 text-xs">
+              Die Adresse ist wie ein Passwort zu behandeln: Wer sie hat, sieht Ihre
+              Fälligkeiten. Geben Sie sie nicht weiter. Besteht der Verdacht, dass sie
+              in falsche Hände geraten ist, erzeugen Sie eine neue – die alte läuft dann
+              ins Leere.
             </p>
 
             <div className="flex flex-wrap gap-2">
@@ -125,17 +128,17 @@ export function KalenderAbo({ adresse }: { adresse: string | null }) {
             </div>
 
             <details className="text-sm">
-              <summary className="cursor-pointer text-muted-foreground">
+              <summary className="text-muted-foreground cursor-pointer">
                 So abonnieren Sie den Kalender in Outlook
               </summary>
-              <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted-foreground">
+              <ol className="text-muted-foreground mt-2 list-decimal space-y-1 pl-5">
                 <li>Im Kalender auf „Kalender hinzufügen“ gehen</li>
                 <li>„Aus dem Internet abonnieren“ wählen</li>
                 <li>Die Adresse einfügen und benennen</li>
               </ol>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Outlook ruft abonnierte Kalender in eigenem Takt ab; eine
-                Änderung erscheint deshalb nicht sofort.
+              <p className="text-muted-foreground mt-2 text-xs">
+                Outlook ruft abonnierte Kalender in eigenem Takt ab; eine Änderung
+                erscheint deshalb nicht sofort.
               </p>
             </details>
           </>

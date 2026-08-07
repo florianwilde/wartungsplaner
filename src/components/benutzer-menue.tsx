@@ -32,8 +32,8 @@ export function BenutzerMenue({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring">
-        <span className="flex size-7 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground">
+      <DropdownMenuTrigger className="hover:bg-accent focus:ring-ring flex items-center gap-2 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:outline-none">
+        <span className="bg-secondary text-secondary-foreground flex size-7 items-center justify-center rounded-full text-xs font-semibold">
           {initialen || <UserRound className="size-4" />}
         </span>
         <span className="hidden max-w-40 truncate lg:inline">{name}</span>
@@ -43,10 +43,10 @@ export function BenutzerMenue({
       <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel className="space-y-0.5">
           <span className="block truncate">{name}</span>
-          <span className="block truncate text-xs font-normal text-muted-foreground">
+          <span className="text-muted-foreground block truncate text-xs font-normal">
             {email}
           </span>
-          <span className="block text-xs font-normal text-muted-foreground">
+          <span className="text-muted-foreground block text-xs font-normal">
             {rolle}
           </span>
         </DropdownMenuLabel>

@@ -137,8 +137,7 @@ export function isoKalenderwoche(date: Date): { jahr: number; woche: number } {
   const jahresbeginn = dateOnly(donnerstag.getUTCFullYear(), 1, 1)
   const ersterDonnerstag = addDays(startOfWeek(jahresbeginn), 3)
 
-  const woche =
-    Math.round(differenceInDays(ersterDonnerstag, donnerstag) / 7) + 1
+  const woche = Math.round(differenceInDays(ersterDonnerstag, donnerstag) / 7) + 1
 
   return { jahr: donnerstag.getUTCFullYear(), woche }
 }

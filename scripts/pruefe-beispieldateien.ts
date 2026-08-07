@@ -122,10 +122,7 @@ function main() {
   // Fälligkeit – kein guter erster Eindruck nach dem Einspielen.
   const heute = new Date().toISOString().slice(0, 10)
   const vergangen = aufgaben.filter((zeile) => (zeile.startdatum ?? '') < heute)
-  pruefe(
-    vergangen.length === 0,
-    'Kein Startdatum liegt in der Vergangenheit',
-  )
+  pruefe(vergangen.length === 0, 'Kein Startdatum liegt in der Vergangenheit')
   if (vergangen.length > 0) {
     console.error(
       `         Betroffen: ${vergangen.map((z) => `${z.titel} (${z.startdatum})`).join(', ')}`,

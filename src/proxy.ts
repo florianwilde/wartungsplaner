@@ -32,9 +32,7 @@ function anfrageUrsprung(request: Request, fallback: string): string {
   if (!host) return fallback
   const protokoll =
     headers.get('x-forwarded-proto')?.split(',')[0]?.trim() ??
-    (host.startsWith('localhost') || host.startsWith('127.0.0.1')
-      ? 'http'
-      : 'https')
+    (host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https')
   return `${protokoll}://${host}`
 }
 

@@ -117,9 +117,7 @@ function antwortText(punkt: NachweisPunkt): string {
   return 'ohne Angabe'
 }
 
-export async function erzeugeNachweisPdf(
-  eingabe: NachweisPdfEingabe,
-): Promise<Buffer> {
+export async function erzeugeNachweisPdf(eingabe: NachweisPdfEingabe): Promise<Buffer> {
   const doc = new PDFDocument({
     size: 'A4',
     margins: {
@@ -368,12 +366,9 @@ export async function erzeugeNachweisPdf(
       .font('Helvetica')
       .fontSize(7.5)
       .fillColor(FARBE.schwach)
-      .text(
-        'SHA-256-Prüfsumme zum Abgleich der Unverändertheit.',
-        RAND.links,
-        doc.y,
-        { width: BREITE },
-      )
+      .text('SHA-256-Prüfsumme zum Abgleich der Unverändertheit.', RAND.links, doc.y, {
+        width: BREITE,
+      })
     doc.y += 6
 
     for (const beleg of eingabe.belege) {
@@ -435,9 +430,7 @@ export async function erzeugeNachweisPdf(
       .stroke()
 
     const beschriftung =
-      person && zeitpunkt
-        ? `Unterschrift (${rolle})`
-        : `Datum, Unterschrift (${rolle})`
+      person && zeitpunkt ? `Unterschrift (${rolle})` : `Datum, Unterschrift (${rolle})`
 
     doc
       .font('Helvetica')

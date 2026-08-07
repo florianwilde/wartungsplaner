@@ -35,7 +35,13 @@ export const SPALTEN_KATALOG: Record<ReportTyp, SpaltenDefinition[]> = {
     { key: 'offen', kopf: 'Offen', anteil: 9, ausrichtung: 'right' },
     { key: 'ueberfaellig', kopf: 'Überfällig', anteil: 11, ausrichtung: 'right' },
     { key: 'ausgesetzt', kopf: 'Ausgesetzt', anteil: 11, ausrichtung: 'right' },
-    { key: 'erfuellung', kopf: 'Erfüllung', anteil: 9, ausrichtung: 'right', pflicht: true },
+    {
+      key: 'erfuellung',
+      kopf: 'Erfüllung',
+      anteil: 9,
+      ausrichtung: 'right',
+      pflicht: true,
+    },
     { key: 'puenktlichkeit', kopf: 'Pünktl.', anteil: 9, ausrichtung: 'right' },
   ],
   historie: [
@@ -102,9 +108,7 @@ export function pflichtSpalten(typ: ReportTyp): string[] {
 export function standardSpalten(typ: ReportTyp): string[] {
   // "kommentar" und "geschlossen" sind ausführlich und daher nicht vorbelegt.
   const zusatz = new Set(['kommentar', 'pruefsumme', 'referenzen'])
-  return SPALTEN_KATALOG[typ]
-    .filter((s) => !zusatz.has(s.key))
-    .map((s) => s.key)
+  return SPALTEN_KATALOG[typ].filter((s) => !zusatz.has(s.key)).map((s) => s.key)
 }
 
 /**
@@ -116,10 +120,7 @@ export function standardSpalten(typ: ReportTyp): string[] {
  * - die Reihenfolge der Auswahl bleibt erhalten
  * - eine leere Auswahl führt zur Vorbelegung
  */
-export function normalisiereSpalten(
-  typ: ReportTyp,
-  auswahl: string[],
-): string[] {
+export function normalisiereSpalten(typ: ReportTyp, auswahl: string[]): string[] {
   const bekannt = new Set(alleSpalten(typ))
   const gesehen = new Set<string>()
   const ergebnis: string[] = []

@@ -7,7 +7,13 @@ import { AlertCircle, AlertTriangle, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -75,7 +81,7 @@ function Farbfeld({
           type="color"
           value={gueltig ?? '#000000'}
           onChange={(e) => setzeWert(e.target.value)}
-          className="h-9 w-14 shrink-0 cursor-pointer rounded-md border border-input bg-background p-1"
+          className="border-input bg-background h-9 w-14 shrink-0 cursor-pointer rounded-md border p-1"
           aria-label={`${label} auswählen`}
         />
         <Input
@@ -87,25 +93,24 @@ function Farbfeld({
           required
         />
       </div>
-      <p className="text-xs text-muted-foreground">{beschreibung}</p>
+      <p className="text-muted-foreground text-xs">{beschreibung}</p>
 
       {mitKontrastpruefung && kontrast !== null ? (
         kontrast >= KONTRAST_AA ? (
-          <p className="text-xs text-status-ok">
+          <p className="text-status-ok text-xs">
             Kontrast {kontrast.toFixed(1)}:1 – erfüllt WCAG AA für Schaltflächen.
           </p>
         ) : (
-          <p className="flex items-start gap-1.5 text-xs text-status-warn">
+          <p className="text-status-warn flex items-start gap-1.5 text-xs">
             <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
-            Kontrast nur {kontrast.toFixed(1)}:1. Für gut lesbare Schaltflächen
-            werden {KONTRAST_AA}:1 empfohlen – wählen Sie einen dunkleren oder
-            helleren Ton.
+            Kontrast nur {kontrast.toFixed(1)}:1. Für gut lesbare Schaltflächen werden{' '}
+            {KONTRAST_AA}:1 empfohlen – wählen Sie einen dunkleren oder helleren Ton.
           </p>
         )
       ) : null}
 
       {!gueltig ? (
-        <p className="text-xs text-destructive">
+        <p className="text-destructive text-xs">
           Bitte eine Farbe im Format #rrggbb angeben.
         </p>
       ) : null}
@@ -141,8 +146,8 @@ function Bildfeld({
         <div
           className={
             dunklerHintergrund
-              ? 'flex items-center gap-3 rounded-md border border-border bg-slate-800 p-3'
-              : 'flex items-center gap-3 rounded-md border border-border bg-background p-3'
+              ? 'border-border flex items-center gap-3 rounded-md border bg-slate-800 p-3'
+              : 'border-border bg-background flex items-center gap-3 rounded-md border p-3'
           }
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -163,7 +168,7 @@ function Bildfeld({
           </label>
         </div>
       ) : (
-        <p className="rounded-md border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+        <p className="border-border text-muted-foreground rounded-md border border-dashed px-3 py-2 text-xs">
           Kein eigenes Motiv hinterlegt – es wird das mitgelieferte Standardlogo
           verwendet.
         </p>
@@ -177,16 +182,12 @@ function Bildfeld({
         disabled={entfernen}
         className="cursor-pointer"
       />
-      <p className="text-xs text-muted-foreground">{beschreibung}</p>
+      <p className="text-muted-foreground text-xs">{beschreibung}</p>
     </div>
   )
 }
 
-export function ErscheinungsbildFormular({
-  werte,
-}: {
-  werte: ErscheinungsbildWerte
-}) {
+export function ErscheinungsbildFormular({ werte }: { werte: ErscheinungsbildWerte }) {
   const router = useRouter()
   const [primaer, setPrimaer] = useState(werte.primaryColor)
   const [akzent, setAkzent] = useState(werte.accentColor)
@@ -214,8 +215,8 @@ export function ErscheinungsbildFormular({
         <CardHeader>
           <CardTitle>Bezeichnungen</CardTitle>
           <CardDescription>
-            Diese Angaben erscheinen in der Kopfzeile, im Browsertitel und im
-            Kopf aller Reports.
+            Diese Angaben erscheinen in der Kopfzeile, im Browsertitel und im Kopf aller
+            Reports.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
@@ -259,9 +260,8 @@ export function ErscheinungsbildFormular({
         <CardHeader>
           <CardTitle>Farben</CardTitle>
           <CardDescription>
-            Die Primärfarbe bestimmt Schaltflächen, Links und Hervorhebungen.
-            Die übrigen Farben werden daraus abgeleitet – auch für das dunkle
-            Farbschema.
+            Die Primärfarbe bestimmt Schaltflächen, Links und Hervorhebungen. Die
+            übrigen Farben werden daraus abgeleitet – auch für das dunkle Farbschema.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6 sm:grid-cols-2">
@@ -286,7 +286,7 @@ export function ErscheinungsbildFormular({
 
           <div className="space-y-2 sm:col-span-2">
             <Label>Vorschau</Label>
-            <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-4">
+            <div className="border-border flex flex-wrap items-center gap-3 rounded-lg border p-4">
               <span
                 className="inline-flex h-9 items-center rounded-md px-4 text-sm font-medium"
                 style={{ backgroundColor: primaerGueltig, color: vordergrund }}
@@ -319,8 +319,8 @@ export function ErscheinungsbildFormular({
         <CardHeader>
           <CardTitle>Logos</CardTitle>
           <CardDescription>
-            Erlaubt: {BILD_ENDUNGEN_TEXT} · maximal 2 MB je Datei. Ohne eigenes
-            Motiv wird das mitgelieferte Standardlogo verwendet.
+            Erlaubt: {BILD_ENDUNGEN_TEXT} · maximal 2 MB je Datei. Ohne eigenes Motiv
+            wird das mitgelieferte Standardlogo verwendet.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6 sm:grid-cols-2">
@@ -357,7 +357,7 @@ export function ErscheinungsbildFormular({
       {status.fehler ? (
         <p
           role="alert"
-          className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+          className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
           {status.fehler}
@@ -386,9 +386,9 @@ export function ErscheinungsbildFormular({
         </Button>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Änderungen wirken sofort für alle Benutzer. Jede Änderung wird im
-        Audit-Log protokolliert.
+      <p className="text-muted-foreground text-xs">
+        Änderungen wirken sofort für alle Benutzer. Jede Änderung wird im Audit-Log
+        protokolliert.
       </p>
     </form>
   )

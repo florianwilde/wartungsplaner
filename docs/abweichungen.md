@@ -9,27 +9,27 @@ Frist – sonst verliert sie sich.
 ## Wo Abweichungen entstehen
 
 **Beim Erledigen** – im Dialog unter „Abweichungen“. Beim Ergebnis
-*Abweichung* ist mindestens eine verpflichtend.
+_Abweichung_ ist mindestens eine verpflichtend.
 
-**Aus einem Prüfnachweis** – jeder Prüfpunkt mit Befund (*nicht erfüllt*,
-*entziehen*, *ändern*) lässt sich mit einem Griff überführen. Titel und
+**Aus einem Prüfnachweis** – jeder Prüfpunkt mit Befund (_nicht erfüllt_,
+_entziehen_, _ändern_) lässt sich mit einem Griff überführen. Titel und
 Beschreibung sind vorbelegt; einzugeben bleiben Schwere, Frist und
 verantwortliche Person. Die Abweichung behält einen Rückverweis auf den
 Prüfpunkt, aus dem sie stammt.
 
 ## Die Angaben
 
-| Feld | Bedeutung |
-| --- | --- |
-| **Titel** | Was festgestellt wurde – knapp und für sich verständlich |
-| **Beschreibung** | Der Befund im Einzelnen |
-| **Schwere** | gering, mittel, hoch, kritisch – bestimmt die Reihenfolge in den Berichten |
-| **Verantwortlich** | Wer sich um die Behebung kümmert |
-| **Frist** | Bis wann |
+| Feld               | Bedeutung                                                                  |
+| ------------------ | -------------------------------------------------------------------------- |
+| **Titel**          | Was festgestellt wurde – knapp und für sich verständlich                   |
+| **Beschreibung**   | Der Befund im Einzelnen                                                    |
+| **Schwere**        | gering, mittel, hoch, kritisch – bestimmt die Reihenfolge in den Berichten |
+| **Verantwortlich** | Wer sich um die Behebung kümmert                                           |
+| **Frist**          | Bis wann                                                                   |
 
 ## Der Verlauf
 
-*Offen* → *In Arbeit* → *Geschlossen*
+_Offen_ → _In Arbeit_ → _Geschlossen_
 
 Beim Schließen gehört die **umgesetzte Maßnahme** in das Kommentarfeld. Sie
 steht später im Abweichungsbericht – „geschlossen“ allein beantwortet die

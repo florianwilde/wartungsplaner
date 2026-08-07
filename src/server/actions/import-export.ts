@@ -37,7 +37,10 @@ import {
   schreibePruefboegen,
 } from '@/server/import'
 
-const fehlertext = fehlerbehandlung('Unerwarteter Fehler beim Import', 'Der Import konnte nicht ausgeführt werden.')
+const fehlertext = fehlerbehandlung(
+  'Unerwarteter Fehler beim Import',
+  'Der Import konnte nicht ausgeführt werden.',
+)
 
 /** Für die Anzeige aufbereitete Vorschau (ohne die vollständigen Daten). */
 export type VorschauZeile = {
@@ -95,10 +98,7 @@ type GepruefteDaten =
   | { art: 'pruefboegen'; vorschau: ImportVorschau<PruefbogenDaten> }
 
 /** Führt die Prüfung gegen den aktuellen Datenbestand aus. */
-async function pruefe(
-  art: ImportArt,
-  zeilen: CsvZeile[],
-): Promise<GepruefteDaten> {
+async function pruefe(art: ImportArt, zeilen: CsvZeile[]): Promise<GepruefteDaten> {
   if (art === 'kategorien') {
     const vorhandene = await prisma.category.findMany({
       select: { name: true, color: true, sortOrder: true },
@@ -187,26 +187,26 @@ async function pruefe(
   return {
     art: 'aufgaben',
     vorschau: pruefeAufgaben(
-    zeilen,
-    aufgaben.map((a) => ({
-      title: a.title,
-      kategorieName: a.category.name,
-      verantwortlichEmail: a.owner.email,
-      intervalType: a.intervalType,
-      intervalValue: a.intervalValue,
-      scheduleMode: a.scheduleMode,
-      startDate: toISODate(a.startDate),
-      leadTimeDays: a.leadTimeDays,
-      graceDays: a.graceDays,
-      evidenceRequired: a.evidenceRequired,
-      criticality: a.criticality,
-      auditReferenzen: normalisiereReferenzliste(
-        a.auditReferenzen.map((z) => anzeigeName(z.referenz)).join(','),
-      ),
-      active: a.active,
-      description: a.description,
-      instructionsMd: a.instructionsMd,
-    })),
+      zeilen,
+      aufgaben.map((a) => ({
+        title: a.title,
+        kategorieName: a.category.name,
+        verantwortlichEmail: a.owner.email,
+        intervalType: a.intervalType,
+        intervalValue: a.intervalValue,
+        scheduleMode: a.scheduleMode,
+        startDate: toISODate(a.startDate),
+        leadTimeDays: a.leadTimeDays,
+        graceDays: a.graceDays,
+        evidenceRequired: a.evidenceRequired,
+        criticality: a.criticality,
+        auditReferenzen: normalisiereReferenzliste(
+          a.auditReferenzen.map((z) => anzeigeName(z.referenz)).join(','),
+        ),
+        active: a.active,
+        description: a.description,
+        instructionsMd: a.instructionsMd,
+      })),
       kategorien.map((k) => k.name),
       benutzer.map((b) => b.email),
     ),
@@ -295,7 +295,9 @@ export async function importAusfuehren(
 
     const inhalt = await leseInhalt(formData)
     if (!inhalt) {
-      return { fehler: 'Der Dateiinhalt ist verloren gegangen. Bitte erneut hochladen.' }
+      return {
+        fehler: 'Der Dateiinhalt ist verloren gegangen. Bitte erneut hochladen.',
+      }
     }
 
     const zeilen = leseCsv(inhalt)

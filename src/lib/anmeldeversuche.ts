@@ -34,8 +34,7 @@ export function neuerSpeicher(): Versuchsspeicher {
 }
 
 export type PruefErgebnis =
-  | { erlaubt: true }
-  | { erlaubt: false; verbleibendeSekunden: number }
+  { erlaubt: true } | { erlaubt: false; verbleibendeSekunden: number }
 
 /**
  * Prüft, ob für eine Kennung derzeit ein Anmeldeversuch zulässig ist.

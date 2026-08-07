@@ -186,11 +186,7 @@ async function main() {
   })
 
   // --- Erfassen -----------------------------------------------------------
-  const nachweisId = await starteNachweis(
-    faelligkeit.id,
-    vorlage.id,
-    erfasser.id,
-  )
+  const nachweisId = await starteNachweis(faelligkeit.id, vorlage.id, erfasser.id)
   const frisch = await ladeNachweis(nachweisId)
   pruefe(frisch?.status === 'ENTWURF', 'Ein neuer Nachweis ist ein Entwurf')
   pruefe(
@@ -238,9 +234,13 @@ async function main() {
     'AD-Export Fachanwendung.csv',
     { type: 'text/csv' },
   )
-  const screenshot = new File([Buffer.from('89504e470d0a1a0a', 'hex')], 'screenshot.png', {
-    type: 'image/png',
-  })
+  const screenshot = new File(
+    [Buffer.from('89504e470d0a1a0a', 'hex')],
+    'screenshot.png',
+    {
+      type: 'image/png',
+    },
+  )
 
   const anzahl = await fuegeBelegeHinzu(
     nachweisId,
@@ -251,10 +251,7 @@ async function main() {
   pruefe(anzahl === 2, 'Mehrere Belege lassen sich in einem Zug hinzufügen')
 
   const mitBelegen = await ladeNachweis(nachweisId)
-  pruefe(
-    mitBelegen?.belege.length === 2,
-    'Die Belege hängen am Prüfbogen',
-  )
+  pruefe(mitBelegen?.belege.length === 2, 'Die Belege hängen am Prüfbogen')
   pruefe(
     mitBelegen!.belege.every((b) => b.sha256.length === 64),
     'Jeder Beleg trägt eine SHA-256-Prüfsumme',
@@ -278,7 +275,9 @@ async function main() {
     'Eine fremde Person kann keine Belege hinzufügen',
   )
 
-  const ueberzaehlig = new File(['x'], 'skript.exe', { type: 'application/octet-stream' })
+  const ueberzaehlig = new File(['x'], 'skript.exe', {
+    type: 'application/octet-stream',
+  })
   await erwarteFehler(
     () => fuegeBelegeHinzu(nachweisId, erfasser.id, [ueberzaehlig], null),
     'nicht zugelassen',
@@ -294,12 +293,7 @@ async function main() {
   )
 
   // --- Vorlegen -----------------------------------------------------------
-  const vorgelegt = await fuehreUebergangAus(
-    nachweisId,
-    'vorlegen',
-    erfasser.id,
-    null,
-  )
+  const vorgelegt = await fuehreUebergangAus(nachweisId, 'vorlegen', erfasser.id, null)
   pruefe(
     vorgelegt.neuerStatus === 'VORGELEGT',
     'Mit allen Pflichtangaben lässt sich der Nachweis vorlegen',
@@ -352,20 +346,9 @@ async function main() {
   await fuehreUebergangAus(nachweisId, 'vorlegen', erfasser.id, null)
 
   // --- Gegenzeichnen ------------------------------------------------------
-  const fertig = await fuehreUebergangAus(
-    nachweisId,
-    'gegenzeichnen',
-    pruefer.id,
-    null,
-  )
-  pruefe(
-    fertig.neuerStatus === 'GEGENGEZEICHNET',
-    'Die zweite Person zeichnet gegen',
-  )
-  pruefe(
-    fertig.attachmentId !== null,
-    'Beim Gegenzeichnen entsteht der PDF-Nachweis',
-  )
+  const fertig = await fuehreUebergangAus(nachweisId, 'gegenzeichnen', pruefer.id, null)
+  pruefe(fertig.neuerStatus === 'GEGENGEZEICHNET', 'Die zweite Person zeichnet gegen')
+  pruefe(fertig.attachmentId !== null, 'Beim Gegenzeichnen entsteht der PDF-Nachweis')
   pruefe(
     fertig.feststellungen.some((f) => f.ergebnis === 'ENTZIEHEN'),
     'Die Feststellung „entziehen“ wird im Ergebnis ausgewiesen',
@@ -374,10 +357,7 @@ async function main() {
   const anhang = await prisma.attachment.findUnique({
     where: { id: fertig.attachmentId! },
   })
-  pruefe(
-    anhang?.mimeType === 'application/pdf',
-    'Der Anhang ist als PDF hinterlegt',
-  )
+  pruefe(anhang?.mimeType === 'application/pdf', 'Der Anhang ist als PDF hinterlegt')
   pruefe(
     (anhang?.sha256?.length ?? 0) === 64,
     'Der Anhang trägt eine SHA-256-Prüfsumme',
@@ -639,8 +619,7 @@ async function main() {
     'Übernommene Zeilen sind zunächst ohne Entscheidung',
   )
   pruefe(
-    zeilen[0].bezeichnung === 'mmueller' &&
-      zeilen[0].zusatz === 'Fachanwendung-Admins',
+    zeilen[0].bezeichnung === 'mmueller' && zeilen[0].zusatz === 'Fachanwendung-Admins',
     'Bezeichnung und Zusatz stammen aus den ersten beiden Spalten',
   )
 
@@ -684,8 +663,7 @@ async function main() {
   )
 
   await erwarteFehler(
-    () =>
-      uebernehmeZeilen(listenNachweis, listenPunkt.id, csv, erfasser.id, true),
+    () => uebernehmeZeilen(listenNachweis, listenPunkt.id, csv, erfasser.id, true),
     'nicht mehr änderbar',
     'Nach dem Abschluss lassen sich keine Zeilen mehr übernehmen',
   )
@@ -726,11 +704,7 @@ async function main() {
     include: { punkte: true },
   })
 
-  const soloId = await starteNachweis(
-    soloFaelligkeit.id,
-    soloVorlage.id,
-    erfasser.id,
-  )
+  const soloId = await starteNachweis(soloFaelligkeit.id, soloVorlage.id, erfasser.id)
 
   // Genau der Fall aus der Oberfläche: Die Antwort steht noch im Browser,
   // der Server kennt sie nicht. Erst speichern, dann abschließen.
@@ -786,9 +760,7 @@ async function main() {
     'Ohne Befund nennt der Stand keine Feststellungen',
   )
 
-  const listenDialog = dialogStand.find(
-    (s) => s.occurrenceId === listenFaelligkeit.id,
-  )
+  const listenDialog = dialogStand.find((s) => s.occurrenceId === listenFaelligkeit.id)
   pruefe(
     listenDialog?.feststellungen.length === 1 &&
       listenDialog.feststellungen[0].titel.includes('kklein') &&
@@ -804,11 +776,7 @@ async function main() {
   const fremdFaelligkeit = await prisma.occurrence.create({
     data: { taskId: soloAufgabe.id, dueDate: addDays(heute, 90), status: 'OPEN' },
   })
-  const fremdId = await starteNachweis(
-    fremdFaelligkeit.id,
-    soloVorlage.id,
-    erfasser.id,
-  )
+  const fremdId = await starteNachweis(fremdFaelligkeit.id, soloVorlage.id, erfasser.id)
 
   await erwarteFehler(
     () =>
@@ -845,10 +813,7 @@ async function main() {
     },
   ])
   const nachUebernahme = await ladeNachweis(fremdId)
-  pruefe(
-    nachUebernahme?.antworten.length === 1,
-    'Danach ist er auch ausfüllbar',
-  )
+  pruefe(nachUebernahme?.antworten.length === 1, 'Danach ist er auch ausfüllbar')
 
   await erwarteFehler(
     () => uebernimmNachweis(fremdId, pruefer.id),
@@ -858,10 +823,7 @@ async function main() {
 
   // Verwerfen gibt die Fälligkeit wieder frei.
   await verwirfNachweis(fremdId, pruefer.id, false)
-  pruefe(
-    (await ladeNachweis(fremdId)) === null,
-    'Ein Entwurf lässt sich verwerfen',
-  )
+  pruefe((await ladeNachweis(fremdId)) === null, 'Ein Entwurf lässt sich verwerfen')
   const neuerVersuch = await starteNachweis(
     fremdFaelligkeit.id,
     soloVorlage.id,
@@ -901,10 +863,7 @@ async function main() {
       eintrag.feststellungen.some((f) => f.includes('M. Müller')),
     'Feststellungen erscheinen im Klartext',
   )
-  pruefe(
-    eintrag?.anzahlBelege === 1,
-    'Die Anzahl der Belege wird mitgeführt',
-  )
+  pruefe(eintrag?.anzahlBelege === 1, 'Die Anzahl der Belege wird mitgeführt')
 
   const soloEintrag = register.find((r) => r.pruefbogen === soloVorlage.name)
   pruefe(

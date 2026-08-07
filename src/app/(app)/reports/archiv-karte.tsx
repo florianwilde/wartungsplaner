@@ -48,10 +48,10 @@ export function ArchivKarte({
           Archiv der Nachweise
         </CardTitle>
         <CardDescription>
-          Alle Nachweise des Zeitraums als ZIP, gegliedert nach Kategorie und
-          Aufgabe. Beigelegt sind ein Inhaltsverzeichnis, eine Prüfsummenliste
-          im Format von <code>sha256sum</code> und eine Erläuterung, wie sich
-          die Unverändertheit ohne diese Anwendung nachrechnen lässt.
+          Alle Nachweise des Zeitraums als ZIP, gegliedert nach Kategorie und Aufgabe.
+          Beigelegt sind ein Inhaltsverzeichnis, eine Prüfsummenliste im Format von{' '}
+          <code>sha256sum</code> und eine Erläuterung, wie sich die Unverändertheit ohne
+          diese Anwendung nachrechnen lässt.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -81,10 +81,7 @@ export function ArchivKarte({
             <p className="text-sm font-medium">Kategorien</p>
             <div className="flex flex-wrap gap-3">
               {kategorien.map((kategorie) => (
-                <label
-                  key={kategorie.id}
-                  className="flex items-center gap-2 text-sm"
-                >
+                <label key={kategorie.id} className="flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
                     checked={gewaehlt.includes(kategorie.id)}
@@ -101,7 +98,7 @@ export function ArchivKarte({
                 </label>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Ohne Auswahl sind alle Kategorien enthalten.
             </p>
           </div>
@@ -115,11 +112,11 @@ export function ArchivKarte({
             </a>
           </Button>
           {von > bis ? (
-            <span className="text-sm text-destructive">
+            <span className="text-destructive text-sm">
               Das Startdatum liegt nach dem Enddatum.
             </span>
           ) : (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               Bei großen Zeiträumen kann der Download eine Weile dauern.
             </span>
           )}

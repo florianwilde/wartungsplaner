@@ -181,11 +181,11 @@ export function AufgabenTabelle({
       {/* Warum die Schaltfläche gesperrt ist, gehört sichtbar an die Stelle –
           ein Titel-Attribut allein findet niemand. */}
       {darfVerwalten && mitHistorie > 0 ? (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           {mitHistorie === 1
             ? 'Eine markierte Aufgabe hat bereits Durchführungen und lässt sich deshalb nicht löschen'
-            : `${mitHistorie} markierte Aufgaben haben bereits Durchführungen und lassen sich deshalb nicht löschen`}
-          {' '}– die Historie bliebe sonst nicht erhalten. Deaktivieren Sie
+            : `${mitHistorie} markierte Aufgaben haben bereits Durchführungen und lassen sich deshalb nicht löschen`}{' '}
+          – die Historie bliebe sonst nicht erhalten. Deaktivieren Sie
           {mitHistorie === 1 ? ' sie ' : ' diese '}stattdessen.
           {istAdmin
             ? ' Für Testdaten und Fehlimporte gibt es „Mit Nachweisen löschen“ – der Vorgang wird protokolliert.'
@@ -202,7 +202,7 @@ export function AufgabenTabelle({
         />
       ) : null}
 
-      <div className="rounded-lg border border-border bg-card">
+      <div className="border-border bg-card rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -276,7 +276,7 @@ export function AufgabenTabelle({
                   {aufgabe.verantwortlich}
                 </TableCell>
 
-                <TableCell className="whitespace-nowrap text-muted-foreground">
+                <TableCell className="text-muted-foreground whitespace-nowrap">
                   {aufgabe.intervall}
                 </TableCell>
 

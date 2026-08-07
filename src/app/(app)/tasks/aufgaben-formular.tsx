@@ -8,7 +8,13 @@ import { AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { nachRahmenwerk } from '@/lib/audit-referenzen'
@@ -199,16 +205,16 @@ export function AufgabenFormular({
             />
 
             {referenzen.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                Noch keine Audit-Referenzen hinterlegt. Sie werden unter
-                Administration → Audit-Referenzen gepflegt.
+              <p className="text-muted-foreground text-sm">
+                Noch keine Audit-Referenzen hinterlegt. Sie werden unter Administration
+                → Audit-Referenzen gepflegt.
               </p>
             ) : (
               <>
-                <div className="space-y-3 rounded-md border border-border p-3">
+                <div className="border-border space-y-3 rounded-md border p-3">
                   {nachRahmenwerk(referenzen).map((gruppe) => (
                     <div key={gruppe.rahmenwerk ?? 'ohne'} className="space-y-1.5">
-                      <p className="text-xs font-medium text-muted-foreground">
+                      <p className="text-muted-foreground text-xs font-medium">
                         {gruppe.rahmenwerk ?? 'Ohne Rahmenwerk'}
                       </p>
                       <div className="flex flex-wrap gap-x-4 gap-y-2">
@@ -237,10 +243,9 @@ export function AufgabenFormular({
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Mehrfachauswahl möglich – eine Prüfung deckt oft mehrere
-                  Anforderungen ab. Listen und Auswertungen lassen sich danach
-                  filtern.
+                <p className="text-muted-foreground text-xs">
+                  Mehrfachauswahl möglich – eine Prüfung deckt oft mehrere Anforderungen
+                  ab. Listen und Auswertungen lassen sich danach filtern.
                 </p>
               </>
             )}
@@ -252,8 +257,8 @@ export function AufgabenFormular({
         <CardHeader>
           <CardTitle>Planung</CardTitle>
           <CardDescription>
-            Intervall, Startdatum sowie Vorlauf- und Karenztage bestimmen, wann
-            die Aufgabe fällig und wann sie überfällig wird.
+            Intervall, Startdatum sowie Vorlauf- und Karenztage bestimmen, wann die
+            Aufgabe fällig und wann sie überfällig wird.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
@@ -276,7 +281,8 @@ export function AufgabenFormular({
 
           <div className="space-y-2">
             <Label htmlFor="intervalValue">
-              Anzahl Tage {intervallTyp === 'EVERY_N_DAYS' ? '' : '(nur bei „Alle N Tage“)'}
+              Anzahl Tage{' '}
+              {intervallTyp === 'EVERY_N_DAYS' ? '' : '(nur bei „Alle N Tage“)'}
             </Label>
             <Input
               id="intervalValue"
@@ -304,10 +310,10 @@ export function AufgabenFormular({
                 </option>
               ))}
             </select>
-            <p className="text-xs text-muted-foreground">
-              „Fester Rhythmus“ hält den Takt auch bei verspäteter Erledigung.
-              „Ab Erledigungsdatum“ rechnet das Intervall ab dem Tag der
-              tatsächlichen Durchführung.
+            <p className="text-muted-foreground text-xs">
+              „Fester Rhythmus“ hält den Takt auch bei verspäteter Erledigung. „Ab
+              Erledigungsdatum“ rechnet das Intervall ab dem Tag der tatsächlichen
+              Durchführung.
             </p>
           </div>
 
@@ -332,9 +338,9 @@ export function AufgabenFormular({
               max={365}
               defaultValue={werte.leadTimeDays}
             />
-            <p className="text-xs text-muted-foreground">
-              Ab so vielen Tagen vor dem Termin erscheint die Aufgabe als „bald
-              fällig“ auf dem Dashboard.
+            <p className="text-muted-foreground text-xs">
+              Ab so vielen Tagen vor dem Termin erscheint die Aufgabe als „bald fällig“
+              auf dem Dashboard.
             </p>
           </div>
 
@@ -348,7 +354,7 @@ export function AufgabenFormular({
               max={365}
               defaultValue={werte.graceDays}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Erst nach Ablauf dieser Tage gilt die Fälligkeit als überfällig.
             </p>
           </div>
@@ -361,9 +367,9 @@ export function AufgabenFormular({
             />
             <div className="space-y-1">
               <Label htmlFor="evidenceRequired">Nachweis verpflichtend</Label>
-              <p className="text-xs text-muted-foreground">
-                Die Durchführung kann dann nur mit mindestens einer
-                hochgeladenen Datei abgeschlossen werden.
+              <p className="text-muted-foreground text-xs">
+                Die Durchführung kann dann nur mit mindestens einer hochgeladenen Datei
+                abgeschlossen werden.
               </p>
             </div>
           </div>
@@ -372,7 +378,7 @@ export function AufgabenFormular({
             <Checkbox id="active" name="active" defaultChecked={werte.active} />
             <div className="space-y-1">
               <Label htmlFor="active">Aufgabe ist aktiv</Label>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Nur aktive Aufgaben erzeugen neue Fälligkeiten.
               </p>
             </div>
@@ -384,8 +390,8 @@ export function AufgabenFormular({
         <CardHeader>
           <CardTitle>Prüfanleitung</CardTitle>
           <CardDescription>
-            Schritt-für-Schritt-Anleitung im Markdown-Format. Sie wird beim
-            Erledigen angezeigt.
+            Schritt-für-Schritt-Anleitung im Markdown-Format. Sie wird beim Erledigen
+            angezeigt.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -396,7 +402,9 @@ export function AufgabenFormular({
             rows={14}
             maxLength={20000}
             className="font-mono text-xs"
-            placeholder={'## Durchführung\n1. Erster Schritt\n2. Zweiter Schritt\n\n## Nachweise\n- Protokoll als PDF'}
+            placeholder={
+              '## Durchführung\n1. Erster Schritt\n2. Zweiter Schritt\n\n## Nachweise\n- Protokoll als PDF'
+            }
           />
         </CardContent>
       </Card>
@@ -404,7 +412,7 @@ export function AufgabenFormular({
       {status.fehler ? (
         <p
           role="alert"
-          className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+          className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
           {status.fehler}

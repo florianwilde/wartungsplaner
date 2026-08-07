@@ -26,9 +26,7 @@ test('führt Unangemeldete zur Anmeldung und danach zurück', async ({ page }) =
   await expect(page).toHaveURL(/\/tasks/)
 })
 
-test('weist falsche Anmeldedaten ab, ohne den Grund zu verraten', async ({
-  page,
-}) => {
+test('weist falsche Anmeldedaten ab, ohne den Grund zu verraten', async ({ page }) => {
   await page.goto('/login')
   await page.getByLabel('E-Mail-Adresse').fill(KONTEN.admin)
   await page.getByLabel('Passwort').fill('falsches-passwort')

@@ -92,15 +92,14 @@ export function AufbewahrungFormular({
           <CardHeader>
             <CardTitle>Fristen</CardTitle>
             <CardDescription>
-              Nach Ablauf der Frist wird die <strong>Datei</strong> entfernt,
-              nicht der Eintrag: Datum, Person, Ergebnis, Dateiname und
-              Prüfsumme bleiben erhalten und belegen weiterhin, dass geprüft
-              wurde. Gelöscht wird der Inhalt, nicht die Tatsache. Maßgeblich
-              ist der Zeitpunkt der Durchführung.
+              Nach Ablauf der Frist wird die <strong>Datei</strong> entfernt, nicht der
+              Eintrag: Datum, Person, Ergebnis, Dateiname und Prüfsumme bleiben erhalten
+              und belegen weiterhin, dass geprüft wurde. Gelöscht wird der Inhalt, nicht
+              die Tatsache. Maßgeblich ist der Zeitpunkt der Durchführung.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
-            <label className="flex items-start gap-3 rounded-md border border-border p-3">
+            <label className="border-border flex items-start gap-3 rounded-md border p-3">
               <input
                 type="checkbox"
                 name="aktiv"
@@ -109,13 +108,10 @@ export function AufbewahrungFormular({
                 className="mt-0.5 size-4"
               />
               <span>
-                <span className="font-medium">
-                  Aufbewahrungsfristen anwenden
-                </span>
-                <span className="block text-sm text-muted-foreground">
-                  Der tägliche Lauf entfernt dann abgelaufene Nachweisdateien.
-                  Ohne diesen Haken geschieht nichts – die Vorschau bleibt
-                  jederzeit nutzbar.
+                <span className="font-medium">Aufbewahrungsfristen anwenden</span>
+                <span className="text-muted-foreground block text-sm">
+                  Der tägliche Lauf entfernt dann abgelaufene Nachweisdateien. Ohne
+                  diesen Haken geschieht nichts – die Vorschau bleibt jederzeit nutzbar.
                 </span>
               </span>
             </label>
@@ -131,7 +127,7 @@ export function AufbewahrungFormular({
                 value={standard}
                 onChange={(e) => setStandard(Number(e.target.value))}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Entspricht {fristText(standard || MIN_MONATE)}. Zulässig sind{' '}
                 {MIN_MONATE} bis {MAX_MONATE} Monate.
               </p>
@@ -139,17 +135,14 @@ export function AufbewahrungFormular({
 
             <div className="space-y-2">
               <p className="text-sm font-medium">Abweichend je Kategorie</p>
-              <p className="text-xs text-muted-foreground">
-                Leer lassen heißt: Es gilt die Vorgabe. Ein
-                Restore-Test-Protokoll darf früher entfallen als der Nachweis
-                einer Berechtigungsprüfung.
+              <p className="text-muted-foreground text-xs">
+                Leer lassen heißt: Es gilt die Vorgabe. Ein Restore-Test-Protokoll darf
+                früher entfallen als der Nachweis einer Berechtigungsprüfung.
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
                 {kategorien.map((kategorie) => (
                   <div key={kategorie.id} className="space-y-1.5">
-                    <Label htmlFor={`frist-${kategorie.id}`}>
-                      {kategorie.name}
-                    </Label>
+                    <Label htmlFor={`frist-${kategorie.id}`}>{kategorie.name}</Label>
                     <Input
                       id={`frist-${kategorie.id}`}
                       name={`frist-${kategorie.id}`}
@@ -165,7 +158,7 @@ export function AufbewahrungFormular({
             </div>
 
             {status.fehler ? (
-              <p role="alert" className="text-sm text-destructive">
+              <p role="alert" className="text-destructive text-sm">
                 {status.fehler}
               </p>
             ) : null}
@@ -179,8 +172,8 @@ export function AufbewahrungFormular({
         <CardHeader>
           <CardTitle>Jetzt anwenden</CardTitle>
           <CardDescription>
-            Die Vorschau ermittelt dasselbe wie der tatsächliche Lauf, fasst
-            aber nichts an. Sehen Sie erst nach, was entfallen würde.
+            Die Vorschau ermittelt dasselbe wie der tatsächliche Lauf, fasst aber nichts
+            an. Sehen Sie erst nach, was entfallen würde.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-3">
@@ -209,19 +202,19 @@ export function AufbewahrungFormular({
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="size-5 text-destructive" />
+              <AlertTriangle className="text-destructive size-5" />
               Dateien endgültig entfernen?
             </DialogTitle>
             <DialogDescription>
-              Die betroffenen Nachweisdateien werden gelöscht und lassen sich
-              nur aus einer Sicherung zurückholen. Die Einträge bleiben mit
-              Dateiname, Größe und Prüfsumme bestehen.
+              Die betroffenen Nachweisdateien werden gelöscht und lassen sich nur aus
+              einer Sicherung zurückholen. Die Einträge bleiben mit Dateiname, Größe und
+              Prüfsumme bestehen.
             </DialogDescription>
           </DialogHeader>
 
-          <p className="rounded-md bg-muted p-3 text-sm">
-            Führen Sie zuvor die <strong>Vorschau</strong> aus, wenn Sie noch
-            nicht wissen, was betroffen ist.
+          <p className="bg-muted rounded-md p-3 text-sm">
+            Führen Sie zuvor die <strong>Vorschau</strong> aus, wenn Sie noch nicht
+            wissen, was betroffen ist.
           </p>
 
           <DialogFooter>

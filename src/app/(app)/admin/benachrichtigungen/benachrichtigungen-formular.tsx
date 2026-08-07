@@ -7,7 +7,13 @@ import { AlertCircle, Mail, Play, Send } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -75,7 +81,7 @@ function Schalter({
       />
       <div className="space-y-1">
         <Label htmlFor={name}>{label}</Label>
-        <p className="text-xs text-muted-foreground">{beschreibung}</p>
+        <p className="text-muted-foreground text-xs">{beschreibung}</p>
       </div>
     </div>
   )
@@ -125,16 +131,16 @@ export function BenachrichtigungenFormular({
             Mailserver
           </CardTitle>
           <CardDescription>
-            Die Zugangsdaten stehen ausschließlich in der Datei <code>.env</code>{' '}
-            und werden beim Start des Containers gelesen.
+            Die Zugangsdaten stehen ausschließlich in der Datei <code>.env</code> und
+            werden beim Start des Containers gelesen.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <p
             className={
               smtpKonfiguriert
-                ? 'rounded-md bg-status-ok/10 p-3 text-sm text-status-ok'
-                : 'rounded-md bg-status-warn/15 p-3 text-sm text-status-warn'
+                ? 'bg-status-ok/10 text-status-ok rounded-md p-3 text-sm'
+                : 'bg-status-warn/15 text-status-warn rounded-md p-3 text-sm'
             }
           >
             {smtpBeschreibung}
@@ -179,10 +185,9 @@ export function BenachrichtigungenFormular({
             </Button>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            Planmäßiger Versand: <code>{mailZeitplan}</code> (Europe/Berlin).
-            Anpassbar über <code>MAIL_CRON_SCHEDULE</code> in der{' '}
-            <code>.env</code>.
+          <p className="text-muted-foreground text-xs">
+            Planmäßiger Versand: <code>{mailZeitplan}</code> (Europe/Berlin). Anpassbar
+            über <code>MAIL_CRON_SCHEDULE</code> in der <code>.env</code>.
           </p>
         </CardContent>
       </Card>
@@ -205,7 +210,7 @@ export function BenachrichtigungenFormular({
               deaktiviert={!smtpKonfiguriert}
             />
 
-            <div className="space-y-5 border-l-2 border-border pl-4">
+            <div className="border-border space-y-5 border-l-2 pl-4">
               <Schalter
                 name="aufgabenAktiv"
                 label="Anstehende und überfällige Prüfungen"
@@ -244,8 +249,8 @@ export function BenachrichtigungenFormular({
           <CardHeader>
             <CardTitle>Eskalation</CardTitle>
             <CardDescription>
-              Meldet lange überfällige Prüfungen zusätzlich an eine zentrale
-              Stelle – höchstens einmal je Kalenderwoche.
+              Meldet lange überfällige Prüfungen zusätzlich an eine zentrale Stelle –
+              höchstens einmal je Kalenderwoche.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -258,7 +263,7 @@ export function BenachrichtigungenFormular({
               deaktiviert={!aktiv}
             />
 
-            <div className="grid gap-4 border-l-2 border-border pl-4 sm:grid-cols-2">
+            <div className="border-border grid gap-4 border-l-2 pl-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="eskalationAbTagen">Ab wie vielen Tagen Verzug</Label>
                 <Input
@@ -270,7 +275,7 @@ export function BenachrichtigungenFormular({
                   defaultValue={werte.eskalationAbTagen}
                   disabled={!aktiv || !eskalation}
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Gezählt ab dem Ende der Karenzfrist.
                 </p>
               </div>
@@ -300,10 +305,10 @@ export function BenachrichtigungenFormular({
           <CardHeader>
             <CardTitle>Gegenzeichnung</CardTitle>
             <CardDescription>
-              Bittet um Gegenzeichnung, sobald ein Prüfnachweis vorgelegt wird –
-              zuerst die verantwortliche Person der Aufgabe. Ohne diese Nachricht
-              bliebe der Vorgang liegen, bis jemand zufällig hineinschaut. Eine
-              Zurückweisung wird der erfassenden Person ebenfalls sofort gemeldet.
+              Bittet um Gegenzeichnung, sobald ein Prüfnachweis vorgelegt wird – zuerst
+              die verantwortliche Person der Aufgabe. Ohne diese Nachricht bliebe der
+              Vorgang liegen, bis jemand zufällig hineinschaut. Eine Zurückweisung wird
+              der erfassenden Person ebenfalls sofort gemeldet.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -316,7 +321,7 @@ export function BenachrichtigungenFormular({
               deaktiviert={!aktiv}
             />
 
-            <div className="max-w-xs space-y-2 border-l-2 border-border pl-4">
+            <div className="border-border max-w-xs space-y-2 border-l-2 pl-4">
               <Label htmlFor="gegenzeichnungAbTagen">Erinnern nach (Tagen)</Label>
               <Input
                 id="gegenzeichnungAbTagen"
@@ -327,7 +332,7 @@ export function BenachrichtigungenFormular({
                 defaultValue={werte.gegenzeichnungAbTagen}
                 disabled={!aktiv || !gegenzeichnung}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Wartet ein Nachweis länger, wird wöchentlich erneut erinnert.
               </p>
             </div>
@@ -338,8 +343,8 @@ export function BenachrichtigungenFormular({
           <CardHeader>
             <CardTitle>Wochenübersicht</CardTitle>
             <CardDescription>
-              Fasst einmal wöchentlich alle offenen Prüfungen und Abweichungen je
-              Person zusammen. Wer nichts offen hat, erhält keine Nachricht.
+              Fasst einmal wöchentlich alle offenen Prüfungen und Abweichungen je Person
+              zusammen. Wer nichts offen hat, erhält keine Nachricht.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -352,7 +357,7 @@ export function BenachrichtigungenFormular({
               deaktiviert={!aktiv}
             />
 
-            <div className="max-w-xs space-y-2 border-l-2 border-border pl-4">
+            <div className="border-border max-w-xs space-y-2 border-l-2 pl-4">
               <Label htmlFor="wochenuebersichtTag">Wochentag</Label>
               <select
                 id="wochenuebersichtTag"
@@ -374,7 +379,7 @@ export function BenachrichtigungenFormular({
         {status.fehler ? (
           <p
             role="alert"
-            className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+            className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
           >
             <AlertCircle className="mt-0.5 size-4 shrink-0" />
             {status.fehler}

@@ -23,9 +23,7 @@ describe('lesbareGroesse', () => {
 
 describe('MAX_DATEIGROESSE_TEXT', () => {
   it('leitet sich aus dem Grenzwert ab', () => {
-    expect(MAX_DATEIGROESSE_TEXT).toBe(
-      `${MAX_DATEIGROESSE_BYTES / (1024 * 1024)} MB`,
-    )
+    expect(MAX_DATEIGROESSE_TEXT).toBe(`${MAX_DATEIGROESSE_BYTES / (1024 * 1024)} MB`)
   })
 })
 

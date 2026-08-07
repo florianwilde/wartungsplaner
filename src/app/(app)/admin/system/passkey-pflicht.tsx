@@ -63,18 +63,18 @@ export function PasskeyPflicht({
           Passkey-Pflicht
         </CardTitle>
         <CardDescription>
-          Für die gewählten Rollen ist ein hinterlegter Passkey verpflichtend.
-          Wer keinen hat, wird bei der nächsten Anmeldung zur Einrichtung
-          geführt, bevor er weiterarbeiten kann.
+          Für die gewählten Rollen ist ein hinterlegter Passkey verpflichtend. Wer
+          keinen hat, wird bei der nächsten Anmeldung zur Einrichtung geführt, bevor er
+          weiterarbeiten kann.
         </CardDescription>
       </CardHeader>
       <CardContent>
         {!passkeysMoeglich ? (
-          <p className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
+          <p className="bg-muted text-muted-foreground rounded-md p-3 text-sm">
             Passkeys sind erst möglich, wenn die Anwendung über <b>HTTPS</b>
-            erreichbar ist – der Browser bietet die Registrierung sonst gar
-            nicht an. Die Pflicht bleibt deshalb wirkungslos und lässt sich
-            derzeit nicht einschalten.
+            erreichbar ist – der Browser bietet die Registrierung sonst gar nicht an.
+            Die Pflicht bleibt deshalb wirkungslos und lässt sich derzeit nicht
+            einschalten.
           </p>
         ) : (
           <form action={formAction} className="space-y-4">
@@ -82,7 +82,7 @@ export function PasskeyPflicht({
               {ROLLEN.map((rolle) => (
                 <label
                   key={rolle}
-                  className="flex items-start gap-3 rounded-md border border-border p-3 text-sm"
+                  className="border-border flex items-start gap-3 rounded-md border p-3 text-sm"
                 >
                   <input
                     type="checkbox"
@@ -91,10 +91,8 @@ export function PasskeyPflicht({
                     className="mt-0.5 size-4"
                   />
                   <span>
-                    <span className="font-medium">
-                      {ROLLEN_BEZEICHNUNG[rolle]}
-                    </span>
-                    <span className="block text-xs text-muted-foreground">
+                    <span className="font-medium">{ROLLEN_BEZEICHNUNG[rolle]}</span>
+                    <span className="text-muted-foreground block text-xs">
                       {(ohnePasskey[rolle] ?? 0) === 0
                         ? 'Alle haben bereits einen Passkey.'
                         : `${ohnePasskey[rolle]} ${
@@ -106,14 +104,14 @@ export function PasskeyPflicht({
               ))}
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              Konten, die sich über das Unternehmens-SSO anmelden, sind
-              ausgenommen: Dort gibt es bereits ein Verfahren, und ein zweiter
-              Faktor gehört in den Identity Provider.
+            <p className="text-muted-foreground text-xs">
+              Konten, die sich über das Unternehmens-SSO anmelden, sind ausgenommen:
+              Dort gibt es bereits ein Verfahren, und ein zweiter Faktor gehört in den
+              Identity Provider.
             </p>
 
             {status.fehler ? (
-              <p role="alert" className="text-sm text-destructive">
+              <p role="alert" className="text-destructive text-sm">
                 {status.fehler}
               </p>
             ) : null}

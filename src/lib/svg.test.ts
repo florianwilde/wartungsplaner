@@ -4,9 +4,10 @@ import { ermittleSvgGroesse, passeEin, siehtNachSvgAus } from './svg'
 
 describe('ermittleSvgGroesse', () => {
   it('liest den viewBox', () => {
-    expect(
-      ermittleSvgGroesse('<svg viewBox="0 0 240 60" xmlns="..."></svg>'),
-    ).toEqual({ breite: 240, hoehe: 60 })
+    expect(ermittleSvgGroesse('<svg viewBox="0 0 240 60" xmlns="..."></svg>')).toEqual({
+      breite: 240,
+      hoehe: 60,
+    })
   })
 
   it('kommt mit Kommas im viewBox zurecht', () => {
@@ -50,22 +51,25 @@ describe('ermittleSvgGroesse', () => {
 
 describe('passeEin', () => {
   it('begrenzt an der Breite', () => {
-    expect(passeEin({ breite: 400, hoehe: 100 }, { breite: 200, hoehe: 100 })).toEqual(
-      { breite: 200, hoehe: 50 },
-    )
+    expect(passeEin({ breite: 400, hoehe: 100 }, { breite: 200, hoehe: 100 })).toEqual({
+      breite: 200,
+      hoehe: 50,
+    })
   })
 
   it('begrenzt an der Höhe', () => {
-    expect(passeEin({ breite: 100, hoehe: 400 }, { breite: 200, hoehe: 100 })).toEqual(
-      { breite: 25, hoehe: 100 },
-    )
+    expect(passeEin({ breite: 100, hoehe: 400 }, { breite: 200, hoehe: 100 })).toEqual({
+      breite: 25,
+      hoehe: 100,
+    })
   })
 
   it('vergrößert nicht', () => {
     // Ein Logo, das den Kasten nicht füllt, ist besser als ein ausgefranstes.
-    expect(passeEin({ breite: 60, hoehe: 20 }, { breite: 200, hoehe: 100 })).toEqual(
-      { breite: 60, hoehe: 20 },
-    )
+    expect(passeEin({ breite: 60, hoehe: 20 }, { breite: 200, hoehe: 100 })).toEqual({
+      breite: 60,
+      hoehe: 20,
+    })
   })
 
   it('behält das Seitenverhältnis', () => {

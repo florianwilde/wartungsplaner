@@ -123,13 +123,9 @@ describe('Gültigkeit der Aufgabe', () => {
   it('erkennt abgelaufene Aufgaben', () => {
     const ablauf = challengeAblauf(jetzt)
     expect(istChallengeGueltig(ablauf, jetzt)).toBe(true)
-    expect(
-      istChallengeGueltig(ablauf, new Date(ablauf.getTime() - 1)),
-    ).toBe(true)
+    expect(istChallengeGueltig(ablauf, new Date(ablauf.getTime() - 1))).toBe(true)
     expect(istChallengeGueltig(ablauf, new Date(ablauf.getTime()))).toBe(false)
-    expect(
-      istChallengeGueltig(ablauf, new Date(ablauf.getTime() + 1000)),
-    ).toBe(false)
+    expect(istChallengeGueltig(ablauf, new Date(ablauf.getTime() + 1000))).toBe(false)
   })
 })
 

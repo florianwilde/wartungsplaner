@@ -6,10 +6,7 @@ import { UserCheck, UserCog, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import {
-  nachweisUebernehmen,
-  nachweisVerwerfen,
-} from '@/server/actions/nachweise'
+import { nachweisUebernehmen, nachweisVerwerfen } from '@/server/actions/nachweise'
 
 /**
  * Hinweis auf einen Entwurf, den eine andere Person angelegt hat.
@@ -74,16 +71,15 @@ export function FremderEntwurf({
   const [laeuft, starte] = useTransition()
 
   return (
-    <div className="space-y-3 rounded-md border border-status-warn/40 bg-status-warn/10 p-4">
+    <div className="border-status-warn/40 bg-status-warn/10 space-y-3 rounded-md border p-4">
       <div className="flex items-start gap-2">
-        <UserCog className="mt-0.5 size-5 shrink-0 text-status-warn" />
+        <UserCog className="text-status-warn mt-0.5 size-5 shrink-0" />
         <div className="min-w-0">
           <p className="font-medium">Dieser Entwurf gehört {erfasstVon}</p>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            Ausfüllen darf ihn nur die erfassende Person. Übernehmen Sie den
-            Bogen, um weiterzuarbeiten – die bisherigen Angaben bleiben
-            erhalten. Wer übernimmt, gilt als erfassende Person und kann
-            anschließend nicht selbst gegenzeichnen.
+          <p className="text-muted-foreground mt-0.5 text-sm">
+            Ausfüllen darf ihn nur die erfassende Person. Übernehmen Sie den Bogen, um
+            weiterzuarbeiten – die bisherigen Angaben bleiben erhalten. Wer übernimmt,
+            gilt als erfassende Person und kann anschließend nicht selbst gegenzeichnen.
           </p>
         </div>
       </div>

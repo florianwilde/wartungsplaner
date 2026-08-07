@@ -107,9 +107,9 @@ export function DuplizierenDialog({
         <DialogHeader>
           <DialogTitle>Aufgabe duplizieren</DialogTitle>
           <DialogDescription>
-            Alle Einstellungen von „{titel}“ werden übernommen – Intervall,
-            Kategorie, Zuständigkeit, Prüfanleitung und Audit-Referenzen.
-            Fälligkeiten und Durchführungen der Vorlage bleiben unberührt.
+            Alle Einstellungen von „{titel}“ werden übernommen – Intervall, Kategorie,
+            Zuständigkeit, Prüfanleitung und Audit-Referenzen. Fälligkeiten und
+            Durchführungen der Vorlage bleiben unberührt.
           </DialogDescription>
         </DialogHeader>
 
@@ -124,9 +124,9 @@ export function DuplizierenDialog({
               onChange={(e) => setEingabe(e.target.value)}
               placeholder={'Restore-Test DC01\nRestore-Test DC02\nRestore-Test DC03'}
             />
-            <p className="text-xs text-muted-foreground">
-              Ein Titel je Zeile – so lässt sich dieselbe Prüfung für mehrere
-              Systeme ausrollen. Höchstens {MAX_KOPIEN} auf einmal.
+            <p className="text-muted-foreground text-xs">
+              Ein Titel je Zeile – so lässt sich dieselbe Prüfung für mehrere Systeme
+              ausrollen. Höchstens {MAX_KOPIEN} auf einmal.
               {zeilen.length > 1 ? ` Derzeit ${zeilen.length} Zeilen.` : ''}
             </p>
           </div>
@@ -140,14 +140,14 @@ export function DuplizierenDialog({
               defaultValue={heute}
               required
             />
-            <p className="text-xs text-muted-foreground">
-              Eine Kopie beginnt bei null; das Startdatum der Vorlage liegt
-              meist in der Vergangenheit.
+            <p className="text-muted-foreground text-xs">
+              Eine Kopie beginnt bei null; das Startdatum der Vorlage liegt meist in der
+              Vergangenheit.
             </p>
           </div>
 
           {anzahlBoegen > 0 ? (
-            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-border p-3 text-sm">
+            <label className="border-border flex cursor-pointer items-start gap-3 rounded-md border p-3 text-sm">
               <Checkbox name="mitBoegen" defaultChecked className="mt-0.5" />
               <span>
                 <span className="font-medium">
@@ -155,21 +155,21 @@ export function DuplizierenDialog({
                     ? 'Prüfbogen mitkopieren'
                     : `${anzahlBoegen} Prüfbögen mitkopieren`}
                 </span>
-                <span className="block text-xs text-muted-foreground">
-                  Jede Kopie bekommt einen eigenen Bogen mit denselben
-                  Prüfpunkten; der Name der Aufgabe steht im Namen des Bogens.
+                <span className="text-muted-foreground block text-xs">
+                  Jede Kopie bekommt einen eigenen Bogen mit denselben Prüfpunkten; der
+                  Name der Aufgabe steht im Namen des Bogens.
                 </span>
               </span>
             </label>
           ) : null}
 
-          <label className="flex cursor-pointer items-start gap-3 rounded-md border border-border p-3 text-sm">
+          <label className="border-border flex cursor-pointer items-start gap-3 rounded-md border p-3 text-sm">
             <Checkbox name="aktiv" defaultChecked className="mt-0.5" />
             <span>
               <span className="font-medium">Sofort aktiv</span>
-              <span className="block text-xs text-muted-foreground">
-                Mit der ersten Fälligkeit zum gewählten Datum. Ohne Haken
-                entsteht die Aufgabe still und lässt sich vorher nacharbeiten.
+              <span className="text-muted-foreground block text-xs">
+                Mit der ersten Fälligkeit zum gewählten Datum. Ohne Haken entsteht die
+                Aufgabe still und lässt sich vorher nacharbeiten.
               </span>
             </span>
           </label>
@@ -177,7 +177,7 @@ export function DuplizierenDialog({
           {status.fehler ? (
             <p
               role="alert"
-              className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+              className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
             >
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
               {status.fehler}

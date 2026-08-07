@@ -4,11 +4,7 @@ import { SeitenKopf } from '@/components/seiten-kopf'
 import { erforderlicheRolle } from '@/lib/session'
 import { AdminNavigation } from './admin-navigation'
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await erforderlicheRolle('ADMIN')
 
   return (
@@ -37,9 +33,9 @@ export default async function AdminLayout({
 
       {children}
 
-      <p className="text-xs text-muted-foreground">
-        Hinweis: Benutzer werden nie gelöscht, sondern deaktiviert – sonst wäre
-        das Protokoll nicht mehr vollständig zuordenbar. Siehe auch{' '}
+      <p className="text-muted-foreground text-xs">
+        Hinweis: Benutzer werden nie gelöscht, sondern deaktiviert – sonst wäre das
+        Protokoll nicht mehr vollständig zuordenbar. Siehe auch{' '}
         <Link href="/admin/audit" className="underline hover:no-underline">
           Audit-Log
         </Link>

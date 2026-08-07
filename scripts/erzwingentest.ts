@@ -161,7 +161,8 @@ async function main() {
     select: { storedPath: true, filename: true, sha256: true },
   })
 
-  const begruendung = 'Testdaten aus der Einführungsphase, abgestimmt mit der IT-Leitung.'
+  const begruendung =
+    'Testdaten aus der Einführungsphase, abgestimmt mit der IT-Leitung.'
 
   await prisma.$transaction(async (tx) => {
     await schreibeAudit(

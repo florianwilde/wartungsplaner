@@ -122,11 +122,7 @@ export function AussetzenDialog({
   )
 }
 
-export function AussetzungAufhebenButton({
-  occurrenceId,
-}: {
-  occurrenceId: string
-}) {
+export function AussetzungAufhebenButton({ occurrenceId }: { occurrenceId: string }) {
   const router = useRouter()
   const [laeuft, starte] = useTransition()
 

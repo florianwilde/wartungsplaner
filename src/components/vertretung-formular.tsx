@@ -68,14 +68,10 @@ export function VertretungsFormular({
 
   return (
     <form action={formAction} className="space-y-4">
-      {personId ? (
-        <input type="hidden" name="personId" value={personId} />
-      ) : null}
+      {personId ? <input type="hidden" name="personId" value={personId} /> : null}
 
       <div className="space-y-2">
-        <Label htmlFor={`vertretung-${personId ?? 'selbst'}`}>
-          Vertreten durch
-        </Label>
+        <Label htmlFor={`vertretung-${personId ?? 'selbst'}`}>Vertreten durch</Label>
         <select
           id={`vertretung-${personId ?? 'selbst'}`}
           name="vertretungId"
@@ -102,7 +98,7 @@ export function VertretungsFormular({
               type="date"
               defaultValue={start.von}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Leer lassen für „ab sofort“.
             </p>
           </div>
@@ -114,7 +110,7 @@ export function VertretungsFormular({
               type="date"
               defaultValue={start.bis}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Dieser Tag zählt mit; leer lassen für „bis auf Weiteres“.
             </p>
           </div>
@@ -124,7 +120,7 @@ export function VertretungsFormular({
       {status.fehler ? (
         <p
           role="alert"
-          className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+          className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
           {status.fehler}

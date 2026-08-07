@@ -1,7 +1,13 @@
 import type { Metadata } from 'next'
 
 import { KategoriePunkt } from '@/components/status-anzeigen'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -30,9 +36,7 @@ export default async function KategorienSeite() {
   })
 
   const naechsteReihenfolge =
-    kategorien.length > 0
-      ? Math.max(...kategorien.map((k) => k.sortOrder)) + 10
-      : 10
+    kategorien.length > 0 ? Math.max(...kategorien.map((k) => k.sortOrder)) + 10 : 10
 
   return (
     <Card>
@@ -40,8 +44,8 @@ export default async function KategorienSeite() {
         <div>
           <CardTitle>Kategorien</CardTitle>
           <CardDescription>
-            Gliederung der Aufgaben; die Farbe steuert die Darstellung in
-            Dashboard, Liste und Kalender.
+            Gliederung der Aufgaben; die Farbe steuert die Darstellung in Dashboard,
+            Liste und Kalender.
           </CardDescription>
         </div>
         <KategorieAnlegenDialog naechsteReihenfolge={naechsteReihenfolge} />
@@ -67,13 +71,13 @@ export default async function KategorienSeite() {
                     {kategorie.name}
                   </span>
                 </TableCell>
-                <TableCell className="font-mono text-xs text-muted-foreground">
+                <TableCell className="text-muted-foreground font-mono text-xs">
                   {kategorie.color}
                 </TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">
+                <TableCell className="text-muted-foreground tabular-nums">
                   {kategorie.sortOrder}
                 </TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">
+                <TableCell className="text-muted-foreground tabular-nums">
                   {kategorie._count.tasks}
                 </TableCell>
                 <TableCell>
@@ -98,7 +102,7 @@ export default async function KategorienSeite() {
           </TableBody>
         </Table>
 
-        <p className="mt-4 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-4 text-xs">
           Kategorien mit zugeordneten Aufgaben lassen sich nicht löschen.
         </p>
       </CardContent>

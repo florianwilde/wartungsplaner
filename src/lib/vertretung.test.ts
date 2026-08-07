@@ -27,9 +27,7 @@ describe('istVertretungAktiv', () => {
   })
 
   it('gilt nicht ohne vertretende Person', () => {
-    expect(istVertretungAktiv(vertretung({ vertretungId: null }), HEUTE)).toBe(
-      false,
-    )
+    expect(istVertretungAktiv(vertretung({ vertretungId: null }), HEUTE)).toBe(false)
   })
 
   it('greift erst ab dem ersten Tag der Abwesenheit', () => {
@@ -97,9 +95,7 @@ describe('pruefeVertretung', () => {
   })
 
   it('verlangt das Recht, Prüfungen durchzuführen', () => {
-    const ergebnis = pruefeVertretung(
-      eingabe({ vertretungDarfDurchfuehren: false }),
-    )
+    const ergebnis = pruefeVertretung(eingabe({ vertretungDarfDurchfuehren: false }))
     expect(ergebnis.ok).toBe(false)
   })
 

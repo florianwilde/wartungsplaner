@@ -52,21 +52,15 @@ export function VertretungDialog({
         <DialogHeader>
           <DialogTitle>Vertretung für {name}</DialogTitle>
           <DialogDescription>
-            Für die Dauer der Abwesenheit gehen die Erinnerungen zu den
-            Prüfungen und Abweichungen dieser Person an die Vertretung. Die
-            Zuständigkeit bleibt unverändert.
+            Für die Dauer der Abwesenheit gehen die Erinnerungen zu den Prüfungen und
+            Abweichungen dieser Person an die Vertretung. Die Zuständigkeit bleibt
+            unverändert.
           </DialogDescription>
         </DialogHeader>
 
-        {hinweis ? (
-          <p className="rounded-md bg-muted p-3 text-sm">{hinweis}</p>
-        ) : null}
+        {hinweis ? <p className="bg-muted rounded-md p-3 text-sm">{hinweis}</p> : null}
 
-        <VertretungsFormular
-          personId={personId}
-          personen={personen}
-          start={start}
-        />
+        <VertretungsFormular personId={personId} personen={personen} start={start} />
       </DialogContent>
     </Dialog>
   )

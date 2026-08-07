@@ -46,17 +46,17 @@ export function PasskeysZuruecksetzenButton({
             <DialogTitle>Passkeys zurücksetzen</DialogTitle>
             <DialogDescription>
               Für {name} {anzahl === 1 ? 'ist' : 'sind'} {anzahl}{' '}
-              {anzahl === 1 ? 'Passkey' : 'Passkeys'} hinterlegt. Beim
-              Zurücksetzen {anzahl === 1 ? 'wird er' : 'werden sie'} entfernt –
-              etwa nach einem Geräteverlust. Die Person meldet sich danach mit
-              Passwort an und kann neue Passkeys anlegen.
+              {anzahl === 1 ? 'Passkey' : 'Passkeys'} hinterlegt. Beim Zurücksetzen{' '}
+              {anzahl === 1 ? 'wird er' : 'werden sie'} entfernt – etwa nach einem
+              Geräteverlust. Die Person meldet sich danach mit Passwort an und kann neue
+              Passkeys anlegen.
             </DialogDescription>
           </DialogHeader>
 
-          <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
-            Der Vorgang wird im Audit-Log festgehalten. Ist für das Konto kein
-            Passwort hinterlegt, lehnt die Anwendung das Zurücksetzen ab – sonst
-            bliebe der Zugang verschlossen.
+          <p className="bg-muted text-muted-foreground rounded-md p-3 text-xs">
+            Der Vorgang wird im Audit-Log festgehalten. Ist für das Konto kein Passwort
+            hinterlegt, lehnt die Anwendung das Zurücksetzen ab – sonst bliebe der
+            Zugang verschlossen.
           </p>
 
           <DialogFooter>

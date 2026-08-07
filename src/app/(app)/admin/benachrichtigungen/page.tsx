@@ -2,7 +2,13 @@ import type { Metadata } from 'next'
 import { BellOff } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -79,8 +85,8 @@ export default async function BenachrichtigungenSeite() {
         <CardHeader>
           <CardTitle>Empfänger</CardTitle>
           <CardDescription>
-            Wer keine Benachrichtigungen wünscht, lässt sich hier einzeln
-            abmelden. Die Abmeldung gilt für alle Nachrichtenarten.
+            Wer keine Benachrichtigungen wünscht, lässt sich hier einzeln abmelden. Die
+            Abmeldung gilt für alle Nachrichtenarten.
             {ohneEmpfang.length > 0 ? (
               <>
                 {' '}
@@ -133,13 +139,13 @@ export default async function BenachrichtigungenSeite() {
         <CardHeader>
           <CardTitle>Zuletzt versendet</CardTitle>
           <CardDescription>
-            Die letzten 15 Nachrichten. Der Versand ist wiederholungssicher:
-            Derselbe Vorgang wird nicht zweimal gemeldet.
+            Die letzten 15 Nachrichten. Der Versand ist wiederholungssicher: Derselbe
+            Vorgang wird nicht zweimal gemeldet.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {letzteNachrichten.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+            <p className="border-border text-muted-foreground rounded-lg border border-dashed px-4 py-8 text-center text-sm">
               Es wurde noch keine Nachricht versendet.
             </p>
           ) : (
@@ -156,7 +162,7 @@ export default async function BenachrichtigungenSeite() {
               <TableBody>
                 {letzteNachrichten.map((nachricht) => (
                   <TableRow key={nachricht.id}>
-                    <TableCell className="whitespace-nowrap tabular-nums text-muted-foreground">
+                    <TableCell className="text-muted-foreground whitespace-nowrap tabular-nums">
                       {formatDateTime(nachricht.sentAt)}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">

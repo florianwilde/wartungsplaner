@@ -18,7 +18,13 @@ import {
 import { PasskeyPflicht } from './passkey-pflicht'
 import { MarkdownAnzeige } from '@/components/markdown-anzeige'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { APP_TIME_ZONE, formatDateTime } from '@/lib/dates'
 import { prisma } from '@/lib/prisma'
 import { erforderlicheRolle } from '@/lib/session'
@@ -40,10 +46,7 @@ export default async function SystemSeite() {
   await erforderlicheRolle('ADMIN')
 
   const [datenbankErreichbar, letzterJob, anzahlen, changelog] = await Promise.all([
-    prisma
-      .$queryRaw`SELECT 1`
-      .then(() => true)
-      .catch(() => false),
+    prisma.$queryRaw`SELECT 1`.then(() => true).catch(() => false),
     prisma.auditLog.findFirst({
       where: { action: 'CRON_RUN' },
       orderBy: { timestamp: 'desc' },
@@ -71,9 +74,7 @@ export default async function SystemSeite() {
     protokolleintraege,
   ] = anzahlen
 
-  const virenpruefung = istVirenpruefungEingerichtet()
-    ? await pruefeVerbindung()
-    : null
+  const virenpruefung = istVirenpruefungEingerichtet() ? await pruefeVerbindung() : null
 
   const sicherheit = await holeSicherheitsEinstellungen()
   const ohnePasskey = await ohnePasskeyJeRolle()
@@ -100,20 +101,17 @@ export default async function SystemSeite() {
           <CardContent>
             <dl className="space-y-3 text-sm">
               <Zeile label="Version" wert={APP_VERSION} hervorgehoben />
-              <Zeile
-                label="Git-Commit"
-                wert={APP_GIT_COMMIT || 'nicht übergeben'}
-              />
+              <Zeile label="Git-Commit" wert={APP_GIT_COMMIT || 'nicht übergeben'} />
               <Zeile
                 label="Build erstellt"
-                wert={
-                  APP_BUILD_TIME ? formatDateTime(new Date(APP_BUILD_TIME)) : '–'
-                }
+                wert={APP_BUILD_TIME ? formatDateTime(new Date(APP_BUILD_TIME)) : '–'}
               />
               <Zeile label="Zeitzone" wert={APP_TIME_ZONE} />
               <Zeile
                 label="Betriebsart"
-                wert={process.env.NODE_ENV === 'production' ? 'Produktion' : 'Entwicklung'}
+                wert={
+                  process.env.NODE_ENV === 'production' ? 'Produktion' : 'Entwicklung'
+                }
               />
             </dl>
           </CardContent>
@@ -141,16 +139,16 @@ export default async function SystemSeite() {
               <Zeile
                 label="Letzter Lauf"
                 wert={
-                  letzterJob ? formatDateTime(letzterJob.timestamp) : 'noch nicht gelaufen'
+                  letzterJob
+                    ? formatDateTime(letzterJob.timestamp)
+                    : 'noch nicht gelaufen'
                 }
               />
               <ZustandZeile
                 label="SSO (OIDC)"
                 gut={istOidcAktiv()}
                 text={
-                  istOidcAktiv()
-                    ? `aktiv – ${oidcAnzeigename()}`
-                    : 'nicht konfiguriert'
+                  istOidcAktiv() ? `aktiv – ${oidcAnzeigename()}` : 'nicht konfiguriert'
                 }
                 neutralWennAus
               />
@@ -171,7 +169,9 @@ export default async function SystemSeite() {
               ) : null}
               <Zeile
                 label="HTTP-Auslöser für den Job"
-                wert={process.env.CRON_TOKEN?.trim() ? 'konfiguriert' : 'nicht konfiguriert'}
+                wert={
+                  process.env.CRON_TOKEN?.trim() ? 'konfiguriert' : 'nicht konfiguriert'
+                }
               />
             </dl>
           </CardContent>
@@ -183,12 +183,19 @@ export default async function SystemSeite() {
           <CardTitle>Datenbestand</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          <Kennzahl label="Aufgaben" wert={`${aufgabenAktiv} / ${aufgaben}`} zusatz="aktiv / gesamt" />
+          <Kennzahl
+            label="Aufgaben"
+            wert={`${aufgabenAktiv} / ${aufgaben}`}
+            zusatz="aktiv / gesamt"
+          />
           <Kennzahl label="Offene Fälligkeiten" wert={String(offeneFaelligkeiten)} />
           <Kennzahl label="Durchführungen" wert={String(durchfuehrungen)} />
           <Kennzahl label="Nachweise" wert={String(nachweise)} />
           <Kennzahl label="Offene Abweichungen" wert={String(offeneAbweichungen)} />
-          <Kennzahl label="Protokolleinträge" wert={protokolleintraege.toLocaleString('de-DE')} />
+          <Kennzahl
+            label="Protokolleinträge"
+            wert={protokolleintraege.toLocaleString('de-DE')}
+          />
         </CardContent>
       </Card>
 
@@ -201,11 +208,11 @@ export default async function SystemSeite() {
         </CardHeader>
         <CardContent>
           {changelog ? (
-            <div className="max-h-[32rem] overflow-y-auto rounded-md border border-border p-4">
+            <div className="border-border max-h-[32rem] overflow-y-auto rounded-md border p-4">
               <MarkdownAnzeige inhalt={changelog} />
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Die Datei CHANGELOG.md ist in dieser Installation nicht vorhanden.
             </p>
           )}
@@ -272,12 +279,10 @@ function Kennzahl({
   zusatz?: string
 }) {
   return (
-    <div className="rounded-lg border border-border p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
+    <div className="border-border rounded-lg border p-3">
+      <p className="text-muted-foreground text-xs">{label}</p>
       <p className="mt-1 text-xl font-semibold tabular-nums">{wert}</p>
-      {zusatz ? (
-        <p className="text-[11px] text-muted-foreground">{zusatz}</p>
-      ) : null}
+      {zusatz ? <p className="text-muted-foreground text-[11px]">{zusatz}</p> : null}
     </div>
   )
 }

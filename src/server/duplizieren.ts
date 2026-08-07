@@ -155,12 +155,7 @@ export async function dupliziereAufgabe(
       )
 
       if (erstellt.active) {
-        await erzeugeErsteFaelligkeit(
-          tx,
-          erstellt.id,
-          eingabe.startDate,
-          benutzerId,
-        )
+        await erzeugeErsteFaelligkeit(tx, erstellt.id, eingabe.startDate, benutzerId)
       }
 
       ids.push(erstellt.id)

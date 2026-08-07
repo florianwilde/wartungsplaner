@@ -12,10 +12,7 @@ import { benutzerFuerAktion } from '@/lib/session'
 import { holeBranding, speichereBranding } from '@/server/branding'
 import type { BrandingBildArt } from '@/lib/bilder'
 import { fehlerbehandlung } from '@/lib/fehler'
-import {
-  entferneBrandingBild,
-  speichereBrandingBild,
-} from '@/server/branding-dateien'
+import { entferneBrandingBild, speichereBrandingBild } from '@/server/branding-dateien'
 
 const fehlertext = fehlerbehandlung('Unerwarteter Fehler beim Erscheinungsbild')
 
@@ -33,7 +30,11 @@ const einstellungenSchema = z.object({
   reportFooter: z.string().trim().max(200),
 })
 
-const BILD_FELDER: { feld: string; art: BrandingBildArt; spalte: 'logoPath' | 'logoDarkPath' | 'faviconPath' }[] = [
+const BILD_FELDER: {
+  feld: string
+  art: BrandingBildArt
+  spalte: 'logoPath' | 'logoDarkPath' | 'faviconPath'
+}[] = [
   { feld: 'logo', art: 'logo', spalte: 'logoPath' },
   { feld: 'logoDunkel', art: 'logo-dunkel', spalte: 'logoDarkPath' },
   { feld: 'favicon', art: 'favicon', spalte: 'faviconPath' },

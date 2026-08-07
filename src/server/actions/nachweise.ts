@@ -38,7 +38,11 @@ export type NachweisStatusRueckmeldung = {
 
 const feststellungSchema = z.object({
   punktId: z.string().trim().min(1),
-  title: z.string().trim().min(3, 'Der Titel muss mindestens 3 Zeichen haben.').max(200),
+  title: z
+    .string()
+    .trim()
+    .min(3, 'Der Titel muss mindestens 3 Zeichen haben.')
+    .max(200),
   description: z.string().trim().max(4000).optional().or(z.literal('')),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
   responsibleId: z.string().trim().min(1, 'Bitte eine verantwortliche Person wählen.'),
@@ -166,7 +170,11 @@ export async function pruefbogenSpeichern(
             action: 'PRUEFBOGEN_GEAENDERT',
             entityType: 'PruefbogenVorlage',
             entityId: vorlagenId,
-            payload: { name, pruefpunkte: punkte.length, vierAugen: stammdaten.vierAugen },
+            payload: {
+              name,
+              pruefpunkte: punkte.length,
+              vierAugen: stammdaten.vierAugen,
+            },
           },
           tx,
         )
@@ -181,7 +189,11 @@ export async function pruefbogenSpeichern(
             action: 'PRUEFBOGEN_ANGELEGT',
             entityType: 'PruefbogenVorlage',
             entityId: erstellt.id,
-            payload: { name, pruefpunkte: punkte.length, vierAugen: stammdaten.vierAugen },
+            payload: {
+              name,
+              pruefpunkte: punkte.length,
+              vierAugen: stammdaten.vierAugen,
+            },
           },
           tx,
         )
@@ -378,7 +390,9 @@ function zusammenfassung(eintraege: { grund: string }[]): string {
   for (const eintrag of eintraege) {
     nachGrund.set(eintrag.grund, (nachGrund.get(eintrag.grund) ?? 0) + 1)
   }
-  return [...nachGrund.entries()].map(([grund, anzahl]) => `${anzahl}× ${grund}`).join(', ')
+  return [...nachGrund.entries()]
+    .map(([grund, anzahl]) => `${anzahl}× ${grund}`)
+    .join(', ')
 }
 
 /** Speichert die Entscheidungen zu den Zeilen einer Liste. */

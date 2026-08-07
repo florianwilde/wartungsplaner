@@ -7,7 +7,13 @@ import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -48,13 +54,7 @@ function PruefenButton({ laeuft }: { laeuft: boolean }) {
   )
 }
 
-function SchreibenButton({
-  anzahl,
-  laeuft,
-}: {
-  anzahl: number
-  laeuft: boolean
-}) {
+function SchreibenButton({ anzahl, laeuft }: { anzahl: number; laeuft: boolean }) {
   return (
     <Button type="submit" disabled={laeuft}>
       <Upload className="size-4" />
@@ -110,8 +110,9 @@ export function ImportFormular() {
       router.refresh()
     })
 
-  const zuUebernehmen =
-    (status.zeilen ?? []).filter((z) => z.vorgang !== 'unveraendert').length
+  const zuUebernehmen = (status.zeilen ?? []).filter(
+    (z) => z.vorgang !== 'unveraendert',
+  ).length
 
   return (
     <div className="space-y-6">
@@ -141,7 +142,7 @@ export function ImportFormular() {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   {art === 'pruefboegen'
                     ? 'Eine Zeile je Prüfpunkt: Für einen Bogen mit fünf Punkten steht sein Name fünfmal untereinander.'
                     : art === 'aufgaben'
@@ -161,7 +162,7 @@ export function ImportFormular() {
                   required
                   className="cursor-pointer"
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Trennzeichen Semikolon, Zeichensatz UTF-8, höchstens 5 MB.{' '}
                   <a
                     href={`/api/export/${art}?vorlage=true`}
@@ -177,7 +178,7 @@ export function ImportFormular() {
             {status.fehler ? (
               <p
                 role="alert"
-                className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+                className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
               >
                 <AlertCircle className="mt-0.5 size-4 shrink-0" />
                 {status.fehler}
@@ -197,12 +198,12 @@ export function ImportFormular() {
           </CardHeader>
           <CardContent className="space-y-4">
             {(status.pruefFehler ?? []).length > 0 ? (
-              <div className="space-y-2 rounded-md bg-destructive/10 p-3">
-                <p className="flex items-center gap-2 text-sm font-medium text-destructive">
+              <div className="bg-destructive/10 space-y-2 rounded-md p-3">
+                <p className="text-destructive flex items-center gap-2 text-sm font-medium">
                   <AlertCircle className="size-4" />
                   Die Datei enthält Fehler – es wird nichts geschrieben.
                 </p>
-                <ul className="space-y-1 text-sm text-destructive">
+                <ul className="text-destructive space-y-1 text-sm">
                   {(status.pruefFehler ?? []).slice(0, 30).map((fehler, index) => (
                     <li key={index}>
                       Zeile {fehler.zeile}
@@ -212,7 +213,7 @@ export function ImportFormular() {
                   ))}
                 </ul>
                 {(status.pruefFehler ?? []).length > 30 ? (
-                  <p className="text-xs text-destructive">
+                  <p className="text-destructive text-xs">
                     … und {(status.pruefFehler ?? []).length - 30} weitere.
                   </p>
                 ) : null}
@@ -220,7 +221,7 @@ export function ImportFormular() {
             ) : null}
 
             {(status.zeilen ?? []).length > 0 ? (
-              <div className="max-h-96 overflow-y-auto rounded-md border border-border">
+              <div className="border-border max-h-96 overflow-y-auto rounded-md border">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -233,7 +234,7 @@ export function ImportFormular() {
                   <TableBody>
                     {(status.zeilen ?? []).map((zeile) => (
                       <TableRow key={zeile.zeile}>
-                        <TableCell className="tabular-nums text-muted-foreground">
+                        <TableCell className="text-muted-foreground tabular-nums">
                           {zeile.zeile}
                         </TableCell>
                         <TableCell className="font-medium">
@@ -242,7 +243,7 @@ export function ImportFormular() {
                         <TableCell>
                           <VorgangBadge vorgang={zeile.vorgang} />
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="text-muted-foreground text-sm">
                           {zeile.aenderungen.length > 0
                             ? zeile.aenderungen.join(', ')
                             : '–'}
@@ -259,17 +260,16 @@ export function ImportFormular() {
                 <input type="hidden" name="art" value={status.art ?? ''} />
                 <input type="hidden" name="inhalt" value={status.inhalt ?? ''} />
 
-                <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
-                  Beim Übernehmen wird alles in einer Transaktion geschrieben –
-                  entweder vollständig oder gar nicht. Die Daten werden dabei
-                  erneut geprüft. Vorhandene Fälligkeiten und Durchführungen
-                  bleiben unangetastet.
+                <p className="bg-muted text-muted-foreground rounded-md p-3 text-xs">
+                  Beim Übernehmen wird alles in einer Transaktion geschrieben – entweder
+                  vollständig oder gar nicht. Die Daten werden dabei erneut geprüft.
+                  Vorhandene Fälligkeiten und Durchführungen bleiben unangetastet.
                 </p>
 
                 {schreibFehler ? (
                   <p
                     role="alert"
-                    className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+                    className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
                   >
                     <AlertCircle className="mt-0.5 size-4 shrink-0" />
                     {schreibFehler}

@@ -71,9 +71,7 @@ async function main() {
 
     // exceljs bringt einen eigenen Buffer-Typ mit; zur Laufzeit ist es ein
     // gewöhnlicher Node-Buffer.
-    const excel = Buffer.from(
-      (await mappe.xlsx.writeBuffer()) as unknown as Uint8Array,
-    )
+    const excel = Buffer.from((await mappe.xlsx.writeBuffer()) as unknown as Uint8Array)
     pruefe(excel.length > 2000, 'Die Excel-Mappe hat einen plausiblen Umfang')
     pruefe(
       excel.subarray(0, 2).toString('latin1') === 'PK',
@@ -124,10 +122,7 @@ async function main() {
       doc.font('Helvetica').fontSize(12).text('Prüfbericht – Umlaute: äöüß')
       doc.end()
     })
-    pruefe(
-      pdf.subarray(0, 5).toString() === '%PDF-',
-      'Das PDF ist wohlgeformt',
-    )
+    pruefe(pdf.subarray(0, 5).toString() === '%PDF-', 'Das PDF ist wohlgeformt')
   } finally {
     await rm(ordner, { recursive: true, force: true })
   }

@@ -146,9 +146,7 @@ async function main() {
   // --- Erster Lauf: alles in Ordnung ---------------------------------------
   const sauber = await pruefeNachweise()
   const eigene = (art: string) =>
-    sauber.befunde.filter(
-      (b) => b.art === art && b.pfad.startsWith(`${TESTORDNER}/`),
-    )
+    sauber.befunde.filter((b) => b.art === art && b.pfad.startsWith(`${TESTORDNER}/`))
 
   pruefe(
     eigene('ABWEICHEND').length === 0 && eigene('FEHLEND').length === 0,

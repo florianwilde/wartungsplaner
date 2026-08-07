@@ -98,7 +98,15 @@ async function empfaenger(
 
 /** Anzahl der Prüfpunkte mit Befund. */
 function zaehleFeststellungen(nachweis: {
-  vorlage: { punkte: { id: string; position: number; frage: string; art: string; pflicht: boolean }[] }
+  vorlage: {
+    punkte: {
+      id: string
+      position: number
+      frage: string
+      art: string
+      pflicht: boolean
+    }[]
+  }
   antworten: { punktId: string; ergebnis: string | null; wert: string | null }[]
 }): number {
   const punkte: Pruefpunkt[] = nachweis.vorlage.punkte.map((p) => ({
@@ -259,7 +267,12 @@ export async function versendeGegenzeichnungsErinnerungen(
   // Je Empfänger eine Sammelnachricht, nicht eine je Nachweis.
   const proPerson = new Map<
     string,
-    { name: string; email: string; eintraege: GegenzeichnungsEintrag[]; schluessel: string[] }
+    {
+      name: string
+      email: string
+      eintraege: GegenzeichnungsEintrag[]
+      schluessel: string[]
+    }
   >()
 
   for (const nachweis of wartende) {
@@ -279,9 +292,7 @@ export async function versendeGegenzeichnungsErinnerungen(
 
     // Wöchentlich erneut erinnern, damit ein Vorgang nicht in Vergessenheit
     // gerät, die Erinnerung aber nicht täglich eintrifft.
-    const stufe = Math.floor(
-      differenceInDays(nachweis.vorgelegtAm!, heute) / 7,
-    )
+    const stufe = Math.floor(differenceInDays(nachweis.vorgelegtAm!, heute) / 7)
 
     for (const person of personen) {
       const schluessel = `nachweis:${nachweis.id}:wartet:${person.id}:${stufe}`

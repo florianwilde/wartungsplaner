@@ -13,7 +13,7 @@ export function AdminNavigation({
   const pfad = usePathname()
 
   return (
-    <nav className="kein-druck flex gap-1 rounded-lg bg-muted p-1">
+    <nav className="kein-druck bg-muted flex gap-1 rounded-lg p-1">
       {eintraege.map((eintrag) => {
         const aktiv = pfad === eintrag.href || pfad.startsWith(`${eintrag.href}/`)
         return (

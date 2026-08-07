@@ -119,9 +119,7 @@ export function maskiereCsvFeld(wert: string): string {
     entschaerft.includes('\n') ||
     entschaerft.includes('\r')
 
-  return brauchtAnfuehrung
-    ? `"${entschaerft.replace(/"/g, '""')}"`
-    : entschaerft
+  return brauchtAnfuehrung ? `"${entschaerft.replace(/"/g, '""')}"` : entschaerft
 }
 
 /**

@@ -101,14 +101,14 @@ export function Sammelleiste({
   if (anzahl === 0) return null
 
   return (
-    <div className="kein-druck flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/40 bg-primary/5 p-3">
+    <div className="kein-druck border-primary/40 bg-primary/5 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
       <span className="text-sm">
         <span className="font-medium">{anzahl}</span>{' '}
         {anzahl === 1 ? einzahl : mehrzahl} markiert
         <button
           type="button"
           onClick={onAbwaehlen}
-          className="ml-3 text-xs text-muted-foreground underline underline-offset-2"
+          className="text-muted-foreground ml-3 text-xs underline underline-offset-2"
         >
           Auswahl aufheben
         </button>

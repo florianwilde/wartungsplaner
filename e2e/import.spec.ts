@@ -34,15 +34,9 @@ async function waehleDatei(
   })
 }
 
-const ERSTE = [
-  'name;farbe;reihenfolge',
-  `${PRAEFIX}Kategorie A;#2563eb;10`,
-].join('\n')
+const ERSTE = ['name;farbe;reihenfolge', `${PRAEFIX}Kategorie A;#2563eb;10`].join('\n')
 
-const ZWEITE = [
-  'name;farbe;reihenfolge',
-  `${PRAEFIX}Kategorie B;#0ea5e9;20`,
-].join('\n')
+const ZWEITE = ['name;farbe;reihenfolge', `${PRAEFIX}Kategorie B;#0ea5e9;20`].join('\n')
 
 test('spielt zwei Dateien nacheinander ein, ohne Neuladen', async ({ page }) => {
   await meldeAn(page, KONTEN.admin)

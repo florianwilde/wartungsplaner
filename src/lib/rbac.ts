@@ -16,8 +16,7 @@ export const ROLLEN_BEZEICHNUNG: Record<Role, string> = {
 export const ROLLEN_BESCHREIBUNG: Record<Role, string> = {
   ADMIN:
     'Vollzugriff: Aufgaben und Kategorien pflegen, Benutzer verwalten, Audit-Log einsehen.',
-  EDITOR:
-    'Darf Aufgaben erledigen, Nachweise hochladen und Abweichungen bearbeiten.',
+  EDITOR: 'Darf Aufgaben erledigen, Nachweise hochladen und Abweichungen bearbeiten.',
   AUDITOR: 'Strikt lesender Zugriff auf alle Daten und Reports.',
 }
 

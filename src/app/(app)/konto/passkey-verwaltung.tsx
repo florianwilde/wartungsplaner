@@ -8,7 +8,13 @@ import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -21,10 +27,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { formatDateTime } from '@/lib/dates'
 import { geraeteArtText } from '@/lib/webauthn'
-import {
-  passkeyEntfernen,
-  passkeyUmbenennen,
-} from '@/server/actions/passkeys'
+import { passkeyEntfernen, passkeyUmbenennen } from '@/server/actions/passkeys'
 
 export type PasskeyAnzeige = {
   id: string
@@ -111,8 +114,8 @@ export function PasskeyVerwaltung({
         <CardHeader>
           <CardTitle>Passkeys</CardTitle>
           <CardDescription>
-            Dieses Konto wird über SSO verwaltet. Passkeys hinterlegen Sie
-            direkt beim Identity Provider Ihres Unternehmens.
+            Dieses Konto wird über SSO verwaltet. Passkeys hinterlegen Sie direkt beim
+            Identity Provider Ihres Unternehmens.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -130,8 +133,8 @@ export function PasskeyVerwaltung({
             </CardTitle>
             <CardDescription>
               Melden Sie sich mit Windows Hello, Touch ID oder einem
-              Sicherheitsschlüssel an – ohne Passwort. Der geheime Teil des
-              Schlüssels verlässt Ihr Gerät nie.
+              Sicherheitsschlüssel an – ohne Passwort. Der geheime Teil des Schlüssels
+              verlässt Ihr Gerät nie.
             </CardDescription>
           </div>
           <Button size="sm" onClick={registriere} disabled={laeuft || !!hinweis}>
@@ -142,7 +145,7 @@ export function PasskeyVerwaltung({
 
         <CardContent className="space-y-3">
           {hinweis ? (
-            <p className="flex items-start gap-2 rounded-md bg-status-warn/15 p-3 text-sm text-status-warn">
+            <p className="bg-status-warn/15 text-status-warn flex items-start gap-2 rounded-md p-3 text-sm">
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
               {hinweis}
             </p>
@@ -151,7 +154,7 @@ export function PasskeyVerwaltung({
           {fehler ? (
             <p
               role="alert"
-              className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+              className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
             >
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
               {fehler}
@@ -159,7 +162,7 @@ export function PasskeyVerwaltung({
           ) : null}
 
           {passkeys.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+            <p className="border-border text-muted-foreground rounded-lg border border-dashed px-4 py-8 text-center text-sm">
               Es ist noch kein Passkey hinterlegt.
             </p>
           ) : (
@@ -167,7 +170,7 @@ export function PasskeyVerwaltung({
               {passkeys.map((passkey) => (
                 <li
                   key={passkey.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
+                  className="border-border flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
                 >
                   <div className="min-w-0 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
@@ -176,7 +179,7 @@ export function PasskeyVerwaltung({
                         {geraeteArtText(passkey.deviceType, passkey.backedUp)}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       Hinterlegt am {formatDateTime(passkey.createdAt)} ·{' '}
                       {passkey.lastUsedAt
                         ? `zuletzt verwendet am ${formatDateTime(passkey.lastUsedAt)}`

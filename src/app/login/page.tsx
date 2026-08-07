@@ -4,7 +4,13 @@ import { redirect } from 'next/navigation'
 import { istOidcAktiv, oidcAnzeigename } from '@/auth'
 import { FarbschemaUmschalter } from '@/components/farbschema-umschalter'
 import { Markenzeichen } from '@/components/markenzeichen'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { holeBenutzer } from '@/lib/session'
 import { versionKurz } from '@/lib/version'
 import { istPasskeyTauglich } from '@/lib/webauthn'
@@ -49,7 +55,7 @@ export default async function LoginSeite({
     : null
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-12">
+    <main className="bg-muted/40 flex min-h-screen items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
           <Markenzeichen branding={branding} className="h-14 max-w-[280px]" />
@@ -59,15 +65,15 @@ export default async function LoginSeite({
           <CardHeader>
             <CardTitle>Anmeldung bei {branding.appName}</CardTitle>
             <CardDescription>
-              Interne Anwendung zur Planung und zum Nachweis wiederkehrender
-              IT-Prüf- und Wartungsaufgaben.
+              Interne Anwendung zur Planung und zum Nachweis wiederkehrender IT-Prüf-
+              und Wartungsaufgaben.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {fehlertext ? (
               <p
                 role="alert"
-                className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+                className="bg-destructive/10 text-destructive rounded-md p-3 text-sm"
               >
                 {fehlertext}
               </p>
@@ -84,11 +90,9 @@ export default async function LoginSeite({
 
         <div className="mt-6 flex flex-col items-center gap-2">
           <FarbschemaUmschalter mitBeschriftung className="text-muted-foreground" />
-          <p className="text-center text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-center text-xs">
             Zugänge werden von der IT-Administration vergeben.
-            <span className="mt-1 block tabular-nums opacity-70">
-              {versionKurz()}
-            </span>
+            <span className="mt-1 block tabular-nums opacity-70">{versionKurz()}</span>
           </p>
         </div>
       </div>

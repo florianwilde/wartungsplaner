@@ -121,8 +121,5 @@ export function ohneSteuerzeichen(text: string, ersatz = ''): string {
  * (Header Injection).
  */
 export function einzeilig(text: string, maxLaenge = 200): string {
-  return ohneSteuerzeichen(text, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, maxLaenge)
+  return ohneSteuerzeichen(text, ' ').replace(/\s+/g, ' ').trim().slice(0, maxLaenge)
 }

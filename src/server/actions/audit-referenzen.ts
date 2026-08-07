@@ -100,9 +100,7 @@ export async function referenzSpeichern(
  * die Angabe, welche Anforderung eine Prüfung abdeckt. Zum Ausmustern gibt es
  * das Kennzeichen „aktiv“.
  */
-export async function referenzLoeschen(
-  referenzId: string,
-): Promise<ReferenzStatus> {
+export async function referenzLoeschen(referenzId: string): Promise<ReferenzStatus> {
   try {
     const admin = await benutzerFuerAktion(canAdminister)
 

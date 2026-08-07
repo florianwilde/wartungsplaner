@@ -95,18 +95,16 @@ describe('darfAngenommenWerden', () => {
 describe('beschreibe', () => {
   it('fasst jeden Zustand knapp zusammen', () => {
     expect(beschreibe({ art: 'nicht-eingerichtet' })).toBe('nicht eingerichtet')
-    expect(
-      beschreibe({ art: 'geprueft', befund: { sauber: true } }),
-    ).toContain('ohne Befund')
+    expect(beschreibe({ art: 'geprueft', befund: { sauber: true } })).toContain(
+      'ohne Befund',
+    )
     expect(
       beschreibe({
         art: 'geprueft',
         befund: { sauber: false, schadprogramm: 'X' },
       }),
     ).toContain('Fund: X')
-    expect(
-      beschreibe({ art: 'nicht-erreichbar', grund: 'weg' }),
-    ).toContain('weg')
+    expect(beschreibe({ art: 'nicht-erreichbar', grund: 'weg' })).toContain('weg')
   })
 })
 

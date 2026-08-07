@@ -16,7 +16,11 @@ export type AbweichungStatus = { fehler?: string; erfolg?: string }
 
 const bearbeitenSchema = z.object({
   findingId: z.string().trim().min(1),
-  title: z.string().trim().min(3, 'Der Titel muss mindestens 3 Zeichen haben.').max(200),
+  title: z
+    .string()
+    .trim()
+    .min(3, 'Der Titel muss mindestens 3 Zeichen haben.')
+    .max(200),
   description: z.string().trim().max(4000).optional().or(z.literal('')),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
   responsibleId: z.string().trim().min(1, 'Bitte eine verantwortliche Person wählen.'),
@@ -59,7 +63,14 @@ export async function abweichungBearbeiten(
 
     const vorhanden = await prisma.finding.findUnique({
       where: { id: daten.findingId },
-      select: { id: true, status: true, title: true, severity: true, dueDate: true, responsibleId: true },
+      select: {
+        id: true,
+        status: true,
+        title: true,
+        severity: true,
+        dueDate: true,
+        responsibleId: true,
+      },
     })
     if (!vorhanden) return { fehler: 'Die Abweichung wurde nicht gefunden.' }
     if (vorhanden.status === 'CLOSED') {
@@ -71,7 +82,9 @@ export async function abweichungBearbeiten(
       select: { id: true },
     })
     if (!verantwortlich) {
-      return { fehler: 'Die gewählte verantwortliche Person ist unbekannt oder deaktiviert.' }
+      return {
+        fehler: 'Die gewählte verantwortliche Person ist unbekannt oder deaktiviert.',
+      }
     }
 
     await prisma.$transaction(async (tx) => {

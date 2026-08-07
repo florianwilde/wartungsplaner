@@ -24,7 +24,7 @@ export function ZeithorizontAuswahl({ aktuell }: { aktuell: Zeithorizont }) {
 
   return (
     <label className="flex items-center gap-2 text-sm">
-      <CalendarRange className="size-4 text-muted-foreground" />
+      <CalendarRange className="text-muted-foreground size-4" />
       <span className="sr-only">Zeitraum der nächsten Fälligkeiten</span>
       <select
         value={aktuell}
@@ -34,7 +34,7 @@ export function ZeithorizontAuswahl({ aktuell }: { aktuell: Zeithorizont }) {
           document.cookie = baueZeithorizontCookie(e.target.value as Zeithorizont)
           starte(() => router.refresh())
         }}
-        className="h-8 rounded-md border border-input bg-background px-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="border-input bg-background focus-visible:ring-ring h-8 rounded-md border px-2 text-sm shadow-sm focus-visible:ring-2 focus-visible:outline-none"
       >
         {ZEITHORIZONT_AUSWAHL.map((wert) => (
           <option key={wert} value={wert}>

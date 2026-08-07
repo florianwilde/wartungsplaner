@@ -28,12 +28,12 @@ auf den Monat vor Ihrem Überwachungsaudit.
 
 Die Dateien bauen aufeinander auf. In dieser Reihenfolge einspielen:
 
-| Schritt | Datei | Bereich im Import |
-| --- | --- | --- |
-| 1 | `1-kategorien.csv` | Kategorien |
-| 2 | `2-audit-referenzen.csv` | Audit-Referenzen |
-| 3 | `3-aufgaben.csv` | Aufgaben |
-| 4 | `4-pruefboegen.csv` | Prüfbögen |
+| Schritt | Datei                    | Bereich im Import |
+| ------- | ------------------------ | ----------------- |
+| 1       | `1-kategorien.csv`       | Kategorien        |
+| 2       | `2-audit-referenzen.csv` | Audit-Referenzen  |
+| 3       | `3-aufgaben.csv`         | Aufgaben          |
+| 4       | `4-pruefboegen.csv`      | Prüfbögen         |
 
 Jeder Schritt zeigt zuerst eine Vorschau. Erst nach Ihrer Bestätigung wird
 geschrieben; ein einziger fehlerhafter Datensatz verhindert den ganzen Lauf.
@@ -44,30 +44,30 @@ geschrieben; ein einziger fehlerhafter Datensatz verhindert den ganzen Lauf.
 
 ## Was enthalten ist
 
-| Kategorie | Prüfungen |
-| --- | ---: |
-| Governance & Managementsystem | 7 |
-| Zugriffs- & Identitätsmanagement | 4 |
-| IT-Betrieb & technische Sicherheit | 8 |
-| Personal & Awareness | 3 |
-| Notfall- & Kontinuitätsmanagement | 5 |
-| Lieferanten & Dritte | 3 |
+| Kategorie                          | Prüfungen |
+| ---------------------------------- | --------: |
+| Governance & Managementsystem      |         7 |
+| Zugriffs- & Identitätsmanagement   |         4 |
+| IT-Betrieb & technische Sicherheit |         8 |
+| Personal & Awareness               |         3 |
+| Notfall- & Kontinuitätsmanagement  |         5 |
+| Lieferanten & Dritte               |         3 |
 
 Intervalle: 1 monatlich, 3 quartalsweise, 1 halbjährlich, 25 jährlich.
 
 ### Die neun Prüfbögen
 
-| Bogen | Zur Aufgabe | Punkte | Gegenzeichnung |
-| --- | --- | ---: | --- |
-| Restore-Test | Backup-Restore-Test | 9 | ja |
-| Rezertifizierung Zugriffsberechtigungen | Rezertifizierung aller Zugriffsberechtigungen | 7 | ja |
-| Privilegierte Konten | Review privilegierter und administrativer Konten | 7 | ja |
-| Firewall-Regelwerk | Firewall- und Netzwerkregel-Review | 9 | ja |
-| Patchstand | Patchmanagement-Kontrolle | 6 | nein |
-| Zutrittsrechte | Prüfung physischer Zutrittsrechte | 7 | ja |
-| Notfallübung | Notfallübung / BCM-Test | 9 | ja |
-| Disaster Recovery | Test der IKT-Bereitschaft | 8 | ja |
-| Lieferantenbewertung | Lieferantenbewertung und Review der Dienstleistersicherheit | 10 | nein |
+| Bogen                                   | Zur Aufgabe                                                 | Punkte | Gegenzeichnung |
+| --------------------------------------- | ----------------------------------------------------------- | -----: | -------------- |
+| Restore-Test                            | Backup-Restore-Test                                         |      9 | ja             |
+| Rezertifizierung Zugriffsberechtigungen | Rezertifizierung aller Zugriffsberechtigungen               |      7 | ja             |
+| Privilegierte Konten                    | Review privilegierter und administrativer Konten            |      7 | ja             |
+| Firewall-Regelwerk                      | Firewall- und Netzwerkregel-Review                          |      9 | ja             |
+| Patchstand                              | Patchmanagement-Kontrolle                                   |      6 | nein           |
+| Zutrittsrechte                          | Prüfung physischer Zutrittsrechte                           |      7 | ja             |
+| Notfallübung                            | Notfallübung / BCM-Test                                     |      9 | ja             |
+| Disaster Recovery                       | Test der IKT-Bereitschaft                                   |      8 | ja             |
+| Lieferantenbewertung                    | Lieferantenbewertung und Review der Dienstleistersicherheit |     10 | nein           |
 
 Vier davon nutzen eine **Zeilenliste**: Bei Rezertifizierungen,
 privilegierten Konten, Firewall-Regeln und Zutrittsrechten wird der Auszug
@@ -116,4 +116,4 @@ statt jährlich.
 
 ---
 
-*Grundlage: ISO/IEC 27001:2022 und VDA ISA Katalog Version 6. Stand Juli 2026.*
+_Grundlage: ISO/IEC 27001:2022 und VDA ISA Katalog Version 6. Stand Juli 2026._

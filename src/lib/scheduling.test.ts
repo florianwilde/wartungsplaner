@@ -39,37 +39,25 @@ describe('addiereIntervall', () => {
   })
 
   it('EVERY_N_DAYS ohne gültigen Wert wird abgelehnt', () => {
-    expect(() => addiereIntervall(start, 'EVERY_N_DAYS')).toThrow(
-      /Alle N Tage/,
-    )
+    expect(() => addiereIntervall(start, 'EVERY_N_DAYS')).toThrow(/Alle N Tage/)
     expect(() => addiereIntervall(start, 'EVERY_N_DAYS', 0)).toThrow()
     expect(() => addiereIntervall(start, 'EVERY_N_DAYS', -5)).toThrow()
     expect(() => addiereIntervall(start, 'EVERY_N_DAYS', 1.5)).toThrow()
   })
 
   it('begrenzt Monatsenden korrekt', () => {
-    expect(iso(addiereIntervall(dateOnly(2026, 1, 31), 'MONTHLY'))).toBe(
-      '2026-02-28',
-    )
-    expect(iso(addiereIntervall(dateOnly(2026, 8, 31), 'QUARTERLY'))).toBe(
-      '2026-11-30',
-    )
+    expect(iso(addiereIntervall(dateOnly(2026, 1, 31), 'MONTHLY'))).toBe('2026-02-28')
+    expect(iso(addiereIntervall(dateOnly(2026, 8, 31), 'QUARTERLY'))).toBe('2026-11-30')
     expect(iso(addiereIntervall(dateOnly(2026, 8, 31), 'SEMIANNUAL'))).toBe(
       '2027-02-28',
     )
-    expect(iso(addiereIntervall(dateOnly(2028, 2, 29), 'ANNUAL'))).toBe(
-      '2029-02-28',
-    )
+    expect(iso(addiereIntervall(dateOnly(2028, 2, 29), 'ANNUAL'))).toBe('2029-02-28')
   })
 
   it('rechnet über die Sommerzeitumstellung ohne Tagesversatz', () => {
     // Umstellung Ende März und Ende Oktober
-    expect(iso(addiereIntervall(dateOnly(2026, 3, 25), 'WEEKLY'))).toBe(
-      '2026-04-01',
-    )
-    expect(iso(addiereIntervall(dateOnly(2026, 10, 22), 'WEEKLY'))).toBe(
-      '2026-10-29',
-    )
+    expect(iso(addiereIntervall(dateOnly(2026, 3, 25), 'WEEKLY'))).toBe('2026-04-01')
+    expect(iso(addiereIntervall(dateOnly(2026, 10, 22), 'WEEKLY'))).toBe('2026-10-29')
   })
 
   it('verändert das Eingabedatum nicht', () => {
@@ -85,9 +73,7 @@ describe('ersteFaelligkeit', () => {
   })
 
   it('schneidet eine mitgelieferte Uhrzeit ab', () => {
-    expect(iso(ersteFaelligkeit(new Date('2026-09-01T15:22:00Z')))).toBe(
-      '2026-09-01',
-    )
+    expect(iso(ersteFaelligkeit(new Date('2026-09-01T15:22:00Z')))).toBe('2026-09-01')
   })
 })
 
@@ -160,9 +146,9 @@ describe('naechsteFaelligkeit – Modus AFTER_COMPLETION', () => {
 
 describe('faelligkeitNachrollen', () => {
   it('addiert mindestens ein Intervall', () => {
-    expect(
-      iso(faelligkeitNachrollen(dateOnly(2026, 1, 15), 'MONTHLY', null)),
-    ).toBe('2026-02-15')
+    expect(iso(faelligkeitNachrollen(dateOnly(2026, 1, 15), 'MONTHLY', null))).toBe(
+      '2026-02-15',
+    )
   })
 
   it('rollt bis zur Untergrenze vor', () => {
@@ -262,9 +248,7 @@ describe('bewerteAmpel', () => {
     expect(bewerteAmpel(faellig, 7, 2, dateOnly(2026, 4, 1))).toBe('ok')
     expect(bewerteAmpel(faellig, 7, 2, dateOnly(2026, 5, 5))).toBe('bald')
     expect(bewerteAmpel(faellig, 7, 2, dateOnly(2026, 5, 12))).toBe('bald')
-    expect(bewerteAmpel(faellig, 7, 2, dateOnly(2026, 5, 13))).toBe(
-      'ueberfaellig',
-    )
+    expect(bewerteAmpel(faellig, 7, 2, dateOnly(2026, 5, 13))).toBe('ueberfaellig')
   })
 })
 
@@ -272,30 +256,30 @@ describe('statusNachTagesabgleich', () => {
   const faellig = dateOnly(2026, 5, 10)
 
   it('setzt offene Fälligkeiten nach Fristablauf auf OVERDUE', () => {
-    expect(
-      statusNachTagesabgleich('OPEN', faellig, 0, dateOnly(2026, 5, 11)),
-    ).toBe('OVERDUE')
+    expect(statusNachTagesabgleich('OPEN', faellig, 0, dateOnly(2026, 5, 11))).toBe(
+      'OVERDUE',
+    )
   })
 
   it('lässt offene Fälligkeiten vor Fristablauf unverändert', () => {
-    expect(
-      statusNachTagesabgleich('OPEN', faellig, 0, dateOnly(2026, 5, 10)),
-    ).toBe('OPEN')
+    expect(statusNachTagesabgleich('OPEN', faellig, 0, dateOnly(2026, 5, 10))).toBe(
+      'OPEN',
+    )
   })
 
   it('setzt OVERDUE zurück, wenn sich der Termin verschoben hat', () => {
-    expect(
-      statusNachTagesabgleich('OVERDUE', faellig, 30, dateOnly(2026, 5, 20)),
-    ).toBe('OPEN')
+    expect(statusNachTagesabgleich('OVERDUE', faellig, 30, dateOnly(2026, 5, 20))).toBe(
+      'OPEN',
+    )
   })
 
   it('lässt erledigte und ausgesetzte Fälligkeiten unangetastet', () => {
-    expect(
-      statusNachTagesabgleich('DONE', faellig, 0, dateOnly(2027, 1, 1)),
-    ).toBe('DONE')
-    expect(
-      statusNachTagesabgleich('SUSPENDED', faellig, 0, dateOnly(2027, 1, 1)),
-    ).toBe('SUSPENDED')
+    expect(statusNachTagesabgleich('DONE', faellig, 0, dateOnly(2027, 1, 1))).toBe(
+      'DONE',
+    )
+    expect(statusNachTagesabgleich('SUSPENDED', faellig, 0, dateOnly(2027, 1, 1))).toBe(
+      'SUSPENDED',
+    )
   })
 })
 

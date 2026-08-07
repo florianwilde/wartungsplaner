@@ -26,8 +26,8 @@ export const OIDC_PROVIDER_ID = 'oidc'
 export function istOidcAktiv(): boolean {
   return Boolean(
     process.env.OIDC_ISSUER?.trim() &&
-      process.env.OIDC_CLIENT_ID?.trim() &&
-      process.env.OIDC_CLIENT_SECRET?.trim(),
+    process.env.OIDC_CLIENT_ID?.trim() &&
+    process.env.OIDC_CLIENT_SECRET?.trim(),
   )
 }
 
@@ -65,9 +65,7 @@ const credentialsProvider = Credentials({
   },
   async authorize(credentials, request) {
     const email =
-      typeof credentials?.email === 'string'
-        ? normalisiereEmail(credentials.email)
-        : ''
+      typeof credentials?.email === 'string' ? normalisiereEmail(credentials.email) : ''
     const password =
       typeof credentials?.password === 'string' ? credentials.password : ''
 
@@ -122,9 +120,7 @@ const credentialsProvider = Credentials({
               : !user.passwordHash
                 ? 'Konto ohne lokales Passwort (nur SSO)'
                 : 'falsches Passwort',
-          ...(sperreAusgeloest
-            ? { folge: 'Anmeldung vorübergehend gesperrt' }
-            : {}),
+          ...(sperreAusgeloest ? { folge: 'Anmeldung vorübergehend gesperrt' } : {}),
         },
       })
       return null

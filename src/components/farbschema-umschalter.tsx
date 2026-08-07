@@ -39,8 +39,7 @@ function ausCookie(): Farbschema {
 function wendeAn(schema: Farbschema): void {
   const dunkel =
     schema === 'dunkel' ||
-    (schema === 'system' &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches)
+    (schema === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   document.documentElement.classList.toggle('dark', dunkel)
   document.documentElement.style.colorScheme = dunkel ? 'dark' : 'light'
@@ -92,7 +91,7 @@ export function FarbschemaUmschalter({
         aria-label="Farbschema wählen"
         title="Farbschema wählen"
         className={cn(
-          'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring',
+          'hover:bg-accent focus:ring-ring flex items-center gap-2 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
           className,
         )}
       >

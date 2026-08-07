@@ -3,7 +3,13 @@ import Link from 'next/link'
 import { ShieldAlert } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { holeBenutzer } from '@/lib/session'
 import { ROLLEN_BEZEICHNUNG } from '@/lib/rbac'
 
@@ -16,7 +22,7 @@ export default async function KeinZugriffSeite() {
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+          <span className="bg-destructive/10 text-destructive mb-2 flex size-10 items-center justify-center rounded-lg">
             <ShieldAlert className="size-5" />
           </span>
           <CardTitle>Kein Zugriff</CardTitle>
@@ -26,11 +32,10 @@ export default async function KeinZugriffSeite() {
         </CardHeader>
         <CardContent className="space-y-4">
           {benutzer ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Angemeldet als <strong>{benutzer.name}</strong> mit der Rolle{' '}
-              <strong>{ROLLEN_BEZEICHNUNG[benutzer.role]}</strong>. Wenden Sie
-              sich an einen Administrator, wenn Sie weitergehende Rechte
-              benötigen.
+              <strong>{ROLLEN_BEZEICHNUNG[benutzer.role]}</strong>. Wenden Sie sich an
+              einen Administrator, wenn Sie weitergehende Rechte benötigen.
             </p>
           ) : null}
           <Button asChild>

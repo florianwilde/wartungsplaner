@@ -53,14 +53,11 @@ export async function POST(request: NextRequest) {
 
 /** Schema und Host der Anfrage – auch hinter einem Reverse Proxy. */
 function anfrageUrsprung(request: NextRequest): string {
-  const host =
-    request.headers.get('x-forwarded-host') ?? request.headers.get('host')
+  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host')
   if (!host) return request.nextUrl.origin
 
   const protokoll =
     request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim() ??
-    (host.startsWith('localhost') || host.startsWith('127.0.0.1')
-      ? 'http'
-      : 'https')
+    (host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https')
   return `${protokoll}://${host}`
 }

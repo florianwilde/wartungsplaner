@@ -46,10 +46,9 @@ export function PasswortFormular() {
           minLength={PASSWORT_MINDESTLAENGE}
           required
         />
-        <p className="text-xs text-muted-foreground">
-          Mindestens {PASSWORT_MINDESTLAENGE} Zeichen aus mindestens drei der
-          vier Kategorien: Kleinbuchstaben, Großbuchstaben, Ziffern,
-          Sonderzeichen.
+        <p className="text-muted-foreground text-xs">
+          Mindestens {PASSWORT_MINDESTLAENGE} Zeichen aus mindestens drei der vier
+          Kategorien: Kleinbuchstaben, Großbuchstaben, Ziffern, Sonderzeichen.
         </p>
       </div>
 
@@ -68,7 +67,7 @@ export function PasswortFormular() {
       {status.fehler ? (
         <p
           role="alert"
-          className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+          className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
           {status.fehler}

@@ -231,7 +231,7 @@ export function ErledigenDialog({
         </DialogHeader>
 
         {fertige.length > 0 ? (
-          <div className="space-y-2 rounded-lg border border-primary/40 bg-primary/5 p-3">
+          <div className="border-primary/40 bg-primary/5 space-y-2 rounded-lg border p-3">
             <p className="flex items-center gap-2 text-sm font-medium">
               <FileCheck2 className="size-4" />
               {fertige.length === 1
@@ -239,10 +239,10 @@ export function ErledigenDialog({
                 : `${fertige.length} ausgefüllte Prüfbögen liegen vor`}
             </p>
             {fertige.map((nachweis) => (
-              <p key={nachweis.nachweisId} className="text-xs text-muted-foreground">
+              <p key={nachweis.nachweisId} className="text-muted-foreground text-xs">
                 <Link
                   href={`/nachweise/${nachweis.nachweisId}`}
-                  className="font-medium text-foreground underline underline-offset-2"
+                  className="text-foreground font-medium underline underline-offset-2"
                 >
                   {nachweis.pruefbogen}
                 </Link>
@@ -253,21 +253,21 @@ export function ErledigenDialog({
                   : ''}
               </p>
             ))}
-            <p className="text-xs text-muted-foreground">
-              Der Bogen zählt als Nachweis. Sein PDF und die daran hängenden
-              Belege gehen mit dieser Durchführung ein.
+            <p className="text-muted-foreground text-xs">
+              Der Bogen zählt als Nachweis. Sein PDF und die daran hängenden Belege
+              gehen mit dieser Durchführung ein.
             </p>
           </div>
         ) : null}
 
         {offeneBoegen.length > 0 ? (
-          <div className="space-y-1 rounded-lg border border-border p-3">
+          <div className="border-border space-y-1 rounded-lg border p-3">
             <p className="text-sm font-medium">Noch nicht abgeschlossen</p>
             {offeneBoegen.map((nachweis) => (
-              <p key={nachweis.nachweisId} className="text-xs text-muted-foreground">
+              <p key={nachweis.nachweisId} className="text-muted-foreground text-xs">
                 <Link
                   href={`/nachweise/${nachweis.nachweisId}`}
-                  className="font-medium text-foreground underline underline-offset-2"
+                  className="text-foreground font-medium underline underline-offset-2"
                 >
                   {nachweis.pruefbogen}
                 </Link>
@@ -277,9 +277,9 @@ export function ErledigenDialog({
                 {nachweis.erfasstVon}
               </p>
             ))}
-            <p className="text-xs text-muted-foreground">
-              Wird dieser Bogen später abgeschlossen, kommt sein PDF zur
-              Durchführung hinzu.
+            <p className="text-muted-foreground text-xs">
+              Wird dieser Bogen später abgeschlossen, kommt sein PDF zur Durchführung
+              hinzu.
             </p>
           </div>
         ) : null}
@@ -288,7 +288,7 @@ export function ErledigenDialog({
           <div className="space-y-2">
             <p className="text-sm font-medium">Wie möchten Sie vorgehen?</p>
 
-            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-border p-3 text-sm has-[:checked]:border-primary">
+            <label className="border-border has-[:checked]:border-primary flex cursor-pointer items-start gap-3 rounded-md border p-3 text-sm">
               <input
                 type="radio"
                 name="weg"
@@ -301,10 +301,10 @@ export function ErledigenDialog({
                   <ClipboardList className="size-4" />
                   Prüfbogen ausfüllen
                 </span>
-                <span className="block text-xs text-muted-foreground">
-                  Der Befund wird Punkt für Punkt festgehalten; daraus entsteht
-                  ein PDF-Nachweis. Die Fälligkeit erledigen Sie danach hier –
-                  mit Ergebnis und etwaigen Abweichungen.
+                <span className="text-muted-foreground block text-xs">
+                  Der Befund wird Punkt für Punkt festgehalten; daraus entsteht ein
+                  PDF-Nachweis. Die Fälligkeit erledigen Sie danach hier – mit Ergebnis
+                  und etwaigen Abweichungen.
                 </span>
 
                 {weg === 'bogen' ? (
@@ -312,7 +312,7 @@ export function ErledigenDialog({
                     {boegen.map((bogen) => (
                       <label
                         key={bogen.id}
-                        className="flex cursor-pointer items-start gap-2 rounded-md border border-border/60 p-2 text-sm has-[:checked]:border-primary"
+                        className="border-border/60 has-[:checked]:border-primary flex cursor-pointer items-start gap-2 rounded-md border p-2 text-sm"
                       >
                         <input
                           type="radio"
@@ -323,7 +323,7 @@ export function ErledigenDialog({
                         />
                         <span className="min-w-0">
                           <span className="font-medium">{bogen.name}</span>
-                          <span className="block text-xs text-muted-foreground">
+                          <span className="text-muted-foreground block text-xs">
                             {bogen.anzahlPunkte} Prüfpunkte
                             {bogen.vierAugen
                               ? ' · Gegenzeichnung durch eine zweite Person'
@@ -338,7 +338,7 @@ export function ErledigenDialog({
               </span>
             </label>
 
-            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-border p-3 text-sm has-[:checked]:border-primary">
+            <label className="border-border has-[:checked]:border-primary flex cursor-pointer items-start gap-3 rounded-md border p-3 text-sm">
               <input
                 type="radio"
                 name="weg"
@@ -348,7 +348,7 @@ export function ErledigenDialog({
               />
               <span className="min-w-0">
                 <span className="font-medium">Ohne Prüfbogen protokollieren</span>
-                <span className="block text-xs text-muted-foreground">
+                <span className="text-muted-foreground block text-xs">
                   Ergebnis und Kommentar erfassen, Dateien als Nachweis anhängen.
                 </span>
               </span>
@@ -365,10 +365,7 @@ export function ErledigenDialog({
               disabled={oeffnetBogen || !bogenId}
               onClick={async () => {
                 setOeffnetBogen(true)
-                const ergebnis = await nachweisBeginnen(
-                  aufgabe.occurrenceId,
-                  bogenId,
-                )
+                const ergebnis = await nachweisBeginnen(aufgabe.occurrenceId, bogenId)
                 setOeffnetBogen(false)
                 if (ergebnis.fehler) {
                   toast.error(ergebnis.fehler)
@@ -383,254 +380,259 @@ export function ErledigenDialog({
             </Button>
           </DialogFooter>
         ) : (
-        <form action={formAction} className="space-y-5">
-          <input type="hidden" name="occurrenceId" value={aufgabe.occurrenceId} />
-          <input
-            type="hidden"
-            name="abweichungen"
-            value={JSON.stringify(
-              abweichungen.map(({ schluessel: _schluessel, ...rest }) => rest),
-            )}
-          />
+          <form action={formAction} className="space-y-5">
+            <input type="hidden" name="occurrenceId" value={aufgabe.occurrenceId} />
+            <input
+              type="hidden"
+              name="abweichungen"
+              value={JSON.stringify(
+                abweichungen.map(({ schluessel: _schluessel, ...rest }) => rest),
+              )}
+            />
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="result">Ergebnis</Label>
-              <select
-                id="result"
-                name="result"
-                value={ergebnis}
-                onChange={(e) => setErgebnis(e.target.value as Ergebnis)}
-                className={selectKlassen}
-              >
-                {(['OK', 'OK_WITH_REMARKS', 'DEVIATION'] as const).map((wert) => (
-                  <option key={wert} value={wert}>
-                    {ERGEBNIS_BEZEICHNUNG[wert]}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-muted-foreground">
-                {ERGEBNIS_BESCHREIBUNG[ergebnis]}
-              </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="result">Ergebnis</Label>
+                <select
+                  id="result"
+                  name="result"
+                  value={ergebnis}
+                  onChange={(e) => setErgebnis(e.target.value as Ergebnis)}
+                  className={selectKlassen}
+                >
+                  {(['OK', 'OK_WITH_REMARKS', 'DEVIATION'] as const).map((wert) => (
+                    <option key={wert} value={wert}>
+                      {ERGEBNIS_BEZEICHNUNG[wert]}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-muted-foreground text-xs">
+                  {ERGEBNIS_BESCHREIBUNG[ergebnis]}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="executedOn">Durchgeführt am</Label>
+                <Input
+                  id="executedOn"
+                  name="executedOn"
+                  type="date"
+                  defaultValue={heute}
+                  max={heute}
+                  required
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="executedOn">Durchgeführt am</Label>
-              <Input
-                id="executedOn"
-                name="executedOn"
-                type="date"
-                defaultValue={heute}
-                max={heute}
-                required
+              <Label htmlFor="comment">Kommentar</Label>
+              <Textarea
+                id="comment"
+                name="comment"
+                rows={3}
+                maxLength={4000}
+                placeholder="Was wurde geprüft, welche Systeme, welche Auffälligkeiten?"
               />
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="comment">Kommentar</Label>
-            <Textarea
-              id="comment"
-              name="comment"
-              rows={3}
-              maxLength={4000}
-              placeholder="Was wurde geprüft, welche Systeme, welche Auffälligkeiten?"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="nachweise">
-              Nachweise{' '}
-              {nachweisPflicht ? (
-                <span className="text-destructive">(verpflichtend)</span>
-              ) : (
-                <span className="text-muted-foreground">
-                  {aufgabe.evidenceRequired
-                    ? '(durch den Prüfbogen erfüllt)'
-                    : '(optional)'}
-                </span>
-              )}
-            </Label>
-            <DateiEingabe
-              id="nachweise"
-              name="nachweise"
-              required={nachweisPflicht}
-              onAnzahl={setDateiAnzahl}
-              hinweis={`Erlaubt: ${ERLAUBTE_ENDUNGEN_TEXT} · maximal 25 MB je Datei${
-                dateiAnzahl > 0
-                  ? ` · ${dateiAnzahl} ${dateiAnzahl === 1 ? 'Datei' : 'Dateien'} gewählt`
-                  : ''
-              }`}
-            />
-          </div>
-
-          <div className="space-y-3 rounded-lg border border-border p-3">
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <p className="text-sm font-medium">Abweichungen</p>
-                <p className="text-xs text-muted-foreground">
-                  {ergebnis === 'DEVIATION'
-                    ? 'Beim Ergebnis „Abweichung“ ist mindestens ein Eintrag erforderlich.'
-                    : 'Optional – für Feststellungen, die nachverfolgt werden sollen.'}
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={neueAbweichung}
-              >
-                <Plus className="size-4" />
-                Hinzufügen
-              </Button>
+            <div className="space-y-2">
+              <Label htmlFor="nachweise">
+                Nachweise{' '}
+                {nachweisPflicht ? (
+                  <span className="text-destructive">(verpflichtend)</span>
+                ) : (
+                  <span className="text-muted-foreground">
+                    {aufgabe.evidenceRequired
+                      ? '(durch den Prüfbogen erfüllt)'
+                      : '(optional)'}
+                  </span>
+                )}
+              </Label>
+              <DateiEingabe
+                id="nachweise"
+                name="nachweise"
+                required={nachweisPflicht}
+                onAnzahl={setDateiAnzahl}
+                hinweis={`Erlaubt: ${ERLAUBTE_ENDUNGEN_TEXT} · maximal 25 MB je Datei${
+                  dateiAnzahl > 0
+                    ? ` · ${dateiAnzahl} ${dateiAnzahl === 1 ? 'Datei' : 'Dateien'} gewählt`
+                    : ''
+                }`}
+              />
             </div>
 
-            {feststellungen.length > 0 ? (
-              <div className="space-y-2 rounded-md border border-dashed border-border p-3">
-                <p className="text-xs text-muted-foreground">
-                  Der Prüfbogen weist folgende Feststellungen aus. Was
-                  nachverfolgt werden soll, übernehmen Sie als Abweichung.
-                </p>
-                {feststellungen.map((feststellung) => (
-                  <div
-                    key={feststellung.schluessel}
-                    className="flex flex-wrap items-start justify-between gap-2"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm">{feststellung.titel}</p>
-                      {feststellung.bemerkung ? (
-                        <p className="text-xs text-muted-foreground">
-                          {feststellung.bemerkung}
-                        </p>
-                      ) : null}
+            <div className="border-border space-y-3 rounded-lg border p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <p className="text-sm font-medium">Abweichungen</p>
+                  <p className="text-muted-foreground text-xs">
+                    {ergebnis === 'DEVIATION'
+                      ? 'Beim Ergebnis „Abweichung“ ist mindestens ein Eintrag erforderlich.'
+                      : 'Optional – für Feststellungen, die nachverfolgt werden sollen.'}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={neueAbweichung}
+                >
+                  <Plus className="size-4" />
+                  Hinzufügen
+                </Button>
+              </div>
+
+              {feststellungen.length > 0 ? (
+                <div className="border-border space-y-2 rounded-md border border-dashed p-3">
+                  <p className="text-muted-foreground text-xs">
+                    Der Prüfbogen weist folgende Feststellungen aus. Was nachverfolgt
+                    werden soll, übernehmen Sie als Abweichung.
+                  </p>
+                  {feststellungen.map((feststellung) => (
+                    <div
+                      key={feststellung.schluessel}
+                      className="flex flex-wrap items-start justify-between gap-2"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm">{feststellung.titel}</p>
+                        {feststellung.bemerkung ? (
+                          <p className="text-muted-foreground text-xs">
+                            {feststellung.bemerkung}
+                          </p>
+                        ) : null}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={uebernommen.includes(feststellung.schluessel)}
+                        onClick={() => uebernimmFeststellung(feststellung)}
+                      >
+                        {uebernommen.includes(feststellung.schluessel)
+                          ? 'Übernommen'
+                          : 'Als Abweichung übernehmen'}
+                      </Button>
                     </div>
+                  ))}
+                </div>
+              ) : null}
+
+              {abweichungen.map((abweichung, index) => (
+                <div
+                  key={abweichung.schluessel}
+                  className="bg-muted/50 space-y-3 rounded-md p-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground text-xs font-medium">
+                      Abweichung {index + 1}
+                    </span>
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
-                      disabled={uebernommen.includes(feststellung.schluessel)}
-                      onClick={() => uebernimmFeststellung(feststellung)}
+                      onClick={() => entferne(abweichung.schluessel)}
                     >
-                      {uebernommen.includes(feststellung.schluessel)
-                        ? 'Übernommen'
-                        : 'Als Abweichung übernehmen'}
+                      <Trash2 className="size-4" />
+                      Entfernen
                     </Button>
                   </div>
-                ))}
-              </div>
+
+                  <Input
+                    value={abweichung.title}
+                    onChange={(e) =>
+                      aendere(abweichung.schluessel, 'title', e.target.value)
+                    }
+                    placeholder="Titel der Abweichung"
+                    maxLength={200}
+                  />
+                  <Textarea
+                    value={abweichung.description}
+                    onChange={(e) =>
+                      aendere(abweichung.schluessel, 'description', e.target.value)
+                    }
+                    rows={2}
+                    maxLength={4000}
+                    placeholder="Feststellung und geplante Maßnahme"
+                  />
+
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Schweregrad</Label>
+                      <select
+                        value={abweichung.severity}
+                        onChange={(e) =>
+                          aendere(abweichung.schluessel, 'severity', e.target.value)
+                        }
+                        className={selectKlassen}
+                      >
+                        {(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] as const).map(
+                          (stufe) => (
+                            <option key={stufe} value={stufe}>
+                              {SCHWERE_BEZEICHNUNG[stufe]}
+                            </option>
+                          ),
+                        )}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Verantwortlich</Label>
+                      <select
+                        value={abweichung.responsibleId}
+                        onChange={(e) =>
+                          aendere(
+                            abweichung.schluessel,
+                            'responsibleId',
+                            e.target.value,
+                          )
+                        }
+                        className={selectKlassen}
+                      >
+                        {personen.map((person) => (
+                          <option key={person.id} value={person.id}>
+                            {person.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Frist</Label>
+                      <Input
+                        type="date"
+                        value={abweichung.dueDate}
+                        onChange={(e) =>
+                          aendere(abweichung.schluessel, 'dueDate', e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {status.fehler ? (
+              <p
+                role="alert"
+                className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
+              >
+                <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                {status.fehler}
+              </p>
             ) : null}
 
-            {abweichungen.map((abweichung, index) => (
-              <div
-                key={abweichung.schluessel}
-                className="space-y-3 rounded-md bg-muted/50 p-3"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    Abweichung {index + 1}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => entferne(abweichung.schluessel)}
-                  >
-                    <Trash2 className="size-4" />
-                    Entfernen
-                  </Button>
-                </div>
-
-                <Input
-                  value={abweichung.title}
-                  onChange={(e) =>
-                    aendere(abweichung.schluessel, 'title', e.target.value)
-                  }
-                  placeholder="Titel der Abweichung"
-                  maxLength={200}
-                />
-                <Textarea
-                  value={abweichung.description}
-                  onChange={(e) =>
-                    aendere(abweichung.schluessel, 'description', e.target.value)
-                  }
-                  rows={2}
-                  maxLength={4000}
-                  placeholder="Feststellung und geplante Maßnahme"
-                />
-
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Schweregrad</Label>
-                    <select
-                      value={abweichung.severity}
-                      onChange={(e) =>
-                        aendere(abweichung.schluessel, 'severity', e.target.value)
-                      }
-                      className={selectKlassen}
-                    >
-                      {(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] as const).map((stufe) => (
-                        <option key={stufe} value={stufe}>
-                          {SCHWERE_BEZEICHNUNG[stufe]}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Verantwortlich</Label>
-                    <select
-                      value={abweichung.responsibleId}
-                      onChange={(e) =>
-                        aendere(abweichung.schluessel, 'responsibleId', e.target.value)
-                      }
-                      className={selectKlassen}
-                    >
-                      {personen.map((person) => (
-                        <option key={person.id} value={person.id}>
-                          {person.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Frist</Label>
-                    <Input
-                      type="date"
-                      value={abweichung.dueDate}
-                      onChange={(e) =>
-                        aendere(abweichung.schluessel, 'dueDate', e.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {status.fehler ? (
-            <p
-              role="alert"
-              className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-            >
-              <AlertCircle className="mt-0.5 size-4 shrink-0" />
-              {status.fehler}
+            <p className="bg-muted text-muted-foreground rounded-md p-3 text-xs">
+              Hinweis: Eine protokollierte Durchführung ist unveränderlich. Korrekturen
+              erfolgen ausschließlich als neuer, protokollierter Vorgang.
             </p>
-          ) : null}
 
-          <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
-            Hinweis: Eine protokollierte Durchführung ist unveränderlich.
-            Korrekturen erfolgen ausschließlich als neuer, protokollierter
-            Vorgang.
-          </p>
-
-          <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setOffen(false)}>
-              Abbrechen
-            </Button>
-            <AbsendenButton />
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button type="button" variant="ghost" onClick={() => setOffen(false)}>
+                Abbrechen
+              </Button>
+              <AbsendenButton />
+            </DialogFooter>
+          </form>
         )}
       </DialogContent>
     </Dialog>

@@ -135,10 +135,7 @@ export default async function AbweichungenSeite({
         beschreibung="Feststellungen aus Durchführungen mit Maßnahme, Verantwortlichkeit und Frist."
       />
 
-      <FilterLeiste
-        felder={filterFelder}
-        suchePlatzhalter="Titel oder Beschreibung"
-      />
+      <FilterLeiste felder={filterFelder} suchePlatzhalter="Titel oder Beschreibung" />
 
       {abweichungen.length === 0 ? (
         <LeerHinweis text="Zu den gewählten Filtern gibt es keine Abweichungen." />
@@ -165,7 +162,7 @@ export default async function AbweichungenSeite({
                           </Badge>
                         ) : null}
                       </div>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs">
                         Aus der Durchführung vom{' '}
                         {formatDate(abweichung.execution.executedAt)} zur Aufgabe{' '}
                         <Link
@@ -205,12 +202,12 @@ export default async function AbweichungenSeite({
                   </div>
 
                   {abweichung.description ? (
-                    <p className="whitespace-pre-wrap text-sm">
+                    <p className="text-sm whitespace-pre-wrap">
                       {abweichung.description}
                     </p>
                   ) : null}
 
-                  <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
+                  <div className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-1 text-xs">
                     <span>
                       Verantwortlich: <strong>{abweichung.responsible.name}</strong>
                     </span>
@@ -226,8 +223,8 @@ export default async function AbweichungenSeite({
                   </div>
 
                   {abweichung.closingComment ? (
-                    <div className="rounded-md bg-muted/60 p-3 text-sm">
-                      <p className="text-xs font-medium text-muted-foreground">
+                    <div className="bg-muted/60 rounded-md p-3 text-sm">
+                      <p className="text-muted-foreground text-xs font-medium">
                         Umgesetzte Maßnahme
                       </p>
                       <p className="mt-1 whitespace-pre-wrap">
@@ -242,7 +239,7 @@ export default async function AbweichungenSeite({
         </div>
       )}
 
-      <p className="text-xs text-muted-foreground">
+      <p className="text-muted-foreground text-xs">
         {abweichungen.length} angezeigt, davon {offeneAnzahl} nicht geschlossen.
       </p>
     </div>

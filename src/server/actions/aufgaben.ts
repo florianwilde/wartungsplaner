@@ -9,10 +9,7 @@ import { leseTitel } from '@/lib/duplizieren'
 import { prisma } from '@/lib/prisma'
 import { canManageTasks } from '@/lib/rbac'
 import { benutzerFuerAktion } from '@/lib/session'
-import {
-  dupliziereAufgabe,
-  type DuplizierErgebnis,
-} from '@/server/duplizieren'
+import { dupliziereAufgabe, type DuplizierErgebnis } from '@/server/duplizieren'
 import { fehlerbehandlung } from '@/lib/fehler'
 import { erzeugeErsteFaelligkeit } from '@/server/faelligkeiten'
 
@@ -29,7 +26,11 @@ export type DuplizierStatus = {
 
 const aufgabenSchema = z
   .object({
-    title: z.string().trim().min(3, 'Der Titel muss mindestens 3 Zeichen haben.').max(200),
+    title: z
+      .string()
+      .trim()
+      .min(3, 'Der Titel muss mindestens 3 Zeichen haben.')
+      .max(200),
     description: z.string().trim().max(2000).optional().or(z.literal('')),
     instructionsMd: z.string().trim().max(20000).optional().or(z.literal('')),
     categoryId: z.string().trim().min(1, 'Bitte eine Kategorie wählen.'),
@@ -350,12 +351,7 @@ export async function aufgabeAktivierungUmschalten(
           where: { taskId, status: { in: ['OPEN', 'OVERDUE', 'SUSPENDED'] } },
         })
         if (offene === 0) {
-          await erzeugeErsteFaelligkeit(
-            tx,
-            taskId,
-            aufgabe.startDate,
-            benutzer.id,
-          )
+          await erzeugeErsteFaelligkeit(tx, taskId, aufgabe.startDate, benutzer.id)
         }
       }
     })
@@ -419,9 +415,7 @@ export async function faelligkeitAussetzen(
 }
 
 /** Hebt eine Aussetzung wieder auf. */
-export async function aussetzungAufheben(
-  occurrenceId: string,
-): Promise<AktionsStatus> {
+export async function aussetzungAufheben(occurrenceId: string): Promise<AktionsStatus> {
   try {
     const benutzer = await benutzerFuerAktion(canManageTasks)
 
@@ -470,7 +464,12 @@ export async function aussetzungAufheben(
  */
 async function pruefeReferenzen(roh: string): Promise<string[]> {
   const ids = [
-    ...new Set(roh.split(',').map((eintrag) => eintrag.trim()).filter(Boolean)),
+    ...new Set(
+      roh
+        .split(',')
+        .map((eintrag) => eintrag.trim())
+        .filter(Boolean),
+    ),
   ]
   if (ids.length === 0) return []
 
@@ -489,7 +488,10 @@ async function pruefeReferenzen(roh: string): Promise<string[]> {
 async function pruefeStammdaten(categoryId: string, ownerId: string) {
   const [kategorie, besitzer] = await Promise.all([
     prisma.category.findUnique({ where: { id: categoryId }, select: { id: true } }),
-    prisma.user.findUnique({ where: { id: ownerId }, select: { id: true, active: true } }),
+    prisma.user.findUnique({
+      where: { id: ownerId },
+      select: { id: true, active: true },
+    }),
   ])
   if (!kategorie) throw new Error('Die gewählte Kategorie existiert nicht.')
   if (!besitzer) throw new Error('Die gewählte verantwortliche Person existiert nicht.')

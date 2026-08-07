@@ -61,9 +61,7 @@ export async function ladeVorlagen(typ: ReportTyp): Promise<ReportVorlage[]> {
 }
 
 /** Alle Vorlagen, nach Reportart gruppiert. */
-export async function ladeAlleVorlagen(): Promise<
-  Record<string, ReportVorlage[]>
-> {
+export async function ladeAlleVorlagen(): Promise<Record<string, ReportVorlage[]>> {
   const datensaetze = await prisma.reportTemplate.findMany({
     orderBy: [{ reportTyp: 'asc' }, { istStandard: 'desc' }, { name: 'asc' }],
   })

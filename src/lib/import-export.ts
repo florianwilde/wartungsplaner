@@ -18,11 +18,7 @@ import { parseISODate, toISODate } from '@/lib/dates'
 import { normalisiereHex } from '@/lib/farben'
 
 export type ImportArt =
-  | 'kategorien'
-  | 'aufgaben'
-  | 'benutzer'
-  | 'referenzen'
-  | 'pruefboegen'
+  'kategorien' | 'aufgaben' | 'benutzer' | 'referenzen' | 'pruefboegen'
 
 export const IMPORT_BEZEICHNUNG: Record<ImportArt, string> = {
   kategorien: 'Kategorien',
@@ -303,7 +299,11 @@ export function pruefeAufgaben(
     let intervalltage: number | null = null
     if (intervall === 'EVERY_N_DAYS') {
       intervalltage = Number(rohIntervalltage)
-      if (!Number.isInteger(intervalltage) || intervalltage < 1 || intervalltage > 3650) {
+      if (
+        !Number.isInteger(intervalltage) ||
+        intervalltage < 1 ||
+        intervalltage > 3650
+      ) {
         melde(
           'intervalltage',
           'Für EVERY_N_DAYS wird eine ganze Zahl zwischen 1 und 3650 benötigt.',
@@ -403,7 +403,11 @@ function vergleicheAufgabe(alt: AufgabenBestand, neu: AufgabeDaten): string[] {
   }
 
   pruefe('Kategorie', alt.kategorieName.toLowerCase(), neu.kategorieName.toLowerCase())
-  pruefe('Verantwortlich', alt.verantwortlichEmail.toLowerCase(), neu.verantwortlichEmail)
+  pruefe(
+    'Verantwortlich',
+    alt.verantwortlichEmail.toLowerCase(),
+    neu.verantwortlichEmail,
+  )
   pruefe('Intervall', alt.intervalType, neu.intervalType)
   pruefe('Intervalltage', alt.intervalValue, neu.intervalValue)
   pruefe('Rhythmus', alt.scheduleMode, neu.scheduleMode)
@@ -490,7 +494,10 @@ export function pruefeBenutzer(
 
     const verfahren = ((zeile.anmeldeverfahren ?? '').trim() || 'LOCAL').toUpperCase()
     if (!VERFAHREN.includes(verfahren)) {
-      melde('anmeldeverfahren', `Unbekanntes Verfahren. Erlaubt: ${VERFAHREN.join(', ')}`)
+      melde(
+        'anmeldeverfahren',
+        `Unbekanntes Verfahren. Erlaubt: ${VERFAHREN.join(', ')}`,
+      )
       return
     }
 
@@ -519,7 +526,8 @@ export function pruefeBenutzer(
     if (alt.name !== daten.name) aenderungen.push('Name')
     if (alt.role !== daten.role) aenderungen.push('Rolle')
     if (alt.active !== daten.active) aenderungen.push('Aktiv')
-    if (alt.notifyByEmail !== daten.notifyByEmail) aenderungen.push('Benachrichtigungen')
+    if (alt.notifyByEmail !== daten.notifyByEmail)
+      aenderungen.push('Benachrichtigungen')
     // Das Anmeldeverfahren wird bewusst nicht geändert: Ein Wechsel würde ein
     // vorhandenes Passwort entwerten oder eine SSO-Verknüpfung zerstören.
 
@@ -1044,7 +1052,8 @@ export function pruefePruefboegen(
     }
 
     const aenderungen: string[] = []
-    if ((alt.beschreibung ?? '') !== (beschreibung ?? '')) aenderungen.push('Beschreibung')
+    if ((alt.beschreibung ?? '') !== (beschreibung ?? ''))
+      aenderungen.push('Beschreibung')
     if ((alt.aufgabe ?? '') !== (aufgabe ?? '')) aenderungen.push('Aufgabe')
     if (alt.vierAugen !== vierAugen) aenderungen.push('Vier-Augen-Prinzip')
     if (alt.aktiv !== aktiv) aenderungen.push('Aktiv')
@@ -1121,10 +1130,7 @@ export type VorschauKennzahlen = {
  * Lauf. Ein halb eingespielter Bestand wäre schlimmer als gar keiner.
  */
 export function darfGeschriebenWerden(vorschau: VorschauKennzahlen): boolean {
-  return (
-    vorschau.fehler.length === 0 &&
-    vorschau.anlegen + vorschau.aktualisieren > 0
-  )
+  return vorschau.fehler.length === 0 && vorschau.anlegen + vorschau.aktualisieren > 0
 }
 
 /** Kurzfassung der Vorschau für die Oberfläche. */

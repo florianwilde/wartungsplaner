@@ -32,8 +32,5 @@ export function bildEndung(dateiname: string): string {
 
 /** MIME-Typ anhand der Dateiendung eines gespeicherten Pfades. */
 export function mimeTypFuerPfad(relativerPfad: string): string {
-  return (
-    ERLAUBTE_BILD_ENDUNGEN[bildEndung(relativerPfad)] ??
-    'application/octet-stream'
-  )
+  return ERLAUBTE_BILD_ENDUNGEN[bildEndung(relativerPfad)] ?? 'application/octet-stream'
 }

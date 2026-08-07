@@ -5,7 +5,13 @@ import { ClipboardCheck, Stamp } from 'lucide-react'
 import { LeerHinweis, SeitenKopf } from '@/components/seiten-kopf'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { formatDate, formatDateTime } from '@/lib/dates'
 import { STATUS_BEZEICHNUNG, type NachweisStatus } from '@/lib/nachweise'
 import { prisma } from '@/lib/prisma'
@@ -73,8 +79,8 @@ export default async function NachweiseSeite() {
             Zur Gegenzeichnung
           </CardTitle>
           <CardDescription>
-            Von anderen Personen vorgelegt. Die eigene Erfassung erscheint hier
-            bewusst nicht – das Vier-Augen-Prinzip verlangt eine zweite Person.
+            Von anderen Personen vorgelegt. Die eigene Erfassung erscheint hier bewusst
+            nicht – das Vier-Augen-Prinzip verlangt eine zweite Person.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -84,11 +90,11 @@ export default async function NachweiseSeite() {
             zumGegenzeichnen.map((nachweis) => (
               <div
                 key={nachweis.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
+                className="border-border flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
               >
                 <div className="min-w-0 space-y-1">
                   <p className="font-medium">{nachweis.vorlage.name}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {nachweis.occurrence.task.title} · fällig am{' '}
                     {formatDate(nachweis.occurrence.dueDate)} · erfasst von{' '}
                     {nachweis.erfasstBy.name}
@@ -120,7 +126,7 @@ export default async function NachweiseSeite() {
             eigene.map((nachweis) => (
               <div
                 key={nachweis.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
+                className="border-border flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
               >
                 <div className="min-w-0 space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -130,7 +136,7 @@ export default async function NachweiseSeite() {
                       <Badge variant="outline">Vier Augen</Badge>
                     ) : null}
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {nachweis.occurrence.task.title} · fällig am{' '}
                     {formatDate(nachweis.occurrence.dueDate)}
                   </p>
@@ -161,11 +167,11 @@ export default async function NachweiseSeite() {
             abgeschlossen.map((nachweis) => (
               <div
                 key={nachweis.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
+                className="border-border flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
               >
                 <div className="min-w-0 space-y-1">
                   <p className="font-medium">{nachweis.vorlage.name}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {nachweis.occurrence.task.title} · erfasst von{' '}
                     {nachweis.erfasstBy.name}
                     {nachweis.geprueftBy
@@ -179,10 +185,7 @@ export default async function NachweiseSeite() {
                 <div className="flex items-center gap-2">
                   {nachweis.attachment ? (
                     <Button variant="outline" size="sm" asChild>
-                      <a
-                        href={`/api/attachments/${nachweis.attachment.id}`}
-                        download
-                      >
+                      <a href={`/api/attachments/${nachweis.attachment.id}`} download>
                         PDF
                       </a>
                     </Button>

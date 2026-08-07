@@ -16,12 +16,12 @@ Unversehrtheit**.
 Der Lauf geht **beide Richtungen**: zu jedem Eintrag die Datei, und zu jeder
 Datei den Eintrag.
 
-| Befund | Bedeutung |
-| --- | --- |
-| **Datei fehlt** | Zum Eintrag gibt es keine Datei mehr. |
-| **Prüfsumme weicht ab** | Die Datei ist da, ihr Inhalt hat sich verändert. |
-| **Datei nicht lesbar** | Rechteproblem oder Datenträgerfehler. |
-| **Datei ohne Eintrag** | Eine Datei liegt im Verzeichnis, ohne dass ein Nachweis darauf verweist. |
+| Befund                  | Bedeutung                                                                |
+| ----------------------- | ------------------------------------------------------------------------ |
+| **Datei fehlt**         | Zum Eintrag gibt es keine Datei mehr.                                    |
+| **Prüfsumme weicht ab** | Die Datei ist da, ihr Inhalt hat sich verändert.                         |
+| **Datei nicht lesbar**  | Rechteproblem oder Datenträgerfehler.                                    |
+| **Datei ohne Eintrag**  | Eine Datei liegt im Verzeichnis, ohne dass ein Nachweis darauf verweist. |
 
 Die ersten drei mindern die **Beweiskraft** – sie gelten als Beanstandung. Eine
 Datei ohne Eintrag ist unordentlich, aber es fehlt kein Beleg und keiner wurde

@@ -23,12 +23,7 @@ function AnmeldeButton() {
 function SsoButton({ name }: { name: string }) {
   const { pending } = useFormStatus()
   return (
-    <Button
-      type="submit"
-      variant="outline"
-      className="w-full"
-      disabled={pending}
-    >
+    <Button type="submit" variant="outline" className="w-full" disabled={pending}>
       <KeyRound className="size-4" />
       {pending ? 'Weiterleitung …' : `Anmelden mit ${name}`}
     </Button>
@@ -80,7 +75,7 @@ export function LoginFormular({
         {status.fehler ? (
           <p
             role="alert"
-            className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+            className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
           >
             <AlertCircle className="mt-0.5 size-4 shrink-0" />
             {status.fehler}
@@ -93,10 +88,10 @@ export function LoginFormular({
       {ssoAktiv || passkeysMoeglich ? (
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border" />
+            <span className="border-border w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">oder</span>
+            <span className="bg-card text-muted-foreground px-2">oder</span>
           </div>
         </div>
       ) : null}

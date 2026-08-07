@@ -53,9 +53,7 @@ describe('istUnversehrt', () => {
 
 describe('schwerwiegendeBefunde', () => {
   it('zählt nur, was die Beweiskraft betrifft', () => {
-    expect(
-      schwerwiegendeBefunde({ fehlend: 2, abweichend: 3, unlesbar: 1 }),
-    ).toBe(6)
+    expect(schwerwiegendeBefunde({ fehlend: 2, abweichend: 3, unlesbar: 1 })).toBe(6)
   })
 })
 
@@ -72,9 +70,7 @@ describe('fasseLaufZusammen', () => {
   })
 
   it('nennt jede Art von Beanstandung', () => {
-    const text = fasseLaufZusammen(
-      lauf({ fehlend: 2, abweichend: 1, unlesbar: 3 }),
-    )
+    const text = fasseLaufZusammen(lauf({ fehlend: 2, abweichend: 1, unlesbar: 3 }))
     expect(text).toContain('2 fehlend')
     expect(text).toContain('1 verändert')
     expect(text).toContain('3 nicht lesbar')

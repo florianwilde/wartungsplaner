@@ -10,11 +10,7 @@
  */
 import net from 'node:net'
 
-import {
-  baueStrom,
-  werteAntwortAus,
-  type Pruefstatus,
-} from '@/lib/virenpruefung'
+import { baueStrom, werteAntwortAus, type Pruefstatus } from '@/lib/virenpruefung'
 
 /** Ist ein Prüfdienst hinterlegt? */
 export function istVirenpruefungEingerichtet(): boolean {
@@ -112,8 +108,7 @@ export async function pruefeVerbindung(): Promise<
     let erledigt = false
     const fertig = (
       ergebnis:
-        | { erreichbar: true; version: string }
-        | { erreichbar: false; grund: string },
+        { erreichbar: true; version: string } | { erreichbar: false; grund: string },
     ) => {
       if (erledigt) return
       erledigt = true

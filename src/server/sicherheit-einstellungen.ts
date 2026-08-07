@@ -35,10 +35,7 @@ export async function holeSicherheitsEinstellungen(): Promise<SicherheitsEinstel
 
 /** Basisadresse der Anwendung – entscheidet, ob Passkeys möglich sind. */
 export function appUrl(): string {
-  return (process.env.APP_URL?.trim() || 'http://localhost:3000').replace(
-    /\/+$/,
-    '',
-  )
+  return (process.env.APP_URL?.trim() || 'http://localhost:3000').replace(/\/+$/, '')
 }
 
 /**

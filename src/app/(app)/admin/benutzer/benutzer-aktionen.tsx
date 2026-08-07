@@ -45,7 +45,7 @@ function Fehlermeldung({ text }: { text?: string }) {
   return (
     <p
       role="alert"
-      className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+      className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
     >
       <AlertCircle className="mt-0.5 size-4 shrink-0" />
       {text}
@@ -54,9 +54,7 @@ function Fehlermeldung({ text }: { text?: string }) {
 }
 
 function RollenHinweis({ rolle }: { rolle: (typeof ROLLEN)[number] }) {
-  return (
-    <p className="text-xs text-muted-foreground">{ROLLEN_BESCHREIBUNG[rolle]}</p>
-  )
+  return <p className="text-muted-foreground text-xs">{ROLLEN_BESCHREIBUNG[rolle]}</p>
 }
 
 export function BenutzerAnlegenDialog() {
@@ -148,16 +146,16 @@ export function BenutzerAnlegenDialog() {
                   required
                   autoComplete="off"
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Mindestens {PASSWORT_MINDESTLAENGE} Zeichen aus drei der vier
                   Kategorien. Der Benutzer muss es beim ersten Login ändern.
                 </p>
               </div>
             ) : (
-              <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
-                Das Konto erhält kein lokales Passwort. Die Anmeldung erfolgt
-                über den Identity Provider; die Verknüpfung geschieht beim ersten
-                Login über die E-Mail-Adresse.
+              <p className="bg-muted text-muted-foreground rounded-md p-3 text-xs">
+                Das Konto erhält kein lokales Passwort. Die Anmeldung erfolgt über den
+                Identity Provider; die Verknüpfung geschieht beim ersten Login über die
+                E-Mail-Adresse.
               </p>
             )}
 
@@ -210,8 +208,8 @@ export function BenutzerBearbeitenDialog({
           <DialogHeader>
             <DialogTitle>Benutzer bearbeiten</DialogTitle>
             <DialogDescription>
-              Rollenänderungen wirken sofort, ohne dass sich der Benutzer neu
-              anmelden muss.
+              Rollenänderungen wirken sofort, ohne dass sich der Benutzer neu anmelden
+              muss.
             </DialogDescription>
           </DialogHeader>
 
@@ -297,8 +295,8 @@ export function PasswortZuruecksetzenDialog({
           <DialogHeader>
             <DialogTitle>Passwort zurücksetzen</DialogTitle>
             <DialogDescription>
-              Neues Startpasswort für {name}. Der Wechsel wird beim nächsten
-              Login erzwungen.
+              Neues Startpasswort für {name}. Der Wechsel wird beim nächsten Login
+              erzwungen.
             </DialogDescription>
           </DialogHeader>
 
@@ -315,9 +313,9 @@ export function PasswortZuruecksetzenDialog({
                 required
                 autoComplete="off"
               />
-              <p className="text-xs text-muted-foreground">
-                Übermitteln Sie das Passwort auf einem getrennten Weg, nicht per
-                E-Mail zusammen mit dem Benutzernamen.
+              <p className="text-muted-foreground text-xs">
+                Übermitteln Sie das Passwort auf einem getrennten Weg, nicht per E-Mail
+                zusammen mit dem Benutzernamen.
               </p>
             </div>
 

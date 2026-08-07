@@ -73,7 +73,7 @@ export function PasskeyAnmeldung({ weiter }: { weiter: string }) {
       {fehler ? (
         <p
           role="alert"
-          className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+          className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
           {fehler}

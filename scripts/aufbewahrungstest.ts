@@ -189,18 +189,12 @@ async function main() {
     meine.length === 1 && meine[0].storedPath === alt.relativ,
     'Nur der Nachweis jenseits seiner Frist gilt als fällig',
   )
-  pruefe(
-    meine[0]?.fristMonate === 12,
-    'Die Frist der Kategorie geht der Vorgabe vor',
-  )
+  pruefe(meine[0]?.fristMonate === 12, 'Die Frist der Kategorie geht der Vorgabe vor')
 
   // --- Vorschau fasst nichts an -------------------------------------------
   const vorschau = await fuehreAufbewahrungAus(benutzer.id, true, heute)
   pruefe(vorschau.entfernt >= 1, 'Die Vorschau nennt die fälligen Nachweise')
-  pruefe(
-    await existiert(alt.relativ),
-    'Nach der Vorschau ist die Datei noch da',
-  )
+  pruefe(await existiert(alt.relativ), 'Nach der Vorschau ist die Datei noch da')
   pruefe(
     (await prisma.attachment.findUnique({ where: { id: alt.anhangId } }))
       ?.archiviertAm === null,
@@ -221,10 +215,7 @@ async function main() {
     where: { id: alt.anhangId },
   })
   pruefe(eintrag !== null, 'Der Eintrag bleibt bestehen')
-  pruefe(
-    eintrag?.archiviertAm !== null,
-    'Er ist als entfernt gekennzeichnet',
-  )
+  pruefe(eintrag?.archiviertAm !== null, 'Er ist als entfernt gekennzeichnet')
   pruefe(
     eintrag?.sha256 === alt.sha256 && eintrag.filename === 'alt.txt',
     'Dateiname und Prüfsumme belegen weiterhin, was der Nachweis war',
@@ -233,30 +224,19 @@ async function main() {
   const durchfuehrungNochDa = await prisma.execution.findFirst({
     where: { attachments: { some: { id: alt.anhangId } } },
   })
-  pruefe(
-    durchfuehrungNochDa !== null,
-    'Die Durchführung bleibt vollständig erhalten',
-  )
+  pruefe(durchfuehrungNochDa !== null, 'Die Durchführung bleibt vollständig erhalten')
 
   // --- Kein zweites Entfernen ---------------------------------------------
   const nochmal = await fuehreAufbewahrungAus(benutzer.id, false, heute)
   const nochmalMeine = (await ermittleFaellige(heute)).faellig.filter((f) =>
     f.storedPath.startsWith(`${TESTORDNER}/`),
   )
-  pruefe(
-    nochmalMeine.length === 0,
-    'Ein zweiter Lauf findet nichts mehr zu entfernen',
-  )
-  pruefe(
-    nochmal.fehlgeschlagen === 0,
-    'Und meldet keine Fehlschläge',
-  )
+  pruefe(nochmalMeine.length === 0, 'Ein zweiter Lauf findet nichts mehr zu entfernen')
+  pruefe(nochmal.fehlgeschlagen === 0, 'Und meldet keine Fehlschläge')
 
   // --- Zusammenspiel mit dem Prüfsummenlauf --------------------------------
   const integritaet = await pruefeNachweise()
-  const beanstandet = integritaet.befunde.filter(
-    (b) => b.pfad === alt.relativ,
-  )
+  const beanstandet = integritaet.befunde.filter((b) => b.pfad === alt.relativ)
   pruefe(
     beanstandet.length === 0,
     'Der Prüfsummenlauf meldet den entfernten Nachweis weder als fehlend noch als verwaist',

@@ -62,8 +62,7 @@ function holeTransport(): Transporter {
 }
 
 export type VersandErgebnis =
-  | { erfolg: true; messageId: string }
-  | { erfolg: false; fehler: string }
+  { erfolg: true; messageId: string } | { erfolg: false; fehler: string }
 
 /**
  * Versendet eine Nachricht. Fehler werden zurückgegeben statt geworfen, damit

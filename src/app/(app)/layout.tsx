@@ -1,8 +1,5 @@
 import { BenutzerMenue } from '@/components/benutzer-menue'
-import {
-  Hauptnavigation,
-  type NavigationsEintrag,
-} from '@/components/hauptnavigation'
+import { Hauptnavigation, type NavigationsEintrag } from '@/components/hauptnavigation'
 import { MarkenzeichenKompakt } from '@/components/markenzeichen'
 import { ROLLEN_BEZEICHNUNG, canAdminister } from '@/lib/rbac'
 import { erforderlicherBenutzer } from '@/lib/session'
@@ -18,11 +15,7 @@ const GRUNDNAVIGATION: NavigationsEintrag[] = [
   { href: '/reports', label: 'Reports', icon: 'reports' },
 ]
 
-export default async function AppLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const benutzer = await erforderlicherBenutzer()
   const branding = await holeBranding()
 
@@ -49,13 +42,13 @@ export default async function AppLayout({
         {children}
       </main>
 
-      <footer className="kein-druck border-t border-border py-4">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-2 px-4 text-xs text-muted-foreground sm:px-6">
+      <footer className="kein-druck border-border border-t py-4">
+        <div className="text-muted-foreground mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-2 px-4 text-xs sm:px-6">
           <span>
             {branding.appName}
             {branding.organisation ? ` · ${branding.organisation}` : ''} – interne
-            Anwendung zur Nachweisführung wiederkehrender IT-Prüfungen. Alle
-            Zeitangaben in Europe/Berlin.
+            Anwendung zur Nachweisführung wiederkehrender IT-Prüfungen. Alle Zeitangaben
+            in Europe/Berlin.
           </span>
           <span className="tabular-nums">{versionKurz()}</span>
         </div>

@@ -30,16 +30,16 @@ Geschützt wird vorrangig gegen:
 
 ### Authentifizierung
 
-| Maßnahme | Umsetzung |
-| --- | --- |
-| Passwortspeicherung | bcrypt mit Kostenfaktor 12 |
-| Passwortstärke | mindestens 12 Zeichen aus drei von vier Zeichenklassen |
-| Erzwungener Wechsel | beim ersten Login und nach jedem Zurücksetzen |
-| Benutzerauskunft vermeiden | einheitliche Fehlermeldung, unabhängig davon, ob das Konto existiert |
-| Zeitangriffe | auch bei unbekannter E-Mail wird ein Hash-Vergleich durchgeführt, damit die Antwortzeit gleich bleibt |
-| Erraten von Passwörtern | nach 5 Fehlversuchen je Konto **und** Netzwerkadresse eine Sperre von 15 Minuten; gleitendes Zeitfenster von 15 Minuten |
-| Deaktivierte Konten | wirken sofort – Rolle und Status werden bei jeder Anfrage frisch aus der Datenbank gelesen |
-| SSO | optionaler OIDC-Provider; neue Konten erhalten die niedrigste Rolle (Auditor) |
+| Maßnahme                   | Umsetzung                                                                                                               |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Passwortspeicherung        | bcrypt mit Kostenfaktor 12                                                                                              |
+| Passwortstärke             | mindestens 12 Zeichen aus drei von vier Zeichenklassen                                                                  |
+| Erzwungener Wechsel        | beim ersten Login und nach jedem Zurücksetzen                                                                           |
+| Benutzerauskunft vermeiden | einheitliche Fehlermeldung, unabhängig davon, ob das Konto existiert                                                    |
+| Zeitangriffe               | auch bei unbekannter E-Mail wird ein Hash-Vergleich durchgeführt, damit die Antwortzeit gleich bleibt                   |
+| Erraten von Passwörtern    | nach 5 Fehlversuchen je Konto **und** Netzwerkadresse eine Sperre von 15 Minuten; gleitendes Zeitfenster von 15 Minuten |
+| Deaktivierte Konten        | wirken sofort – Rolle und Status werden bei jeder Anfrage frisch aus der Datenbank gelesen                              |
+| SSO                        | optionaler OIDC-Provider; neue Konten erhalten die niedrigste Rolle (Auditor)                                           |
 
 ### Sitzungen
 
@@ -106,14 +106,14 @@ als bei Skripten.
 
 ### Dateien
 
-| Bereich | Maßnahme |
-| --- | --- |
-| Nachweise | Positivliste der Endungen (pdf, png, jpg, txt, log, csv, xlsx, docx), höchstens 25 MB; Größe wird nach dem Einlesen erneut geprüft, nicht nur anhand der Client-Angabe |
-| Logos | Positivliste (svg, png, jpg, webp, ico), höchstens 2 MB |
-| Speicherpfade | generierte Namen (UUID); der Anzeigename wird nur für den Download verwendet |
-| Path Traversal | `absoluterPfad()` löst auf und weist alles ab, was das Upload-Verzeichnis verlässt |
-| Auslieferung | ausschließlich über die Anwendung, mit `Content-Disposition: attachment`, `nosniff` und Protokollierung jedes Abrufs |
-| Hochgeladene SVG | werden mit `Content-Security-Policy: sandbox` ausgeliefert und stets über `<img>` eingebunden – Skripte darin werden nicht ausgeführt |
+| Bereich          | Maßnahme                                                                                                                                                               |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nachweise        | Positivliste der Endungen (pdf, png, jpg, txt, log, csv, xlsx, docx), höchstens 25 MB; Größe wird nach dem Einlesen erneut geprüft, nicht nur anhand der Client-Angabe |
+| Logos            | Positivliste (svg, png, jpg, webp, ico), höchstens 2 MB                                                                                                                |
+| Speicherpfade    | generierte Namen (UUID); der Anzeigename wird nur für den Download verwendet                                                                                           |
+| Path Traversal   | `absoluterPfad()` löst auf und weist alles ab, was das Upload-Verzeichnis verlässt                                                                                     |
+| Auslieferung     | ausschließlich über die Anwendung, mit `Content-Disposition: attachment`, `nosniff` und Protokollierung jedes Abrufs                                                   |
+| Hochgeladene SVG | werden mit `Content-Security-Policy: sandbox` ausgeliefert und stets über `<img>` eingebunden – Skripte darin werden nicht ausgeführt                                  |
 
 ### E-Mail
 
@@ -151,14 +151,14 @@ als bei Skripten.
 
 Behoben:
 
-| Befund | Bewertung | Behebung |
-| --- | --- | --- |
-| Keine Begrenzung der Anmeldeversuche | **hoch** – Passwörter waren unbegrenzt oft ratbar | Sperre nach 5 Fehlversuchen je Konto und Adresse |
-| Keine Schutz-Header, keine CSP | **mittel** – XSS und Clickjacking wären ungebremst | Nonce-basierte CSP und weitere Header über den Proxy |
-| Server Actions ohne `allowedOrigins` | **mittel** – hinter einem Reverse Proxy hätte die Origin-Prüfung fehlschlagen oder umgangen werden können | Ursprünge aus `APP_URL`/`AUTH_URL` abgeleitet |
-| Sitzungs-Cookie ohne `Secure`-Zwang | **mittel** – bei intern unverschlüsseltem Proxy fehlte das Kennzeichen | aus `AUTH_URL` abgeleitet, inkl. `__Secure-`-Präfix |
-| Betreffzeilen ungefiltert | **niedrig** – Header Injection über den Anwendungsnamen; nur für Administratoren erreichbar | `einzeilig()` auf allen Betreffzeilen |
-| `/api/branding` hinter der Anmeldung | **niedrig** – Logo auf der Anmeldeseite nicht ladbar | Pfad vom Anmeldezwang ausgenommen |
+| Befund                               | Bewertung                                                                                                 | Behebung                                             |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Keine Begrenzung der Anmeldeversuche | **hoch** – Passwörter waren unbegrenzt oft ratbar                                                         | Sperre nach 5 Fehlversuchen je Konto und Adresse     |
+| Keine Schutz-Header, keine CSP       | **mittel** – XSS und Clickjacking wären ungebremst                                                        | Nonce-basierte CSP und weitere Header über den Proxy |
+| Server Actions ohne `allowedOrigins` | **mittel** – hinter einem Reverse Proxy hätte die Origin-Prüfung fehlschlagen oder umgangen werden können | Ursprünge aus `APP_URL`/`AUTH_URL` abgeleitet        |
+| Sitzungs-Cookie ohne `Secure`-Zwang  | **mittel** – bei intern unverschlüsseltem Proxy fehlte das Kennzeichen                                    | aus `AUTH_URL` abgeleitet, inkl. `__Secure-`-Präfix  |
+| Betreffzeilen ungefiltert            | **niedrig** – Header Injection über den Anwendungsnamen; nur für Administratoren erreichbar               | `einzeilig()` auf allen Betreffzeilen                |
+| `/api/branding` hinter der Anmeldung | **niedrig** – Logo auf der Anmeldeseite nicht ladbar                                                      | Pfad vom Anmeldezwang ausgenommen                    |
 
 Geprüft und für unbedenklich befunden: SQL-Injection, Path Traversal,
 offene Weiterleitungen, Benutzerauskunft bei der Anmeldung, Rechteprüfung in
@@ -196,19 +196,19 @@ Ausnahme.
 
 ### Der Ausnahmeweg
 
-*Aufgaben → markieren → „Mit Nachweisen löschen"* entfernt eine Aufgabe
+_Aufgaben → markieren → „Mit Nachweisen löschen"_ entfernt eine Aufgabe
 samt Fälligkeiten, Durchführungen, Nachweisdateien, Abweichungen und
 Prüfbögen.
 
 Bedingungen:
 
-| | |
-| --- | --- |
-| **Rolle** | nur Administratoren – das Verwalten von Aufgaben genügt nicht |
-| **Begründung** | Pflichtfeld, mindestens 15 Zeichen |
-| **Bestätigung** | das Wort `LOESCHEN` muss abgetippt werden |
-| **Umfang** | wird vor der Bestätigung angezeigt, frisch aus der Datenbank ermittelt |
-| **Höchstzahl** | 200 Aufgaben je Vorgang |
+|                 |                                                                        |
+| --------------- | ---------------------------------------------------------------------- |
+| **Rolle**       | nur Administratoren – das Verwalten von Aufgaben genügt nicht          |
+| **Begründung**  | Pflichtfeld, mindestens 15 Zeichen                                     |
+| **Bestätigung** | das Wort `LOESCHEN` muss abgetippt werden                              |
+| **Umfang**      | wird vor der Bestätigung angezeigt, frisch aus der Datenbank ermittelt |
+| **Höchstzahl**  | 200 Aufgaben je Vorgang                                                |
 
 ### Warum kein dauerhafter Modus
 
@@ -263,11 +263,11 @@ npm audit --omit=dev
 In `package.json` stehen unter `overrides` drei Pakete, die tiefer im Baum
 liegen und dort in verwundbaren Fassungen gezogen würden:
 
-| Paket | Erzwungen | Grund |
-| --- | --- | --- |
+| Paket     | Erzwungen | Grund                                                                                          |
+| --------- | --------- | ---------------------------------------------------------------------------------------------- |
 | `postcss` | `^8.5.25` | Next.js bringt intern 8.4.31 mit; drei Meldungen, u. a. Pfaddurchgriff über `sourceMappingURL` |
-| `sharp` | `^0.35.3` | CVEs in libvips |
-| `uuid` | `^11.1.1` | fehlende Bereichsprüfung; kommt über `exceljs` |
+| `sharp`   | `^0.35.3` | CVEs in libvips                                                                                |
+| `uuid`    | `^11.1.1` | fehlende Bereichsprüfung; kommt über `exceljs`                                                 |
 
 Nach jeder Änderung an diesen Fassungen gehört `npm run test:ausgabe`
 ausgeführt: Ein Eingriff in `exceljs` oder `archiver` fällt weder bei der
@@ -279,10 +279,10 @@ Zwei Meldungen bleiben bestehen. Beide sind in dieser Anwendung nicht
 auslösbar – das ist eine Einschätzung, keine Entwarnung, und sie gehört bei
 jedem Update erneut geprüft:
 
-| Meldung | Weg hierher | Einschätzung |
-| --- | --- | --- |
-| `brace-expansion` – Speicherüberlauf durch unbegrenzte Expansion | `exceljs` → `archiver` → `glob` → `minimatch` | **Nicht erreichbar.** `archiver` wird ausschließlich mit `.append()` verwendet, nie mit Glob-Mustern (siehe `src/server/reports/archiv.ts`). Muster kämen ohnehin nie von außen. Behoben ist die Meldung erst ab 5.0.8; die Fassung erzwingen hieße, eine andere Hauptfassung in `minimatch` 3 zu schieben |
-| `nodemailer` – `raw` umgeht `disableFileAccess`/`disableUrlAccess` | direkt | **Nicht erreichbar.** Nachrichten werden ausschließlich aus `from`, `to`, `subject`, `text` und `html` gebaut; die Option `raw` wird nirgends verwendet, Anhänge gibt es nicht. Die behobene Fassung 9.x lässt sich nicht einsetzen, ohne `npm ci` zu brechen: `next-auth` verlangt als Peer `^7 \|\| ^8` |
+| Meldung                                                            | Weg hierher                                   | Einschätzung                                                                                                                                                                                                                                                                                               |
+| ------------------------------------------------------------------ | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `brace-expansion` – Speicherüberlauf durch unbegrenzte Expansion   | `exceljs` → `archiver` → `glob` → `minimatch` | **Nicht erreichbar.** `archiver` wird ausschließlich mit `.append()` verwendet, nie mit Glob-Mustern (siehe `src/server/reports/archiv.ts`). Muster kämen ohnehin nie von außen. Behoben ist die Meldung erst ab 5.0.8; die Fassung erzwingen hieße, eine andere Hauptfassung in `minimatch` 3 zu schieben |
+| `nodemailer` – `raw` umgeht `disableFileAccess`/`disableUrlAccess` | direkt                                        | **Nicht erreichbar.** Nachrichten werden ausschließlich aus `from`, `to`, `subject`, `text` und `html` gebaut; die Option `raw` wird nirgends verwendet, Anhänge gibt es nicht. Die behobene Fassung 9.x lässt sich nicht einsetzen, ohne `npm ci` zu brechen: `next-auth` verlangt als Peer `^7 \|\| ^8`  |
 
 ### Anmeldung auf einer Vorabfassung
 
@@ -303,7 +303,7 @@ Vermutete Schwachstellen bitte **nicht** als öffentliches Issue erfassen.
 
 - **Im Betrieb einer Installation:** an die dortige IT-Leitung.
 - **Am Projekt selbst:** über die private Meldefunktion von GitHub
-  („Report a vulnerability" im Reiter *Security*).
+  („Report a vulnerability" im Reiter _Security_).
 
 Bitte geben Sie an, was Sie beobachtet haben und wie es sich nachstellen
 lässt. Eine Rückmeldung erfolgt, sobald der Sachverhalt eingeschätzt ist;

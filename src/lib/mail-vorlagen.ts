@@ -76,11 +76,7 @@ export function fristText(stichtag: Date, ziel: Date): string {
 }
 
 /** Grammatikalisch korrekte Mengenangabe. */
-export function anzahlText(
-  anzahl: number,
-  einzahl: string,
-  mehrzahl: string,
-): string {
+export function anzahlText(anzahl: number, einzahl: string, mehrzahl: string): string {
   return `${anzahl} ${anzahl === 1 ? einzahl : mehrzahl}`
 }
 
@@ -170,7 +166,8 @@ export function baueAufgabenMail(
   const ueberfaellige = eintraege.filter((e) => e.ueberfaellig)
   const anstehende = eintraege.filter((e) => !e.ueberfaellig)
 
-  const betreff = ueberfaellige.length > 0
+  const betreff =
+    ueberfaellige.length > 0
       ? `[${rahmen.anwendung}] ${anzahlText(ueberfaellige.length, 'überfällige Prüfung', 'überfällige Prüfungen')}`
       : `[${rahmen.anwendung}] ${anzahlText(anstehende.length, 'anstehende Prüfung', 'anstehende Prüfungen')}`
 
@@ -274,7 +271,8 @@ export function baueAbweichungsMail(
   const ueberschritten = eintraege.filter((e) => e.fristUeberschritten)
   const hinweis = vertretungsHinweis(vertreteneNamen)
 
-  const betreff = ueberschritten.length > 0
+  const betreff =
+    ueberschritten.length > 0
       ? `[${rahmen.anwendung}] ${anzahlText(ueberschritten.length, 'Abweichung', 'Abweichungen')} mit überschrittener Frist`
       : `[${rahmen.anwendung}] ${anzahlText(eintraege.length, 'Abweichung', 'Abweichungen')} mit näher rückender Frist`
 
@@ -335,7 +333,11 @@ export function baueAbweichungsMail(
         )
         .join(''),
       '</table>',
-      htmlSchaltflaeche(`${rahmen.appUrl}/findings`, 'Abweichungen öffnen', rahmen.markenfarbe),
+      htmlSchaltflaeche(
+        `${rahmen.appUrl}/findings`,
+        'Abweichungen öffnen',
+        rahmen.markenfarbe,
+      ),
     ].join(''),
   )
 
@@ -443,7 +445,11 @@ export function baueGegenzeichnungsMail(
       '<p style="margin:16px 0 0;font-size:13px;color:#6b7280;">',
       'Gegenzeichnen kann nur, wer den Nachweis nicht selbst erfasst hat.',
       '</p>',
-      htmlSchaltflaeche(`${rahmen.appUrl}/nachweise`, 'Nachweise öffnen', rahmen.markenfarbe),
+      htmlSchaltflaeche(
+        `${rahmen.appUrl}/nachweise`,
+        'Nachweise öffnen',
+        rahmen.markenfarbe,
+      ),
     ].join(''),
   )
 
@@ -637,7 +643,11 @@ export function baueEskalationsMail(
     )
   }
 
-  textZeilen.push(`Übersicht: ${rahmen.appUrl}`, '', 'Diese Nachricht wurde automatisch erzeugt.')
+  textZeilen.push(
+    `Übersicht: ${rahmen.appUrl}`,
+    '',
+    'Diese Nachricht wurde automatisch erzeugt.',
+  )
 
   const html = htmlRahmen(
     rahmen,
@@ -724,7 +734,11 @@ export function baueWochenuebersichtMail(
     }
   }
 
-  textZeilen.push(`Übersicht: ${rahmen.appUrl}`, '', 'Diese Nachricht wurde automatisch erzeugt.')
+  textZeilen.push(
+    `Übersicht: ${rahmen.appUrl}`,
+    '',
+    'Diese Nachricht wurde automatisch erzeugt.',
+  )
 
   const liste = (titel: string, zeilen: string[]) =>
     zeilen.length === 0

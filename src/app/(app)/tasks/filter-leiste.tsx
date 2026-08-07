@@ -46,10 +46,10 @@ export function FilterLeiste({
   const hatFilter = [...params.keys()].length > 0
 
   return (
-    <div className="kein-druck flex flex-wrap items-end gap-3 rounded-lg border border-border bg-card p-3">
+    <div className="kein-druck border-border bg-card flex flex-wrap items-end gap-3 rounded-lg border p-3">
       {suchfeld ? (
         <div className="min-w-56 flex-1 space-y-1.5">
-          <Label htmlFor="filter-suche" className="text-xs text-muted-foreground">
+          <Label htmlFor="filter-suche" className="text-muted-foreground text-xs">
             Suche
           </Label>
           <Input
@@ -65,7 +65,7 @@ export function FilterLeiste({
         <div key={feld.name} className="min-w-44 space-y-1.5">
           <Label
             htmlFor={`filter-${feld.name}`}
-            className="text-xs text-muted-foreground"
+            className="text-muted-foreground text-xs"
           >
             {feld.label}
           </Label>
@@ -73,7 +73,7 @@ export function FilterLeiste({
             id={`filter-${feld.name}`}
             value={params.get(feld.name) ?? 'alle'}
             onChange={(e) => setze(feld.name, e.target.value)}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm focus-visible:ring-2 focus-visible:outline-none"
           >
             {feld.optionen.map((option) => (
               <option key={option.wert} value={option.wert}>

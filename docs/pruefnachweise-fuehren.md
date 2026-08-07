@@ -26,7 +26,7 @@ fest – ein umfangreiches Review muss nicht in einem Zug fertig werden.
 Pflichtpunkte sind mit `*` gekennzeichnet. Der Kopf der Karte zeigt jederzeit,
 wie viele Punkte beantwortet sind und welche noch fehlen.
 
-Bei einer Feststellung – *nicht erfüllt*, *entziehen*, *ändern* – gehört die
+Bei einer Feststellung – _nicht erfüllt_, _entziehen_, _ändern_ – gehört die
 **Maßnahme** in das Bemerkungsfeld. Sie steht später im PDF und im
 Nachweisregister.
 
@@ -60,7 +60,7 @@ entschieden sind. Eine leere Liste belegt nichts.
 
 ## Belege beifügen
 
-Der Prüfbogen hält fest, *was* geprüft wurde – der Beleg zeigt, *woran*.
+Der Prüfbogen hält fest, _was_ geprüft wurde – der Beleg zeigt, _woran_.
 Unter **Belege** laden Sie die tatsächlichen Nachweise aus den geprüften
 Systemen hoch: AD-Export, Screenshot, Herstellerprotokoll, Sicherungsbericht.
 

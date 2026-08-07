@@ -14,10 +14,7 @@ import {
   fuehreAufbewahrungAus,
   holeAufbewahrungsEinstellungen,
 } from '@/server/aufbewahrung'
-import {
-  fasseLaufZusammen,
-  fuehreIntegritaetslaufAus,
-} from '@/server/integritaet'
+import { fasseLaufZusammen, fuehreIntegritaetslaufAus } from '@/server/integritaet'
 
 const STANDARD_ZEITPLAN = '15 2 * * *'
 // Benachrichtigungen bewusst später am Morgen: Der Abgleich soll vorher
@@ -36,9 +33,7 @@ const globalForCron = globalThis as unknown as {
 }
 
 /** Führt den Tagesabgleich aus und verhindert überlappende Läufe. */
-export async function starteTagesabgleich(
-  ausgeloestVon: string | null = null,
-) {
+export async function starteTagesabgleich(ausgeloestVon: string | null = null) {
   if (globalForCron.wartungsplanerCronLaeuft) {
     console.warn('Tagesabgleich läuft bereits – Aufruf wird übersprungen.')
     return null
@@ -65,9 +60,7 @@ export async function starteTagesabgleich(
  * Fehler werden protokolliert, aber nicht weitergereicht – der Versand darf
  * den Betrieb nicht stören.
  */
-export async function starteBenachrichtigungen(
-  ausgeloestVon: string | null = null,
-) {
+export async function starteBenachrichtigungen(ausgeloestVon: string | null = null) {
   if (globalForCron.wartungsplanerMailLaeuft) {
     console.warn('Benachrichtigungslauf läuft bereits – Aufruf wird übersprungen.')
     return null
@@ -100,9 +93,7 @@ export async function starteBenachrichtigungen(
  * Abgleich ist für den Betrieb wichtig, die Integritätsprüfung für die
  * Beweiskraft – beides soll unabhängig voneinander gelingen können.
  */
-export async function starteIntegritaetslauf(
-  ausgeloestVon: string | null = null,
-) {
+export async function starteIntegritaetslauf(ausgeloestVon: string | null = null) {
   if (globalForCron.wartungsplanerIntegritaetLaeuft) {
     console.warn('Integritätslauf läuft bereits – Aufruf wird übersprungen.')
     return null
@@ -193,7 +184,10 @@ export function registriereTaeglichenJob(): void {
               // Zuletzt: Erst prüfen, dann entfernen – so erfasst der
               // Integritätslauf den Bestand, wie er vor dem Aufräumen war.
               void starteAufbewahrung(null).catch((error) => {
-                console.error('[Wartungsplaner] Aufbewahrungslauf fehlgeschlagen:', error)
+                console.error(
+                  '[Wartungsplaner] Aufbewahrungslauf fehlgeschlagen:',
+                  error,
+                )
               })
             })
         })
@@ -212,17 +206,14 @@ export function registriereTaeglichenJob(): void {
 function registriereBenachrichtigungsJob(): void {
   if (globalForCron.wartungsplanerMailCron) return
 
-  const zeitplan =
-    process.env.MAIL_CRON_SCHEDULE?.trim() || STANDARD_MAIL_ZEITPLAN
+  const zeitplan = process.env.MAIL_CRON_SCHEDULE?.trim() || STANDARD_MAIL_ZEITPLAN
 
   if (!cron.validate(zeitplan)) {
     console.error(
       `[Wartungsplaner] Ungültiger MAIL_CRON_SCHEDULE "${zeitplan}" – es wird "${STANDARD_MAIL_ZEITPLAN}" verwendet.`,
     )
   }
-  const gueltigerZeitplan = cron.validate(zeitplan)
-    ? zeitplan
-    : STANDARD_MAIL_ZEITPLAN
+  const gueltigerZeitplan = cron.validate(zeitplan) ? zeitplan : STANDARD_MAIL_ZEITPLAN
 
   globalForCron.wartungsplanerMailCron = cron.schedule(
     gueltigerZeitplan,

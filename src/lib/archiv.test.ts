@@ -93,10 +93,7 @@ describe('macheEindeutig', () => {
   })
 
   it('hängt an, wenn es keine Endung gibt', () => {
-    expect(macheEindeutig(['a/liste', 'a/liste'])).toEqual([
-      'a/liste',
-      'a/liste (2)',
-    ])
+    expect(macheEindeutig(['a/liste', 'a/liste'])).toEqual(['a/liste', 'a/liste (2)'])
   })
 
   it('verwechselt einen Punkt im Ordnernamen nicht mit einer Endung', () => {

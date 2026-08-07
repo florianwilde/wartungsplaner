@@ -47,9 +47,7 @@ describe('pruefeSammelloeschung', () => {
   })
 
   it('benennt die blockierenden Einträge samt Anzahl', () => {
-    const ergebnis = pruefeSammelloeschung([
-      belegt('a', 3, 'Restore-Test ERP'),
-    ])
+    const ergebnis = pruefeSammelloeschung([belegt('a', 3, 'Restore-Test ERP')])
     expect(ergebnis.ok).toBe(false)
     if (!ergebnis.ok) {
       expect(ergebnis.fehler).toContain('Restore-Test ERP')
@@ -96,7 +94,6 @@ describe('fasseErgebnisZusammen', () => {
     )
   })
 })
-
 
 describe('pruefeErzwingen', () => {
   const eingabe = (teil: Partial<Parameters<typeof pruefeErzwingen>[0]> = {}) => ({

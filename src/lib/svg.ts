@@ -38,7 +38,12 @@ export function ermittleSvgGroesse(quelltext: string): Groesse {
     if (teile.length === 4) {
       const breite = Number.parseFloat(teile[2])
       const hoehe = Number.parseFloat(teile[3])
-      if (Number.isFinite(breite) && Number.isFinite(hoehe) && breite > 0 && hoehe > 0) {
+      if (
+        Number.isFinite(breite) &&
+        Number.isFinite(hoehe) &&
+        breite > 0 &&
+        hoehe > 0
+      ) {
         return { breite, hoehe }
       }
     }

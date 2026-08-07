@@ -5,15 +5,15 @@
 Unter **Administration → Erscheinungsbild** passt sich die Anwendung an das
 Erscheinungsbild des Unternehmens an – ohne Eingriff in den Quellcode.
 
-| Einstellung | Wirkt sich aus auf |
-| --- | --- |
-| **Anwendungsname** | Titelzeile, Berichte, Betreff der Nachrichten |
-| **Organisation** | Kopf der Berichte, Fußzeile der Nachrichten |
-| **Primärfarbe** | Bedienelemente, Kennzeichen, Kopfzeile der Berichte |
-| **Logo** | Kopfzeile und Anmeldeseite; PDF-Berichte bei PNG und JPG |
-| **Logo für dunklen Hintergrund** | Wird im dunklen Farbschema verwendet |
-| **Favicon** | Symbol im Browsertab |
-| **Fußzeile der Berichte** | Freitext unter jeder Berichtsseite |
+| Einstellung                      | Wirkt sich aus auf                                       |
+| -------------------------------- | -------------------------------------------------------- |
+| **Anwendungsname**               | Titelzeile, Berichte, Betreff der Nachrichten            |
+| **Organisation**                 | Kopf der Berichte, Fußzeile der Nachrichten              |
+| **Primärfarbe**                  | Bedienelemente, Kennzeichen, Kopfzeile der Berichte      |
+| **Logo**                         | Kopfzeile und Anmeldeseite; PDF-Berichte bei PNG und JPG |
+| **Logo für dunklen Hintergrund** | Wird im dunklen Farbschema verwendet                     |
+| **Favicon**                      | Symbol im Browsertab                                     |
+| **Fußzeile der Berichte**        | Freitext unter jeder Berichtsseite                       |
 
 ## Farben
 

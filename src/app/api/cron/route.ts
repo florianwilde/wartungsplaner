@@ -48,8 +48,7 @@ export async function POST(request: NextRequest) {
   if (!['abgleich', 'mail', 'integritaet', 'alles'].includes(aufgabe)) {
     return NextResponse.json(
       {
-        fehler:
-          'Unbekannte Aufgabe. Erlaubt: abgleich, mail, integritaet, alles.',
+        fehler: 'Unbekannte Aufgabe. Erlaubt: abgleich, mail, integritaet, alles.',
       },
       { status: 400 },
     )

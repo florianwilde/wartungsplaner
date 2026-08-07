@@ -61,7 +61,8 @@ export async function GET(
       // Hochgeladene SVG-Dateien könnten Skripte enthalten. Beim Einbinden per
       // <img> werden diese ohnehin nicht ausgeführt; die Sandbox verhindert es
       // zusätzlich beim direkten Aufruf der URL.
-      'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+      'Content-Security-Policy':
+        "default-src 'none'; style-src 'unsafe-inline'; sandbox",
     },
   })
 }

@@ -17,11 +17,7 @@ import { Readable } from 'node:stream'
 
 import archiver from 'archiver'
 
-import {
-  BOM,
-  TRENNZEICHEN,
-  maskiereCsvFeld,
-} from '@/lib/csv'
+import { BOM, TRENNZEICHEN, maskiereCsvFeld } from '@/lib/csv'
 import { formatDate, formatDateTime, toISODate } from '@/lib/dates'
 import {
   INHALT_SPALTEN,

@@ -53,9 +53,7 @@ test('protokolliert eine Durchführung mit Abweichung', async ({ page }) => {
     .getByPlaceholder('Feststellung und geplante Maßnahme')
     .fill('Mit dem Fachbereich klären oder entfernen.')
 
-  await dialog
-    .getByRole('button', { name: 'Durchführung protokollieren' })
-    .click()
+  await dialog.getByRole('button', { name: 'Durchführung protokollieren' }).click()
 
   // Der Dialog schließt erst, wenn der Server bestätigt hat.
   await expect(dialog).toBeHidden()
@@ -90,9 +88,7 @@ test('protokolliert eine Durchführung mit Abweichung', async ({ page }) => {
 
   // Die Abweichung erscheint in der Liste.
   await page.goto('/findings')
-  await expect(
-    page.getByText(`${PRAEFIX}Regel 42 ohne Begründung`),
-  ).toBeVisible()
+  await expect(page.getByText(`${PRAEFIX}Regel 42 ohne Begründung`)).toBeVisible()
 })
 
 test('besteht auf einer Abweichung, wenn das Ergebnis eine verlangt', async ({
@@ -108,9 +104,7 @@ test('besteht auf einer Abweichung, wenn das Ergebnis eine verlangt', async ({
   await page.getByRole('button', { name: 'Erledigen' }).first().click()
   const dialog = page.getByRole('dialog')
   await dialog.getByLabel('Ergebnis', { exact: true }).selectOption('DEVIATION')
-  await dialog
-    .getByRole('button', { name: 'Durchführung protokollieren' })
-    .click()
+  await dialog.getByRole('button', { name: 'Durchführung protokollieren' }).click()
 
   await expect(dialog.getByRole('alert')).toBeVisible()
   expect(
@@ -134,9 +128,7 @@ test('verlangt einen Nachweis, wo er vorgeschrieben ist', async ({ page }) => {
   // Das Feld ist als verpflichtend gekennzeichnet, und der Browser lässt das
   // Formular ohne Datei nicht abschicken.
   await expect(dialog.getByText('(verpflichtend)')).toBeVisible()
-  await dialog
-    .getByRole('button', { name: 'Durchführung protokollieren' })
-    .click()
+  await dialog.getByRole('button', { name: 'Durchführung protokollieren' }).click()
 
   expect(
     await prisma.execution.count({

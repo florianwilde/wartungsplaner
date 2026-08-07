@@ -10,11 +10,7 @@ declare module 'svg-to-pdfkit' {
     height?: number
     preserveAspectRatio?: string
     /** Liefert den Namen der Schrift, die für Text im SVG genutzt wird. */
-    fontCallback?: (
-      familie: string,
-      fett: boolean,
-      kursiv: boolean,
-    ) => string
+    fontCallback?: (familie: string, fett: boolean, kursiv: boolean) => string
     /** Längen ohne Einheit als Punkt statt Pixel auffassen. */
     assumePt?: boolean
   }

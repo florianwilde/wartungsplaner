@@ -12,25 +12,25 @@ Umgesetzte Fassungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
 
 ## Umgesetzt
 
-| Fassung | Inhalt |
-| --- | --- |
-| ✅ **1.0.0** | Grundfunktion: Datenmodell, Anmeldung mit Rollen und optionalem SSO, Fälligkeitslogik, Erledigen-Vorgang mit Nachweisen, Abweichungen, Dashboard, Kalender, vier Reports, Administrationsbereich, revisionssicheres Audit-Log, Docker-Stack |
-| ✅ **1.1.0** | Corporate Design, konfigurierbares Erscheinungsbild, Versionierung mit Änderungsverlauf, Update-Skript |
-| ✅ **1.2.0** | E-Mail-Benachrichtigungen, Sicherheitshärtung (CSP, CSRF, Brute-Force-Schutz), Roadmap und Sicherheitsdokumentation |
-| ✅ **1.3.0** | Import und Export von Kategorien, Aufgaben und Benutzern mit Vorschau |
-| ✅ **1.3.5** | Dunkles Farbschema mit Umschalter und Systemvorgabe |
-| ✅ **1.4.0** | Anmeldung mit Passkeys (WebAuthn), Kontoseite, Zurücksetzen durch die Administration |
-| ✅ **1.5.0** | Anpassbare PDF-Vorlagen und wählbarer Zeitraum auf dem Dashboard |
-| ✅ **1.6.0** | Nachweismodul für Reviews und Regelprüfungen mit Vier-Augen-Prinzip |
-| ✅ **1.7.0** | Belege am Prüfbogen: AD-Exporte, Screenshots und Protokolle mit Prüfsumme |
-| ✅ **1.8.0** | Prüfvorgang zu Ende geführt: Benachrichtigung zur Gegenzeichnung, Feststellungen als Abweichungen, Zeilenlisten, Nachweisregister |
-| ✅ **1.9.0** | Nachweise belastbar aufbewahren: Prüfsummenlauf, Archiv-Export, Aufbewahrungsfristen, Passkey-Pflicht, Virenprüfung; dazu Audit-Referenzen als Stammdaten und ein Handbuch |
-| ✅ **1.10.0** | Alltagstauglichkeit: Vertretung bei Abwesenheit, Belege aus der Zwischenablage, Aufgaben duplizieren, Kalender-Abonnement, SVG-Logo im PDF |
+| Fassung       | Inhalt                                                                                                                                                                                                                                      |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ✅ **1.0.0**  | Grundfunktion: Datenmodell, Anmeldung mit Rollen und optionalem SSO, Fälligkeitslogik, Erledigen-Vorgang mit Nachweisen, Abweichungen, Dashboard, Kalender, vier Reports, Administrationsbereich, revisionssicheres Audit-Log, Docker-Stack |
+| ✅ **1.1.0**  | Corporate Design, konfigurierbares Erscheinungsbild, Versionierung mit Änderungsverlauf, Update-Skript                                                                                                                                      |
+| ✅ **1.2.0**  | E-Mail-Benachrichtigungen, Sicherheitshärtung (CSP, CSRF, Brute-Force-Schutz), Roadmap und Sicherheitsdokumentation                                                                                                                         |
+| ✅ **1.3.0**  | Import und Export von Kategorien, Aufgaben und Benutzern mit Vorschau                                                                                                                                                                       |
+| ✅ **1.3.5**  | Dunkles Farbschema mit Umschalter und Systemvorgabe                                                                                                                                                                                         |
+| ✅ **1.4.0**  | Anmeldung mit Passkeys (WebAuthn), Kontoseite, Zurücksetzen durch die Administration                                                                                                                                                        |
+| ✅ **1.5.0**  | Anpassbare PDF-Vorlagen und wählbarer Zeitraum auf dem Dashboard                                                                                                                                                                            |
+| ✅ **1.6.0**  | Nachweismodul für Reviews und Regelprüfungen mit Vier-Augen-Prinzip                                                                                                                                                                         |
+| ✅ **1.7.0**  | Belege am Prüfbogen: AD-Exporte, Screenshots und Protokolle mit Prüfsumme                                                                                                                                                                   |
+| ✅ **1.8.0**  | Prüfvorgang zu Ende geführt: Benachrichtigung zur Gegenzeichnung, Feststellungen als Abweichungen, Zeilenlisten, Nachweisregister                                                                                                           |
+| ✅ **1.9.0**  | Nachweise belastbar aufbewahren: Prüfsummenlauf, Archiv-Export, Aufbewahrungsfristen, Passkey-Pflicht, Virenprüfung; dazu Audit-Referenzen als Stammdaten und ein Handbuch                                                                  |
+| ✅ **1.10.0** | Alltagstauglichkeit: Vertretung bei Abwesenheit, Belege aus der Zwischenablage, Aufgaben duplizieren, Kalender-Abonnement, SVG-Logo im PDF                                                                                                  |
 
 ## Vorgesehen
 
-| Fassung | Inhalt |
-| --- | --- |
+| Fassung       | Inhalt                                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------------------ |
 | 💡 **1.11.0** | Noch offen – siehe die Ideen unten: Wartungsfenster und Feiertage, mobile Ansicht für die Durchführung |
 
 Quer dazu und unabhängig von einer Fassung: **End-to-End-Tests** und eine
@@ -168,8 +168,8 @@ führt den Vorgang in der Anwendung durch und erzeugt den Nachweis daraus.
 ### Vier-Augen-Prinzip
 
 - Je Aufgabe einstellbar, ob ein Nachweis **gegengezeichnet** werden muss
-- Ablauf: *erfassen* → *zur Prüfung vorgelegt* → *gegengezeichnet* oder
-  *zurückgewiesen mit Begründung*
+- Ablauf: _erfassen_ → _zur Prüfung vorgelegt_ → _gegengezeichnet_ oder
+  _zurückgewiesen mit Begründung_
 - Die gegenzeichnende Person darf nicht die erfassende sein – die Anwendung
   setzt das durch
 - Erst nach der Gegenzeichnung gilt der Nachweis als gültig und die zugehörige
@@ -192,8 +192,8 @@ führt den Vorgang in der Anwendung durch und erzeugt den Nachweis daraus.
 
 ## 1.7.0 – Belege am Prüfbogen ✅
 
-**Warum:** Der Prüfbogen hält fest, *was* geprüft wurde – der Beleg zeigt,
-*woran*. Dateien ließen sich bisher nur beim Erledigen anhängen, ein Prüfbogen
+**Warum:** Der Prüfbogen hält fest, _was_ geprüft wurde – der Beleg zeigt,
+_woran_. Dateien ließen sich bisher nur beim Erledigen anhängen, ein Prüfbogen
 entsteht aber vorher. Zum Zeitpunkt der Prüfung gab es also keine Ablage für
 den AD-Export oder den Screenshot, auf den sich eine Antwort stützt.
 
@@ -295,7 +295,7 @@ Fassung senkt den Aufwand im laufenden Betrieb.
   jemand länger aus, laufen die Fälligkeiten sonst schlicht über. Umgeleitet
   wird die Post, nicht die Zuständigkeit: Erinnerungen, Wochenübersicht und
   Gegenzeichnungsbitten gehen an die Vertretung, die Aufgabe bleibt beim
-  Eigentümer. Eine Vertretung *je Aufgabe* wurde bewusst nicht umgesetzt – sie
+  Eigentümer. Eine Vertretung _je Aufgabe_ wurde bewusst nicht umgesetzt – sie
   müsste bei jedem Urlaub an jeder Aufgabe einzeln gepflegt werden.
 - ✅ **Belege aus der Zwischenablage** – Screenshot einfügen, statt ihn erst
   als Datei zu speichern. Seit 1.7.0 ist der Screenshot der häufigste Beleg,
@@ -336,8 +336,8 @@ Aus 1.10.0 übrig geblieben, weil beides eine eigene Fassung verdient:
 
 ## Technik und Betrieb
 
-- ✅ **End-to-End-Tests mit Playwright** – *war die dringendste Maßnahme
-  dieser Liste.* Beide Fehler, die in 1.6.0 auffielen, lagen zwischen
+- ✅ **End-to-End-Tests mit Playwright** – _war die dringendste Maßnahme
+  dieser Liste._ Beide Fehler, die in 1.6.0 auffielen, lagen zwischen
   Oberfläche und Server und bestanden jede Typprüfung. Der erste Lauf der
   neuen Tests hat prompt einen weiteren dieser Art gefunden: Die Sitzung
   überlebte das Abmelden.

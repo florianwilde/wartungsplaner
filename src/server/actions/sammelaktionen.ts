@@ -26,9 +26,7 @@ export type SammelStatus = { fehler?: string; erfolg?: string }
  * die Angabe, welche Anforderung eine Prüfung abdeckt. Zum Ausmustern gibt es
  * das Kennzeichen „aktiv".
  */
-export async function referenzenSammelLoeschen(
-  ids: string[],
-): Promise<SammelStatus> {
+export async function referenzenSammelLoeschen(ids: string[]): Promise<SammelStatus> {
   try {
     const admin = await benutzerFuerAktion(canAdminister)
 
@@ -98,9 +96,7 @@ export async function referenzenSammelLoeschen(
  * Zum Ausmustern einer benutzten Aufgabe gibt es das Deaktivieren: Die
  * Historie bleibt lesbar, neue Fälligkeiten entstehen nicht mehr.
  */
-export async function aufgabenSammelLoeschen(
-  ids: string[],
-): Promise<SammelStatus> {
+export async function aufgabenSammelLoeschen(ids: string[]): Promise<SammelStatus> {
   try {
     const benutzer = await benutzerFuerAktion(canManageTasks)
 

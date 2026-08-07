@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  bewerte,
-  mussEinrichten,
-  pruefeUmstellung,
-  type Lage,
-} from './passkey-pflicht'
+import { bewerte, mussEinrichten, pruefeUmstellung, type Lage } from './passkey-pflicht'
 
 const lage = (teil: Partial<Lage> = {}): Lage => ({
   rolle: 'ADMIN',
@@ -31,10 +26,7 @@ describe('bewerte', () => {
   it('verlangt nichts, wenn Passkeys technisch unmöglich sind', () => {
     // Ohne HTTPS bietet kein Browser die Registrierung an – die Pflicht
     // durchzusetzen hieße, jede Anmeldung in eine Sackgasse zu führen.
-    const ergebnis = bewerte(
-      { rollen: ['ADMIN'] },
-      lage({ technischMoeglich: false }),
-    )
+    const ergebnis = bewerte({ rollen: ['ADMIN'] }, lage({ technischMoeglich: false }))
     expect(ergebnis).toEqual({ pflicht: false, grund: 'nicht-moeglich' })
   })
 

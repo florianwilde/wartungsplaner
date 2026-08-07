@@ -107,10 +107,7 @@ describe('nachRahmenwerk', () => {
 
   it('stellt Referenzen ohne Rahmenwerk ans Ende', () => {
     // Sie sollen sichtbar bleiben und zum Nachpflegen einladen.
-    const gruppen = nachRahmenwerk([
-      { rahmenwerk: null },
-      { rahmenwerk: 'ISO 27001' },
-    ])
+    const gruppen = nachRahmenwerk([{ rahmenwerk: null }, { rahmenwerk: 'ISO 27001' }])
 
     expect(gruppen.at(-1)?.rahmenwerk).toBeNull()
   })

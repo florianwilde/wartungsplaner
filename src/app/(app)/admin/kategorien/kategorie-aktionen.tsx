@@ -37,7 +37,7 @@ function Fehlermeldung({ text }: { text?: string }) {
   return (
     <p
       role="alert"
-      className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+      className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
     >
       <AlertCircle className="mt-0.5 size-4 shrink-0" />
       {text}
@@ -77,7 +77,7 @@ function Felder({
               type="color"
               value={farbe}
               onChange={(e) => setFarbe(e.target.value)}
-              className="h-9 w-14 cursor-pointer rounded-md border border-input bg-background p-1"
+              className="border-input bg-background h-9 w-14 cursor-pointer rounded-md border p-1"
             />
             <Input
               value={farbe}
@@ -98,7 +98,7 @@ function Felder({
             max={9999}
             defaultValue={werte.sortOrder}
           />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Kleinere Werte erscheinen weiter oben.
           </p>
         </div>
@@ -231,7 +231,12 @@ export function KategorieLoeschenButton({
 
   if (anzahlAufgaben > 0) {
     return (
-      <Button variant="ghost" size="sm" disabled title="Es sind noch Aufgaben zugeordnet">
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled
+        title="Es sind noch Aufgaben zugeordnet"
+      >
         <Trash2 className="size-4" />
         Löschen
       </Button>
@@ -250,8 +255,8 @@ export function KategorieLoeschenButton({
           <DialogHeader>
             <DialogTitle>Kategorie löschen</DialogTitle>
             <DialogDescription>
-              Soll die Kategorie „{name}“ endgültig gelöscht werden? Der Vorgang
-              wird protokolliert.
+              Soll die Kategorie „{name}“ endgültig gelöscht werden? Der Vorgang wird
+              protokolliert.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

@@ -25,8 +25,7 @@ export type Kandidat = {
 }
 
 export type SammelPruefung =
-  | { ok: true; ids: string[] }
-  | { ok: false; fehler: string; blockiert: Kandidat[] }
+  { ok: true; ids: string[] } | { ok: false; fehler: string; blockiert: Kandidat[] }
 
 /** Höchstzahl je Sammelaktion – schützt vor einem verrutschten „alles". */
 export const MAX_SAMMELAKTION = 200
@@ -39,9 +38,7 @@ export const MAX_SAMMELAKTION = 200
  * Ein teilweise ausgeführtes Löschen hinterließe die Frage, was nun gilt –
  * und die Antwort wäre nicht mehr rekonstruierbar.
  */
-export function pruefeSammelloeschung(
-  kandidaten: Kandidat[],
-): SammelPruefung {
+export function pruefeSammelloeschung(kandidaten: Kandidat[]): SammelPruefung {
   if (kandidaten.length === 0) {
     return { ok: false, fehler: 'Es ist nichts markiert.', blockiert: [] }
   }
@@ -73,8 +70,7 @@ function begruendung(blockiert: Kandidat[]): string {
     .map((k) => `„${k.bezeichnung}" (${k.abhaengige} ${k.abhaengigeArt})`)
     .join(', ')
 
-  const rest =
-    blockiert.length > 3 ? ` und ${blockiert.length - 3} weitere` : ''
+  const rest = blockiert.length > 3 ? ` und ${blockiert.length - 3} weitere` : ''
 
   return (
     `${blockiert.length === 1 ? 'Ein Eintrag lässt' : `${blockiert.length} Einträge lassen`}` +
@@ -123,9 +119,7 @@ export type Verlust = {
 /** Mindestlänge der Begründung – „test" hilft in zwei Jahren niemandem. */
 export const MIN_BEGRUENDUNG = 15
 
-export type ErzwingenPruefung =
-  | { ok: true }
-  | { ok: false; fehler: string }
+export type ErzwingenPruefung = { ok: true } | { ok: false; fehler: string }
 
 /**
  * Prüft die Angaben vor einem erzwungenen Löschen.

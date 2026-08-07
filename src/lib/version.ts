@@ -17,9 +17,7 @@ export const APP_GIT_COMMIT = process.env.APP_GIT_COMMIT ?? ''
 
 /** Kurzform für die Fußzeile, z. B. "v1.1.0" oder "v1.1.0 (a1b2c3d4e5f6)". */
 export function versionKurz(): string {
-  return APP_GIT_COMMIT
-    ? `v${APP_VERSION} (${APP_GIT_COMMIT})`
-    : `v${APP_VERSION}`
+  return APP_GIT_COMMIT ? `v${APP_VERSION} (${APP_GIT_COMMIT})` : `v${APP_VERSION}`
 }
 
 /** Ausführliche Angabe für den Administrationsbereich und Reports. */

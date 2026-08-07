@@ -2,7 +2,13 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { KeyRound } from 'lucide-react'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { holeBenutzer } from '@/lib/session'
 import { PasswortFormular } from './passwort-formular'
 
@@ -15,10 +21,10 @@ export default async function PasswortAendernSeite() {
   const erzwungen = benutzer.mustChangePassword
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-12">
+    <main className="bg-muted/40 flex min-h-screen items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <span className="bg-primary/10 text-primary mb-2 flex size-10 items-center justify-center rounded-lg">
             <KeyRound className="size-5" />
           </span>
           <CardTitle>Passwort ändern</CardTitle>
@@ -30,9 +36,9 @@ export default async function PasswortAendernSeite() {
         </CardHeader>
         <CardContent>
           {benutzer.authProvider === 'OIDC' ? (
-            <p className="text-sm text-muted-foreground">
-              Dieses Konto wird über SSO verwaltet. Das Passwort ändern Sie
-              direkt beim Identity Provider Ihres Unternehmens.
+            <p className="text-muted-foreground text-sm">
+              Dieses Konto wird über SSO verwaltet. Das Passwort ändern Sie direkt beim
+              Identity Provider Ihres Unternehmens.
             </p>
           ) : (
             <PasswortFormular />

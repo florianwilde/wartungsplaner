@@ -7,13 +7,13 @@ Jeder Abruf wird protokolliert – auch das ist Teil des Nachweises.
 
 ## Die fünf Auswertungen
 
-| Bericht | Beantwortet die Frage |
-| --- | --- |
-| **Compliance-Übersicht** | Wie viele Prüfungen wurden pünktlich erledigt – gesamt und je Kategorie? |
-| **Aufgabenhistorie** | Was wurde wann von wem geprüft, mit welchem Ergebnis und welchen Nachweisen? |
-| **Abweichungsbericht** | Welche Feststellungen gab es, wer ist verantwortlich, wie ist der Stand? |
-| **Fälligkeitsvorschau** | Was steht in den nächsten Monaten an? |
-| **Nachweisregister** | Welche Prüfnachweise wurden abgeschlossen, von wem erfasst und gegengezeichnet? |
+| Bericht                  | Beantwortet die Frage                                                           |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| **Compliance-Übersicht** | Wie viele Prüfungen wurden pünktlich erledigt – gesamt und je Kategorie?        |
+| **Aufgabenhistorie**     | Was wurde wann von wem geprüft, mit welchem Ergebnis und welchen Nachweisen?    |
+| **Abweichungsbericht**   | Welche Feststellungen gab es, wer ist verantwortlich, wie ist der Stand?        |
+| **Fälligkeitsvorschau**  | Was steht in den nächsten Monaten an?                                           |
+| **Nachweisregister**     | Welche Prüfnachweise wurden abgeschlossen, von wem erfasst und gegengezeichnet? |
 
 Der **Zeitraum** und die **Kategorien** lassen sich je Bericht einstellen; die
 Fälligkeitsvorschau fragt stattdessen nach der Anzahl der Monate.
@@ -66,18 +66,18 @@ weil damit weitergerechnet wird.
 
 ## Archiv der Nachweise
 
-Ein Bericht zeigt, *dass* geprüft wurde. Ein Audit will die **Nachweise
+Ein Bericht zeigt, _dass_ geprüft wurde. Ein Audit will die **Nachweise
 selbst** – und zwar so, dass sie auch außerhalb dieser Anwendung überprüfbar
 bleiben.
 
 Unter **Reports → Archiv der Nachweise** entsteht ein ZIP mit allen Nachweisen
 eines Zeitraums, gegliedert nach Kategorie und Aufgabe. Beigelegt sind:
 
-| Datei | Inhalt |
-| --- | --- |
-| `INHALT.csv` | Verzeichnis aller Dateien mit Aufgabe, Fälligkeit, Durchführungsdatum, hochladender Person und Prüfsumme |
-| `PRUEFSUMMEN.sha256` | Prüfsummen im Format von `sha256sum` |
-| `LIESMICH.txt` | Erläuterung samt Anleitung zum Nachrechnen |
+| Datei                | Inhalt                                                                                                   |
+| -------------------- | -------------------------------------------------------------------------------------------------------- |
+| `INHALT.csv`         | Verzeichnis aller Dateien mit Aufgabe, Fälligkeit, Durchführungsdatum, hochladender Person und Prüfsumme |
+| `PRUEFSUMMEN.sha256` | Prüfsummen im Format von `sha256sum`                                                                     |
+| `LIESMICH.txt`       | Erläuterung samt Anleitung zum Nachrechnen                                                               |
 
 ### Unverändertheit nachrechnen
 

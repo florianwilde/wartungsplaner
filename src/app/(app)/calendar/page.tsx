@@ -3,10 +3,7 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { LeerHinweis, SeitenKopf } from '@/components/seiten-kopf'
-import {
-  FaelligkeitsStatusBadge,
-  KategoriePunkt,
-} from '@/components/status-anzeigen'
+import { FaelligkeitsStatusBadge, KategoriePunkt } from '@/components/status-anzeigen'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -120,8 +117,7 @@ export default async function KalenderSeite({
               </Link>
             </Button>
             <span className="min-w-40 text-center text-sm font-medium">
-              {MONATSNAMEN[monatsBeginn.getUTCMonth()]}{' '}
-              {monatsBeginn.getUTCFullYear()}
+              {MONATSNAMEN[monatsBeginn.getUTCMonth()]} {monatsBeginn.getUTCFullYear()}
             </span>
             <Button variant="outline" size="icon" asChild>
               <Link
@@ -144,7 +140,7 @@ export default async function KalenderSeite({
             {WOCHENTAGE.map((tag) => (
               <div
                 key={tag}
-                className="pb-2 text-center text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                className="text-muted-foreground pb-2 text-center text-xs font-medium tracking-wide uppercase"
               >
                 {tag}
               </div>
@@ -161,15 +157,15 @@ export default async function KalenderSeite({
                 <div
                   key={schluessel}
                   className={cn(
-                    'min-h-24 rounded-md border border-border p-1.5 sm:min-h-28',
+                    'border-border min-h-24 rounded-md border p-1.5 sm:min-h-28',
                     !imAngezeigtenMonat && 'bg-muted/40 text-muted-foreground',
-                    istHeute && 'border-primary ring-1 ring-primary',
+                    istHeute && 'border-primary ring-primary ring-1',
                   )}
                 >
                   <div
                     className={cn(
                       'mb-1 text-xs tabular-nums',
-                      istHeute && 'font-semibold text-primary',
+                      istHeute && 'text-primary font-semibold',
                     )}
                   >
                     {tag.getUTCDate()}
@@ -182,7 +178,7 @@ export default async function KalenderSeite({
                         href={`/tasks/${eintrag.task.id}`}
                         title={`${eintrag.task.title} (${eintrag.task.category.name})`}
                         className={cn(
-                          'flex items-center gap-1 rounded px-1 py-0.5 text-[11px] leading-tight transition-colors hover:bg-accent',
+                          'hover:bg-accent flex items-center gap-1 rounded px-1 py-0.5 text-[11px] leading-tight transition-colors',
                           eintrag.status === 'OVERDUE' &&
                             'bg-status-danger/10 text-status-danger',
                           eintrag.status === 'DONE' && 'opacity-60',
@@ -198,7 +194,7 @@ export default async function KalenderSeite({
                     ))}
 
                     {eintraege.length > 3 ? (
-                      <span className="block px-1 text-[11px] text-muted-foreground">
+                      <span className="text-muted-foreground block px-1 text-[11px]">
                         + {eintraege.length - 3} weitere
                       </span>
                     ) : null}
@@ -220,14 +216,14 @@ export default async function KalenderSeite({
           {imMonat.length === 0 ? (
             <LeerHinweis text="In diesem Monat steht keine Prüfung an." />
           ) : (
-            <ul className="divide-y divide-border">
+            <ul className="divide-border divide-y">
               {imMonat.map((eintrag) => (
                 <li
                   key={eintrag.id}
                   className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm"
                 >
                   <span className="flex min-w-0 items-center gap-2">
-                    <span className="w-24 shrink-0 tabular-nums text-muted-foreground">
+                    <span className="text-muted-foreground w-24 shrink-0 tabular-nums">
                       {formatDate(eintrag.dueDate)}
                     </span>
                     <KategoriePunkt farbe={eintrag.task.category.color} />

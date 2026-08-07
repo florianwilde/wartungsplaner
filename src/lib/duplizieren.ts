@@ -13,9 +13,7 @@ export const MAX_KOPIEN = 25
 const MIN_TITEL = 3
 const MAX_TITEL = 200
 
-export type TitelListe =
-  | { ok: true; titel: string[] }
-  | { ok: false; fehler: string }
+export type TitelListe = { ok: true; titel: string[] } | { ok: false; fehler: string }
 
 /**
  * Liest die eingegebenen Titel – einer je Zeile.
@@ -111,9 +109,6 @@ export function eindeutigerName(
  * Name der Prüfbogen-Kopie: Der Titel der neuen Aufgabe gehört hinein,
  * sonst stehen in der Verwaltung zehn gleich benannte Bögen nebeneinander.
  */
-export function nameFuerBogenKopie(
-  bogenName: string,
-  aufgabenTitel: string,
-): string {
+export function nameFuerBogenKopie(bogenName: string, aufgabenTitel: string): string {
   return `${bogenName} – ${aufgabenTitel}`
 }

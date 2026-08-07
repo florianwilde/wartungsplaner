@@ -25,7 +25,7 @@ export default async function AufbewahrungSeite() {
   const benutzer = await erforderlicherBenutzer()
   if (!canAdminister(benutzer.role)) {
     return (
-      <p className="rounded-md bg-destructive/10 p-4 text-sm text-destructive">
+      <p className="bg-destructive/10 text-destructive rounded-md p-4 text-sm">
         Diese Seite ist der Administration vorbehalten.
       </p>
     )
@@ -89,10 +89,10 @@ export default async function AufbewahrungSeite() {
       </div>
 
       {!einstellungen.aktiv ? (
-        <p className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
-          Die Aufbewahrung ist ausgeschaltet – es wird nichts entfernt. Das ist
-          der Auslieferungszustand: Gelöscht wird nie ungefragt. Aktuell gilt
-          rechnerisch eine Vorgabe von {fristText(einstellungen.standardMonate)}.
+        <p className="bg-muted text-muted-foreground rounded-md p-3 text-sm">
+          Die Aufbewahrung ist ausgeschaltet – es wird nichts entfernt. Das ist der
+          Auslieferungszustand: Gelöscht wird nie ungefragt. Aktuell gilt rechnerisch
+          eine Vorgabe von {fristText(einstellungen.standardMonate)}.
         </p>
       ) : null}
 
@@ -112,8 +112,8 @@ export default async function AufbewahrungSeite() {
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-sm font-medium text-status-ok">Bleibt</p>
-              <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
+              <p className="text-status-ok text-sm font-medium">Bleibt</p>
+              <ul className="text-muted-foreground mt-1 space-y-1 text-sm">
                 <li>Die Durchführung mit Datum, Person, Ergebnis und Kommentar</li>
                 <li>Dateiname, Größe und SHA-256-Prüfsumme des Nachweises</li>
                 <li>Abweichungen samt Maßnahmen</li>
@@ -122,12 +122,15 @@ export default async function AufbewahrungSeite() {
               </ul>
             </div>
             <div>
-              <p className="text-sm font-medium text-destructive">Entfällt</p>
-              <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
+              <p className="text-destructive text-sm font-medium">Entfällt</p>
+              <ul className="text-muted-foreground mt-1 space-y-1 text-sm">
                 <li>Der Inhalt der hochgeladenen Datei</li>
-                <li>Damit auch der Download – die Seite sagt dann, dass die Frist abgelaufen ist</li>
+                <li>
+                  Damit auch der Download – die Seite sagt dann, dass die Frist
+                  abgelaufen ist
+                </li>
               </ul>
-              <p className="mt-3 text-xs text-muted-foreground">
+              <p className="text-muted-foreground mt-3 text-xs">
                 Entfernte Nachweise werden vom Prüfsummenlauf nicht als fehlend
                 beanstandet und tauchen nicht im Archiv-Export auf.
               </p>
@@ -151,13 +154,13 @@ function Kennzahl({
   icon?: React.ReactNode
 }) {
   return (
-    <div className="rounded-lg border border-border p-4">
-      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+    <div className="border-border rounded-lg border p-4">
+      <p className="text-muted-foreground flex items-center gap-1.5 text-xs">
         {icon}
         {titel}
       </p>
       <p className="mt-1 text-xl font-semibold">{wert}</p>
-      <p className="text-xs text-muted-foreground">{hinweis}</p>
+      <p className="text-muted-foreground text-xs">{hinweis}</p>
     </div>
   )
 }

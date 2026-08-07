@@ -24,9 +24,7 @@ describe('fehlerbehandlung', () => {
 
   it('verschweigt Meldungen aus dem Datenbankzugriff', () => {
     const protokoll = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const fehler = new Error(
-      'Unique constraint failed on the fields: (`email`)',
-    )
+    const fehler = new Error('Unique constraint failed on the fields: (`email`)')
     fehler.name = 'PrismaClientKnownRequestError'
 
     expect(fehlertext(fehler)).toBe('Die Aktion konnte nicht ausgeführt werden.')

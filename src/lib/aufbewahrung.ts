@@ -108,4 +108,3 @@ export function fasseAufbewahrungZusammen(
   }
   return `${teile.join(', ')} (${ergebnis.dauerMs} ms)`
 }
-

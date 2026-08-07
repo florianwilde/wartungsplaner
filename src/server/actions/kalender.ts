@@ -3,10 +3,7 @@
 import { revalidatePath } from 'next/cache'
 
 import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
-import {
-  entferneKalenderToken,
-  erneuereKalenderToken,
-} from '@/server/kalender-abo'
+import { entferneKalenderToken, erneuereKalenderToken } from '@/server/kalender-abo'
 
 export type KalenderStatus = { fehler?: string; erfolg?: string }
 

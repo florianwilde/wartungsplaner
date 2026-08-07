@@ -5,10 +5,7 @@ import { formatDate, parseISODate, startOfMonth, todayInBerlin } from '@/lib/dat
 import { canViewReports } from '@/lib/rbac'
 import { holeBenutzer } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
-import {
-  baueArchivDateiname,
-  erzeugeNachweisArchiv,
-} from '@/server/reports/archiv'
+import { baueArchivDateiname, erzeugeNachweisArchiv } from '@/server/reports/archiv'
 
 export const dynamic = 'force-dynamic'
 // Das Archiv wird als Datenstrom gebaut und braucht die Node-Laufzeit.

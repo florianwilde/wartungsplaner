@@ -5,10 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { schreibeAudit } from '@/lib/audit'
 import { prisma } from '@/lib/prisma'
 import { canAdminister } from '@/lib/rbac'
-import {
-  benutzerFuerAktion,
-  holeBenutzer,
-} from '@/lib/session'
+import { benutzerFuerAktion, holeBenutzer } from '@/lib/session'
 import { fehlerbehandlung } from '@/lib/fehler'
 import { pruefePasskeyName } from '@/lib/webauthn'
 
@@ -17,9 +14,7 @@ const fehlertext = fehlerbehandlung('Unerwarteter Fehler bei den Passkeys')
 export type PasskeyStatus = { fehler?: string; erfolg?: string }
 
 /** Entfernt einen eigenen Passkey. */
-export async function passkeyEntfernen(
-  passkeyId: string,
-): Promise<PasskeyStatus> {
+export async function passkeyEntfernen(passkeyId: string): Promise<PasskeyStatus> {
   try {
     const benutzer = await holeBenutzer()
     if (!benutzer) return { fehler: 'Bitte melden Sie sich an.' }
@@ -112,9 +107,7 @@ export async function passkeyUmbenennen(
  * Entfernt alle Passkeys eines Benutzers – für den Fall eines Geräteverlusts.
  * Nur für Administratoren.
  */
-export async function passkeysZuruecksetzen(
-  userId: string,
-): Promise<PasskeyStatus> {
+export async function passkeysZuruecksetzen(userId: string): Promise<PasskeyStatus> {
   try {
     const admin = await benutzerFuerAktion(canAdminister)
 

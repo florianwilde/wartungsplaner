@@ -27,9 +27,7 @@ export async function passkeyPflichtSpeichern(
   try {
     const admin = await benutzerFuerAktion(canAdminister)
 
-    const rollen = ROLLEN.filter(
-      (rolle) => formData.get(`pflicht-${rolle}`) === 'on',
-    )
+    const rollen = ROLLEN.filter((rolle) => formData.get(`pflicht-${rolle}`) === 'on')
 
     // Der Einspruch prüft, ob die Umstellung überhaupt Sinn ergibt – ohne
     // HTTPS bliebe sie wirkungslos und würde nur verwirren.

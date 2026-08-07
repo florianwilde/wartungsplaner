@@ -38,9 +38,9 @@ describe('baueContentSecurityPolicy', () => {
 
   it('erlaubt unsafe-eval nur in der Entwicklung', () => {
     expect(baueContentSecurityPolicy({ nonce })).not.toContain("'unsafe-eval'")
-    expect(
-      baueContentSecurityPolicy({ nonce, entwicklung: true }),
-    ).toContain("'unsafe-eval'")
+    expect(baueContentSecurityPolicy({ nonce, entwicklung: true })).toContain(
+      "'unsafe-eval'",
+    )
   })
 
   it('erlaubt niemals unsafe-inline für Skripte', () => {

@@ -19,7 +19,13 @@ import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DateiEingabe } from '@/components/datei-eingabe'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -200,11 +206,7 @@ export function NachweisFormular({
     zeilen,
   )
 
-  const aendere = (
-    id: string,
-    feld: 'ergebnis' | 'wert' | 'bemerkung',
-    wert: string,
-  ) =>
+  const aendere = (id: string, feld: 'ergebnis' | 'wert' | 'bemerkung', wert: string) =>
     setPunkte((bisher) =>
       bisher.map((p) =>
         p.id === id
@@ -297,7 +299,10 @@ export function NachweisFormular({
           return
         }
         if (zeilen.length > 0) {
-          const zeilenStand = await nachweisZeilenSpeichern(nachweisId, alsZeilenEingabe())
+          const zeilenStand = await nachweisZeilenSpeichern(
+            nachweisId,
+            alsZeilenEingabe(),
+          )
           if (zeilenStand.fehler) {
             toast.error(zeilenStand.fehler)
             return
@@ -318,7 +323,7 @@ export function NachweisFormular({
   return (
     <div className="space-y-6">
       {ablehnungsgrund ? (
-        <p className="flex items-start gap-2 rounded-md bg-status-warn/15 p-3 text-sm text-status-warn">
+        <p className="bg-status-warn/15 text-status-warn flex items-start gap-2 rounded-md p-3 text-sm">
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
           <span>
             <strong>Zurückgewiesen:</strong> {ablehnungsgrund}
@@ -357,18 +362,18 @@ export function NachweisFormular({
               return (
                 <div
                   key={punkt.id}
-                  className="space-y-3 rounded-lg border border-border p-4"
+                  className="border-border space-y-3 rounded-lg border p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="font-medium">
                         {punkt.position}. {punkt.frage}
                         {punkt.pflicht ? (
-                          <span className="ml-1 text-destructive">*</span>
+                          <span className="text-destructive ml-1">*</span>
                         ) : null}
                       </p>
                       {punkt.hinweis ? (
-                        <p className="mt-1 text-xs text-muted-foreground">
+                        <p className="text-muted-foreground mt-1 text-xs">
                           {punkt.hinweis}
                         </p>
                       ) : null}
@@ -431,14 +436,14 @@ export function NachweisFormular({
                   )}
 
                   {punkt.art === 'LISTE' ? null : (
-                  <Textarea
-                    value={punkt.bemerkung ?? ''}
-                    disabled={!aenderbar}
-                    onChange={(e) => aendere(punkt.id, 'bemerkung', e.target.value)}
-                    rows={2}
-                    placeholder="Bemerkung (optional) – bei Feststellungen bitte die Maßnahme angeben"
-                    className="text-sm"
-                  />
+                    <Textarea
+                      value={punkt.bemerkung ?? ''}
+                      disabled={!aenderbar}
+                      onChange={(e) => aendere(punkt.id, 'bemerkung', e.target.value)}
+                      rows={2}
+                      placeholder="Bemerkung (optional) – bei Feststellungen bitte die Maßnahme angeben"
+                      className="text-sm"
+                    />
                   )}
                 </div>
               )
@@ -468,10 +473,9 @@ export function NachweisFormular({
           <CardHeader>
             <CardTitle>Belege</CardTitle>
             <CardDescription>
-              Die tatsächlichen Nachweise aus den geprüften Systemen –
-              AD-Export, Screenshot, Herstellerprotokoll, Sicherungsbericht.
-              Erlaubt sind {ERLAUBTE_ENDUNGEN_TEXT}; je Datei bis{' '}
-              {MAX_DATEIGROESSE_TEXT}.
+              Die tatsächlichen Nachweise aus den geprüften Systemen – AD-Export,
+              Screenshot, Herstellerprotokoll, Sicherungsbericht. Erlaubt sind{' '}
+              {ERLAUBTE_ENDUNGEN_TEXT}; je Datei bis {MAX_DATEIGROESSE_TEXT}.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -482,7 +486,7 @@ export function NachweisFormular({
                   return (
                     <li
                       key={beleg.id}
-                      className="flex flex-wrap items-start justify-between gap-3 rounded-md border border-border p-3"
+                      className="border-border flex flex-wrap items-start justify-between gap-3 rounded-md border p-3"
                     >
                       <div className="min-w-0">
                         <a
@@ -492,12 +496,12 @@ export function NachweisFormular({
                           <Paperclip className="size-4 shrink-0" />
                           <span className="break-all">{beleg.filename}</span>
                         </a>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {lesbareGroesse(beleg.sizeBytes)} ·{' '}
-                          {beleg.hochgeladenVon} · {beleg.hochgeladenAm}
+                        <p className="text-muted-foreground mt-1 text-xs">
+                          {lesbareGroesse(beleg.sizeBytes)} · {beleg.hochgeladenVon} ·{' '}
+                          {beleg.hochgeladenAm}
                           {punkt ? ` · zu Prüfpunkt ${punkt.position}` : ''}
                         </p>
-                        <p className="mt-1 break-all font-mono text-[11px] text-muted-foreground">
+                        <p className="text-muted-foreground mt-1 font-mono text-[11px] break-all">
                           SHA-256: {beleg.sha256}
                         </p>
                       </div>
@@ -518,13 +522,13 @@ export function NachweisFormular({
                 })}
               </ul>
             ) : (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Noch keine Belege hinterlegt.
               </p>
             )}
 
             {aenderbar ? (
-              <div className="space-y-3 rounded-md border border-dashed border-border p-3">
+              <div className="border-border space-y-3 rounded-md border border-dashed p-3">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <Label htmlFor="belegDateien">Dateien auswählen</Label>
@@ -571,7 +575,7 @@ export function NachweisFormular({
         {status.fehler ? (
           <p
             role="alert"
-            className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+            className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
           >
             <AlertCircle className="mt-0.5 size-4 shrink-0" />
             {status.fehler}
@@ -632,10 +636,10 @@ export function NachweisFormular({
         </div>
 
         {aenderbar && vierAugen ? (
-          <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
-            Dieser Prüfbogen verlangt das Vier-Augen-Prinzip: Nach dem Vorlegen
-            muss eine zweite Person gegenzeichnen. Erst danach gilt der Nachweis
-            als gültig und wird als Anhang an der Durchführung hinterlegt.
+          <p className="bg-muted text-muted-foreground rounded-md p-3 text-xs">
+            Dieser Prüfbogen verlangt das Vier-Augen-Prinzip: Nach dem Vorlegen muss
+            eine zweite Person gegenzeichnen. Erst danach gilt der Nachweis als gültig
+            und wird als Anhang an der Durchführung hinterlegt.
           </p>
         ) : null}
       </form>

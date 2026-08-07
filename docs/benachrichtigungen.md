@@ -10,15 +10,15 @@ konfigurierten Mailserver (`SMTP_HOST` in der `.env`) bleibt der Versand aus.
 
 ## Die Nachrichtenarten
 
-| Art | Wann | An wen |
-| --- | --- | --- |
-| **Anstehende Prüfungen** | Sobald die Vorlaufzeit beginnt; bei Überfälligkeit wöchentlich erneut | Verantwortliche Person |
-| **Abweichungen** | Wenn die Frist näher rückt oder überschritten ist | Verantwortliche Person |
-| **Gegenzeichnung** | Sofort beim Vorlegen eines Prüfnachweises | Verantwortliche Person der Aufgabe, sonst alle mit Ausführungsrecht |
-| **Zurückweisung** | Sofort | Erfassende Person |
-| **Eskalation** | Bei lange überfälligen Prüfungen | Eine zentrale Stelle |
-| **Wochenübersicht** | An einem festgelegten Wochentag | Je Person, sofern etwas offen ist |
-| **Unversehrtheit** | Bei Beanstandungen im Prüfsummenlauf | Administration |
+| Art                      | Wann                                                                  | An wen                                                              |
+| ------------------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **Anstehende Prüfungen** | Sobald die Vorlaufzeit beginnt; bei Überfälligkeit wöchentlich erneut | Verantwortliche Person                                              |
+| **Abweichungen**         | Wenn die Frist näher rückt oder überschritten ist                     | Verantwortliche Person                                              |
+| **Gegenzeichnung**       | Sofort beim Vorlegen eines Prüfnachweises                             | Verantwortliche Person der Aufgabe, sonst alle mit Ausführungsrecht |
+| **Zurückweisung**        | Sofort                                                                | Erfassende Person                                                   |
+| **Eskalation**           | Bei lange überfälligen Prüfungen                                      | Eine zentrale Stelle                                                |
+| **Wochenübersicht**      | An einem festgelegten Wochentag                                       | Je Person, sofern etwas offen ist                                   |
+| **Unversehrtheit**       | Bei Beanstandungen im Prüfsummenlauf                                  | Administration                                                      |
 
 ## Grundsätze
 

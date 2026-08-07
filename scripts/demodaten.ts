@@ -186,10 +186,22 @@ async function main() {
 
   // --- Audit-Referenzen ---------------------------------------------------
   const referenzen = [
-    { rahmenwerk: 'ISO 27001', kuerzel: 'A.8.13', bezeichnung: 'Sicherung von Informationen' },
+    {
+      rahmenwerk: 'ISO 27001',
+      kuerzel: 'A.8.13',
+      bezeichnung: 'Sicherung von Informationen',
+    },
     { rahmenwerk: 'ISO 27001', kuerzel: 'A.5.18', bezeichnung: 'Zugangsrechte' },
-    { rahmenwerk: 'ISO 27001', kuerzel: 'A.8.8', bezeichnung: 'Umgang mit technischen Schwachstellen' },
-    { rahmenwerk: 'ISO 27001', kuerzel: 'A.7.2', bezeichnung: 'Physische Zutrittssteuerung' },
+    {
+      rahmenwerk: 'ISO 27001',
+      kuerzel: 'A.8.8',
+      bezeichnung: 'Umgang mit technischen Schwachstellen',
+    },
+    {
+      rahmenwerk: 'ISO 27001',
+      kuerzel: 'A.7.2',
+      bezeichnung: 'Physische Zutrittssteuerung',
+    },
   ]
   for (const referenz of referenzen) {
     const gespeichert = await prisma.auditReferenz.upsert({
@@ -204,7 +216,9 @@ async function main() {
     })
 
     // Jeder Referenz ein paar Aufgaben zuordnen, damit der Filter etwas zeigt.
-    for (const aufgabe of aufgaben.filter((_, i) => i % referenzen.length === referenzen.indexOf(referenz))) {
+    for (const aufgabe of aufgaben.filter(
+      (_, i) => i % referenzen.length === referenzen.indexOf(referenz),
+    )) {
       await prisma.taskAuditReferenz.upsert({
         where: {
           taskId_referenzId: { taskId: aufgabe.id, referenzId: gespeichert.id },
@@ -216,7 +230,9 @@ async function main() {
   }
 
   // --- Ein gegengezeichneter Prüfbogen ------------------------------------
-  const rezertifizierung = aufgaben.find((a) => a.title.includes('Zugriffsberechtigungen'))
+  const rezertifizierung = aufgaben.find((a) =>
+    a.title.includes('Zugriffsberechtigungen'),
+  )
   if (rezertifizierung) {
     const vorlage = await prisma.pruefbogenVorlage.upsert({
       where: { name: 'Rezertifizierung Zugriffsberechtigungen' },
@@ -290,7 +306,12 @@ async function main() {
             'Durchsicht mit dem Auszug vom Monatsersten. Ein Konto zum Entzug vorgemerkt.',
           antworten: {
             create: [
-              { punktId: punkte[0].id, ergebnis: 'ERFUELLT', wert: null, bemerkung: null },
+              {
+                punktId: punkte[0].id,
+                ergebnis: 'ERFUELLT',
+                wert: null,
+                bemerkung: null,
+              },
               {
                 punktId: punkte[1].id,
                 ergebnis: 'NICHT_ERFUELLT',

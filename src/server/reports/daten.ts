@@ -114,8 +114,7 @@ export async function baueKopf(
       select: { kuerzel: true, rahmenwerk: true },
     })
     gewaehlteReferenzen =
-      sortiereReferenzen(referenzen).map(anzeigeName).join(", ") ||
-      'Alle Referenzen'
+      sortiereReferenzen(referenzen).map(anzeigeName).join(', ') || 'Alle Referenzen'
   }
 
   const branding = await holeBranding()
@@ -169,7 +168,9 @@ export type ComplianceReport = {
   gesamt: ComplianceZeile
 }
 
-function berechneQuoten(zeile: Omit<ComplianceZeile, 'erfuellungsgrad' | 'puenktlichkeitsquote'>): ComplianceZeile {
+function berechneQuoten(
+  zeile: Omit<ComplianceZeile, 'erfuellungsgrad' | 'puenktlichkeitsquote'>,
+): ComplianceZeile {
   const bewertbar = zeile.gesamt - zeile.ausgesetzt
   const erledigt = zeile.puenktlich + zeile.verspaetet
   return {
@@ -194,7 +195,10 @@ export async function ladeCompliance(
       status: true,
       execution: { select: { executedAt: true } },
       task: {
-        select: { graceDays: true, category: { select: { name: true, sortOrder: true } } },
+        select: {
+          graceDays: true,
+          category: { select: { name: true, sortOrder: true } },
+        },
       },
     },
   })
@@ -218,8 +222,7 @@ export async function ladeCompliance(
   for (const faelligkeit of faelligkeiten) {
     const name = faelligkeit.task.category.name
     const zeile =
-      proKategorie.get(name) ??
-      leer(name, faelligkeit.task.category.sortOrder)
+      proKategorie.get(name) ?? leer(name, faelligkeit.task.category.sortOrder)
     proKategorie.set(name, zeile)
 
     zeile.gesamt++
@@ -438,9 +441,7 @@ export async function ladeAbweichungen(
     kategorie: abweichung.execution.occurrence.task.category.name,
     geschlossenAm: abweichung.closedAt,
     massnahme: abweichung.closingComment ?? '',
-    referenzen: referenzenText(
-      abweichung.execution.occurrence.task.auditReferenzen,
-    ),
+    referenzen: referenzenText(abweichung.execution.occurrence.task.auditReferenzen),
   }))
 }
 

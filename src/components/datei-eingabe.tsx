@@ -99,9 +99,9 @@ export function DateiEingabe({
         const transfer = new DataTransfer()
         for (const datei of neue) transfer.items.add(datei)
         // Das echte Dateifeld ist die Schnittstelle zum Browser, nicht der
-      // Zustand der Komponente: Der Upload liest ausschließlich von dort.
-       
-      if (feld.current) feld.current.files = transfer.files
+        // Zustand der Komponente: Der Upload liest ausschließlich von dort.
+
+        if (feld.current) feld.current.files = transfer.files
         onAnzahl?.(neue.length)
         return neue
       })
@@ -167,8 +167,7 @@ export function DateiEingabe({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leerenSignal])
 
-  const entferne = (index: number) =>
-    uebernimm(dateien.filter((_, i) => i !== index))
+  const entferne = (index: number) => uebernimm(dateien.filter((_, i) => i !== index))
 
   return (
     <div className="space-y-2">
@@ -202,10 +201,10 @@ export function DateiEingabe({
             const bereitsDrin = new Set(dateien.map((d) => `${d.name}:${d.size}`))
             ergaenze(gewaehlt.filter((d) => !bereitsDrin.has(`${d.name}:${d.size}`)))
           }}
-          className="block w-full cursor-pointer text-sm file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium"
+          className="file:bg-secondary block w-full cursor-pointer text-sm file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:px-3 file:py-1.5 file:text-sm file:font-medium"
         />
 
-        <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
           <span className="flex items-center gap-1.5">
             <ClipboardPaste className="size-3.5" />
             Screenshot mit Strg+V einfügen
@@ -217,7 +216,7 @@ export function DateiEingabe({
         </p>
 
         {hinweis ? (
-          <p className="mt-1 text-xs text-muted-foreground">{hinweis}</p>
+          <p className="text-muted-foreground mt-1 text-xs">{hinweis}</p>
         ) : null}
       </div>
 
@@ -226,11 +225,11 @@ export function DateiEingabe({
           {dateien.map((datei, index) => (
             <li
               key={`${datei.name}-${datei.size}-${index}`}
-              className="flex items-center justify-between gap-2 rounded-md bg-muted/50 px-3 py-1.5 text-sm"
+              className="bg-muted/50 flex items-center justify-between gap-2 rounded-md px-3 py-1.5 text-sm"
             >
               <span className="min-w-0 truncate">
                 {datei.name}
-                <span className="ml-2 text-xs text-muted-foreground">
+                <span className="text-muted-foreground ml-2 text-xs">
                   {formatiereDateigroesse(datei.size)}
                 </span>
               </span>

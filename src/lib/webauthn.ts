@@ -85,8 +85,7 @@ export function passkeyHinweis(appUrl: string): string | null {
  * @returns den bereinigten Namen oder `null`, wenn er unbrauchbar ist.
  */
 export function pruefePasskeyName(wert: string): string | null {
-  const name = ohneSteuerzeichen(wert).trim()
-    .slice(0, 60)
+  const name = ohneSteuerzeichen(wert).trim().slice(0, 60)
 
   return name.length >= 2 ? name : null
 }
@@ -118,9 +117,7 @@ export function challengeAblauf(jetzt: Date): Date {
 /** Beschreibt die Art eines Passkeys für die Oberfläche. */
 export function geraeteArtText(deviceType: string, gesichert: boolean): string {
   if (deviceType === 'multiDevice') {
-    return gesichert
-      ? 'Synchronisiert (in einem Konto gesichert)'
-      : 'Synchronisiert'
+    return gesichert ? 'Synchronisiert (in einem Konto gesichert)' : 'Synchronisiert'
   }
   return 'An dieses Gerät gebunden'
 }

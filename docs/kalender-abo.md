@@ -8,7 +8,7 @@ Fälligkeiten dorthin, wo Sie ohnehin hinsehen.
 
 ## Einrichten
 
-*Mein Konto → Kalender abonnieren → **Kalender-Abonnement einrichten***.
+_Mein Konto → Kalender abonnieren → **Kalender-Abonnement einrichten**_.
 Danach steht dort eine Adresse, die auf `.ics` endet.
 
 ### In Outlook

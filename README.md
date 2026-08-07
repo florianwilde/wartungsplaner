@@ -14,20 +14,20 @@ auditfertige Reports als PDF und Excel.
 > aufsetzt oder Nachweise führt – stehen im [Handbuch](docs/README.md).
 > Diese Datei beschreibt Installation, Konfiguration und Betrieb.
 
-*[English summary](README.en.md)*
+_[English summary](README.en.md)_
 
 ---
 
 ## Bildschirmfotos
 
-| | |
-| --- | --- |
-| ![Dashboard](docs/bilder/dashboard.png) | ![Aufgaben](docs/bilder/aufgaben.png) |
+|                                                                               |                                                                                         |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| ![Dashboard](docs/bilder/dashboard.png)                                       | ![Aufgaben](docs/bilder/aufgaben.png)                                                   |
 | **Dashboard** – Ampel je Kategorie, nächste Fälligkeiten, offene Abweichungen | **Aufgaben** – wiederkehrende Prüfungen mit Intervall, Zuständigkeit und Audit-Referenz |
-| ![Abweichungen](docs/bilder/abweichungen.png) | ![Prüfnachweise](docs/bilder/nachweise.png) |
-| **Abweichungen** – Feststellungen mit Frist und Verantwortlichkeit | **Prüfnachweise** – strukturierte Prüfbögen mit Vier-Augen-Prinzip |
-| ![Reports](docs/bilder/reports.png) | ![Dunkles Farbschema](docs/bilder/dashboard-dunkel.png) |
-| **Reports** – fünf Auswertungen als PDF und Excel | **Dunkles Farbschema** – umschaltbar, auch nach Systemvorgabe |
+| ![Abweichungen](docs/bilder/abweichungen.png)                                 | ![Prüfnachweise](docs/bilder/nachweise.png)                                             |
+| **Abweichungen** – Feststellungen mit Frist und Verantwortlichkeit            | **Prüfnachweise** – strukturierte Prüfbögen mit Vier-Augen-Prinzip                      |
+| ![Reports](docs/bilder/reports.png)                                           | ![Dunkles Farbschema](docs/bilder/dashboard-dunkel.png)                                 |
+| **Reports** – fünf Auswertungen als PDF und Excel                             | **Dunkles Farbschema** – umschaltbar, auch nach Systemvorgabe                           |
 
 Die Bilder entstehen aus einer Demo-Instanz mit Beispieldaten
 (`npm run screenshots`) – nie aus einem echten Bestand.
@@ -58,16 +58,16 @@ Die Bilder entstehen aus einer Demo-Instanz mit Beispieldaten
 
 ## Funktionsumfang
 
-| Bereich | Beschreibung |
-| --- | --- |
-| **Dashboard** (`/`) | Kacheln für Überfällig, Diese Woche fällig, Offen gesamt und Offene Abweichungen; Liste der nächsten Fälligkeiten mit direktem Erledigen-Dialog; Ampel je Kategorie |
-| **Aufgaben** (`/tasks`) | Liste mit Filtern nach Kategorie, Verantwortlichem, Status und Kritikalität sowie Volltextsuche |
-| **Aufgaben-Detail** (`/tasks/[id]`) | Stammdaten, Prüfanleitung in Markdown, offene Fälligkeiten und vollständige Historie aller Durchführungen inklusive Nachweisen |
-| **Erledigen-Dialog** | Ergebnis, Kommentar, Mehrfach-Upload von Nachweisen und Anlegen von Abweichungen in einem Schritt |
-| **Abweichungen** (`/findings`) | Liste mit Status, Schweregrad und Frist; Bearbeiten und Schließen mit Maßnahmenkommentar |
-| **Kalender** (`/calendar`) | Monatsansicht aller Fälligkeiten mit farbcodierten Kategorien |
-| **Reports** (`/reports`) | Vier Auswertungen als PDF und Excel, jeweils mit Zeitraum- und Kategorienfilter |
-| **Administration** (`/admin`) | Benutzerverwaltung, Kategorien, Erscheinungsbild, Systemübersicht und lesende, filterbare Audit-Log-Ansicht |
+| Bereich                             | Beschreibung                                                                                                                                                        |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Dashboard** (`/`)                 | Kacheln für Überfällig, Diese Woche fällig, Offen gesamt und Offene Abweichungen; Liste der nächsten Fälligkeiten mit direktem Erledigen-Dialog; Ampel je Kategorie |
+| **Aufgaben** (`/tasks`)             | Liste mit Filtern nach Kategorie, Verantwortlichem, Status und Kritikalität sowie Volltextsuche                                                                     |
+| **Aufgaben-Detail** (`/tasks/[id]`) | Stammdaten, Prüfanleitung in Markdown, offene Fälligkeiten und vollständige Historie aller Durchführungen inklusive Nachweisen                                      |
+| **Erledigen-Dialog**                | Ergebnis, Kommentar, Mehrfach-Upload von Nachweisen und Anlegen von Abweichungen in einem Schritt                                                                   |
+| **Abweichungen** (`/findings`)      | Liste mit Status, Schweregrad und Frist; Bearbeiten und Schließen mit Maßnahmenkommentar                                                                            |
+| **Kalender** (`/calendar`)          | Monatsansicht aller Fälligkeiten mit farbcodierten Kategorien                                                                                                       |
+| **Reports** (`/reports`)            | Vier Auswertungen als PDF und Excel, jeweils mit Zeitraum- und Kategorienfilter                                                                                     |
+| **Administration** (`/admin`)       | Benutzerverwaltung, Kategorien, Erscheinungsbild, Systemübersicht und lesende, filterbare Audit-Log-Ansicht                                                         |
 
 ### Reports
 
@@ -93,18 +93,18 @@ Seitenzählung („Seite X von Y“). Jeder Abruf wird im Audit-Log protokollier
   und `DELETE` auf der Tabelle `AuditLog` werden von PostgreSQL abgewiesen.
 - Benutzer werden **nie gelöscht, sondern deaktiviert**, damit alle
   Protokolleinträge dauerhaft zuordenbar bleiben.
-- Beim Ergebnis *Abweichung* muss mindestens eine Abweichung erfasst werden;
+- Beim Ergebnis _Abweichung_ muss mindestens eine Abweichung erfasst werden;
   bei Aufgaben mit Nachweispflicht mindestens eine Datei.
 
 ---
 
 ## Rollen und Berechtigungen
 
-| Rolle | Rechte |
-| --- | --- |
+| Rolle                     | Rechte                                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | **ADMIN** (Administrator) | Vollzugriff: Aufgaben und Kategorien pflegen, Benutzer verwalten, Fälligkeiten aussetzen, Audit-Log einsehen, alles aus EDITOR |
-| **EDITOR** (Bearbeiter) | Fälligkeiten erledigen, Nachweise hochladen, Abweichungen anlegen, bearbeiten und schließen; Reports abrufen |
-| **AUDITOR** (Auditor) | Strikt lesender Zugriff auf alle Daten inklusive Reports; keine schreibende Aktion |
+| **EDITOR** (Bearbeiter)   | Fälligkeiten erledigen, Nachweise hochladen, Abweichungen anlegen, bearbeiten und schließen; Reports abrufen                   |
+| **AUDITOR** (Auditor)     | Strikt lesender Zugriff auf alle Daten inklusive Reports; keine schreibende Aktion                                             |
 
 Die Prüfung erfolgt serverseitig in jeder Seite und jeder Server Action, nicht
 nur in der Oberfläche.
@@ -120,10 +120,10 @@ nur in der Oberfläche.
     eine verspätete Erledigung verschiebt den Takt also nicht,
   - bei `AFTER_COMPLETION` aus **Erledigungsdatum + Intervall**.
 - Ein **täglicher Hintergrundjob** setzt Fälligkeiten mit
-  `dueDate + graceDays < heute` auf *überfällig* und stellt sicher, dass jede
+  `dueDate + graceDays < heute` auf _überfällig_ und stellt sicher, dass jede
   aktive Aufgabe genau eine unerledigte Fälligkeit besitzt.
 - Ab `dueDate - leadTimeDays` erscheint eine Fälligkeit auf dem Dashboard als
-  *bald fällig*.
+  _bald fällig_.
 - Intervalle: täglich, wöchentlich, monatlich, vierteljährlich, halbjährlich,
   jährlich sowie „alle N Tage“. Bei monatsbasierten Intervallen wird auf den
   letzten Tag des Zielmonats begrenzt (31.01. + 1 Monat = 28./29.02.).
@@ -181,10 +181,10 @@ realistische Beispielaufgaben mit ausformulierten Prüfanleitungen.
 
 ### Der Stack im Überblick
 
-| Service | Beschreibung |
-| --- | --- |
-| `app` | Next.js im Production-Build (Multi-Stage-Dockerfile, Standalone-Ausgabe, unprivilegierter Benutzer), Healthcheck auf `/api/health` |
-| `db` | `postgres:16` mit Healthcheck (`pg_isready`); **kein Port auf dem Host** – nur im Compose-Netz erreichbar |
+| Service | Beschreibung                                                                                                                       |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `app`   | Next.js im Production-Build (Multi-Stage-Dockerfile, Standalone-Ausgabe, unprivilegierter Benutzer), Healthcheck auf `/api/health` |
+| `db`    | `postgres:16` mit Healthcheck (`pg_isready`); **kein Port auf dem Host** – nur im Compose-Netz erreichbar                          |
 
 Die Datenbank ist bewusst von außerhalb des Stacks nicht erreichbar. Die
 Anwendung spricht sie im Compose-Netz unter dem Namen `db` an, und die
@@ -200,9 +200,9 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 
 Sie bindet den Port an `127.0.0.1` und gehört nicht auf ein Produktivsystem.
 
-| Volume | Inhalt |
-| --- | --- |
-| `pgdata` | PostgreSQL-Datenverzeichnis |
+| Volume    | Inhalt                                                     |
+| --------- | ---------------------------------------------------------- |
+| `pgdata`  | PostgreSQL-Datenverzeichnis                                |
 | `uploads` | Hochgeladene Nachweise (im Container unter `/app/uploads`) |
 
 ---
@@ -215,28 +215,28 @@ Alle Einstellungen werden über die Datei `.env` gesetzt; sie ist per
 
 ### Pflichtangaben
 
-| Variable | Bedeutung |
-| --- | --- |
-| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Zugangsdaten der Datenbank. Der App-Container bildet seine Verbindungs-URL daraus selbst. |
-| `AUTH_SECRET` | Geheimnis für die Session-Cookies. Erzeugen mit `openssl rand -base64 32`. **Muss** vor dem Produktivbetrieb geändert werden. |
-| `APP_URL`, `AUTH_URL` | Öffentlich erreichbare Basis-URL ohne abschließenden Slash, z. B. `https://wartungsplaner.firma.de`. |
-| `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | Zugang des per Seed angelegten Administrators. Das Passwort muss beim ersten Login geändert werden. |
+| Variable                                            | Bedeutung                                                                                                                     |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Zugangsdaten der Datenbank. Der App-Container bildet seine Verbindungs-URL daraus selbst.                                     |
+| `AUTH_SECRET`                                       | Geheimnis für die Session-Cookies. Erzeugen mit `openssl rand -base64 32`. **Muss** vor dem Produktivbetrieb geändert werden. |
+| `APP_URL`, `AUTH_URL`                               | Öffentlich erreichbare Basis-URL ohne abschließenden Slash, z. B. `https://wartungsplaner.firma.de`.                          |
+| `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`           | Zugang des per Seed angelegten Administrators. Das Passwort muss beim ersten Login geändert werden.                           |
 
 ### Weitere Einstellungen
 
-| Variable | Standard | Bedeutung |
-| --- | --- | --- |
-| `APP_PORT` | `3000` | Port auf dem Host |
-| `POSTGRES_PORT` | `5432` | Nur mit `docker-compose.dev.yml`: Postgres-Port auf `127.0.0.1` |
-| `TZ` | `Europe/Berlin` | Zeitzone von Anwendung und Datenbank |
-| `AUTH_TRUST_HOST` | `true` | Hinter einem Reverse Proxy auf `true` lassen |
-| `UPLOAD_DIR` | `/app/uploads` | Ablage der Nachweise im Container |
-| `CRON_ENABLED` | `true` | Täglichen Hintergrundjob aktivieren |
-| `CRON_SCHEDULE` | `15 2 * * *` | Zeitplan des Jobs (Europe/Berlin) |
-| `CRON_TOKEN` | leer | Wenn gesetzt, kann der Job zusätzlich per HTTP ausgelöst werden |
+| Variable          | Standard        | Bedeutung                                                       |
+| ----------------- | --------------- | --------------------------------------------------------------- |
+| `APP_PORT`        | `3000`          | Port auf dem Host                                               |
+| `POSTGRES_PORT`   | `5432`          | Nur mit `docker-compose.dev.yml`: Postgres-Port auf `127.0.0.1` |
+| `TZ`              | `Europe/Berlin` | Zeitzone von Anwendung und Datenbank                            |
+| `AUTH_TRUST_HOST` | `true`          | Hinter einem Reverse Proxy auf `true` lassen                    |
+| `UPLOAD_DIR`      | `/app/uploads`  | Ablage der Nachweise im Container                               |
+| `CRON_ENABLED`    | `true`          | Täglichen Hintergrundjob aktivieren                             |
+| `CRON_SCHEDULE`   | `15 2 * * *`    | Zeitplan des Jobs (Europe/Berlin)                               |
+| `CRON_TOKEN`      | leer            | Wenn gesetzt, kann der Job zusätzlich per HTTP ausgelöst werden |
 
 > **Hinweis zu `DATABASE_URL`:** Die Variable in der `.env` richtet sich an
-> Werkzeuge, die *vom Host aus* laufen (`prisma migrate`, `pg_dump`, `psql`) und
+> Werkzeuge, die _vom Host aus_ laufen (`prisma migrate`, `pg_dump`, `psql`) und
 > zeigt deshalb auf `localhost`. Der App-Container bildet seine eigene URL mit
 > dem Servicenamen `db` (siehe `docker-compose.yml`). Sonderzeichen im Passwort
 > müssen in der URL kodiert werden (`@` wird zu `%40`).
@@ -292,7 +292,7 @@ Benutzerverwaltung gezielt anlegen.
 1. Unter `APP_URL` mit `SEED_ADMIN_EMAIL` und `SEED_ADMIN_PASSWORD` anmelden.
 2. Das Startpasswort ändern – die Anwendung erzwingt das vor dem ersten Zugriff.
 3. Unter **Administration → Benutzer** die Kolleginnen und Kollegen anlegen
-   (Rolle *Bearbeiter* für die ausführende IT, *Auditor* für Revision und
+   (Rolle _Bearbeiter_ für die ausführende IT, _Auditor_ für Revision und
    Geschäftsführung).
 4. Unter **Administration → Kategorien** die Gliederung an die eigene
    Organisation anpassen.
@@ -312,23 +312,23 @@ Unter **Administration → Erscheinungsbild** lassen sich Farben, Logos und
 Bezeichnungen ohne Neustart ändern. Die Änderung wirkt sofort für alle
 Benutzer und wird im Audit-Log protokolliert.
 
-| Einstellung | Wirkung |
-| --- | --- |
-| **Anwendungsname** | Kopfzeile, Browsertitel, Report-Kopf |
-| **Organisation** | Fußzeile der Anwendung, Kopf und Fuß der Reports, Dateieigenschaften der Exporte |
-| **Primärfarbe** | Schaltflächen, Links, Hervorhebungen, Trennlinie im PDF-Kopf |
-| **Akzentfarbe** | Verläufe und sekundäre Hervorhebungen |
-| **Logo (hell / dunkel)** | Kopfzeile, Anmeldeseite und – bei PNG/JPG – Kopf der PDF-Reports |
-| **Browsersymbol** | Symbol im Browsertab |
-| **Report-Fußzeile** | Freitext, z. B. „Vertraulich – nur zur internen Verwendung“ |
+| Einstellung              | Wirkung                                                                          |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| **Anwendungsname**       | Kopfzeile, Browsertitel, Report-Kopf                                             |
+| **Organisation**         | Fußzeile der Anwendung, Kopf und Fuß der Reports, Dateieigenschaften der Exporte |
+| **Primärfarbe**          | Schaltflächen, Links, Hervorhebungen, Trennlinie im PDF-Kopf                     |
+| **Akzentfarbe**          | Verläufe und sekundäre Hervorhebungen                                            |
+| **Logo (hell / dunkel)** | Kopfzeile, Anmeldeseite und – bei PNG/JPG – Kopf der PDF-Reports                 |
+| **Browsersymbol**        | Symbol im Browsertab                                                             |
+| **Report-Fußzeile**      | Freitext, z. B. „Vertraulich – nur zur internen Verwendung“                      |
 
 **Auslieferungszustand:** bewusst neutral – ein sachliches Blau
 (`#2563eb` Primär, `#0ea5e9` Akzent), ein schlichtes Kreislaufsymbol als
 Logo und **kein Organisationsname**. Der Platz in Fußzeile und Berichten
 gehört Ihrer Firma; ein fremder Name dort wäre schlimmer als gar keiner.
 
-> **Vor dem ersten Bericht** sollten Sie unter *Administration →
-> Erscheinungsbild* wenigstens die Organisation eintragen und Ihr Logo
+> **Vor dem ersten Bericht** sollten Sie unter _Administration →
+> Erscheinungsbild_ wenigstens die Organisation eintragen und Ihr Logo
 > hochladen. Alles andere funktioniert auch ohne.
 
 Hinweise:
@@ -352,7 +352,7 @@ Hinweise:
 Damit niemand täglich ins Dashboard schauen muss, meldet sich der
 Wartungsplaner von selbst. Der Versand ist **erst aktiv, wenn beides erfüllt
 ist**: ein Mailserver in der `.env` **und** der Schalter unter
-*Administration → Benachrichtigungen*.
+_Administration → Benachrichtigungen_.
 
 ### Mailserver in der `.env`
 
@@ -369,17 +369,17 @@ MAIL_CRON_SCHEDULE=0 7 * * *    # Versandzeit, Standard 07:00 Uhr
 ```
 
 Nach dem Ändern der `.env` den Stack neu starten. Unter
-*Administration → Benachrichtigungen* prüft eine **Testnachricht**, ob alles
+_Administration → Benachrichtigungen_ prüft eine **Testnachricht**, ob alles
 sitzt.
 
 ### Nachrichtenarten
 
-| Art | Empfänger | Auslöser |
-| --- | --- | --- |
-| **Prüfungen** | verantwortliche Person | Eine Prüfung rückt in ihre Vorlaufzeit oder ist überfällig |
-| **Abweichungen** | verantwortliche Person | Die Frist einer offenen Abweichung rückt näher oder ist überschritten |
-| **Eskalation** | eine zentrale Stelle | Prüfungen, die länger als die eingestellte Schwelle überfällig sind |
-| **Wochenübersicht** | alle | Am eingestellten Wochentag, sofern etwas offen ist |
+| Art                 | Empfänger              | Auslöser                                                              |
+| ------------------- | ---------------------- | --------------------------------------------------------------------- |
+| **Prüfungen**       | verantwortliche Person | Eine Prüfung rückt in ihre Vorlaufzeit oder ist überfällig            |
+| **Abweichungen**    | verantwortliche Person | Die Frist einer offenen Abweichung rückt näher oder ist überschritten |
+| **Eskalation**      | eine zentrale Stelle   | Prüfungen, die länger als die eingestellte Schwelle überfällig sind   |
+| **Wochenübersicht** | alle                   | Am eingestellten Wochentag, sofern etwas offen ist                    |
 
 Grundsätze:
 
@@ -390,7 +390,7 @@ Grundsätze:
   ersten Nachricht in Vergessenheit gerät.
 - **Eskalationen höchstens einmal je Kalenderwoche.**
 - Wer nichts offen hat, erhält keine Nachricht.
-- Einzelne Personen lassen sich unter *Administration → Benachrichtigungen*
+- Einzelne Personen lassen sich unter _Administration → Benachrichtigungen_
   abmelden.
 
 Der Versandzeitpunkt liegt bewusst nach dem Fälligkeitsabgleich (Standard
@@ -445,20 +445,20 @@ Ablauf im Einzelnen:
    Historien auseinandergelaufen, bricht das Update ab und der Stack läuft
    unverändert weiter. Die neuen Commits werden aufgelistet.
 4. **Neubau** des App-Images; der Git-Commit wird als Build-Argument in die
-   Anwendung übernommen und ist später unter *Administration → System*
+   Anwendung übernommen und ist später unter _Administration → System_
    sichtbar.
 5. **Neustart**; die Migrationen wendet der Container beim Start selbst an.
 6. **Warten auf den Healthcheck** und Ausgabe der neuen Fassung. Meldet der
    Container einen Fehler, zeigt das Skript die letzten Protokollzeilen und
    den passenden Rollback-Befehl.
 
-| Option | Wirkung |
-| --- | --- |
-| *(ohne)* | Sicherung, `git pull`, Neubau, Neustart |
-| `--ohne-sicherung` | überspringt die Sicherung (nicht empfohlen) |
-| `--nur-neubau` | ohne `git pull`, nur Image neu bauen und neu starten |
-| `--branch <name>` | auf einen anderen Branch wechseln, z. B. `stable` |
-| `--help` | Kurzhilfe |
+| Option             | Wirkung                                              |
+| ------------------ | ---------------------------------------------------- |
+| _(ohne)_           | Sicherung, `git pull`, Neubau, Neustart              |
+| `--ohne-sicherung` | überspringt die Sicherung (nicht empfohlen)          |
+| `--nur-neubau`     | ohne `git pull`, nur Image neu bauen und neu starten |
+| `--branch <name>`  | auf einen anderen Branch wechseln, z. B. `stable`    |
+| `--help`           | Kurzhilfe                                            |
 
 **Rückweg bei Problemen:**
 
@@ -485,7 +485,7 @@ Die Fassung steht in der `package.json` und wird zur Bauzeit in die Anwendung
 
 Die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 Alle Änderungen sind in [CHANGELOG.md](CHANGELOG.md) dokumentiert; derselbe
-Text erscheint auch in der Anwendung unter *Administration → System*.
+Text erscheint auch in der Anwendung unter _Administration → System_.
 
 ### Releases anlegen
 
@@ -501,10 +501,10 @@ es weiterhin nur eine Quelle.
 
 Nötig sind Zugriffstoken in der `.env` (siehe `.env.example`):
 
-| Variable | Woher |
-| --- | --- |
-| `GITLAB_TOKEN` | GitLab → Profil → Access Tokens, Bereich `api` |
-| `GITEA_TOKEN` | Gitea → Einstellungen → Anwendungen, Schreibrecht auf das Repository |
+| Variable       | Woher                                                                |
+| -------------- | -------------------------------------------------------------------- |
+| `GITLAB_TOKEN` | GitLab → Profil → Access Tokens, Bereich `api`                       |
+| `GITEA_TOKEN`  | Gitea → Einstellungen → Anwendungen, Schreibrecht auf das Repository |
 
 Fehlt ein Token, wird das betreffende Ziel übersprungen und benannt; das
 Skript bricht deswegen nicht ab. Ein bereits vorhandenes Release wird
@@ -647,27 +647,27 @@ npm run dev                   # http://localhost:3000
 
 ### Skripte
 
-| Befehl | Wirkung |
-| --- | --- |
-| `npm run dev` | Entwicklungsserver |
-| `npm run build` | Prisma-Client erzeugen und Production-Build |
-| `npm start` | Production-Server starten |
-| `npm run typecheck` | TypeScript prüfen |
-| `npm test` | Unit-Tests (Vitest) |
-| `npm run test:watch` | Unit-Tests im Watch-Modus |
-| `npm run test:integration` | Integrationstest gegen die laufende Datenbank |
-| `npm run test:ausgabe` | Excel, ZIP und PDF erzeugen und zurücklesen |
-| `npm run test:migrationen` | Migrationen gegen eine leere Datenbank prüfen |
-| `npm run test:import` | Import von Audit-Referenzen und Prüfbögen |
-| `npm run test:erzwingen` | Löschen samt Nachweisen: Protokoll und Dateiablage |
-| `npm run test:beispiele` | Beispieldateien gegen die Importregeln prüfen |
-| `npm run test:einspielen` | Beispieldateien in eine leere Datenbank einspielen |
-| `npm run test:e2e` | End-to-End-Tests im Browser gegen die laufende Anwendung |
-| `npm run screenshots` | Bildschirmfotos aus einer eigens gestarteten Demo-Instanz |
-| `npm run db:migrate` | Migration erzeugen und anwenden |
-| `npm run db:deploy` | Migrationen anwenden (Produktion) |
-| `npm run db:seed` | Seed ausführen |
-| `npm run db:studio` | Prisma Studio |
+| Befehl                     | Wirkung                                                   |
+| -------------------------- | --------------------------------------------------------- |
+| `npm run dev`              | Entwicklungsserver                                        |
+| `npm run build`            | Prisma-Client erzeugen und Production-Build               |
+| `npm start`                | Production-Server starten                                 |
+| `npm run typecheck`        | TypeScript prüfen                                         |
+| `npm test`                 | Unit-Tests (Vitest)                                       |
+| `npm run test:watch`       | Unit-Tests im Watch-Modus                                 |
+| `npm run test:integration` | Integrationstest gegen die laufende Datenbank             |
+| `npm run test:ausgabe`     | Excel, ZIP und PDF erzeugen und zurücklesen               |
+| `npm run test:migrationen` | Migrationen gegen eine leere Datenbank prüfen             |
+| `npm run test:import`      | Import von Audit-Referenzen und Prüfbögen                 |
+| `npm run test:erzwingen`   | Löschen samt Nachweisen: Protokoll und Dateiablage        |
+| `npm run test:beispiele`   | Beispieldateien gegen die Importregeln prüfen             |
+| `npm run test:einspielen`  | Beispieldateien in eine leere Datenbank einspielen        |
+| `npm run test:e2e`         | End-to-End-Tests im Browser gegen die laufende Anwendung  |
+| `npm run screenshots`      | Bildschirmfotos aus einer eigens gestarteten Demo-Instanz |
+| `npm run db:migrate`       | Migration erzeugen und anwenden                           |
+| `npm run db:deploy`        | Migrationen anwenden (Produktion)                         |
+| `npm run db:seed`          | Seed ausführen                                            |
+| `npm run db:studio`        | Prisma Studio                                             |
 
 ### Tests
 
@@ -695,16 +695,16 @@ npm run dev                   # http://localhost:3000
 
 ## Technischer Aufbau
 
-| Baustein | Verwendung |
-| --- | --- |
-| Next.js 16 (App Router) mit TypeScript | Oberfläche und Server Actions |
-| Prisma ORM mit PostgreSQL 16 | Datenmodell und Migrationen |
-| Auth.js v5 | Credentials- und OIDC-Provider, Session-Cookies |
-| Tailwind CSS 4 + shadcn/ui | Oberfläche, vollständig auf Deutsch |
-| pdfkit / exceljs | Serverseitige Report-Erzeugung |
-| nodemailer | E-Mail-Benachrichtigungen |
-| node-cron | Fälligkeitsabgleich und Versandlauf |
-| Vitest | Unit-Tests |
+| Baustein                               | Verwendung                                      |
+| -------------------------------------- | ----------------------------------------------- |
+| Next.js 16 (App Router) mit TypeScript | Oberfläche und Server Actions                   |
+| Prisma ORM mit PostgreSQL 16           | Datenmodell und Migrationen                     |
+| Auth.js v5                             | Credentials- und OIDC-Provider, Session-Cookies |
+| Tailwind CSS 4 + shadcn/ui             | Oberfläche, vollständig auf Deutsch             |
+| pdfkit / exceljs                       | Serverseitige Report-Erzeugung                  |
+| nodemailer                             | E-Mail-Benachrichtigungen                       |
+| node-cron                              | Fälligkeitsabgleich und Versandlauf             |
+| Vitest                                 | Unit-Tests                                      |
 
 Weitere Dokumente: [ROADMAP.md](ROADMAP.md) (geplante Weiterentwicklung),
 [CHANGELOG.md](CHANGELOG.md) (Änderungsverlauf),
@@ -723,11 +723,11 @@ src/server/      Datenbanknahe Dienste, Server Actions und Report-Erzeugung
 
 Skripte im Projektverzeichnis:
 
-| Datei | Zweck |
-| --- | --- |
-| [`update.sh`](update.sh) | Stack aktualisieren (Sicherung, `git pull`, Neubau, Neustart) |
-| [`backup.sh`](backup.sh) | Datenbank, Nachweise und Konfiguration sichern |
-| [`docker-entrypoint.sh`](docker-entrypoint.sh) | Start im Container: warten, migrieren, ggf. seeden |
+| Datei                                          | Zweck                                                         |
+| ---------------------------------------------- | ------------------------------------------------------------- |
+| [`update.sh`](update.sh)                       | Stack aktualisieren (Sicherung, `git pull`, Neubau, Neustart) |
+| [`backup.sh`](backup.sh)                       | Datenbank, Nachweise und Konfiguration sichern                |
+| [`docker-entrypoint.sh`](docker-entrypoint.sh) | Start im Container: warten, migrieren, ggf. seeden            |
 
 Zentrale Dateien:
 

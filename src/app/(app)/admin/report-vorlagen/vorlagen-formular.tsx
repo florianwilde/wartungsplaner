@@ -8,7 +8,13 @@ import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
@@ -28,10 +34,7 @@ import {
   type ReportVorlage,
 } from '@/lib/report-vorlagen'
 import { REPORT_TITEL, type ReportTyp } from '@/server/reports/typen'
-import {
-  vorlageLoeschen,
-  vorlageSpeichern,
-} from '@/server/actions/report-vorlagen'
+import { vorlageLoeschen, vorlageSpeichern } from '@/server/actions/report-vorlagen'
 
 const selectKlassen =
   'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
@@ -92,8 +95,7 @@ function VorlagenDialog({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {vorlage ? 'Vorlage bearbeiten' : 'Neue Vorlage'} –{' '}
-            {REPORT_TITEL[typ]}
+            {vorlage ? 'Vorlage bearbeiten' : 'Neue Vorlage'} – {REPORT_TITEL[typ]}
           </DialogTitle>
           <DialogDescription>
             Aufbau und Umfang des PDF. Excel-Exporte bleiben unverändert.
@@ -141,16 +143,16 @@ function VorlagenDialog({
             />
             <div className="space-y-1">
               <Label htmlFor={`standard-${typ}`}>Als Standard verwenden</Label>
-              <p className="text-xs text-muted-foreground">
-                Diese Vorlage ist dann auf der Reports-Seite vorausgewählt. Je
-                Reportart kann es nur einen Standard geben.
+              <p className="text-muted-foreground text-xs">
+                Diese Vorlage ist dann auf der Reports-Seite vorausgewählt. Je Reportart
+                kann es nur einen Standard geben.
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
             <Label>Spalten</Label>
-            <div className="grid gap-2 rounded-md border border-border p-3 sm:grid-cols-2">
+            <div className="border-border grid gap-2 rounded-md border p-3 sm:grid-cols-2">
               {SPALTEN_KATALOG[typ].map((spalte) => (
                 <label
                   key={spalte.key}
@@ -163,18 +165,18 @@ function VorlagenDialog({
                   />
                   <span>{spalte.kopf}</span>
                   {pflicht.has(spalte.key) ? (
-                    <span className="text-xs text-muted-foreground">(fest)</span>
+                    <span className="text-muted-foreground text-xs">(fest)</span>
                   ) : null}
                 </label>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Feste Spalten lassen sich nicht abwählen – ohne sie wäre der
-              Bericht nicht aussagekräftig. Die Breiten passen sich automatisch an.
+            <p className="text-muted-foreground text-xs">
+              Feste Spalten lassen sich nicht abwählen – ohne sie wäre der Bericht nicht
+              aussagekräftig. Die Breiten passen sich automatisch an.
             </p>
           </div>
 
-          <div className="space-y-3 rounded-md border border-border p-3">
+          <div className="border-border space-y-3 rounded-md border p-3">
             <div className="flex items-start gap-3">
               <Checkbox
                 id={`deckblatt-${typ}`}
@@ -184,9 +186,9 @@ function VorlagenDialog({
               />
               <div className="space-y-1">
                 <Label htmlFor={`deckblatt-${typ}`}>Deckblatt voranstellen</Label>
-                <p className="text-xs text-muted-foreground">
-                  Eigene erste Seite mit Titel, Zeitraum und Eckdaten. Die
-                  Seitenzählung beginnt danach.
+                <p className="text-muted-foreground text-xs">
+                  Eigene erste Seite mit Titel, Zeitraum und Eckdaten. Die Seitenzählung
+                  beginnt danach.
                 </p>
               </div>
             </div>
@@ -229,7 +231,7 @@ function VorlagenDialog({
             />
           </div>
 
-          <div className="space-y-3 rounded-md border border-border p-3">
+          <div className="border-border space-y-3 rounded-md border p-3">
             <div className="flex items-start gap-3">
               <Checkbox
                 id={`unterschriften-${typ}`}
@@ -241,7 +243,7 @@ function VorlagenDialog({
                 <Label htmlFor={`unterschriften-${typ}`}>
                   Unterschriftenfelder anfügen
                 </Label>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Zwei Linien am Ende des Berichts zum Gegenzeichnen.
                 </p>
               </div>
@@ -276,7 +278,7 @@ function VorlagenDialog({
           {status.fehler ? (
             <p
               role="alert"
-              className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+              className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
             >
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
               {status.fehler}
@@ -331,19 +333,17 @@ export function VorlagenVerwaltung({
         {vorlagen.map((vorlage) => (
           <div
             key={vorlage.id}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
+            className="border-border flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
           >
             <div className="min-w-0 space-y-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-medium">{vorlage.name}</span>
-                {vorlage.istStandard ? (
-                  <Badge variant="ok">Standard</Badge>
-                ) : null}
+                {vorlage.istStandard ? <Badge variant="ok">Standard</Badge> : null}
                 <Badge variant="neutral">
                   {vorlage.ausrichtung === 'quer' ? 'A4 quer' : 'A4 hoch'}
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {vorlage.spalten.length} Spalten
                 {vorlage.mitDeckblatt ? ' · Deckblatt' : ''}
                 {vorlage.mitUnterschriften ? ' · Unterschriften' : ''}

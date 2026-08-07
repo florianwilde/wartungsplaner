@@ -57,9 +57,7 @@ export function istUnversehrt(ergebnis: {
   abweichend: number
   unlesbar: number
 }): boolean {
-  return (
-    ergebnis.fehlend === 0 && ergebnis.abweichend === 0 && ergebnis.unlesbar === 0
-  )
+  return ergebnis.fehlend === 0 && ergebnis.abweichend === 0 && ergebnis.unlesbar === 0
 }
 
 /** Anzahl der Befunde, die die Beweiskraft betreffen. */
@@ -111,9 +109,7 @@ export function kappeBefunde(befunde: Befund[]): {
     return { gespeichert: befunde, gekappt: 0 }
   }
   // Zuerst die schwerwiegenden: Sie sollen erhalten bleiben, wenn gekappt wird.
-  const sortiert = [...befunde].sort(
-    (a, b) => gewicht(a.art) - gewicht(b.art),
-  )
+  const sortiert = [...befunde].sort((a, b) => gewicht(a.art) - gewicht(b.art))
   return {
     gespeichert: sortiert.slice(0, MAX_BEFUNDE),
     gekappt: befunde.length - MAX_BEFUNDE,

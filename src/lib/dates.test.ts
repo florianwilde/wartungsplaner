@@ -35,33 +35,25 @@ describe('toBerlinDateOnly', () => {
   it('ordnet einen Zeitpunkt dem Berliner Kalendertag zu (Winterzeit)', () => {
     // 31.01.2026 23:30 UTC = 01.02.2026 00:30 in Berlin (UTC+1)
     const instant = new Date('2026-01-31T23:30:00.000Z')
-    expect(toBerlinDateOnly(instant).toISOString()).toBe(
-      '2026-02-01T00:00:00.000Z',
-    )
+    expect(toBerlinDateOnly(instant).toISOString()).toBe('2026-02-01T00:00:00.000Z')
   })
 
   it('ordnet einen Zeitpunkt dem Berliner Kalendertag zu (Sommerzeit)', () => {
     // 30.06.2026 22:30 UTC = 01.07.2026 00:30 in Berlin (UTC+2)
     const instant = new Date('2026-06-30T22:30:00.000Z')
-    expect(toBerlinDateOnly(instant).toISOString()).toBe(
-      '2026-07-01T00:00:00.000Z',
-    )
+    expect(toBerlinDateOnly(instant).toISOString()).toBe('2026-07-01T00:00:00.000Z')
   })
 
   it('bleibt am selben Tag, wenn Berlin noch nicht gewechselt hat', () => {
     // 01.07.2026 21:30 UTC = 01.07.2026 23:30 in Berlin
     const instant = new Date('2026-07-01T21:30:00.000Z')
-    expect(toBerlinDateOnly(instant).toISOString()).toBe(
-      '2026-07-01T00:00:00.000Z',
-    )
+    expect(toBerlinDateOnly(instant).toISOString()).toBe('2026-07-01T00:00:00.000Z')
   })
 
   it('funktioniert am Tag der Zeitumstellung', () => {
     // Umstellung auf Sommerzeit: 29.03.2026, 02:00 -> 03:00 MEZ/MESZ
     const instant = new Date('2026-03-29T01:30:00.000Z')
-    expect(toBerlinDateOnly(instant).toISOString()).toBe(
-      '2026-03-29T00:00:00.000Z',
-    )
+    expect(toBerlinDateOnly(instant).toISOString()).toBe('2026-03-29T00:00:00.000Z')
   })
 })
 
@@ -127,12 +119,8 @@ describe('differenceInDays / compareDates / isSameDay', () => {
   })
 
   it('zählt über die Zeitumstellung korrekt', () => {
-    expect(
-      differenceInDays(dateOnly(2026, 3, 28), dateOnly(2026, 3, 30)),
-    ).toBe(2)
-    expect(
-      differenceInDays(dateOnly(2026, 10, 24), dateOnly(2026, 10, 26)),
-    ).toBe(2)
+    expect(differenceInDays(dateOnly(2026, 3, 28), dateOnly(2026, 3, 30))).toBe(2)
+    expect(differenceInDays(dateOnly(2026, 10, 24), dateOnly(2026, 10, 26))).toBe(2)
   })
 
   it('vergleicht Kalendertage', () => {

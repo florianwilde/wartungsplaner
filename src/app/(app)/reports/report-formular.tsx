@@ -4,7 +4,13 @@ import { useMemo, useState } from 'react'
 import { FileSpreadsheet, FileText } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -58,10 +64,7 @@ export function ReportFormular({
       bisher.includes(id) ? bisher.filter((k) => k !== id) : [...bisher, id],
     )
 
-  const baueUrl = (
-    bericht: ReportDefinition,
-    format: 'pdf' | 'xlsx',
-  ) => {
+  const baueUrl = (bericht: ReportDefinition, format: 'pdf' | 'xlsx') => {
     const params = new URLSearchParams({ format })
     if (bericht.mitZeitraum) {
       params.set('von', von)
@@ -118,7 +121,7 @@ export function ReportFormular({
                 value={monate}
                 onChange={(e) => setMonate(e.target.value)}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Gilt nur für die Fälligkeitsvorschau.
               </p>
             </div>
@@ -145,7 +148,7 @@ export function ReportFormular({
                 </label>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {gewaehlt.length === 0
                 ? 'Keine Auswahl bedeutet: alle Kategorien.'
                 : `${gewaehlt.length} von ${kategorien.length} Kategorien gewählt.`}
@@ -175,7 +178,7 @@ export function ReportFormular({
                   </label>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {gewaehlteReferenzen.length === 0
                   ? 'Keine Auswahl bedeutet: alle Referenzen.'
                   : 'Enthalten sind Aufgaben, die mindestens eine der gewählten Anforderungen abdecken.'}
@@ -207,7 +210,7 @@ export function ReportFormular({
                         [bericht.typ]: e.target.value,
                       }))
                     }
-                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="border-input bg-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm focus-visible:ring-2 focus-visible:outline-none"
                   >
                     <option value="">Standardvorlage</option>
                     {bericht.vorlagen.map((vorlage) => (

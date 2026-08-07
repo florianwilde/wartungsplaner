@@ -27,10 +27,7 @@ export type Vertretung = {
  * Beide Grenzen zählen mit: Wer „bis 12.08.“ abwesend ist, wird am 12.08.
  * noch vertreten.
  */
-export function istVertretungAktiv(
-  vertretung: Vertretung,
-  heute: Date,
-): boolean {
+export function istVertretungAktiv(vertretung: Vertretung, heute: Date): boolean {
   if (!vertretung.vertretungId) return false
   if (vertretung.von && compareDates(heute, vertretung.von) < 0) return false
   if (vertretung.bis && compareDates(heute, vertretung.bis) > 0) return false
@@ -38,26 +35,20 @@ export function istVertretungAktiv(
 }
 
 /** Eine hinterlegte Vertretung, die erst später greift. */
-export function istVertretungGeplant(
-  vertretung: Vertretung,
-  heute: Date,
-): boolean {
+export function istVertretungGeplant(vertretung: Vertretung, heute: Date): boolean {
   return Boolean(
     vertretung.vertretungId &&
-      vertretung.von &&
-      compareDates(heute, vertretung.von) < 0,
+    vertretung.von &&
+    compareDates(heute, vertretung.von) < 0,
   )
 }
 
 /** Eine hinterlegte Vertretung, deren Zeitraum vorbei ist. */
-export function istVertretungAbgelaufen(
-  vertretung: Vertretung,
-  heute: Date,
-): boolean {
+export function istVertretungAbgelaufen(vertretung: Vertretung, heute: Date): boolean {
   return Boolean(
     vertretung.vertretungId &&
-      vertretung.bis &&
-      compareDates(heute, vertretung.bis) > 0,
+    vertretung.bis &&
+    compareDates(heute, vertretung.bis) > 0,
   )
 }
 

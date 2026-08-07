@@ -48,10 +48,7 @@ export type Bewertung =
  *    Registrierung an. Die Pflicht durchzusetzen hieße, jede Anmeldung in
  *    eine Sackgasse zu führen.
  */
-export function bewerte(
-  einstellung: PflichtEinstellung,
-  lage: Lage,
-): Bewertung {
+export function bewerte(einstellung: PflichtEinstellung, lage: Lage): Bewertung {
   if (!einstellung.rollen.includes(lage.rolle)) {
     return { pflicht: false, grund: 'nicht-verlangt' }
   }
@@ -65,10 +62,7 @@ export function bewerte(
 }
 
 /** Muss die Person vor allem anderen einen Passkey einrichten? */
-export function mussEinrichten(
-  einstellung: PflichtEinstellung,
-  lage: Lage,
-): boolean {
+export function mussEinrichten(einstellung: PflichtEinstellung, lage: Lage): boolean {
   const bewertung = bewerte(einstellung, lage)
   return bewertung.pflicht && !bewertung.erfuellt
 }

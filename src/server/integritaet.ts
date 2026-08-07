@@ -47,10 +47,7 @@ async function pruefsummeVon(absolut: string): Promise<string> {
 }
 
 /** Alle Dateien unterhalb eines Verzeichnisses, relativ zur Wurzel. */
-async function sammleDateien(
-  wurzel: string,
-  unterverzeichnis = '',
-): Promise<string[]> {
+async function sammleDateien(wurzel: string, unterverzeichnis = ''): Promise<string[]> {
   const absolut = path.join(wurzel, unterverzeichnis)
 
   let eintraege
@@ -257,14 +254,11 @@ export async function fuehreIntegritaetslaufAus(
  */
 async function meldeBeanstandungen(ergebnis: LaufErgebnis): Promise<void> {
   try {
-    const { istMailVersandKonfiguriert, versendeMail } = await import(
-      '@/server/mailer'
-    )
+    const { istMailVersandKonfiguriert, versendeMail } = await import('@/server/mailer')
     if (!istMailVersandKonfiguriert()) return
 
-    const { holeBenachrichtigungsEinstellungen } = await import(
-      '@/server/benachrichtigungs-einstellungen'
-    )
+    const { holeBenachrichtigungsEinstellungen } =
+      await import('@/server/benachrichtigungs-einstellungen')
     const einstellungen = await holeBenachrichtigungsEinstellungen()
     if (!einstellungen.enabled) return
 

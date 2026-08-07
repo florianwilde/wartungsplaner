@@ -14,20 +14,20 @@ Eine Vertretung leitet die Post für die Dauer der Abwesenheit um.
 
 ## Eintragen
 
-**Für sich selbst:** *Mein Konto → Vertretung bei Abwesenheit*. Person
+**Für sich selbst:** _Mein Konto → Vertretung bei Abwesenheit_. Person
 wählen, Zeitraum angeben, speichern.
 
-**Für jemand anderen:** *Administration → Benutzer*, in der Zeile der Person
+**Für jemand anderen:** _Administration → Benutzer_, in der Zeile der Person
 auf **Vertretung**. Das braucht es, wenn jemand krank wurde und die Angabe
 nicht mehr selbst machen konnte. Im Audit-Log ist erkennbar, dass die
 Verwaltung für eine andere Person gehandelt hat.
 
 ### Zeitraum
 
-| Angabe | Bedeutung |
-| --- | --- |
-| **Ab** leer | gilt ab sofort |
-| **Bis** leer | gilt bis auf Weiteres |
+| Angabe        | Bedeutung                           |
+| ------------- | ----------------------------------- |
+| **Ab** leer   | gilt ab sofort                      |
+| **Bis** leer  | gilt bis auf Weiteres               |
 | beide gesetzt | gilt an beiden Tagen einschließlich |
 
 Der letzte Tag zählt mit: Wer „bis 12.08." abwesend ist, wird am 12.08. noch

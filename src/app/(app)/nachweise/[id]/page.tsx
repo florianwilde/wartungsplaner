@@ -7,7 +7,13 @@ import { SeitenKopf } from '@/components/seiten-kopf'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { addDays, formatDate, formatDateTime, toISODate, todayInBerlin } from '@/lib/dates'
+import {
+  addDays,
+  formatDate,
+  formatDateTime,
+  toISODate,
+  todayInBerlin,
+} from '@/lib/dates'
 import {
   STATUS_BEZEICHNUNG,
   istAenderbar,
@@ -20,10 +26,7 @@ import { canAdminister, canExecute, canManageFindings } from '@/lib/rbac'
 import { erforderlicherBenutzer } from '@/lib/session'
 import { ladeFeststellungen, ladeNachweis } from '@/server/nachweise'
 import { Feststellungen } from './feststellungen'
-import {
-  EigenenEntwurfVerwerfen,
-  FremderEntwurf,
-} from './fremder-entwurf'
+import { EigenenEntwurfVerwerfen, FremderEntwurf } from './fremder-entwurf'
 import { NachweisFormular } from './nachweis-formular'
 
 export const metadata: Metadata = { title: 'Prüfnachweis' }
@@ -105,9 +108,7 @@ export default async function NachweisSeite({
             />
             <Zeile
               label="Vorgelegt"
-              wert={
-                nachweis.vorgelegtAm ? formatDateTime(nachweis.vorgelegtAm) : '–'
-              }
+              wert={nachweis.vorgelegtAm ? formatDateTime(nachweis.vorgelegtAm) : '–'}
             />
             <Zeile
               label="Gegenzeichnung"
@@ -126,7 +127,7 @@ export default async function NachweisSeite({
           </dl>
 
           {nachweis.attachment ? (
-            <div className="mt-4 rounded-md border border-border p-3">
+            <div className="border-border mt-4 rounded-md border p-3">
               <a
                 href={`/api/attachments/${nachweis.attachment.id}`}
                 className="flex items-center gap-2 text-sm font-medium hover:underline"
@@ -134,10 +135,10 @@ export default async function NachweisSeite({
                 <FileText className="size-4 shrink-0" />
                 {nachweis.attachment.filename}
               </a>
-              <p className="mt-1 break-all font-mono text-[11px] text-muted-foreground">
+              <p className="text-muted-foreground mt-1 font-mono text-[11px] break-all">
                 SHA-256: {nachweis.attachment.sha256}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="text-muted-foreground mt-1 text-xs">
                 Als Nachweis an der Durchführung hinterlegt.
               </p>
             </div>
@@ -146,9 +147,9 @@ export default async function NachweisSeite({
       </Card>
 
       {status === 'GEGENGEZEICHNET' ? (
-        <p className="rounded-md bg-status-ok/10 p-3 text-sm text-status-ok">
-          Dieser Nachweis ist gegengezeichnet und damit unveränderlich.
-          Korrekturen erfolgen ausschließlich als neuer, protokollierter Vorgang.
+        <p className="bg-status-ok/10 text-status-ok rounded-md p-3 text-sm">
+          Dieser Nachweis ist gegengezeichnet und damit unveränderlich. Korrekturen
+          erfolgen ausschließlich als neuer, protokollierter Vorgang.
         </p>
       ) : null}
 

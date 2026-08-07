@@ -143,10 +143,7 @@ async function main() {
     inhalt.includes(`SUMMARY:${PRAEFIX}Restore-Test\\; wichtig`),
     'Die eigene Fälligkeit steht drin – mit maskiertem Semikolon',
   )
-  pruefe(
-    !inhalt.includes('Fremde Prüfung'),
-    'Fremde Fälligkeiten stehen nicht drin',
-  )
+  pruefe(!inhalt.includes('Fremde Prüfung'), 'Fremde Fälligkeiten stehen nicht drin')
   pruefe(
     (inhalt.match(/BEGIN:VEVENT/g) ?? []).length === 1,
     'Die erledigte Fälligkeit erscheint nicht',
@@ -155,10 +152,7 @@ async function main() {
     inhalt.includes(`URL:${APP_URL}/tasks/${eigeneAufgabe.id}`),
     'Der Termin verweist auf die Aufgabe',
   )
-  pruefe(
-    inhalt.includes('TRIGGER:-P7D'),
-    'Der Vorlauf der Aufgabe wird zur Erinnerung',
-  )
+  pruefe(inhalt.includes('TRIGGER:-P7D'), 'Der Vorlauf der Aufgabe wird zur Erinnerung')
   pruefe(
     inhalt.includes('X-WR-CALNAME:Wartungsplaner – Eigene Person'),
     'Der Kalender trägt den Namen der Person',

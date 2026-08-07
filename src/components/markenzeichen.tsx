@@ -80,9 +80,7 @@ export function MarkenzeichenKompakt({
     <span className={cn('flex items-center gap-2.5', className)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={STANDARD_BILDMARKE} alt="" aria-hidden className="size-7" />
-      <span className="text-sm font-semibold tracking-tight">
-        {branding.appName}
-      </span>
+      <span className="text-sm font-semibold tracking-tight">{branding.appName}</span>
     </span>
   )
 }

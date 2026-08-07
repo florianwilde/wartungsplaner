@@ -16,10 +16,7 @@
  */
 
 export type NachweisStatus =
-  | 'ENTWURF'
-  | 'VORGELEGT'
-  | 'GEGENGEZEICHNET'
-  | 'ZURUECKGEWIESEN'
+  'ENTWURF' | 'VORGELEGT' | 'GEGENGEZEICHNET' | 'ZURUECKGEWIESEN'
 
 export type PruefpunktArt =
   | 'BEWERTUNG'
@@ -31,12 +28,7 @@ export type PruefpunktArt =
   | 'LISTE'
 
 export type PruefpunktErgebnis =
-  | 'ERFUELLT'
-  | 'NICHT_ERFUELLT'
-  | 'ENTFAELLT'
-  | 'BELASSEN'
-  | 'ENTZIEHEN'
-  | 'AENDERN'
+  'ERFUELLT' | 'NICHT_ERFUELLT' | 'ENTFAELLT' | 'BELASSEN' | 'ENTZIEHEN' | 'AENDERN'
 
 export const STATUS_BEZEICHNUNG: Record<NachweisStatus, string> = {
   ENTWURF: 'Entwurf',
@@ -93,8 +85,7 @@ export function istAbgeschlossen(status: NachweisStatus): boolean {
 export type Uebergang = 'vorlegen' | 'gegenzeichnen' | 'zurueckweisen' | 'abschliessen'
 
 export type UebergangsPruefung =
-  | { erlaubt: true; neuerStatus: NachweisStatus }
-  | { erlaubt: false; grund: string }
+  { erlaubt: true; neuerStatus: NachweisStatus } | { erlaubt: false; grund: string }
 
 export type UebergangsEingabe = {
   status: NachweisStatus
@@ -369,12 +360,11 @@ export function auffaelligePunkte(
 
   return punkte
     .map((punkt) => ({ punkt, antwort: nachPunkt.get(punkt.id) }))
-    .filter(
-      (eintrag): eintrag is { punkt: Pruefpunkt; antwort: Antwort } =>
-        Boolean(
-          eintrag.antwort?.ergebnis &&
-            AUFFAELLIGE_ERGEBNISSE.includes(eintrag.antwort.ergebnis),
-        ),
+    .filter((eintrag): eintrag is { punkt: Pruefpunkt; antwort: Antwort } =>
+      Boolean(
+        eintrag.antwort?.ergebnis &&
+        AUFFAELLIGE_ERGEBNISSE.includes(eintrag.antwort.ergebnis),
+      ),
     )
 }
 
@@ -534,7 +524,8 @@ export function uebernehmeZeilenAusCsv(
     }
 
     const zusatzFelder = felder.slice(1).filter((f) => f !== '')
-    const zusatz = zusatzFelder.length > 0 ? zusatzFelder.join(' · ').slice(0, 300) : null
+    const zusatz =
+      zusatzFelder.length > 0 ? zusatzFelder.join(' · ').slice(0, 300) : null
 
     // Doppelte Einträge würden eine Rezertifizierung aufblähen und die
     // Auswertung verfälschen.

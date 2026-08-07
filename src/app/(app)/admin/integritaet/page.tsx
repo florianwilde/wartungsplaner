@@ -33,7 +33,7 @@ export default async function IntegritaetSeite() {
   const benutzer = await erforderlicherBenutzer()
   if (!canAdminister(benutzer.role)) {
     return (
-      <p className="rounded-md bg-destructive/10 p-4 text-sm text-destructive">
+      <p className="bg-destructive/10 text-destructive rounded-md p-4 text-sm">
         Diese Seite ist der Administration vorbehalten.
       </p>
     )
@@ -59,12 +59,12 @@ export default async function IntegritaetSeite() {
             <CardTitle className="flex items-center gap-2">
               {istUnversehrt(letzter) ? (
                 <>
-                  <CheckCircle2 className="size-5 text-status-ok" />
+                  <CheckCircle2 className="text-status-ok size-5" />
                   Nachweiskette unversehrt
                 </>
               ) : (
                 <>
-                  <AlertTriangle className="size-5 text-destructive" />
+                  <AlertTriangle className="text-destructive size-5" />
                   {schwerwiegendeBefunde(letzter)}{' '}
                   {schwerwiegendeBefunde(letzter) === 1
                     ? 'Nachweis beanstandet'
@@ -96,7 +96,7 @@ export default async function IntegritaetSeite() {
                   {befunde.map((befund, index) => (
                     <li
                       key={`${befund.pfad}-${index}`}
-                      className="rounded-md border border-border p-3 text-sm"
+                      className="border-border rounded-md border p-3 text-sm"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <span className="font-medium">
@@ -104,11 +104,11 @@ export default async function IntegritaetSeite() {
                         </span>
                         <BefundBadge art={befund.art} />
                       </div>
-                      <p className="mt-1 break-all font-mono text-[11px] text-muted-foreground">
+                      <p className="text-muted-foreground mt-1 font-mono text-[11px] break-all">
                         {befund.pfad}
                       </p>
                       {befund.art === 'ABWEICHEND' ? (
-                        <p className="mt-1 break-all font-mono text-[11px] text-muted-foreground">
+                        <p className="text-muted-foreground mt-1 font-mono text-[11px] break-all">
                           erwartet {befund.erwartet}
                           <br />
                           gefunden {befund.gefunden}
@@ -118,26 +118,26 @@ export default async function IntegritaetSeite() {
                   ))}
                 </ul>
                 {gekappt > 0 ? (
-                  <p className="text-xs text-muted-foreground">
-                    Weitere {gekappt} Befunde wurden nicht einzeln festgehalten;
-                    die Zahlen oben sind vollständig.
+                  <p className="text-muted-foreground text-xs">
+                    Weitere {gekappt} Befunde wurden nicht einzeln festgehalten; die
+                    Zahlen oben sind vollständig.
                   </p>
                 ) : null}
               </div>
             ) : (
-              <p className="flex items-start gap-2 rounded-md bg-status-ok/10 p-3 text-sm text-status-ok">
+              <p className="bg-status-ok/10 text-status-ok flex items-start gap-2 rounded-md p-3 text-sm">
                 <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-                Jede hinterlegte Datei ist vorhanden und stimmt mit ihrer
-                Prüfsumme überein.
+                Jede hinterlegte Datei ist vorhanden und stimmt mit ihrer Prüfsumme
+                überein.
               </p>
             )}
 
             {letzter.verwaist > 0 ? (
-              <p className="flex items-start gap-2 rounded-md bg-muted p-3 text-xs text-muted-foreground">
+              <p className="bg-muted text-muted-foreground flex items-start gap-2 rounded-md p-3 text-xs">
                 <FileQuestion className="mt-0.5 size-4 shrink-0" />
-                Dateien ohne Eintrag beeinträchtigen die Nachweiskette nicht –
-                es fehlt kein Beleg und keiner wurde verändert. Sie entstehen
-                etwa, wenn ein Vorgang nach dem Schreiben der Datei abbricht.
+                Dateien ohne Eintrag beeinträchtigen die Nachweiskette nicht – es fehlt
+                kein Beleg und keiner wurde verändert. Sie entstehen etwa, wenn ein
+                Vorgang nach dem Schreiben der Datei abbricht.
               </p>
             ) : null}
           </CardContent>
@@ -147,8 +147,8 @@ export default async function IntegritaetSeite() {
           <CardHeader>
             <CardTitle>Noch kein Lauf</CardTitle>
             <CardDescription>
-              Die Prüfung läuft täglich nach dem Fälligkeitsabgleich. Sie lässt
-              sich jederzeit von Hand anstoßen.
+              Die Prüfung läuft täglich nach dem Fälligkeitsabgleich. Sie lässt sich
+              jederzeit von Hand anstoßen.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -163,7 +163,7 @@ export default async function IntegritaetSeite() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-left text-muted-foreground">
+                  <tr className="border-border text-muted-foreground border-b text-left">
                     <th className="py-2 font-medium">Zeitpunkt</th>
                     <th className="py-2 font-medium">Ausgelöst von</th>
                     <th className="py-2 text-right font-medium">Geprüft</th>
@@ -174,25 +174,28 @@ export default async function IntegritaetSeite() {
                 </thead>
                 <tbody>
                   {laeufe.slice(1).map((lauf) => (
-                    <tr key={lauf.id} className="border-b border-border/60 last:border-0">
+                    <tr
+                      key={lauf.id}
+                      className="border-border/60 border-b last:border-0"
+                    >
                       <td className="py-2">{formatDateTime(lauf.gestartetAm)}</td>
-                      <td className="py-2 text-muted-foreground">
+                      <td className="text-muted-foreground py-2">
                         {lauf.ausgeloestBy?.name ?? 'geplanter Lauf'}
                       </td>
                       <td className="py-2 text-right">{lauf.geprueft}</td>
                       <td className="py-2 text-right">
                         {schwerwiegendeBefunde(lauf) > 0 ? (
-                          <span className="font-medium text-destructive">
+                          <span className="text-destructive font-medium">
                             {schwerwiegendeBefunde(lauf)}
                           </span>
                         ) : (
                           '–'
                         )}
                       </td>
-                      <td className="py-2 text-right text-muted-foreground">
+                      <td className="text-muted-foreground py-2 text-right">
                         {lauf.verwaist > 0 ? lauf.verwaist : '–'}
                       </td>
-                      <td className="py-2 text-right text-muted-foreground">
+                      <td className="text-muted-foreground py-2 text-right">
                         {lauf.dauerMs} ms
                       </td>
                     </tr>
@@ -217,12 +220,12 @@ function Zahl({
   warnend?: boolean
 }) {
   return (
-    <div className="rounded-md border border-border p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
+    <div className="border-border rounded-md border p-3">
+      <p className="text-muted-foreground text-xs">{label}</p>
       <p
         className={
           warnend && wert > 0
-            ? 'text-xl font-semibold text-destructive'
+            ? 'text-destructive text-xl font-semibold'
             : 'text-xl font-semibold'
         }
       >

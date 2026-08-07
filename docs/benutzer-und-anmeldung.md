@@ -26,7 +26,7 @@ eingetragen wird.
 Ein Passkey (Windows Hello, Touch ID, Sicherheitsschlüssel) ersetzt das
 Passwort. Er lässt sich nicht abphishen und nicht wiederverwenden.
 
-**Einrichten:** Konto → *Passkeys* → *Passkey hinterlegen*. Bis zu zehn je
+**Einrichten:** Konto → _Passkeys_ → _Passkey hinterlegen_. Bis zu zehn je
 Konto, benennbar und einzeln entfernbar.
 
 **Anmelden:** Auf der Anmeldeseite genügt der Passkey – die E-Mail-Adresse

@@ -14,7 +14,7 @@ export default async function AuditReferenzenSeite() {
   const benutzer = await erforderlicherBenutzer()
   if (!canAdminister(benutzer.role)) {
     return (
-      <p className="rounded-md bg-destructive/10 p-4 text-sm text-destructive">
+      <p className="bg-destructive/10 text-destructive rounded-md p-4 text-sm">
         Diese Seite ist der Administration vorbehalten.
       </p>
     )
@@ -35,8 +35,7 @@ export default async function AuditReferenzenSeite() {
         referenzen={referenzen
           .sort(
             (a, b) =>
-              a.sortOrder - b.sortOrder ||
-              vergleicheKuerzel(a.kuerzel, b.kuerzel),
+              a.sortOrder - b.sortOrder || vergleicheKuerzel(a.kuerzel, b.kuerzel),
           )
           .map((referenz) => ({
             id: referenz.id,

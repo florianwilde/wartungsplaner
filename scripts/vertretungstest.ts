@@ -343,8 +343,7 @@ async function main() {
     orderBy: { timestamp: 'desc' },
   })
   pruefe(
-    (aufhebung?.payloadJson as { fuerAndere?: boolean } | null)?.fuerAndere ===
-      true,
+    (aufhebung?.payloadJson as { fuerAndere?: boolean } | null)?.fuerAndere === true,
     'Das Audit-Log hält fest, dass die Verwaltung für jemand anderen gehandelt hat',
   )
 

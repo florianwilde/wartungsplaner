@@ -29,12 +29,12 @@ export default async function PruefboegenSeite() {
 
   return (
     <div className="space-y-6">
-      <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
-        Prüfbögen führen den Prüfvorgang in der Anwendung durch, statt ihn in
-        Word- oder Tabellendateien auszulagern. Aus dem ausgefüllten Bogen
-        entsteht ein PDF-Nachweis mit Prüfsumme, der automatisch als Anhang an
-        der Durchführung hinterlegt wird. Mit aktivem Vier-Augen-Prinzip wird er
-        erst nach Gegenzeichnung durch eine zweite Person gültig.
+      <p className="border-border bg-card text-muted-foreground rounded-lg border p-4 text-sm">
+        Prüfbögen führen den Prüfvorgang in der Anwendung durch, statt ihn in Word- oder
+        Tabellendateien auszulagern. Aus dem ausgefüllten Bogen entsteht ein
+        PDF-Nachweis mit Prüfsumme, der automatisch als Anhang an der Durchführung
+        hinterlegt wird. Mit aktivem Vier-Augen-Prinzip wird er erst nach Gegenzeichnung
+        durch eine zweite Person gültig.
       </p>
 
       <PruefbogenVerwaltung

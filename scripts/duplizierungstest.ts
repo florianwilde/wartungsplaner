@@ -131,7 +131,12 @@ async function main() {
       punkte: {
         create: [
           { position: 1, frage: 'Sicherung lesbar?', art: 'BEWERTUNG', pflicht: true },
-          { position: 2, frage: 'Dauer der Rücksicherung', art: 'TEXT', pflicht: false },
+          {
+            position: 2,
+            frage: 'Dauer der Rücksicherung',
+            art: 'TEXT',
+            pflicht: false,
+          },
         ],
       },
     },

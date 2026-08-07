@@ -17,10 +17,22 @@ import {
 } from '@/components/status-anzeigen'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { anzeigeName, langName } from '@/lib/audit-referenzen'
-import { addDays, formatDate, formatDateTime, toISODate, todayInBerlin } from '@/lib/dates'
+import {
+  addDays,
+  formatDate,
+  formatDateTime,
+  toISODate,
+  todayInBerlin,
+} from '@/lib/dates'
 import { formatiereDateigroesse } from '@/lib/labels'
 import { prisma } from '@/lib/prisma'
 import { canExecute, canManageTasks } from '@/lib/rbac'
@@ -196,7 +208,7 @@ export default async function AufgabenDetailSeite({
               {offene.map((occurrence) => (
                 <div
                   key={occurrence.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
+                  className="border-border flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -212,8 +224,9 @@ export default async function AufgabenDetailSeite({
                         )}
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Karenz bis {formatDate(addDays(occurrence.dueDate, aufgabe.graceDays))}
+                    <p className="text-muted-foreground text-xs">
+                      Karenz bis{' '}
+                      {formatDate(addDays(occurrence.dueDate, aufgabe.graceDays))}
                     </p>
                   </div>
 
@@ -269,7 +282,7 @@ export default async function AufgabenDetailSeite({
               {ausgesetzte.map((occurrence) => (
                 <div
                   key={occurrence.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed border-border p-3"
+                  className="border-border flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed p-3"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -279,7 +292,7 @@ export default async function AufgabenDetailSeite({
                       <FaelligkeitsStatusBadge status="SUSPENDED" />
                     </div>
                     {occurrence.suspendedReason ? (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs">
                         Begründung: {occurrence.suspendedReason}
                       </p>
                     ) : null}
@@ -300,7 +313,7 @@ export default async function AufgabenDetailSeite({
               {aufgabe.instructionsMd?.trim() ? (
                 <MarkdownAnzeige inhalt={aufgabe.instructionsMd} />
               ) : (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Für diese Aufgabe ist keine Prüfanleitung hinterlegt.
                 </p>
               )}
@@ -330,18 +343,16 @@ export default async function AufgabenDetailSeite({
                   return (
                     <div
                       key={occurrence.id}
-                      className="space-y-3 rounded-lg border border-border p-4"
+                      className="border-border space-y-3 rounded-lg border p-4"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex flex-wrap items-center gap-2">
                           <ErgebnisBadge ergebnis={execution.result} />
                           <Badge variant={puenktlich ? 'ok' : 'danger'}>
-                            {puenktlich
-                              ? 'Pünktlich'
-                              : `${verzug} Tage nach Termin`}
+                            {puenktlich ? 'Pünktlich' : `${verzug} Tage nach Termin`}
                           </Badge>
                         </div>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-muted-foreground text-xs">
                           Soll: {formatDate(occurrence.dueDate)} · Durchgeführt:{' '}
                           {formatDate(execution.executedAt)}
                         </span>
@@ -357,14 +368,14 @@ export default async function AufgabenDetailSeite({
                       </p>
 
                       {execution.comment ? (
-                        <p className="whitespace-pre-wrap rounded-md bg-muted/60 p-3 text-sm">
+                        <p className="bg-muted/60 rounded-md p-3 text-sm whitespace-pre-wrap">
                           {execution.comment}
                         </p>
                       ) : null}
 
                       {execution.attachments.length > 0 ? (
                         <div className="space-y-2">
-                          <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                          <p className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
                             <Paperclip className="size-3.5" />
                             Nachweise
                           </p>
@@ -372,7 +383,7 @@ export default async function AufgabenDetailSeite({
                             {execution.attachments.map((anhang) => (
                               <li
                                 key={anhang.id}
-                                className="rounded-md border border-border px-3 py-2 text-sm"
+                                className="border-border rounded-md border px-3 py-2 text-sm"
                               >
                                 <a
                                   href={`/api/attachments/${anhang.id}`}
@@ -381,7 +392,7 @@ export default async function AufgabenDetailSeite({
                                   <FileText className="size-4 shrink-0" />
                                   {anhang.filename}
                                 </a>
-                                <p className="mt-1 break-all font-mono text-[11px] text-muted-foreground">
+                                <p className="text-muted-foreground mt-1 font-mono text-[11px] break-all">
                                   {formatiereDateigroesse(anhang.sizeBytes)} · SHA-256:{' '}
                                   {anhang.sha256}
                                 </p>
@@ -414,13 +425,13 @@ export default async function AufgabenDetailSeite({
                       {execution.findings.length > 0 ? (
                         <div className="space-y-2">
                           <Separator />
-                          <p className="text-xs font-medium text-muted-foreground">
+                          <p className="text-muted-foreground text-xs font-medium">
                             Abweichungen
                           </p>
                           {execution.findings.map((abweichung) => (
                             <div
                               key={abweichung.id}
-                              className="rounded-md bg-muted/60 p-3 text-sm"
+                              className="bg-muted/60 rounded-md p-3 text-sm"
                             >
                               <div className="flex flex-wrap items-center gap-2">
                                 <span className="font-medium">{abweichung.title}</span>
@@ -428,11 +439,11 @@ export default async function AufgabenDetailSeite({
                                 <AbweichungStatusBadge status={abweichung.status} />
                               </div>
                               {abweichung.description ? (
-                                <p className="mt-1 whitespace-pre-wrap text-muted-foreground">
+                                <p className="text-muted-foreground mt-1 whitespace-pre-wrap">
                                   {abweichung.description}
                                 </p>
                               ) : null}
-                              <p className="mt-1 text-xs text-muted-foreground">
+                              <p className="text-muted-foreground mt-1 text-xs">
                                 Verantwortlich: {abweichung.responsible.name} · Frist:{' '}
                                 {formatDate(abweichung.dueDate)}
                                 {abweichung.closedAt
@@ -476,19 +487,13 @@ export default async function AufgabenDetailSeite({
                   wert={PLANUNGSMODUS_BEZEICHNUNG[aufgabe.scheduleMode]}
                 />
                 <Kennwert label="Startdatum" wert={formatDate(aufgabe.startDate)} />
-                <Kennwert
-                  label="Vorlaufzeit"
-                  wert={`${aufgabe.leadTimeDays} Tage`}
-                />
+                <Kennwert label="Vorlaufzeit" wert={`${aufgabe.leadTimeDays} Tage`} />
                 <Kennwert label="Karenz" wert={`${aufgabe.graceDays} Tage`} />
                 <Kennwert
                   label="Verantwortlich"
                   wert={`${aufgabe.owner.name} (${aufgabe.owner.email})`}
                 />
-                <Kennwert
-                  label="Angelegt"
-                  wert={formatDateTime(aufgabe.createdAt)}
-                />
+                <Kennwert label="Angelegt" wert={formatDateTime(aufgabe.createdAt)} />
                 <Kennwert
                   label="Zuletzt geändert"
                   wert={formatDateTime(aufgabe.updatedAt)}

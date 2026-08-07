@@ -17,7 +17,11 @@ export type BenutzerStatus = { fehler?: string; erfolg?: string }
 
 const anlegenSchema = z.object({
   name: z.string().trim().min(2, 'Bitte einen Namen angeben.').max(120),
-  email: z.string().trim().toLowerCase().email('Bitte eine gültige E-Mail-Adresse angeben.'),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email('Bitte eine gültige E-Mail-Adresse angeben.'),
   role: z.enum(['ADMIN', 'EDITOR', 'AUDITOR']),
   authProvider: z.enum(['LOCAL', 'OIDC']),
   password: z.string().optional().or(z.literal('')),

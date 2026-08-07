@@ -100,7 +100,7 @@ export function Zeilenliste({
     })
 
   return (
-    <div className="space-y-3 rounded-md border border-border bg-muted/30 p-3">
+    <div className="border-border bg-muted/30 space-y-3 rounded-md border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="flex items-center gap-2 text-sm font-medium">
           <ListChecks className="size-4" />
@@ -119,7 +119,7 @@ export function Zeilenliste({
       </div>
 
       {aenderbar ? (
-        <div className="space-y-3 rounded-md border border-dashed border-border p-3">
+        <div className="border-border space-y-3 rounded-md border border-dashed p-3">
           <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
             <div className="space-y-1.5">
               <Label htmlFor={`csv-${punktId}`}>Zeilen aus CSV übernehmen</Label>
@@ -128,16 +128,21 @@ export function Zeilenliste({
                 ref={dateiFeld}
                 type="file"
                 accept=".csv,.txt,text/csv,text/plain"
-                className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium"
+                className="file:bg-secondary block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:px-3 file:py-1.5 file:text-sm file:font-medium"
               />
             </div>
-            <Button type="button" variant="outline" disabled={laeuft} onClick={uebernehmen}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={laeuft}
+              onClick={uebernehmen}
+            >
               <Upload className="size-4" />
               Übernehmen
             </Button>
           </div>
 
-          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          <label className="text-muted-foreground flex items-center gap-2 text-xs">
             <input
               type="checkbox"
               checked={ersetzen}
@@ -147,10 +152,10 @@ export function Zeilenliste({
             Vorhandene Zeilen ersetzen (sonst anhängen)
           </label>
 
-          <p className="text-xs text-muted-foreground">
-            Erste Spalte als Bezeichnung, weitere als Zusatz. Semikolon, Komma
-            und Tabulator werden erkannt, eine Kopfzeile ebenfalls – ein
-            AD-Export lässt sich unverändert einlesen.
+          <p className="text-muted-foreground text-xs">
+            Erste Spalte als Bezeichnung, weitere als Zusatz. Semikolon, Komma und
+            Tabulator werden erkannt, eine Kopfzeile ebenfalls – ein AD-Export lässt
+            sich unverändert einlesen.
           </p>
         </div>
       ) : null}
@@ -158,8 +163,8 @@ export function Zeilenliste({
       {stand.gesamt > 0 ? (
         <>
           {aenderbar && stand.offen > 0 ? (
-            <div className="flex flex-wrap items-center gap-2 rounded-md bg-background p-2">
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="bg-background flex flex-wrap items-center gap-2 rounded-md p-2">
+              <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
                 <Wand2 className="size-3.5" />
                 Übrige {stand.offen} Zeilen auf einmal:
               </span>
@@ -177,16 +182,16 @@ export function Zeilenliste({
             </div>
           ) : null}
 
-          <div className="max-h-[28rem] overflow-auto rounded-md border border-border">
+          <div className="border-border max-h-[28rem] overflow-auto rounded-md border">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-background">
-                <tr className="border-b border-border text-left">
-                  <th className="w-10 p-2 font-medium text-muted-foreground">#</th>
-                  <th className="p-2 font-medium text-muted-foreground">Eintrag</th>
-                  <th className="w-40 p-2 font-medium text-muted-foreground">
+              <thead className="bg-background sticky top-0">
+                <tr className="border-border border-b text-left">
+                  <th className="text-muted-foreground w-10 p-2 font-medium">#</th>
+                  <th className="text-muted-foreground p-2 font-medium">Eintrag</th>
+                  <th className="text-muted-foreground w-40 p-2 font-medium">
                     Entscheidung
                   </th>
-                  <th className="w-56 p-2 font-medium text-muted-foreground">
+                  <th className="text-muted-foreground w-56 p-2 font-medium">
                     Bemerkung
                   </th>
                 </tr>
@@ -195,15 +200,15 @@ export function Zeilenliste({
                 {zeilen.map((zeile) => (
                   <tr
                     key={zeile.id}
-                    className="border-b border-border/60 last:border-0"
+                    className="border-border/60 border-b last:border-0"
                   >
-                    <td className="p-2 align-top text-xs text-muted-foreground">
+                    <td className="text-muted-foreground p-2 align-top text-xs">
                       {zeile.position}
                     </td>
                     <td className="p-2 align-top">
                       <span className="font-medium">{zeile.bezeichnung}</span>
                       {zeile.zusatz ? (
-                        <span className="block text-xs text-muted-foreground">
+                        <span className="text-muted-foreground block text-xs">
                           {zeile.zusatz}
                         </span>
                       ) : null}
@@ -257,9 +262,9 @@ export function Zeilenliste({
           ) : null}
         </>
       ) : (
-        <p className="text-sm text-muted-foreground">
-          Noch keine Zeilen. Prüfpunkt {position} gilt erst als beantwortet, wenn
-          Zeilen vorhanden und alle entschieden sind.
+        <p className="text-muted-foreground text-sm">
+          Noch keine Zeilen. Prüfpunkt {position} gilt erst als beantwortet, wenn Zeilen
+          vorhanden und alle entschieden sind.
         </p>
       )}
     </div>

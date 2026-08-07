@@ -22,9 +22,7 @@ import { istVertretungAktiv } from '@/lib/vertretung'
 const TOKEN_BYTES = 32
 
 /** Erzeugt ein neues Geheimnis und gibt es zurück. */
-export async function erneuereKalenderToken(
-  benutzerId: string,
-): Promise<string> {
+export async function erneuereKalenderToken(benutzerId: string): Promise<string> {
   const token = randomBytes(TOKEN_BYTES).toString('hex')
 
   await prisma.$transaction(async (tx) => {
@@ -67,9 +65,7 @@ export async function entferneKalenderToken(benutzerId: string): Promise<void> {
   })
 }
 
-export async function ladeKalenderToken(
-  benutzerId: string,
-): Promise<string | null> {
+export async function ladeKalenderToken(benutzerId: string): Promise<string | null> {
   const benutzer = await prisma.user.findUnique({
     where: { id: benutzerId },
     select: { kalenderToken: true },

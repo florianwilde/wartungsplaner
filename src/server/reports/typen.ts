@@ -7,11 +7,7 @@
  */
 
 export type ReportTyp =
-  | 'compliance'
-  | 'historie'
-  | 'abweichungen'
-  | 'vorschau'
-  | 'nachweise'
+  'compliance' | 'historie' | 'abweichungen' | 'vorschau' | 'nachweise'
 
 export const REPORT_TYPEN: ReportTyp[] = [
   'compliance',

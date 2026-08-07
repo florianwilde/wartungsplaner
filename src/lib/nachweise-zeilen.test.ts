@@ -203,7 +203,9 @@ describe('uebernehmeZeilenAusCsv', () => {
   })
 
   it('übergeht leere Zeilen stillschweigend', () => {
-    const ergebnis = uebernehmeZeilenAusCsv('mmueller;Admins\n\n\nsschmidt;Buchhaltung\n')
+    const ergebnis = uebernehmeZeilenAusCsv(
+      'mmueller;Admins\n\n\nsschmidt;Buchhaltung\n',
+    )
 
     expect(ergebnis.zeilen).toHaveLength(2)
     expect(ergebnis.uebersprungen).toHaveLength(0)
@@ -215,7 +217,10 @@ describe('uebernehmeZeilenAusCsv', () => {
   })
 
   it('begrenzt die Anzahl und meldet den Rest', () => {
-    const viele = Array.from({ length: MAX_ZEILEN + 3 }, (_, i) => `konto${i};Gruppe`).join('\n')
+    const viele = Array.from(
+      { length: MAX_ZEILEN + 3 },
+      (_, i) => `konto${i};Gruppe`,
+    ).join('\n')
     const ergebnis = uebernehmeZeilenAusCsv(viele)
 
     expect(ergebnis.zeilen).toHaveLength(MAX_ZEILEN)

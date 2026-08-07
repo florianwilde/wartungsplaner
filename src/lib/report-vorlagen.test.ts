@@ -61,9 +61,9 @@ describe('standardSpalten', () => {
 
 describe('normalisiereSpalten', () => {
   it('behält die gewählte Reihenfolge bei', () => {
-    expect(
-      normalisiereSpalten('vorschau', ['aufgabe', 'termin', 'kategorie']),
-    ).toEqual(['aufgabe', 'termin', 'kategorie'])
+    expect(normalisiereSpalten('vorschau', ['aufgabe', 'termin', 'kategorie'])).toEqual(
+      ['aufgabe', 'termin', 'kategorie'],
+    )
   })
 
   it('entfernt unbekannte Schlüssel', () => {
@@ -73,9 +73,10 @@ describe('normalisiereSpalten', () => {
   })
 
   it('entfernt Doppelungen', () => {
-    expect(
-      normalisiereSpalten('vorschau', ['termin', 'termin', 'aufgabe']),
-    ).toEqual(['termin', 'aufgabe'])
+    expect(normalisiereSpalten('vorschau', ['termin', 'termin', 'aufgabe'])).toEqual([
+      'termin',
+      'aufgabe',
+    ])
   })
 
   it('ergänzt fehlende Pflichtspalten', () => {
@@ -87,9 +88,7 @@ describe('normalisiereSpalten', () => {
   })
 
   it('fällt bei leerer Auswahl auf die Vorbelegung zurück', () => {
-    expect(normalisiereSpalten('compliance', [])).toEqual(
-      standardSpalten('compliance'),
-    )
+    expect(normalisiereSpalten('compliance', [])).toEqual(standardSpalten('compliance'))
   })
 
   it('liefert für jede Reportart eine brauchbare Auswahl', () => {

@@ -144,14 +144,13 @@ export default async function AuditSeite({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ShieldCheck className="size-4 text-status-ok" />
+            <ShieldCheck className="text-status-ok size-4" />
             Audit-Log
           </CardTitle>
           <CardDescription>
-            Revisionssicheres Protokoll aller schreibenden Vorgänge. Einträge
-            können ausschließlich hinzugefügt werden – Änderungen und
-            Löschungen sind zusätzlich per Datenbank-Trigger unterbunden. Diese
-            Ansicht ist rein lesend.
+            Revisionssicheres Protokoll aller schreibenden Vorgänge. Einträge können
+            ausschließlich hinzugefügt werden – Änderungen und Löschungen sind
+            zusätzlich per Datenbank-Trigger unterbunden. Diese Ansicht ist rein lesend.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -164,7 +163,7 @@ export default async function AuditSeite({
       {eintraege.length === 0 ? (
         <LeerHinweis text="Zu den gewählten Filtern gibt es keine Protokolleinträge." />
       ) : (
-        <div className="rounded-lg border border-border bg-card">
+        <div className="border-border bg-card rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -178,7 +177,7 @@ export default async function AuditSeite({
             <TableBody>
               {eintraege.map((eintrag) => (
                 <TableRow key={eintrag.id}>
-                  <TableCell className="whitespace-nowrap tabular-nums text-muted-foreground">
+                  <TableCell className="text-muted-foreground whitespace-nowrap tabular-nums">
                     {formatDateTime(eintrag.timestamp)}
                   </TableCell>
                   <TableCell>
@@ -203,7 +202,7 @@ export default async function AuditSeite({
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           {gesamt.toLocaleString('de-DE')} Einträge · Seite {seite} von {seiten}
         </p>
         {/* Ein <a> lässt sich nicht deaktivieren – am Rand wird deshalb ein
@@ -258,7 +257,7 @@ function Einzelheiten({ payload }: { payload: unknown }) {
       {paare.map(([schluessel, wert]) => (
         <div key={schluessel} className="flex gap-1">
           <dt className="text-muted-foreground">{schluessel}:</dt>
-          <dd className="break-all font-medium">{darstelle(wert)}</dd>
+          <dd className="font-medium break-all">{darstelle(wert)}</dd>
         </div>
       ))}
     </dl>

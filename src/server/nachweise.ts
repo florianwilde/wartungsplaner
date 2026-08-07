@@ -36,10 +36,7 @@ import {
   speichereDatei,
   type GespeicherteDatei,
 } from '@/server/dateiablage'
-import {
-  meldeVorlage,
-  meldeZurueckweisung,
-} from '@/server/nachweis-benachrichtigungen'
+import { meldeVorlage, meldeZurueckweisung } from '@/server/nachweis-benachrichtigungen'
 import { erzeugeNachweisPdf } from '@/server/reports/nachweis-pdf'
 import { holeBranding } from '@/server/branding'
 
@@ -77,7 +74,9 @@ export async function ladeNachweis(nachweisId: string) {
       },
       occurrence: {
         include: {
-          task: { select: { id: true, title: true, category: { select: { name: true } } } },
+          task: {
+            select: { id: true, title: true, category: { select: { name: true } } },
+          },
           execution: { select: { id: true } },
         },
       },
@@ -87,7 +86,13 @@ export async function ladeNachweis(nachweisId: string) {
 
 /** Wandelt Datenbankzeilen in die Form der reinen Prüffunktionen. */
 function alsPunkte(
-  punkte: { id: string; position: number; frage: string; art: string; pflicht: boolean }[],
+  punkte: {
+    id: string
+    position: number
+    frage: string
+    art: string
+    pflicht: boolean
+  }[],
 ): Pruefpunkt[] {
   return punkte.map((p) => ({
     id: p.id,
@@ -146,7 +151,12 @@ export async function starteNachweis(
     }),
     prisma.pruefbogenVorlage.findUnique({
       where: { id: vorlageId },
-      select: { id: true, name: true, aktiv: true, _count: { select: { punkte: true } } },
+      select: {
+        id: true,
+        name: true,
+        aktiv: true,
+        _count: { select: { punkte: true } },
+      },
     }),
   ])
 
@@ -286,9 +296,7 @@ export async function ladeNachweisStand(
     const zeilen = alsZeilen(nachweis.zeilen)
 
     const ausPunkten = auffaelligePunkte(punkte, antworten).map((eintrag) => {
-      const antwort = nachweis.antworten.find(
-        (a) => a.punktId === eintrag.punkt.id,
-      )
+      const antwort = nachweis.antworten.find((a) => a.punktId === eintrag.punkt.id)
       return {
         titel: `${eintrag.punkt.frage} – ${
           ERGEBNIS_BEZEICHNUNG[eintrag.antwort.ergebnis!]
@@ -447,10 +455,7 @@ export async function uebernehmeZeilen(
   }
 
   const vorhanden = nachweis.zeilen.filter((z) => z.punktId === punktId)
-  const ergebnis = uebernehmeZeilenAusCsv(
-    csvInhalt,
-    ersetzen ? 0 : vorhanden.length,
-  )
+  const ergebnis = uebernehmeZeilenAusCsv(csvInhalt, ersetzen ? 0 : vorhanden.length)
 
   if (ergebnis.zeilen.length === 0) {
     throw new NachweisFehler(
@@ -745,7 +750,8 @@ export async function fuegeBelegeHinzu(
             ...(punktId
               ? {
                   pruefpunkt:
-                    nachweis.vorlage.punkte.find((p) => p.id === punktId)?.position ?? null,
+                    nachweis.vorlage.punkte.find((p) => p.id === punktId)?.position ??
+                    null,
                 }
               : {}),
           },
@@ -758,7 +764,9 @@ export async function fuegeBelegeHinzu(
     throw error instanceof NachweisFehler
       ? error
       : new NachweisFehler(
-          error instanceof Error ? error.message : 'Die Belege konnten nicht gespeichert werden.',
+          error instanceof Error
+            ? error.message
+            : 'Die Belege konnten nicht gespeichert werden.',
         )
   }
 
@@ -809,7 +817,9 @@ function pruefeBearbeitbar(
     )
   }
   if (nachweis.erfasstById !== benutzerId) {
-    throw new NachweisFehler('Nur die erfassende Person kann diesen Nachweis bearbeiten.')
+    throw new NachweisFehler(
+      'Nur die erfassende Person kann diesen Nachweis bearbeiten.',
+    )
   }
 }
 
@@ -867,7 +877,8 @@ export async function speichereAntworten(
         bemerkung,
         // Nach einer Zurückweisung beginnt die Bearbeitung erneut.
         status: nachweis.status === 'ZURUECKGEWIESEN' ? 'ENTWURF' : nachweis.status,
-        ablehnungsgrund: nachweis.status === 'ZURUECKGEWIESEN' ? null : nachweis.ablehnungsgrund,
+        ablehnungsgrund:
+          nachweis.status === 'ZURUECKGEWIESEN' ? null : nachweis.ablehnungsgrund,
       },
     })
   })
@@ -918,7 +929,10 @@ export async function fuehreUebergangAus(
     throw new NachweisFehler(pruefung.grund + zusatz)
   }
 
-  if (uebergang === 'zurueckweisen' && (!begruendung || begruendung.trim().length < 10)) {
+  if (
+    uebergang === 'zurueckweisen' &&
+    (!begruendung || begruendung.trim().length < 10)
+  ) {
     throw new NachweisFehler(
       'Bitte begründen Sie die Zurückweisung (mindestens 10 Zeichen).',
     )
@@ -983,11 +997,7 @@ export async function fuehreUebergangAus(
       nachweis.occurrence.dueDate,
     )}.pdf`.replace(/[\\/:*?"<>|]/g, '-')
 
-    const relativerPfad = baueSpeicherpfad(
-      `nachweis-${nachweis.id}`,
-      'pdf',
-      new Date(),
-    )
+    const relativerPfad = baueSpeicherpfad(`nachweis-${nachweis.id}`, 'pdf', new Date())
     const ziel = absoluterPfad(relativerPfad)
     await mkdir(path.dirname(ziel), { recursive: true })
     await writeFile(ziel, pdf)

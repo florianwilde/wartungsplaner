@@ -1,7 +1,7 @@
 # Wartungsplaner – recurring IT audit tasks with tamper-evident records
 
-*[Deutsche Fassung](README.md) · the application itself is German-only, see
-[Language](#language).*
+_[Deutsche Fassung](README.md) · the application itself is German-only, see
+[Language](#language)._
 
 A self-hosted web application for planning recurring IT audit and maintenance
 tasks — restore tests, access and physical-entry reviews, patch-status checks,
@@ -17,8 +17,8 @@ through to closure, and produces audit-ready reports as PDF and Excel.
 
 ## Why this exists
 
-Most teams track this in a spreadsheet. That works until someone asks *when*
-the restore test was last run, *who* signed it off and *where* the evidence
+Most teams track this in a spreadsheet. That works until someone asks _when_
+the restore test was last run, _who_ signed it off and _where_ the evidence
 is. This application answers those three questions by construction:
 
 - **Every execution is immutable.** Corrections are new, logged events — the
@@ -32,18 +32,18 @@ is. This application answers those three questions by construction:
 
 ## What it does
 
-| Area | |
-| --- | --- |
-| **Scheduling** | Daily to annual intervals plus "every N days", fixed rhythm or relative to completion, lead time and grace days per task |
-| **Execution** | Result, comment, file evidence, findings with severity, owner and deadline |
-| **Checklists** | Reusable templates, per-row decisions imported from CSV (e.g. an AD export), optional four-eyes counter-signature, generated PDF record |
-| **Findings** | Tracked from open to closed, with reminders before the deadline |
-| **Reports** | Compliance overview, execution history, open findings, forecast, evidence register — as PDF and Excel, with configurable templates |
-| **Evidence integrity** | Nightly checksum run, ZIP export with a `sha256sum`-compatible list, retention periods that delete the file but keep the record |
-| **Notifications** | Digest e-mails per person, escalation, weekly summary, deputy handling during absence |
-| **Calendar** | An iCal feed per person that Outlook subscribes to |
-| **Sign-in** | Local accounts, passkeys (WebAuthn), optional OIDC single sign-on |
-| **Audit log** | Append-only, enforced in the database |
+| Area                   |                                                                                                                                         |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **Scheduling**         | Daily to annual intervals plus "every N days", fixed rhythm or relative to completion, lead time and grace days per task                |
+| **Execution**          | Result, comment, file evidence, findings with severity, owner and deadline                                                              |
+| **Checklists**         | Reusable templates, per-row decisions imported from CSV (e.g. an AD export), optional four-eyes counter-signature, generated PDF record |
+| **Findings**           | Tracked from open to closed, with reminders before the deadline                                                                         |
+| **Reports**            | Compliance overview, execution history, open findings, forecast, evidence register — as PDF and Excel, with configurable templates      |
+| **Evidence integrity** | Nightly checksum run, ZIP export with a `sha256sum`-compatible list, retention periods that delete the file but keep the record         |
+| **Notifications**      | Digest e-mails per person, escalation, weekly summary, deputy handling during absence                                                   |
+| **Calendar**           | An iCal feed per person that Outlook subscribes to                                                                                      |
+| **Sign-in**            | Local accounts, passkeys (WebAuthn), optional OIDC single sign-on                                                                       |
+| **Audit log**          | Append-only, enforced in the database                                                                                                   |
 
 ## Quick start
 
@@ -84,13 +84,13 @@ Compose stack.
 
 ## Testing
 
-| Command | |
-| --- | --- |
-| `npm test` | 522 unit tests covering scheduling, dates, evidence rules |
-| `npm run test:integration` | against a real PostgreSQL instance |
-| `npm run test:e2e` | Playwright, drives the running application |
-| `npm run test:migrationen` | applies all migrations to an empty database |
-| `npm run test:ausgabe` | generates Excel, ZIP and PDF and reads them back |
+| Command                    |                                                           |
+| -------------------------- | --------------------------------------------------------- |
+| `npm test`                 | 522 unit tests covering scheduling, dates, evidence rules |
+| `npm run test:integration` | against a real PostgreSQL instance                        |
+| `npm run test:e2e`         | Playwright, drives the running application                |
+| `npm run test:migrationen` | applies all migrations to an empty database               |
+| `npm run test:ausgabe`     | generates Excel, ZIP and PDF and reads them back          |
 
 ## Status and support
 

@@ -39,10 +39,7 @@ import {
   anzeigeName,
   nachRahmenwerk,
 } from '@/lib/audit-referenzen'
-import {
-  referenzLoeschen,
-  referenzSpeichern,
-} from '@/server/actions/audit-referenzen'
+import { referenzLoeschen, referenzSpeichern } from '@/server/actions/audit-referenzen'
 
 export type ReferenzAnzeige = {
   id: string
@@ -77,11 +74,7 @@ export function ReferenzenVerwaltung({
 
   const [status, formAction] = useActionState(
     async (vorher: { fehler?: string; erfolg?: string }, formData: FormData) => {
-      const antwort = await referenzSpeichern(
-        bearbeitet?.id ?? null,
-        vorher,
-        formData,
-      )
+      const antwort = await referenzSpeichern(bearbeitet?.id ?? null, vorher, formData)
       if (antwort.erfolg) {
         toast.success(antwort.erfolg)
         setNeu(false)
@@ -141,7 +134,7 @@ export function ReferenzenVerwaltung({
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
         {referenzen.length > 0 ? (
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+          <label className="text-muted-foreground flex cursor-pointer items-center gap-2 text-sm">
             <AlleAuswaehlen
               alleMarkiert={auswahl.alleMarkiert}
               teilweise={auswahl.teilweise}
@@ -180,9 +173,9 @@ export function ReferenzenVerwaltung({
           <CardHeader>
             <CardTitle>Noch keine Audit-Referenzen</CardTitle>
             <CardDescription>
-              Legen Sie die Anforderungen an, gegen die geprüft wird – etwa
-              „ISO 27001 A.8.13“. Anschließend lassen sich Aufgaben ihnen
-              zuordnen und Auswertungen danach filtern.
+              Legen Sie die Anforderungen an, gegen die geprüft wird – etwa „ISO 27001
+              A.8.13“. Anschließend lassen sich Aufgaben ihnen zuordnen und Auswertungen
+              danach filtern.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -219,34 +212,34 @@ export function ReferenzenVerwaltung({
                         />
                       </span>
                       <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium">{referenz.kuerzel}</span>
-                        {!referenz.aktiv ? (
-                          <Badge variant="neutral">inaktiv</Badge>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-medium">{referenz.kuerzel}</span>
+                          {!referenz.aktiv ? (
+                            <Badge variant="neutral">inaktiv</Badge>
+                          ) : null}
+                          {referenz.anzahlAufgaben > 0 ? (
+                            <Link
+                              href={`/tasks?referenz=${referenz.id}`}
+                              className="text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline"
+                            >
+                              {referenz.anzahlAufgaben}{' '}
+                              {referenz.anzahlAufgaben === 1 ? 'Aufgabe' : 'Aufgaben'}
+                              <ArrowRight className="size-3" />
+                            </Link>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">
+                              keine Aufgabe zugeordnet
+                            </span>
+                          )}
+                        </div>
+                        {referenz.bezeichnung !== referenz.kuerzel ? (
+                          <p className="mt-0.5 text-sm">{referenz.bezeichnung}</p>
                         ) : null}
-                        {referenz.anzahlAufgaben > 0 ? (
-                          <Link
-                            href={`/tasks?referenz=${referenz.id}`}
-                            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:underline"
-                          >
-                            {referenz.anzahlAufgaben}{' '}
-                            {referenz.anzahlAufgaben === 1 ? 'Aufgabe' : 'Aufgaben'}
-                            <ArrowRight className="size-3" />
-                          </Link>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">
-                            keine Aufgabe zugeordnet
-                          </span>
-                        )}
-                      </div>
-                      {referenz.bezeichnung !== referenz.kuerzel ? (
-                        <p className="mt-0.5 text-sm">{referenz.bezeichnung}</p>
-                      ) : null}
-                      {referenz.beschreibung ? (
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {referenz.beschreibung}
-                        </p>
-                      ) : null}
+                        {referenz.beschreibung ? (
+                          <p className="text-muted-foreground mt-1 text-xs">
+                            {referenz.beschreibung}
+                          </p>
+                        ) : null}
                       </div>
                     </div>
 
@@ -342,7 +335,7 @@ export function ReferenzenVerwaltung({
                 placeholder="Informationssicherung"
                 defaultValue={bearbeitet?.bezeichnung ?? ''}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Ohne Angabe steht das Kurzzeichen für sich.
               </p>
             </div>
@@ -369,7 +362,7 @@ export function ReferenzenVerwaltung({
             </label>
 
             {status.fehler ? (
-              <p role="alert" className="text-sm text-destructive">
+              <p role="alert" className="text-destructive text-sm">
                 {status.fehler}
               </p>
             ) : null}

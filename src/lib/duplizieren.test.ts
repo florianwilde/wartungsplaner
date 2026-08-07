@@ -62,18 +62,12 @@ describe('vorschlagFuerKopie', () => {
   })
 
   it('zählt weiter, statt zu stapeln', () => {
-    expect(vorschlagFuerKopie('Restore-Test (Kopie)')).toBe(
-      'Restore-Test (Kopie 2)',
-    )
-    expect(vorschlagFuerKopie('Restore-Test (Kopie 2)')).toBe(
-      'Restore-Test (Kopie 3)',
-    )
+    expect(vorschlagFuerKopie('Restore-Test (Kopie)')).toBe('Restore-Test (Kopie 2)')
+    expect(vorschlagFuerKopie('Restore-Test (Kopie 2)')).toBe('Restore-Test (Kopie 3)')
   })
 
   it('lässt eine Klammer im Titel unangetastet', () => {
-    expect(vorschlagFuerKopie('Prüfung (jährlich)')).toBe(
-      'Prüfung (jährlich) (Kopie)',
-    )
+    expect(vorschlagFuerKopie('Prüfung (jährlich)')).toBe('Prüfung (jährlich) (Kopie)')
   })
 })
 
@@ -84,9 +78,7 @@ describe('eindeutigerName', () => {
 
   it('zählt bei Kollision hoch', () => {
     expect(eindeutigerName('Bogen', new Set(['Bogen']))).toBe('Bogen (2)')
-    expect(eindeutigerName('Bogen', new Set(['Bogen', 'Bogen (2)']))).toBe(
-      'Bogen (3)',
-    )
+    expect(eindeutigerName('Bogen', new Set(['Bogen', 'Bogen (2)']))).toBe('Bogen (3)')
   })
 
   it('hält die Höchstlänge ein', () => {

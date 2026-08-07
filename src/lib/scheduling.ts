@@ -16,7 +16,13 @@
  *    `dueDate + graceDays < heute`.
  *  - Eine Fälligkeit erscheint ab `dueDate - leadTimeDays` als „bald fällig“.
  */
-import { addDays, addMonths, compareDates, differenceInDays, toDateOnly } from '@/lib/dates'
+import {
+  addDays,
+  addMonths,
+  compareDates,
+  differenceInDays,
+  toDateOnly,
+} from '@/lib/dates'
 
 export type IntervallTyp =
   | 'DAILY'
@@ -50,10 +56,7 @@ export const PLANUNGSMODUS_BEZEICHNUNG: Record<PlanungsModus, string> = {
 }
 
 /** Menschenlesbare Beschreibung des Intervalls, z. B. „Alle 45 Tage“. */
-export function intervallText(
-  typ: IntervallTyp,
-  wert?: number | null,
-): string {
+export function intervallText(typ: IntervallTyp, wert?: number | null): string {
   if (typ === 'EVERY_N_DAYS') {
     if (!wert || wert < 1) return 'Alle N Tage (nicht konfiguriert)'
     return wert === 1 ? 'Täglich' : `Alle ${wert} Tage`
@@ -265,21 +268,13 @@ export function erzeugeVorschau(eingabe: VorschauEingabe): Date[] {
 
   // Bis zum Beginn des Fensters vorrollen.
   while (compareDates(termin, eingabe.von) < 0 && schritte < max * 4) {
-    termin = addiereIntervall(
-      termin,
-      eingabe.intervalType,
-      eingabe.intervalValue,
-    )
+    termin = addiereIntervall(termin, eingabe.intervalType, eingabe.intervalValue)
     schritte++
   }
 
   while (compareDates(termin, eingabe.bis) <= 0 && termine.length < max) {
     termine.push(termin)
-    termin = addiereIntervall(
-      termin,
-      eingabe.intervalType,
-      eingabe.intervalValue,
-    )
+    termin = addiereIntervall(termin, eingabe.intervalType, eingabe.intervalValue)
   }
 
   return termine

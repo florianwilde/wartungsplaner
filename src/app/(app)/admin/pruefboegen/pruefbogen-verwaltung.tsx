@@ -15,7 +15,13 @@ import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
@@ -29,10 +35,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { ART_BEZEICHNUNG, type PruefpunktArt } from '@/lib/nachweise'
-import {
-  pruefbogenLoeschen,
-  pruefbogenSpeichern,
-} from '@/server/actions/nachweise'
+import { pruefbogenLoeschen, pruefbogenSpeichern } from '@/server/actions/nachweise'
 
 const selectKlassen =
   'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
@@ -142,9 +145,7 @@ function BogenDialog({
           <input
             type="hidden"
             name="punkte"
-            value={JSON.stringify(
-              punkte.map(({ schluessel: _s, ...rest }) => rest),
-            )}
+            value={JSON.stringify(punkte.map(({ schluessel: _s, ...rest }) => rest))}
           />
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -175,7 +176,7 @@ function BogenDialog({
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Fest zugeordnete Bögen erscheinen bei der Aufgabe zuerst.
               </p>
             </div>
@@ -202,9 +203,9 @@ function BogenDialog({
               />
               <div className="space-y-1">
                 <Label htmlFor="bogen-vieraugen">Vier-Augen-Prinzip</Label>
-                <p className="text-xs text-muted-foreground">
-                  Der Nachweis wird erst nach Gegenzeichnung durch eine zweite
-                  Person gültig.
+                <p className="text-muted-foreground text-xs">
+                  Der Nachweis wird erst nach Gegenzeichnung durch eine zweite Person
+                  gültig.
                 </p>
               </div>
             </div>
@@ -217,7 +218,7 @@ function BogenDialog({
               />
               <div className="space-y-1">
                 <Label htmlFor="bogen-aktiv">Aktiv</Label>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Nur aktive Bögen stehen zum Erfassen bereit.
                 </p>
               </div>
@@ -253,10 +254,10 @@ function BogenDialog({
               {punkte.map((punkt, index) => (
                 <div
                   key={punkt.schluessel}
-                  className="space-y-2 rounded-md bg-muted/50 p-3"
+                  className="bg-muted/50 space-y-2 rounded-md p-3"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-muted-foreground">
+                    <span className="text-muted-foreground text-xs font-medium">
                       Punkt {index + 1}
                     </span>
                     <div className="flex items-center gap-1">
@@ -303,7 +304,9 @@ function BogenDialog({
                   />
                   <Input
                     value={punkt.hinweis}
-                    onChange={(e) => aendere(punkt.schluessel, 'hinweis', e.target.value)}
+                    onChange={(e) =>
+                      aendere(punkt.schluessel, 'hinweis', e.target.value)
+                    }
                     placeholder="Hinweis zur Durchführung (optional)"
                     maxLength={300}
                     className="text-sm"
@@ -341,7 +344,7 @@ function BogenDialog({
           {status.fehler ? (
             <p
               role="alert"
-              className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+              className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
             >
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
               {status.fehler}
@@ -381,8 +384,8 @@ export function PruefbogenVerwaltung({
             Prüfbögen
           </CardTitle>
           <CardDescription>
-            Vorlagen für strukturierte Nachweise. Aus einem ausgefüllten Bogen
-            entsteht ein PDF, das als Nachweis an der Durchführung hinterlegt wird.
+            Vorlagen für strukturierte Nachweise. Aus einem ausgefüllten Bogen entsteht
+            ein PDF, das als Nachweis an der Durchführung hinterlegt wird.
           </CardDescription>
         </div>
         <Button size="sm" onClick={() => setNeu(true)}>
@@ -393,26 +396,22 @@ export function PruefbogenVerwaltung({
 
       <CardContent className="space-y-2">
         {boegen.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+          <p className="border-border text-muted-foreground rounded-lg border border-dashed px-4 py-8 text-center text-sm">
             Es ist noch kein Prüfbogen angelegt.
           </p>
         ) : (
           boegen.map((bogen) => (
             <div
               key={bogen.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
+              className="border-border flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
             >
               <div className="min-w-0 space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{bogen.name}</span>
-                  {bogen.vierAugen ? (
-                    <Badge variant="outline">Vier Augen</Badge>
-                  ) : null}
-                  {!bogen.aktiv ? (
-                    <Badge variant="secondary">Deaktiviert</Badge>
-                  ) : null}
+                  {bogen.vierAugen ? <Badge variant="outline">Vier Augen</Badge> : null}
+                  {!bogen.aktiv ? <Badge variant="secondary">Deaktiviert</Badge> : null}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   {bogen.anzahlPunkte} Prüfpunkte ·{' '}
                   {bogen.taskTitel
                     ? `zugeordnet: ${bogen.taskTitel}`

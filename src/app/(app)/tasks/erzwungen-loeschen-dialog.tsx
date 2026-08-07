@@ -85,29 +85,29 @@ export function ErzwungenLoeschenDialog({
     <Dialog open={offen} onOpenChange={(wert) => !wert && onSchliessen()}>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive">
+          <DialogTitle className="text-destructive flex items-center gap-2">
             <ShieldAlert className="size-5" />
             Aufgaben samt Nachweisen löschen
           </DialogTitle>
           <DialogDescription>
-            Dieser Weg vernichtet Nachweise. Er ist für Testdaten und
-            Fehlimporte gedacht – nicht zum Ausmustern einer Prüfung. Dafür
-            gibt es das Deaktivieren.
+            Dieser Weg vernichtet Nachweise. Er ist für Testdaten und Fehlimporte
+            gedacht – nicht zum Ausmustern einer Prüfung. Dafür gibt es das
+            Deaktivieren.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3">
+          <div className="border-destructive/40 bg-destructive/5 rounded-md border p-3">
             <p className="text-sm font-medium">Unwiderruflich entfernt werden</p>
             {bericht === null ? (
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="text-muted-foreground mt-1 text-sm">
                 Umfang wird ermittelt …
               </p>
             ) : (
               <>
                 <p className="mt-1 text-sm">{bericht.beschreibung}</p>
                 {bericht.aufgaben.length > 0 ? (
-                  <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+                  <ul className="text-muted-foreground mt-2 space-y-0.5 text-xs">
                     {bericht.aufgaben.slice(0, 8).map((titel) => (
                       <li key={titel}>· {titel}</li>
                     ))}
@@ -120,12 +120,11 @@ export function ErzwungenLoeschenDialog({
             )}
           </div>
 
-          <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
-            Der Vorgang wird mit Ihrem Namen, dem Umfang, den Prüfsummen der
-            entfernten Dateien und Ihrer Begründung im <strong>Audit-Log</strong>{' '}
-            festgehalten. Das Protokoll ist unveränderlich und übersteht diese
-            Löschung – es bleibt nachvollziehbar, dass es die Nachweise gab und
-            warum sie entfernt wurden.
+          <p className="bg-muted text-muted-foreground rounded-md p-3 text-xs">
+            Der Vorgang wird mit Ihrem Namen, dem Umfang, den Prüfsummen der entfernten
+            Dateien und Ihrer Begründung im <strong>Audit-Log</strong> festgehalten. Das
+            Protokoll ist unveränderlich und übersteht diese Löschung – es bleibt
+            nachvollziehbar, dass es die Nachweise gab und warum sie entfernt wurden.
           </p>
 
           <div className="space-y-2">
@@ -138,9 +137,9 @@ export function ErzwungenLoeschenDialog({
               maxLength={1000}
               placeholder="Warum müssen diese Nachweise entfernt werden? Wer hat es entschieden?"
             />
-            <p className="text-xs text-muted-foreground">
-              Mindestens {MIN_BEGRUENDUNG} Zeichen. Sie ist später das Einzige,
-              was von den Nachweisen übrig bleibt.
+            <p className="text-muted-foreground text-xs">
+              Mindestens {MIN_BEGRUENDUNG} Zeichen. Sie ist später das Einzige, was von
+              den Nachweisen übrig bleibt.
             </p>
           </div>
 
@@ -160,7 +159,7 @@ export function ErzwungenLoeschenDialog({
           {fehler ? (
             <p
               role="alert"
-              className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+              className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm"
             >
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
               {fehler}

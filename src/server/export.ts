@@ -174,14 +174,13 @@ export async function exportiereJson(art: ImportArt): Promise<string> {
 
 /** Gesamtexport aller Bereiche als JSON. */
 export async function exportiereAllesJson(): Promise<string> {
-  const [kategorien, aufgaben, benutzer, referenzen, pruefboegen] =
-    await Promise.all([
-      ladeKategorienZeilen(),
-      ladeAufgabenZeilen(),
-      ladeBenutzerZeilen(),
-      ladeReferenzenZeilen(),
-      ladePruefboegenZeilen(),
-    ])
+  const [kategorien, aufgaben, benutzer, referenzen, pruefboegen] = await Promise.all([
+    ladeKategorienZeilen(),
+    ladeAufgabenZeilen(),
+    ladeBenutzerZeilen(),
+    ladeReferenzenZeilen(),
+    ladePruefboegenZeilen(),
+  ])
 
   return JSON.stringify(
     {

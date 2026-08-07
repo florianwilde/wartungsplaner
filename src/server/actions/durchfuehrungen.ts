@@ -17,7 +17,10 @@ import {
   type AbweichungEingabe,
 } from '@/server/durchfuehrung-service'
 
-const fehlertext = fehlerbehandlung('Unerwarteter Fehler beim Erledigen', 'Die Durchführung konnte nicht gespeichert werden.')
+const fehlertext = fehlerbehandlung(
+  'Unerwarteter Fehler beim Erledigen',
+  'Die Durchführung konnte nicht gespeichert werden.',
+)
 
 export type ErledigenStatus = { fehler?: string; erfolg?: string }
 
@@ -106,9 +109,7 @@ export async function faelligkeitErledigen(
 
     const dateien = formData
       .getAll('nachweise')
-      .filter(
-        (eintrag): eintrag is File => eintrag instanceof File && eintrag.size > 0,
-      )
+      .filter((eintrag): eintrag is File => eintrag instanceof File && eintrag.size > 0)
 
     for (const datei of dateien) {
       geschriebeneDateien.push(await speichereDatei(datei))

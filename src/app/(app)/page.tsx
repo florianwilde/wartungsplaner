@@ -19,7 +19,13 @@ import {
 } from '@/components/status-anzeigen'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   addDays,
   compareDates,
@@ -51,9 +57,7 @@ export default async function DashboardSeite() {
   const benutzer = await erforderlicherBenutzer()
   const heute = todayInBerlin()
   const wochenende = endOfWeek(heute)
-  const horizont = leseZeithorizont(
-    (await cookies()).get(ZEITHORIZONT_COOKIE)?.value,
-  )
+  const horizont = leseZeithorizont((await cookies()).get(ZEITHORIZONT_COOKIE)?.value)
 
   // Zur Gegenzeichnung vorgelegte Nachweise anderer Personen. Ohne diesen
   // Hinweis bliebe ein vorgelegter Bogen liegen, bis jemand die Seite
@@ -141,8 +145,7 @@ export default async function DashboardSeite() {
   const ueberfaellig = bewertet.filter((e) => e.ampel === 'ueberfaellig')
   const dieseWoche = bewertet.filter(
     (e) =>
-      e.ampel !== 'ueberfaellig' &&
-      compareDates(e.occurrence.dueDate, wochenende) <= 0,
+      e.ampel !== 'ueberfaellig' && compareDates(e.occurrence.dueDate, wochenende) <= 0,
   )
   const fristUeberschritten = offeneAbweichungen.filter(
     (a) => compareDates(a.dueDate, heute) < 0,
@@ -200,16 +203,16 @@ export default async function DashboardSeite() {
       {offeneGegenzeichnungen.length > 0 ? (
         <Link
           href="/nachweise"
-          className="flex items-start gap-3 rounded-lg border border-status-warn/40 bg-status-warn/10 p-4 transition-colors hover:bg-status-warn/15"
+          className="border-status-warn/40 bg-status-warn/10 hover:bg-status-warn/15 flex items-start gap-3 rounded-lg border p-4 transition-colors"
         >
-          <ClipboardCheck className="mt-0.5 size-5 shrink-0 text-status-warn" />
+          <ClipboardCheck className="text-status-warn mt-0.5 size-5 shrink-0" />
           <div className="min-w-0">
             <p className="font-medium">
               {offeneGegenzeichnungen.length === 1
                 ? 'Ein Prüfnachweis wartet auf Ihre Gegenzeichnung'
                 : `${offeneGegenzeichnungen.length} Prüfnachweise warten auf Ihre Gegenzeichnung`}
             </p>
-            <p className="mt-0.5 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-0.5 text-sm">
               {offeneGegenzeichnungen
                 .slice(0, 3)
                 .map((n) => `${n.vorlage.name} (${n.erfasstBy.name})`)
@@ -223,15 +226,15 @@ export default async function DashboardSeite() {
       ) : null}
 
       {vertretungen.length > 0 ? (
-        <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-4">
-          <UserRoundCheck className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+        <div className="border-border bg-muted/40 flex items-start gap-3 rounded-lg border p-4">
+          <UserRoundCheck className="text-muted-foreground mt-0.5 size-5 shrink-0" />
           <div className="min-w-0">
             <p className="font-medium">
               {vertretungen.length === 1
                 ? `Sie vertreten derzeit ${vertretungen[0].name}`
                 : `Sie vertreten derzeit ${vertretungen.length} Personen`}
             </p>
-            <p className="mt-0.5 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-0.5 text-sm">
               {vertretungen.map((v) => `${v.name} (${v.zeitraum})`).join(' · ')}
               {' – deren Erinnerungen gehen an Sie.'}
             </p>
@@ -273,7 +276,13 @@ export default async function DashboardSeite() {
               ? `davon ${fristUeberschritten.length} über Frist`
               : 'alle innerhalb der Frist'
           }
-          ton={fristUeberschritten.length > 0 ? 'danger' : offeneAbweichungen.length > 0 ? 'warn' : 'ok'}
+          ton={
+            fristUeberschritten.length > 0
+              ? 'danger'
+              : offeneAbweichungen.length > 0
+                ? 'warn'
+                : 'ok'
+          }
           icon={<TriangleAlert className="size-4" />}
           href="/findings?status=unerledigt"
         />
@@ -286,8 +295,8 @@ export default async function DashboardSeite() {
             <div>
               <CardTitle>Nächste Fälligkeiten</CardTitle>
               <CardDescription>
-                {ZEITHORIZONT_BEZEICHNUNG[horizont]} · überfällige Prüfungen
-                erscheinen immer, die nächste zuerst.
+                {ZEITHORIZONT_BEZEICHNUNG[horizont]} · überfällige Prüfungen erscheinen
+                immer, die nächste zuerst.
               </CardDescription>
             </div>
             <ZeithorizontAuswahl aktuell={horizont} />
@@ -307,7 +316,7 @@ export default async function DashboardSeite() {
                 return (
                   <div
                     key={occurrence.id}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
+                    className="border-border flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
                   >
                     <div className="min-w-0 space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -322,7 +331,7 @@ export default async function DashboardSeite() {
                           kritikalitaet={occurrence.task.criticality}
                         />
                       </div>
-                      <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      <p className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                         <span className="flex items-center gap-1.5">
                           <KategoriePunkt farbe={occurrence.task.category.color} />
                           {occurrence.task.category.name}
@@ -385,14 +394,14 @@ export default async function DashboardSeite() {
                 <Link
                   key={kategorie.id}
                   href={`/tasks?kategorie=${kategorie.id}`}
-                  className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2 text-sm transition-colors hover:bg-accent/60"
+                  className="border-border hover:bg-accent/60 flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm transition-colors"
                 >
                   <span className="flex min-w-0 items-center gap-2">
                     <KategoriePunkt farbe={kategorie.color} />
                     <span className="truncate">{kategorie.name}</span>
                   </span>
                   <span className="flex shrink-0 items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-muted-foreground text-xs">
                       {kategorie.offen} offen
                     </span>
                     <span
@@ -430,7 +439,7 @@ export default async function DashboardSeite() {
                   return (
                     <div
                       key={abweichung.id}
-                      className="rounded-md border border-border p-3 text-sm"
+                      className="border-border rounded-md border p-3 text-sm"
                     >
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium">{abweichung.title}</span>
@@ -438,7 +447,7 @@ export default async function DashboardSeite() {
                           <Badge variant="danger">Frist überschritten</Badge>
                         ) : null}
                       </div>
-                      <p className="mt-1 text-xs text-muted-foreground">
+                      <p className="text-muted-foreground mt-1 text-xs">
                         {abweichung.responsible.name} · Frist{' '}
                         {formatDate(abweichung.dueDate)} ·{' '}
                         <Link
@@ -492,18 +501,16 @@ function Kennzahl({
 
   return (
     <Link href={href} className="block">
-      <Card className="transition-colors hover:border-primary/40">
+      <Card className="hover:border-primary/40 transition-colors">
         <CardContent className="p-5">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-sm font-medium text-muted-foreground">
-              {titel}
-            </span>
+            <span className="text-muted-foreground text-sm font-medium">{titel}</span>
             <span className={cn('shrink-0', farbe)}>{icon}</span>
           </div>
           <p className={cn('mt-2 text-3xl font-semibold tabular-nums', farbe)}>
             {wert}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">{hinweis}</p>
+          <p className="text-muted-foreground mt-1 text-xs">{hinweis}</p>
         </CardContent>
       </Card>
     </Link>

@@ -14,18 +14,17 @@ export default async function ReportVorlagenSeite() {
 
   return (
     <div className="space-y-6">
-      <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+      <p className="border-border bg-card text-muted-foreground rounded-lg border p-4 text-sm">
         Vorlagen bestimmen Aufbau und Umfang der <strong>PDF-Berichte</strong>:
-        Ausrichtung, Spaltenauswahl, Deckblatt, Freitextblöcke und
-        Unterschriftenfelder. Ohne eigene Vorlage gilt die eingebaute Fassung.
-        Die Excel-Exporte enthalten stets alle Felder und sind davon nicht
-        betroffen.
+        Ausrichtung, Spaltenauswahl, Deckblatt, Freitextblöcke und Unterschriftenfelder.
+        Ohne eigene Vorlage gilt die eingebaute Fassung. Die Excel-Exporte enthalten
+        stets alle Felder und sind davon nicht betroffen.
       </p>
 
       {REPORT_TYPEN.map((typ) => (
         <div key={typ} className="space-y-2">
           <VorlagenVerwaltung typ={typ} vorlagen={vorlagen[typ] ?? []} />
-          <p className="px-1 text-xs text-muted-foreground">
+          <p className="text-muted-foreground px-1 text-xs">
             {REPORT_BESCHREIBUNG[typ]}
           </p>
         </div>

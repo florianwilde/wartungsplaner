@@ -205,21 +205,43 @@ describe('Ein abgeschlossener Nachweis ist endgültig', () => {
 // ---------------------------------------------------------------------------
 
 const PUNKTE: Pruefpunkt[] = [
-  { id: 'p1', position: 1, frage: 'Sicherung vorhanden?', art: 'BEWERTUNG', pflicht: true },
-  { id: 'p2', position: 2, frage: 'Anzahl geprüfter Systeme', art: 'ZAHL', pflicht: true },
+  {
+    id: 'p1',
+    position: 1,
+    frage: 'Sicherung vorhanden?',
+    art: 'BEWERTUNG',
+    pflicht: true,
+  },
+  {
+    id: 'p2',
+    position: 2,
+    frage: 'Anzahl geprüfter Systeme',
+    art: 'ZAHL',
+    pflicht: true,
+  },
   { id: 'p3', position: 3, frage: 'Bemerkung', art: 'TEXT', pflicht: false },
 ]
 
 describe('istBeantwortet', () => {
   it('verlangt bei Bewertungen ein Ergebnis', () => {
-    expect(istBeantwortet(PUNKTE[0], { punktId: 'p1', ergebnis: 'ERFUELLT', wert: null })).toBe(true)
-    expect(istBeantwortet(PUNKTE[0], { punktId: 'p1', ergebnis: null, wert: 'ja' })).toBe(false)
+    expect(
+      istBeantwortet(PUNKTE[0], { punktId: 'p1', ergebnis: 'ERFUELLT', wert: null }),
+    ).toBe(true)
+    expect(
+      istBeantwortet(PUNKTE[0], { punktId: 'p1', ergebnis: null, wert: 'ja' }),
+    ).toBe(false)
   })
 
   it('verlangt bei Freitext und Zahl einen Wert', () => {
-    expect(istBeantwortet(PUNKTE[1], { punktId: 'p2', ergebnis: null, wert: '3' })).toBe(true)
-    expect(istBeantwortet(PUNKTE[1], { punktId: 'p2', ergebnis: null, wert: '  ' })).toBe(false)
-    expect(istBeantwortet(PUNKTE[1], { punktId: 'p2', ergebnis: null, wert: null })).toBe(false)
+    expect(
+      istBeantwortet(PUNKTE[1], { punktId: 'p2', ergebnis: null, wert: '3' }),
+    ).toBe(true)
+    expect(
+      istBeantwortet(PUNKTE[1], { punktId: 'p2', ergebnis: null, wert: '  ' }),
+    ).toBe(false)
+    expect(
+      istBeantwortet(PUNKTE[1], { punktId: 'p2', ergebnis: null, wert: null }),
+    ).toBe(false)
   })
 
   it('behandelt eine fehlende Antwort als unbeantwortet', () => {

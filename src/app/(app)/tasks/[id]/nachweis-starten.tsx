@@ -63,8 +63,8 @@ export function NachweisStarten({
           <DialogHeader>
             <DialogTitle>Prüfnachweis erfassen</DialogTitle>
             <DialogDescription>
-              Für die Fälligkeit vom {faelligAm}. Aus dem ausgefüllten Bogen
-              entsteht ein PDF-Nachweis.
+              Für die Fälligkeit vom {faelligAm}. Aus dem ausgefüllten Bogen entsteht
+              ein PDF-Nachweis.
               {nachreichen
                 ? ' Er wird der bereits protokollierten Durchführung hinzugefügt.'
                 : ' Die Fälligkeit erledigen Sie danach wie gewohnt – dabei wird das PDF als Nachweis übernommen.'}
@@ -76,7 +76,7 @@ export function NachweisStarten({
             {boegen.map((bogen) => (
               <label
                 key={bogen.id}
-                className="flex cursor-pointer items-start gap-3 rounded-md border border-border p-3 text-sm has-[:checked]:border-primary"
+                className="border-border has-[:checked]:border-primary flex cursor-pointer items-start gap-3 rounded-md border p-3 text-sm"
               >
                 <input
                   type="radio"
@@ -96,7 +96,7 @@ export function NachweisStarten({
                       <Badge variant="neutral">für diese Aufgabe</Badge>
                     ) : null}
                   </span>
-                  <span className="block text-xs text-muted-foreground">
+                  <span className="text-muted-foreground block text-xs">
                     {bogen.anzahlPunkte} Prüfpunkte
                     {bogen.beschreibung ? ` · ${bogen.beschreibung}` : ''}
                   </span>

@@ -53,7 +53,7 @@ export function Hauptnavigation({
   const [offen, setOffen] = useState(false)
 
   return (
-    <header className="kein-druck sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+    <header className="kein-druck border-border bg-background/95 sticky top-0 z-40 border-b backdrop-blur">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-4 px-4 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center">
           {markenzeichen}
@@ -90,7 +90,7 @@ export function Hauptnavigation({
             onClick={() => setOffen((o) => !o)}
             aria-label={offen ? 'Menü schließen' : 'Menü öffnen'}
             aria-expanded={offen}
-            className="rounded-md p-2 hover:bg-accent md:hidden"
+            className="hover:bg-accent rounded-md p-2 md:hidden"
           >
             {offen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
@@ -98,7 +98,7 @@ export function Hauptnavigation({
       </div>
 
       {offen ? (
-        <div className="border-t border-border px-4 py-3 md:hidden">
+        <div className="border-border border-t px-4 py-3 md:hidden">
           <nav className="flex flex-col gap-1">
             {eintraege.map((eintrag) => {
               const Icon = ICONS[eintrag.icon]
@@ -121,9 +121,7 @@ export function Hauptnavigation({
               )
             })}
           </nav>
-          <div className="mt-3 border-t border-border pt-3">
-            {benutzerBereich}
-          </div>
+          <div className="border-border mt-3 border-t pt-3">{benutzerBereich}</div>
         </div>
       ) : null}
     </header>

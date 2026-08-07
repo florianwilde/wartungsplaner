@@ -37,21 +37,21 @@ gewohnte [Erledigen-Vorgang](faelligkeiten-erledigen.md).
 Jeder Punkt hat eine Frage, wahlweise einen Hinweis, eine Antwortart und ein
 Pflichtkennzeichen.
 
-| Antwortart | Auswahl | Wofür |
-| --- | --- | --- |
-| **Bewertung** | erfüllt / nicht erfüllt / entfällt | die übliche Ja-Nein-Frage |
-| **Entscheidung** | belassen / entziehen / ändern | einzelne Berechtigung |
-| **Zeilenliste** | je Zeile belassen / entziehen / ändern | viele gleichartige Einträge |
-| **Freitext** | – | Beobachtung, Stichprobenumfang |
-| **Zahl** | – | Anzahl geprüfter Systeme, Dauer |
-| **Datum** | – | Zeitpunkt der Wiederherstellung |
+| Antwortart       | Auswahl                                | Wofür                           |
+| ---------------- | -------------------------------------- | ------------------------------- |
+| **Bewertung**    | erfüllt / nicht erfüllt / entfällt     | die übliche Ja-Nein-Frage       |
+| **Entscheidung** | belassen / entziehen / ändern          | einzelne Berechtigung           |
+| **Zeilenliste**  | je Zeile belassen / entziehen / ändern | viele gleichartige Einträge     |
+| **Freitext**     | –                                      | Beobachtung, Stichprobenumfang  |
+| **Zahl**         | –                                      | Anzahl geprüfter Systeme, Dauer |
+| **Datum**        | –                                      | Zeitpunkt der Wiederherstellung |
 
 **Pflichtpunkte** müssen ausgefüllt sein, bevor der Bogen vorgelegt oder
 abgeschlossen werden kann. Die Anwendung nennt dabei die offenen Punkte mit
 Nummer.
 
-Als **Feststellung** gelten die Antworten *nicht erfüllt*, *entziehen* und
-*ändern*. Sie erscheinen hervorgehoben im PDF, im Nachweisregister und lassen
+Als **Feststellung** gelten die Antworten _nicht erfüllt_, _entziehen_ und
+_ändern_. Sie erscheinen hervorgehoben im PDF, im Nachweisregister und lassen
 sich mit einem Griff in [Abweichungen](abweichungen.md) überführen.
 
 ### Zeilenlisten
@@ -69,7 +69,7 @@ die Frage fest. Beim Ausfüllen lassen sich die Zeilen aus einer CSV-Datei
 ## Vier-Augen-Prinzip
 
 Ist es eingeschaltet, durchläuft jeder Nachweis den Weg
-*Entwurf → vorgelegt → gegengezeichnet*. Die gegenzeichnende Person **darf
+_Entwurf → vorgelegt → gegengezeichnet_. Die gegenzeichnende Person **darf
 nicht die erfassende sein** – die Anwendung setzt das durch, nicht nur die
 Oberfläche.
 

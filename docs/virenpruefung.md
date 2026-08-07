@@ -42,10 +42,10 @@ Fundes. Das gilt immer, unabhängig von der Einstellung unten.
 
 Hier gibt es zwei vertretbare Wege, und die Wahl gehört Ihnen:
 
-| `VIRENPRUEFUNG_PFLICHT` | Verhalten bei nicht erreichbarem Dienst |
-| --- | --- |
-| `false` (Standard) | Die Datei wird **angenommen**, der Ausfall protokolliert |
-| `true` | Die Datei wird **abgelehnt** |
+| `VIRENPRUEFUNG_PFLICHT` | Verhalten bei nicht erreichbarem Dienst                  |
+| ----------------------- | -------------------------------------------------------- |
+| `false` (Standard)      | Die Datei wird **angenommen**, der Ausfall protokolliert |
+| `true`                  | Die Datei wird **abgelehnt**                             |
 
 Der Standard ist bewusst so gewählt: Die Anwendung dient der Nachweisführung.
 Eine Prüfung, die sich nicht dokumentieren lässt, weil der Upload scheiterte,
@@ -73,9 +73,9 @@ Verhalten bei ausgefallenem Dienst in beiden Betriebsarten.
 
 ## Weitere Einstellungen
 
-| Variable | Standard | Bedeutung |
-| --- | --- | --- |
-| `CLAMAV_HOST` | leer | Ohne Angabe wird nicht geprüft |
-| `CLAMAV_PORT` | `3310` | Port von `clamd` |
-| `CLAMAV_TIMEOUT_MS` | `30000` | Zeitgrenze je Datei |
-| `VIRENPRUEFUNG_PFLICHT` | `false` | Siehe oben |
+| Variable                | Standard | Bedeutung                      |
+| ----------------------- | -------- | ------------------------------ |
+| `CLAMAV_HOST`           | leer     | Ohne Angabe wird nicht geprüft |
+| `CLAMAV_PORT`           | `3310`   | Port von `clamd`               |
+| `CLAMAV_TIMEOUT_MS`     | `30000`  | Zeitgrenze je Datei            |
+| `VIRENPRUEFUNG_PFLICHT` | `false`  | Siehe oben                     |

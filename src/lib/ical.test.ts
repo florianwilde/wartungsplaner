@@ -54,9 +54,7 @@ describe('falteZeile', () => {
     expect(teile.length).toBeGreaterThan(1)
     expect(teile.slice(1).every((teil) => teil.startsWith(' '))).toBe(true)
     // Jede Zeile bleibt unter der Grenze von 75 Oktetten.
-    expect(
-      teile.every((teil) => Buffer.from(teil, 'utf8').length <= 75),
-    ).toBe(true)
+    expect(teile.every((teil) => Buffer.from(teil, 'utf8').length <= 75)).toBe(true)
   })
 
   it('schneidet nicht mitten in einen Umlaut', () => {
@@ -90,9 +88,9 @@ describe('baueKalender', () => {
   it('verwendet durchgehend CRLF', () => {
     // Ein bloßes \n lehnen manche Kalenderprogramme ab.
     const text = kalender([eintrag()])
-    expect(text.split('\n').every((zeile) => zeile === '' || zeile.endsWith('\r'))).toBe(
-      true,
-    )
+    expect(
+      text.split('\n').every((zeile) => zeile === '' || zeile.endsWith('\r')),
+    ).toBe(true)
   })
 
   it('legt ganztägige Termine mit ausschließendem Ende an', () => {

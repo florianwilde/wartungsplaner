@@ -72,10 +72,7 @@ describe('pruefeKategorien', () => {
   })
 
   it('meldet ungültige Farben', () => {
-    const vorschau = pruefeKategorien(
-      leseCsv('name;farbe;reihenfolge\nTest;rot;1'),
-      [],
-    )
+    const vorschau = pruefeKategorien(leseCsv('name;farbe;reihenfolge\nTest;rot;1'), [])
     expect(vorschau.fehler[0].spalte).toBe('farbe')
   })
 
@@ -388,7 +385,10 @@ describe('darfGeschriebenWerden', () => {
 
 describe('fasseVorschauZusammen', () => {
   it('nennt Fehler zuerst', () => {
-    const vorschau = pruefeKategorien(leseCsv('name;farbe;reihenfolge\nA;#123456;1'), [])
+    const vorschau = pruefeKategorien(
+      leseCsv('name;farbe;reihenfolge\nA;#123456;1'),
+      [],
+    )
     expect(fasseVorschauZusammen(vorschau)).toContain('nichts geschrieben')
   })
 
@@ -411,7 +411,6 @@ describe('fasseVorschauZusammen', () => {
   })
 })
 
-
 // ---------------------------------------------------------------------------
 // Audit-Referenzen
 // ---------------------------------------------------------------------------
@@ -429,10 +428,9 @@ const BESTAND_REFERENZEN: ReferenzDaten[] = [
 
 const referenzZeilen = (...zeilen: string[]) =>
   leseCsv(
-    [
-      'rahmenwerk;kuerzel;bezeichnung;beschreibung;aktiv;reihenfolge',
-      ...zeilen,
-    ].join('\n'),
+    ['rahmenwerk;kuerzel;bezeichnung;beschreibung;aktiv;reihenfolge', ...zeilen].join(
+      '\n',
+    ),
   )
 
 describe('pruefeAuditReferenzen', () => {
@@ -457,9 +455,7 @@ describe('pruefeAuditReferenzen', () => {
 
   it('nennt die geänderten Felder', () => {
     const vorschau = pruefeAuditReferenzen(
-      referenzZeilen(
-        'ISO 27001;A.8.13;Sicherung von Daten;Neue Erläuterung;nein;10',
-      ),
+      referenzZeilen('ISO 27001;A.8.13;Sicherung von Daten;Neue Erläuterung;nein;10'),
       BESTAND_REFERENZEN,
     )
     expect(vorschau.aktualisieren).toBe(1)
@@ -582,9 +578,7 @@ describe('pruefePruefboegen', () => {
       [],
       [],
     )
-    expect(vorschau.eintraege[0].daten.punkte.map((p) => p.position)).toEqual([
-      1, 2,
-    ])
+    expect(vorschau.eintraege[0].daten.punkte.map((p) => p.position)).toEqual([1, 2])
   })
 
   it('weist eine doppelte Position ab', () => {
@@ -668,9 +662,7 @@ describe('pruefePruefboegen', () => {
   it('verweigert das Ändern der Prüfpunkte eines benutzten Bogens', () => {
     // An den Punkten hängen Antworten und Belege geführter Nachweise. Sie zu
     // ersetzen hieße, einen abgeschlossenen Nachweis nachträglich zu ändern.
-    const benutzt: PruefbogenBestand[] = [
-      { ...BESTAND_BOEGEN[0], hatNachweise: true },
-    ]
+    const benutzt: PruefbogenBestand[] = [{ ...BESTAND_BOEGEN[0], hatNachweise: true }]
     const vorschau = pruefePruefboegen(
       bogenZeilen(
         'Rezertifizierung;Halbjährliche Durchsicht;;ja;ja;1;Ganz andere Frage;;BEWERTUNG;ja',
@@ -685,9 +677,7 @@ describe('pruefePruefboegen', () => {
 
   it('lässt Beschreibung und Aktiv-Status eines benutzten Bogens zu', () => {
     // Die Angaben zum Bogen berühren keinen geführten Nachweis.
-    const benutzt: PruefbogenBestand[] = [
-      { ...BESTAND_BOEGEN[0], hatNachweise: true },
-    ]
+    const benutzt: PruefbogenBestand[] = [{ ...BESTAND_BOEGEN[0], hatNachweise: true }]
     const vorschau = pruefePruefboegen(
       bogenZeilen(
         'Rezertifizierung;Neue Beschreibung;;ja;nein;1;Sind alle privilegierten Konten begründet?;;BEWERTUNG;ja',

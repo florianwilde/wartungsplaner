@@ -63,12 +63,10 @@ describe('vermerkeFehlversuch', () => {
 
     // Die Sperrdauer läuft ab dem letzten Fehlversuch, nicht ab dem ersten.
     expect(
-      pruefeVersuch(speicher, 'a|1.2.3.4', letzterVersuch + SPERRDAUER_MS - 1)
-        .erlaubt,
+      pruefeVersuch(speicher, 'a|1.2.3.4', letzterVersuch + SPERRDAUER_MS - 1).erlaubt,
     ).toBe(false)
     expect(
-      pruefeVersuch(speicher, 'a|1.2.3.4', letzterVersuch + SPERRDAUER_MS + 1)
-        .erlaubt,
+      pruefeVersuch(speicher, 'a|1.2.3.4', letzterVersuch + SPERRDAUER_MS + 1).erlaubt,
     ).toBe(true)
   })
 

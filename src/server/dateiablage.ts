@@ -4,10 +4,7 @@ import path from 'node:path'
 
 import { baueSpeicherpfad, bereinigeDateinamen, pruefeDatei } from '@/lib/uploads'
 import { beschreibe, darfAngenommenWerden } from '@/lib/virenpruefung'
-import {
-  istVirenpruefungPflicht,
-  pruefeInhalt,
-} from '@/server/virenpruefung'
+import { istVirenpruefungPflicht, pruefeInhalt } from '@/server/virenpruefung'
 
 /** Wurzelverzeichnis der Nachweise (Docker-Volume). */
 export function uploadVerzeichnis(): string {
@@ -61,9 +58,7 @@ export async function speichereDatei(datei: File): Promise<GespeicherteDatei> {
   const status = await pruefeInhalt(inhalt)
   const urteil = darfAngenommenWerden(status, istVirenpruefungPflicht())
   if (!urteil.erlaubt) {
-    console.warn(
-      `Datei „${anzeigename}“ abgelehnt: ${beschreibe(status)}`,
-    )
+    console.warn(`Datei „${anzeigename}“ abgelehnt: ${beschreibe(status)}`)
     throw new Error(urteil.grund ?? 'Die Datei wurde nicht angenommen.')
   }
   if (status.art === 'nicht-erreichbar') {
@@ -75,11 +70,7 @@ export async function speichereDatei(datei: File): Promise<GespeicherteDatei> {
   }
 
   const sha256 = createHash('sha256').update(inhalt).digest('hex')
-  const relativerPfad = baueSpeicherpfad(
-    randomUUID(),
-    pruefung.endung,
-    new Date(),
-  )
+  const relativerPfad = baueSpeicherpfad(randomUUID(), pruefung.endung, new Date())
   const ziel = absoluterPfad(relativerPfad)
 
   await mkdir(path.dirname(ziel), { recursive: true })

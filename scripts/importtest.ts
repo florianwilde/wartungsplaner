@@ -81,8 +81,7 @@ async function bestandBoegen(): Promise<PruefbogenBestand[]> {
   }))
 }
 
-const REFERENZ_KOPF =
-  'rahmenwerk;kuerzel;bezeichnung;beschreibung;aktiv;reihenfolge'
+const REFERENZ_KOPF = 'rahmenwerk;kuerzel;bezeichnung;beschreibung;aktiv;reihenfolge'
 const BOGEN_KOPF =
   'pruefbogen;beschreibung;aufgabe;vier_augen;aktiv;position;frage;hinweis;art;pflicht'
 
@@ -296,8 +295,7 @@ async function main() {
     'Die geänderten Angaben sind gespeichert',
   )
   pruefe(
-    unversehrt.punkte.length === 2 &&
-      unversehrt.nachweise[0].antworten.length === 1,
+    unversehrt.punkte.length === 2 && unversehrt.nachweise[0].antworten.length === 1,
     'Prüfpunkte und die daran hängende Antwort sind unversehrt',
   )
 

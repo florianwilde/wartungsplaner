@@ -94,9 +94,9 @@ export default async function ReportsSeite() {
         kategorien={kategorien.map((k) => ({ id: k.id, name: k.name }))}
       />
 
-      <p className="text-xs text-muted-foreground">
-        Die Berichte tragen im Kopf Anwendungsname, Zeitraum, Kategorienfilter
-        sowie Erstellungsdatum und erstellende Person ({benutzer.name}); PDF-Berichte
+      <p className="text-muted-foreground text-xs">
+        Die Berichte tragen im Kopf Anwendungsname, Zeitraum, Kategorienfilter sowie
+        Erstellungsdatum und erstellende Person ({benutzer.name}); PDF-Berichte
         zusätzlich eine Seitenzählung.
       </p>
     </div>

@@ -36,20 +36,20 @@ Verantwortlichkeit sagt, wer sich darum kümmert, nicht wer es tun darf.
 
 ### Intervall und Rhythmus
 
-| Intervall | Bedeutung |
-| --- | --- |
-| Täglich, wöchentlich, monatlich | wie erwartet |
-| Vierteljährlich, halbjährlich, jährlich | wie erwartet |
-| Alle N Tage | freier Abstand, etwa alle 45 Tage |
+| Intervall                               | Bedeutung                         |
+| --------------------------------------- | --------------------------------- |
+| Täglich, wöchentlich, monatlich         | wie erwartet                      |
+| Vierteljährlich, halbjährlich, jährlich | wie erwartet                      |
+| Alle N Tage                             | freier Abstand, etwa alle 45 Tage |
 
 Der **Rhythmus** entscheidet, woran der nächste Termin hängt:
 
-- **Fester Termin** – der nächste Termin ergibt sich aus dem *vorigen Termin*.
+- **Fester Termin** – der nächste Termin ergibt sich aus dem _vorigen Termin_.
   Eine verspätete Durchführung verschiebt den Rhythmus nicht. Richtig für alles,
   was zu festen Zeitpunkten stattfinden soll: quartalsweise Reviews,
   Jahresprüfungen.
-- **Nach Durchführung** – der nächste Termin ergibt sich aus dem *Tag der
-  Durchführung*. Richtig, wenn zwischen zwei Prüfungen ein Mindestabstand
+- **Nach Durchführung** – der nächste Termin ergibt sich aus dem _Tag der
+  Durchführung_. Richtig, wenn zwischen zwei Prüfungen ein Mindestabstand
   liegen soll, etwa „spätestens 90 Tage nach dem letzten Restore-Test“.
 
 > Beispiel: Quartalsweise, Termin am 1. April, durchgeführt am 20. April.
@@ -149,12 +149,12 @@ Historie stünde sonst in jedem Bericht.
 
 Im Dialog geben Sie an:
 
-| Feld | Bedeutung |
-| --- | --- |
-| **Titel** | Ein Titel je Zeile – so entstehen mehrere Aufgaben auf einmal |
-| **Erste Fälligkeit am** | Das Startdatum der Vorlage liegt meist in der Vergangenheit |
-| **Prüfbögen mitkopieren** | Jede Kopie bekommt einen eigenen Bogen mit denselben Prüfpunkten |
-| **Sofort aktiv** | Ohne Haken entsteht die Aufgabe still und lässt sich vorher nacharbeiten |
+| Feld                      | Bedeutung                                                                |
+| ------------------------- | ------------------------------------------------------------------------ |
+| **Titel**                 | Ein Titel je Zeile – so entstehen mehrere Aufgaben auf einmal            |
+| **Erste Fälligkeit am**   | Das Startdatum der Vorlage liegt meist in der Vergangenheit              |
+| **Prüfbögen mitkopieren** | Jede Kopie bekommt einen eigenen Bogen mit denselben Prüfpunkten         |
+| **Sofort aktiv**          | Ohne Haken entsteht die Aufgabe still und lässt sich vorher nacharbeiten |
 
 ### Für mehrere Systeme ausrollen
 

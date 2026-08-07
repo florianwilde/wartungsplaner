@@ -12,8 +12,8 @@ Nach fünf Fehlversuchen ist die Anmeldung für 15 Minuten gesperrt.
 
 ## Das Dashboard
 
-Die erste Seite nach der Anmeldung beantwortet die Frage: *Was ist jetzt zu
-tun?*
+Die erste Seite nach der Anmeldung beantwortet die Frage: _Was ist jetzt zu
+tun?_
 
 - **Kennzahlen** – überfällig, diese Woche fällig, offen gesamt, offene
   Abweichungen
@@ -28,23 +28,23 @@ Erledigen lässt sich direkt von hier.
 
 ## Die Bereiche
 
-| Bereich | Wofür |
-| --- | --- |
-| **Dashboard** | Was ist jetzt zu tun |
-| **Aufgaben** | Alle Prüfungen, Filter, Historie je Aufgabe |
-| **Abweichungen** | Feststellungen mit Frist und Verantwortlichkeit |
-| **Nachweise** | Prüfbögen: eigene offene, zur Gegenzeichnung, abgeschlossene |
-| **Kalender** | Monatsansicht der Termine |
-| **Reports** | Auswertungen als PDF und Excel, Archiv |
-| **Admin** | Stammdaten und Einstellungen |
+| Bereich          | Wofür                                                        |
+| ---------------- | ------------------------------------------------------------ |
+| **Dashboard**    | Was ist jetzt zu tun                                         |
+| **Aufgaben**     | Alle Prüfungen, Filter, Historie je Aufgabe                  |
+| **Abweichungen** | Feststellungen mit Frist und Verantwortlichkeit              |
+| **Nachweise**    | Prüfbögen: eigene offene, zur Gegenzeichnung, abgeschlossene |
+| **Kalender**     | Monatsansicht der Termine                                    |
+| **Reports**      | Auswertungen als PDF und Excel, Archiv                       |
+| **Admin**        | Stammdaten und Einstellungen                                 |
 
 ## Die Ampel verstehen
 
-| Farbe | Bedeutung |
-| --- | --- |
-| **Grün** | Der Termin liegt noch außerhalb der Vorlaufzeit. |
-| **Gelb** | Bald fällig – die Vorlaufzeit hat begonnen. |
-| **Rot** | Überfällig – der Termin samt Karenzfrist ist verstrichen. |
+| Farbe    | Bedeutung                                                 |
+| -------- | --------------------------------------------------------- |
+| **Grün** | Der Termin liegt noch außerhalb der Vorlaufzeit.          |
+| **Gelb** | Bald fällig – die Vorlaufzeit hat begonnen.               |
+| **Rot**  | Überfällig – der Termin samt Karenzfrist ist verstrichen. |
 
 Vorlauf und Karenz werden je Aufgabe eingestellt.
 

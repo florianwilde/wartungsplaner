@@ -73,7 +73,10 @@ export async function GET(
       }
     } else {
       return NextResponse.json(
-        { fehler: 'Unbekannter Bereich. Erlaubt: kategorien, aufgaben, benutzer, alles.' },
+        {
+          fehler:
+            'Unbekannter Bereich. Erlaubt: kategorien, aufgaben, benutzer, alles.',
+        },
         { status: 404 },
       )
     }

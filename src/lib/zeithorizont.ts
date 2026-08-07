@@ -34,9 +34,7 @@ export const ZEITHORIZONT_AUSWAHL: Zeithorizont[] = [
 ]
 
 /** Prüft und normalisiert einen Cookie-Wert. */
-export function leseZeithorizont(
-  wert: string | undefined | null,
-): Zeithorizont {
+export function leseZeithorizont(wert: string | undefined | null): Zeithorizont {
   return ZEITHORIZONT_AUSWAHL.includes(wert as Zeithorizont)
     ? (wert as Zeithorizont)
     : ZEITHORIZONT_STANDARD
@@ -46,10 +44,7 @@ export function leseZeithorizont(
  * Letzter Tag, der noch zum Horizont gehört.
  * @returns `null` bei „Alle offenen“ – dann gibt es keine Obergrenze.
  */
-export function horizontEnde(
-  horizont: Zeithorizont,
-  stichtag: Date,
-): Date | null {
+export function horizontEnde(horizont: Zeithorizont, stichtag: Date): Date | null {
   switch (horizont) {
     case 'woche':
       return endOfWeek(stichtag)

@@ -9,9 +9,7 @@
  * einer, dem man vertraut, weil er aus der eigenen Anwendung stammt.
  */
 
-export type Befund =
-  | { sauber: true }
-  | { sauber: false; schadprogramm: string }
+export type Befund = { sauber: true } | { sauber: false; schadprogramm: string }
 
 export type Pruefstatus =
   /** Kein Prüfdienst hinterlegt – es wird nicht geprüft. */
