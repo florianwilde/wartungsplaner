@@ -8,7 +8,8 @@ import { saeubereFrage, type PruefpunktErgebnis } from '@/lib/nachweise'
 import { prisma } from '@/lib/prisma'
 import { parseISODate } from '@/lib/dates'
 import { canAdminister, canExecute, canManageFindings } from '@/lib/rbac'
-import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
+import { benutzerFuerAktion } from '@/lib/session'
+import { fehlerbehandlung } from '@/lib/fehler'
 import {
   NachweisFehler,
   entferneBeleg,
@@ -25,6 +26,8 @@ import {
   verwirfNachweis,
   type AntwortEingabe,
 } from '@/server/nachweise'
+
+const fehlertext = fehlerbehandlung('Unerwarteter Fehler im Nachweismodul')
 
 export type NachweisStatusRueckmeldung = {
   fehler?: string
@@ -542,7 +545,7 @@ export async function nachweisUebergang(
   uebergang: 'vorlegen' | 'gegenzeichnen' | 'zurueckweisen' | 'abschliessen',
   begruendung: string | null,
 ): Promise<NachweisStatusRueckmeldung> {
-  let taskId: string | null = null
+  let taskId: string | null
 
   try {
     const benutzer = await benutzerFuerAktion(canExecute)
@@ -581,12 +584,4 @@ export async function nachweisUebergang(
   } catch (error) {
     return { fehler: fehlertext(error) }
   }
-}
-
-function fehlertext(error: unknown): string {
-  if (error instanceof ZugriffVerweigertError) return error.message
-  if (error instanceof NachweisFehler) return error.message
-  if (error instanceof Error) return error.message
-  console.error('Unerwarteter Fehler im Nachweismodul:', error)
-  return 'Die Aktion konnte nicht ausgeführt werden.'
 }

@@ -7,7 +7,10 @@ import { schreibeAudit } from '@/lib/audit'
 import { formatDate, parseISODate } from '@/lib/dates'
 import { prisma } from '@/lib/prisma'
 import { canManageFindings } from '@/lib/rbac'
-import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
+import { fehlerbehandlung } from '@/lib/fehler'
+import { benutzerFuerAktion } from '@/lib/session'
+
+const fehlertext = fehlerbehandlung('Unerwarteter Fehler in einer Abweichungs-Aktion')
 
 export type AbweichungStatus = { fehler?: string; erfolg?: string }
 
@@ -171,11 +174,4 @@ export async function abweichungSchliessen(
   revalidatePath('/findings')
   revalidatePath('/')
   return { erfolg: 'Die Abweichung wurde geschlossen.' }
-}
-
-function fehlertext(error: unknown): string {
-  if (error instanceof ZugriffVerweigertError) return error.message
-  if (error instanceof Error) return error.message
-  console.error('Unerwarteter Fehler in einer Abweichungs-Aktion:', error)
-  return 'Die Aktion konnte nicht ausgeführt werden.'
 }

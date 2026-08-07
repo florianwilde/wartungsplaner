@@ -507,7 +507,7 @@ export function uebernehmeZeilenAusCsv(
   inhalt: string,
   bereitsVorhanden = 0,
 ): ZeilenUebernahme {
-  const ohneBom = inhalt.replace(/^﻿/, '')
+  const ohneBom = inhalt.replace(/^\uFEFF/, '')
   const trenner = trennzeichenVon(ohneBom)
   const roheZeilen = ohneBom.split(/\r?\n/)
 

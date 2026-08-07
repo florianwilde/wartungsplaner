@@ -10,9 +10,12 @@ import {
   pruefeVorlagenName,
   type Ausrichtung,
 } from '@/lib/report-vorlagen'
-import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
+import { benutzerFuerAktion } from '@/lib/session'
 import { speichereVorlage } from '@/server/report-vorlagen'
+import { fehlerbehandlung } from '@/lib/fehler'
 import { REPORT_TYPEN, type ReportTyp } from '@/server/reports/typen'
+
+const fehlertext = fehlerbehandlung('Unerwarteter Fehler bei den Report-Vorlagen')
 
 export type VorlagenStatus = { fehler?: string; erfolg?: string }
 
@@ -129,11 +132,4 @@ export async function vorlageLoeschen(
   revalidatePath('/admin/report-vorlagen')
   revalidatePath('/reports')
   return { erfolg: 'Die Vorlage wurde gelöscht.' }
-}
-
-function fehlertext(error: unknown): string {
-  if (error instanceof ZugriffVerweigertError) return error.message
-  if (error instanceof Error) return error.message
-  console.error('Unerwarteter Fehler bei den Report-Vorlagen:', error)
-  return 'Die Aktion konnte nicht ausgeführt werden.'
 }

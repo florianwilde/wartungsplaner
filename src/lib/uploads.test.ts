@@ -3,12 +3,31 @@ import { describe, expect, it } from 'vitest'
 import { dateOnly } from './dates'
 import {
   MAX_DATEIGROESSE_BYTES,
+  MAX_DATEIGROESSE_TEXT,
   baueSpeicherpfad,
   bereinigeDateinamen,
   dateiendung,
+  lesbareGroesse,
   nameFuerEinfuegung,
   pruefeDatei,
 } from './uploads'
+
+describe('lesbareGroesse', () => {
+  it('wählt die passende Einheit', () => {
+    expect(lesbareGroesse(512)).toBe('512 B')
+    expect(lesbareGroesse(2048)).toBe('2 KB')
+    expect(lesbareGroesse(5 * 1024 * 1024)).toBe('5.0 MB')
+    expect(lesbareGroesse(3 * 1024 * 1024 * 1024)).toBe('3.00 GB')
+  })
+})
+
+describe('MAX_DATEIGROESSE_TEXT', () => {
+  it('leitet sich aus dem Grenzwert ab', () => {
+    expect(MAX_DATEIGROESSE_TEXT).toBe(
+      `${MAX_DATEIGROESSE_BYTES / (1024 * 1024)} MB`,
+    )
+  })
+})
 
 describe('dateiendung', () => {
   it('liefert die kleingeschriebene Endung', () => {

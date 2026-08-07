@@ -9,7 +9,6 @@ import {
   fristText,
   geltendeFrist,
   istFaellig,
-  lesbareGroesse,
   stichtagFuer,
   type AufbewahrungsErgebnis,
 } from './aufbewahrung'
@@ -99,15 +98,6 @@ describe('fristText', () => {
   it('bleibt sonst bei Monaten', () => {
     expect(fristText(18)).toBe('18 Monate')
     expect(fristText(1)).toBe('1 Monat')
-  })
-})
-
-describe('lesbareGroesse', () => {
-  it('wählt die passende Einheit', () => {
-    expect(lesbareGroesse(512)).toBe('512 B')
-    expect(lesbareGroesse(2048)).toBe('2 KB')
-    expect(lesbareGroesse(5 * 1024 * 1024)).toBe('5.0 MB')
-    expect(lesbareGroesse(3 * 1024 * 1024 * 1024)).toBe('3.00 GB')
   })
 })
 

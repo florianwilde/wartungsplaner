@@ -8,12 +8,15 @@ import { parseISODate } from '@/lib/dates'
 import { leseTitel } from '@/lib/duplizieren'
 import { prisma } from '@/lib/prisma'
 import { canManageTasks } from '@/lib/rbac'
-import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
+import { benutzerFuerAktion } from '@/lib/session'
 import {
   dupliziereAufgabe,
   type DuplizierErgebnis,
 } from '@/server/duplizieren'
+import { fehlerbehandlung } from '@/lib/fehler'
 import { erzeugeErsteFaelligkeit } from '@/server/faelligkeiten'
+
+const fehlertext = fehlerbehandlung('Unerwarteter Fehler in einer Aufgaben-Aktion')
 
 export type AktionsStatus = { fehler?: string; erfolg?: string }
 
@@ -542,11 +545,4 @@ function normalisiere(wert: unknown): string {
   if (wert === null || wert === undefined) return '–'
   if (wert instanceof Date) return wert.toISOString().slice(0, 10)
   return String(wert)
-}
-
-function fehlertext(error: unknown): string {
-  if (error instanceof ZugriffVerweigertError) return error.message
-  if (error instanceof Error) return error.message
-  console.error('Unerwarteter Fehler in einer Aufgaben-Aktion:', error)
-  return 'Die Aktion konnte nicht ausgeführt werden.'
 }

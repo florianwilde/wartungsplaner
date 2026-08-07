@@ -8,13 +8,16 @@ import { STANDARD_BRANDING } from '@/lib/branding'
 import { normalisiereHex } from '@/lib/farben'
 import { prisma } from '@/lib/prisma'
 import { canAdminister } from '@/lib/rbac'
-import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
+import { benutzerFuerAktion } from '@/lib/session'
 import { holeBranding, speichereBranding } from '@/server/branding'
 import type { BrandingBildArt } from '@/lib/bilder'
+import { fehlerbehandlung } from '@/lib/fehler'
 import {
   entferneBrandingBild,
   speichereBrandingBild,
 } from '@/server/branding-dateien'
+
+const fehlertext = fehlerbehandlung('Unerwarteter Fehler beim Erscheinungsbild')
 
 export type ErscheinungsbildStatus = { fehler?: string; erfolg?: string }
 
@@ -170,11 +173,4 @@ export async function erscheinungsbildZuruecksetzen(): Promise<ErscheinungsbildS
 
   revalidatePath('/', 'layout')
   return { erfolg: 'Das Erscheinungsbild wurde zurückgesetzt.' }
-}
-
-function fehlertext(error: unknown): string {
-  if (error instanceof ZugriffVerweigertError) return error.message
-  if (error instanceof Error) return error.message
-  console.error('Unerwarteter Fehler beim Erscheinungsbild:', error)
-  return 'Die Aktion konnte nicht ausgeführt werden.'
 }

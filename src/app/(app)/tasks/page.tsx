@@ -4,31 +4,14 @@ import type { Prisma } from '@prisma/client'
 import { Plus } from 'lucide-react'
 
 import { SeitenKopf, LeerHinweis } from '@/components/seiten-kopf'
-import {
-  AmpelBadge,
-  FaelligkeitsStatusBadge,
-  KategoriePunkt,
-  KritikalitaetBadge,
-} from '@/components/status-anzeigen'
-import { Badge } from '@/components/ui/badge'
+
 import { Button } from '@/components/ui/button'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+
 import { formatDate, todayInBerlin } from '@/lib/dates'
 import { prisma } from '@/lib/prisma'
 import { canManageTasks } from '@/lib/rbac'
 import { bewerteAmpel, intervallText } from '@/lib/scheduling'
-import {
-  anzeigeName,
-  langName,
-  sortiereReferenzen,
-} from '@/lib/audit-referenzen'
+import { anzeigeName, langName, sortiereReferenzen } from '@/lib/audit-referenzen'
 import { erforderlicherBenutzer } from '@/lib/session'
 import { AufgabenTabelle } from './aufgaben-tabelle'
 import { FilterLeiste, type FilterFeld } from './filter-leiste'
@@ -243,10 +226,7 @@ export default async function AufgabenSeite({
                 farbe: aufgabe.category.color,
               },
               verantwortlich: aufgabe.owner.name,
-              intervall: intervallText(
-                aufgabe.intervalType,
-                aufgabe.intervalValue,
-              ),
+              intervall: intervallText(aufgabe.intervalType, aufgabe.intervalValue),
               kritikalitaet: aufgabe.criticality,
               naechste: naechste
                 ? {
@@ -267,7 +247,7 @@ export default async function AufgabenSeite({
           })}
         />
       )}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-muted-foreground text-xs">
         {aufgaben.length} {aufgaben.length === 1 ? 'Aufgabe' : 'Aufgaben'} angezeigt.
       </p>
     </div>

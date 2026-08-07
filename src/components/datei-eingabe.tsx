@@ -62,11 +62,14 @@ export function DateiEingabe({
     (neue: File[]) => {
       const transfer = new DataTransfer()
       for (const datei of neue) transfer.items.add(datei)
+      // Das echte Dateifeld ist die Schnittstelle zum Browser, nicht der
+      // Zustand der Komponente: Der Upload liest ausschließlich von dort.
+      // eslint-disable-next-line react-hooks/immutability
       if (feld.current) feld.current.files = transfer.files
       setDateien(neue)
       onAnzahl?.(neue.length)
     },
-    [onAnzahl],
+    [feld, onAnzahl],
   )
 
   /** Prüft die gleichen Regeln wie der Server und meldet Abweisungen. */
@@ -95,12 +98,15 @@ export function DateiEingabe({
 
         const transfer = new DataTransfer()
         for (const datei of neue) transfer.items.add(datei)
-        if (feld.current) feld.current.files = transfer.files
+        // Das echte Dateifeld ist die Schnittstelle zum Browser, nicht der
+      // Zustand der Komponente: Der Upload liest ausschließlich von dort.
+       
+      if (feld.current) feld.current.files = transfer.files
         onAnzahl?.(neue.length)
         return neue
       })
     },
-    [onAnzahl],
+    [feld, onAnzahl],
   )
 
   const einfuegen = useCallback(
@@ -152,7 +158,9 @@ export function DateiEingabe({
   // Nach einem erfolgreichen Upload beginnt der Aufrufer von vorn.
   useEffect(() => {
     if (leerenSignal === 0) return
+    // eslint-disable-next-line react-hooks/immutability
     if (feld.current) feld.current.value = ''
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDateien([])
     onAnzahl?.(0)
     // Absicht: nur auf das Signal reagieren, nicht auf jede neue Funktion.

@@ -27,7 +27,8 @@ import {
 import { anzeigeName } from '@/lib/audit-referenzen'
 import { prisma } from '@/lib/prisma'
 import { canAdminister } from '@/lib/rbac'
-import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
+import { benutzerFuerAktion } from '@/lib/session'
+import { fehlerbehandlung } from '@/lib/fehler'
 import {
   schreibeAufgaben,
   schreibeAuditReferenzen,
@@ -35,6 +36,8 @@ import {
   schreibeKategorien,
   schreibePruefboegen,
 } from '@/server/import'
+
+const fehlertext = fehlerbehandlung('Unerwarteter Fehler beim Import', 'Der Import konnte nicht ausgeführt werden.')
 
 /** Für die Anzeige aufbereitete Vorschau (ohne die vollständigen Daten). */
 export type VorschauZeile = {
@@ -347,11 +350,4 @@ export async function importAusfuehren(
   } catch (error) {
     return { fehler: fehlertext(error) }
   }
-}
-
-function fehlertext(error: unknown): string {
-  if (error instanceof ZugriffVerweigertError) return error.message
-  if (error instanceof Error) return error.message
-  console.error('Unerwarteter Fehler beim Import:', error)
-  return 'Der Import konnte nicht ausgeführt werden.'
 }

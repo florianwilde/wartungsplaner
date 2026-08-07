@@ -6,6 +6,7 @@
  * Ein Fehler an dieser Stelle würde entweder alle Anmeldungen verhindern oder,
  * schlimmer, Passkeys für eine fremde Domäne gültig machen.
  */
+import { ohneSteuerzeichen } from './sicherheit'
 
 /** Gültigkeitsdauer einer Aufgabe (Challenge) in Millisekunden. */
 export const CHALLENGE_GUELTIGKEIT_MS = 5 * 60 * 1000
@@ -84,9 +85,7 @@ export function passkeyHinweis(appUrl: string): string | null {
  * @returns den bereinigten Namen oder `null`, wenn er unbrauchbar ist.
  */
 export function pruefePasskeyName(wert: string): string | null {
-  const name = wert
-    .replace(new RegExp('[\\u0000-\\u001f\\u007f]', 'g'), '')
-    .trim()
+  const name = ohneSteuerzeichen(wert).trim()
     .slice(0, 60)
 
   return name.length >= 2 ? name : null

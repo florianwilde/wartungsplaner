@@ -8,16 +8,19 @@ import { todayInBerlin } from '@/lib/dates'
 import { baueTestMail, type MailRahmen } from '@/lib/mail-vorlagen'
 import { prisma } from '@/lib/prisma'
 import { canAdminister } from '@/lib/rbac'
-import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
+import { benutzerFuerAktion } from '@/lib/session'
 import { holeBranding } from '@/server/branding'
 import { appBasisUrl } from '@/server/benachrichtigungen'
 import { speichereBenachrichtigungsEinstellungen } from '@/server/benachrichtigungs-einstellungen'
 import { starteBenachrichtigungen } from '@/server/cron'
+import { fehlerbehandlung } from '@/lib/fehler'
 import {
   istMailVersandKonfiguriert,
   pruefeMailVerbindung,
   versendeMail,
 } from '@/server/mailer'
+
+const fehlertext = fehlerbehandlung('Unerwarteter Fehler bei den Benachrichtigungen')
 
 export type BenachrichtigungsStatus = { fehler?: string; erfolg?: string }
 
@@ -229,11 +232,4 @@ export async function benutzerMailEmpfangUmschalten(
       ? 'Der Benutzer erhält wieder Benachrichtigungen.'
       : 'Der Benutzer erhält keine Benachrichtigungen mehr.',
   }
-}
-
-function fehlertext(error: unknown): string {
-  if (error instanceof ZugriffVerweigertError) return error.message
-  if (error instanceof Error) return error.message
-  console.error('Unerwarteter Fehler bei den Benachrichtigungen:', error)
-  return 'Die Aktion konnte nicht ausgeführt werden.'
 }

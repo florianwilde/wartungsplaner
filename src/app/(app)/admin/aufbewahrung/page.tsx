@@ -9,7 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { fristText, lesbareGroesse } from '@/lib/aufbewahrung'
+import { fristText } from '@/lib/aufbewahrung'
+import { lesbareGroesse } from '@/lib/uploads'
 import { formatDateTime } from '@/lib/dates'
 import { prisma } from '@/lib/prisma'
 import { canAdminister } from '@/lib/rbac'

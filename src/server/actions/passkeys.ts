@@ -6,11 +6,13 @@ import { schreibeAudit } from '@/lib/audit'
 import { prisma } from '@/lib/prisma'
 import { canAdminister } from '@/lib/rbac'
 import {
-  ZugriffVerweigertError,
   benutzerFuerAktion,
   holeBenutzer,
 } from '@/lib/session'
+import { fehlerbehandlung } from '@/lib/fehler'
 import { pruefePasskeyName } from '@/lib/webauthn'
+
+const fehlertext = fehlerbehandlung('Unerwarteter Fehler bei den Passkeys')
 
 export type PasskeyStatus = { fehler?: string; erfolg?: string }
 
@@ -160,11 +162,4 @@ export async function passkeysZuruecksetzen(
 
   revalidatePath('/admin/benutzer')
   return { erfolg: 'Alle Passkeys des Kontos wurden entfernt.' }
-}
-
-function fehlertext(error: unknown): string {
-  if (error instanceof ZugriffVerweigertError) return error.message
-  if (error instanceof Error) return error.message
-  console.error('Unerwarteter Fehler bei den Passkeys:', error)
-  return 'Die Aktion konnte nicht ausgeführt werden.'
 }

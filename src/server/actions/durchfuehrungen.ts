@@ -5,17 +5,19 @@ import { z } from 'zod'
 
 import { parseISODate } from '@/lib/dates'
 import { canExecute } from '@/lib/rbac'
-import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
+import { benutzerFuerAktion } from '@/lib/session'
 import {
   entferneDateien,
   speichereDatei,
   type GespeicherteDatei,
 } from '@/server/dateiablage'
+import { fehlerbehandlung } from '@/lib/fehler'
 import {
-  FachlicherFehler,
   protokolliereDurchfuehrung,
   type AbweichungEingabe,
 } from '@/server/durchfuehrung-service'
+
+const fehlertext = fehlerbehandlung('Unerwarteter Fehler beim Erledigen', 'Die Durchführung konnte nicht gespeichert werden.')
 
 export type ErledigenStatus = { fehler?: string; erfolg?: string }
 
@@ -54,7 +56,7 @@ export async function faelligkeitErledigen(
   formData: FormData,
 ): Promise<ErledigenStatus> {
   const geschriebeneDateien: GespeicherteDatei[] = []
-  let taskId = ''
+  let taskId: string | undefined
 
   try {
     const benutzer = await benutzerFuerAktion(canExecute)
@@ -138,12 +140,4 @@ export async function faelligkeitErledigen(
   if (taskId) revalidatePath(`/tasks/${taskId}`)
 
   return { erfolg: 'Die Durchführung wurde protokolliert.' }
-}
-
-function fehlertext(error: unknown): string {
-  if (error instanceof ZugriffVerweigertError) return error.message
-  if (error instanceof FachlicherFehler) return error.message
-  if (error instanceof Error) return error.message
-  console.error('Unerwarteter Fehler beim Erledigen:', error)
-  return 'Die Durchführung konnte nicht gespeichert werden.'
 }

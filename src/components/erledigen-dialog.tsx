@@ -158,6 +158,7 @@ export function ErledigenDialog({
   const hatFeststellungen = feststellungen.length > 0
   useEffect(() => {
     if (offen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setErgebnis(hatFeststellungen ? 'OK_WITH_REMARKS' : 'OK')
       setAbweichungen([])
       setUebernommen([])

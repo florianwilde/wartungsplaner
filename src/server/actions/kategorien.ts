@@ -6,7 +6,10 @@ import { z } from 'zod'
 import { schreibeAudit } from '@/lib/audit'
 import { prisma } from '@/lib/prisma'
 import { canAdminister } from '@/lib/rbac'
-import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
+import { fehlerbehandlung } from '@/lib/fehler'
+import { benutzerFuerAktion } from '@/lib/session'
+
+const fehlertext = fehlerbehandlung('Unerwarteter Fehler in einer Kategorie-Aktion')
 
 export type KategorieStatus = { fehler?: string; erfolg?: string }
 
@@ -157,11 +160,4 @@ export async function kategorieLoeschen(
   revalidatePath('/admin/kategorien')
   revalidatePath('/tasks')
   return { erfolg: 'Die Kategorie wurde gelöscht.' }
-}
-
-function fehlertext(error: unknown): string {
-  if (error instanceof ZugriffVerweigertError) return error.message
-  if (error instanceof Error) return error.message
-  console.error('Unerwarteter Fehler in einer Kategorie-Aktion:', error)
-  return 'Die Aktion konnte nicht ausgeführt werden.'
 }

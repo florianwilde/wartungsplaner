@@ -5,9 +5,26 @@
  * In der Datenbank stehen ausschließlich Metadaten inklusive SHA-256-Prüfsumme,
  * damit die Unverändertheit eines Nachweises jederzeit belegbar ist.
  */
+import { ohneSteuerzeichen } from './sicherheit'
 
 /** Maximale Größe je Datei: 25 MB. */
 export const MAX_DATEIGROESSE_BYTES = 25 * 1024 * 1024
+
+/** Dateigröße in lesbarer Form, etwa „2 KB“ oder „5.0 MB“. */
+export function lesbareGroesse(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  if (bytes < 1024 * 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`
+}
+
+/**
+ * Die Obergrenze für die Anzeige. Aus der Konstanten abgeleitet, damit ein
+ * geänderter Grenzwert nicht in der Oberfläche als alte Zahl stehen bleibt.
+ */
+export const MAX_DATEIGROESSE_TEXT = `${MAX_DATEIGROESSE_BYTES / (1024 * 1024)} MB`
 
 /** Erlaubte Dateiendungen (Whitelist) mit zugehörigem Standard-MIME-Typ. */
 export const ERLAUBTE_ENDUNGEN: Record<string, string> = {
@@ -41,9 +58,7 @@ export function dateiendung(dateiname: string): string {
  */
 export function bereinigeDateinamen(dateiname: string): string {
   const ohnePfad = dateiname.split(/[\\/]/).pop() ?? 'datei'
-  const bereinigt = ohnePfad
-    // Steuerzeichen entfernen
-    .replace(new RegExp('[\\u0000-\\u001f\\u007f]', 'g'), '')
+  const bereinigt = ohneSteuerzeichen(ohnePfad)
     // Im Dateisystem problematische Zeichen ersetzen
     .replace(/["*:<>?|]/g, '_')
     // Führende Punkte verhindern versteckte Dateien und ".."
@@ -84,7 +99,7 @@ export function pruefeDatei(
   if (groesseBytes > MAX_DATEIGROESSE_BYTES) {
     return {
       ok: false,
-      fehler: `„${name}“ ist größer als 25 MB und wurde nicht übernommen.`,
+      fehler: `„${name}“ ist größer als ${MAX_DATEIGROESSE_TEXT} und wurde nicht übernommen.`,
     }
   }
 

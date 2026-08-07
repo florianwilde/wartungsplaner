@@ -11,6 +11,7 @@
  * Gelöscht wird der Inhalt, nicht die Tatsache.
  */
 import { addMonths, compareDates, toDateOnly } from './dates'
+import { lesbareGroesse } from './uploads'
 
 /** Kürzeste zulässige Frist. */
 export const MIN_MONATE = 6
@@ -108,12 +109,3 @@ export function fasseAufbewahrungZusammen(
   return `${teile.join(', ')} (${ergebnis.dauerMs} ms)`
 }
 
-/** Dateigröße in lesbarer Form. */
-export function lesbareGroesse(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
-  if (bytes < 1024 * 1024 * 1024) {
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-  }
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`
-}

@@ -107,7 +107,7 @@ describe('FARBSCHEMA_SKRIPT', () => {
         document: { cookie, documentElement: element },
         window: { matchMedia: () => ({ matches: systemDunkel }) },
       }
-      // eslint-disable-next-line no-new-func
+
       new Function('document', 'window', FARBSCHEMA_SKRIPT)(
         umgebung.document,
         umgebung.window,
@@ -135,7 +135,7 @@ describe('FARBSCHEMA_SKRIPT', () => {
       },
       style: { colorScheme: '' },
     }
-    // eslint-disable-next-line no-new-func
+
     new Function('document', 'window', FARBSCHEMA_SKRIPT)(
       { cookie: 'farbschema=dunkel', documentElement: element },
       { matchMedia: () => ({ matches: false }) },

@@ -51,13 +51,20 @@ export function ErzwungenLoeschenDialog({
 
   // Der Umfang wird beim Öffnen frisch ermittelt: Zwischen dem Markieren und
   // dem Bestätigen kann jemand anderes eine Durchführung protokolliert haben.
+  // Das Zurücksetzen läuft genau einmal je Öffnen; die von React empfohlene
+  // Alternative über einen wechselnden `key` brächte hier nichts.
   useEffect(() => {
     if (!offen) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBegruendung('')
     setBestaetigung('')
     setFehler(null)
     setBericht(null)
-    ermittleVerlust(ids).then(setBericht)
+    ermittleVerlust(ids)
+      .then(setBericht)
+      .catch(() =>
+        setFehler('Der Umfang konnte nicht ermittelt werden. Bitte erneut öffnen.'),
+      )
   }, [offen, ids])
 
   const absenden = () =>
@@ -139,7 +146,7 @@ export function ErzwungenLoeschenDialog({
 
           <div className="space-y-2">
             <Label htmlFor="bestaetigung">
-              Zur Bestätigung „{BESTAETIGUNGSWORT}" eingeben
+              Zur Bestätigung „{BESTAETIGUNGSWORT}“ eingeben
             </Label>
             <Input
               id="bestaetigung"

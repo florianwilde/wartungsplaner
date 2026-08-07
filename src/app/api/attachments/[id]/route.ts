@@ -40,14 +40,14 @@ export async function GET(
   }
 
   // Nach Ablauf der Aufbewahrungsfrist entfernt. Der Eintrag bleibt bestehen,
-  // damit belegbar ist, dass es diesen Nachweis gab - die Datei ist bewusst
-  // fort. Das gehoert klar gesagt, sonst sucht jemand nach einem Fehler.
+  // damit belegbar ist, dass es diesen Nachweis gab – die Datei ist bewusst
+  // fort. Das gehört klar gesagt, sonst sucht jemand nach einem Fehler.
   if (attachment.archiviertAm) {
     return NextResponse.json(
       {
         fehler:
           'Dieser Nachweis wurde nach Ablauf der Aufbewahrungsfrist entfernt. ' +
-          'Dateiname, Groesse und Pruefsumme bleiben zum Beleg erhalten.',
+          'Dateiname, Größe und Prüfsumme bleiben zum Beleg erhalten.',
         entferntAm: attachment.archiviertAm,
         sha256: attachment.sha256,
       },

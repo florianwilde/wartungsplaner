@@ -1,0 +1,10 @@
+.next
+node_modules
+package-lock.json
+playwright-report
+test-results
+src/generated
+docs/bilder
+beispiele/**/*.csv
+prisma/migrations
+CHANGELOG.md

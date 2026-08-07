@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useRef, useState, useTransition } from 'react'
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import {
@@ -40,7 +40,11 @@ import {
   type PruefpunktArt,
   type PruefpunktErgebnis,
 } from '@/lib/nachweise'
-import { ERLAUBTE_ENDUNGEN_TEXT } from '@/lib/uploads'
+import {
+  ERLAUBTE_ENDUNGEN_TEXT,
+  MAX_DATEIGROESSE_TEXT,
+  lesbareGroesse,
+} from '@/lib/uploads'
 import { Zeilenliste, type ZeileAnzeige } from './zeilenliste'
 import {
   nachweisBelegEntfernen,
@@ -74,13 +78,6 @@ export type PunktAnzeige = {
 
 const selectKlassen =
   'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
-
-/** Dateigröße in einer im Alltag lesbaren Form. */
-function lesbareGroesse(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
 
 function SpeichernButton() {
   const { pending } = useFormStatus()
@@ -120,9 +117,12 @@ export function NachweisFormular({
   const [bemerkung, setBemerkung] = useState(anfangsBemerkung)
   const [zeilen, setZeilen] = useState(anfangsZeilen)
   // Der Zwischenstand wird aus einer Formular-Aktion heraus gespeichert; der
-  // Verweis haelt dabei den aktuellen Stand fest.
+  // Verweis hält dabei den aktuellen Stand fest. Nachgezogen wird er im
+  // Effekt, nicht beim Rendern: Ein Verweis ist kein Renderergebnis.
   const zeilenRef = useRef(anfangsZeilen)
-  zeilenRef.current = zeilen
+  useEffect(() => {
+    zeilenRef.current = zeilen
+  }, [zeilen])
   const [ablehnen, setAblehnen] = useState(false)
   const [grund, setGrund] = useState('')
   const [uebergangLaeuft, starteUebergang] = useTransition()
@@ -470,7 +470,8 @@ export function NachweisFormular({
             <CardDescription>
               Die tatsächlichen Nachweise aus den geprüften Systemen –
               AD-Export, Screenshot, Herstellerprotokoll, Sicherungsbericht.
-              Erlaubt sind {ERLAUBTE_ENDUNGEN_TEXT}; je Datei bis 25 MB.
+              Erlaubt sind {ERLAUBTE_ENDUNGEN_TEXT}; je Datei bis{' '}
+              {MAX_DATEIGROESSE_TEXT}.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -533,7 +534,7 @@ export function NachweisFormular({
                       id="belegDateien"
                       feldRef={dateiFeld}
                       leerenSignal={leerenSignal}
-                      hinweis={`Erlaubt: ${ERLAUBTE_ENDUNGEN_TEXT} · maximal 25 MB je Datei`}
+                      hinweis={`Erlaubt: ${ERLAUBTE_ENDUNGEN_TEXT} · maximal ${MAX_DATEIGROESSE_TEXT} je Datei`}
                     />
                   </div>
                   <div className="space-y-1.5">

@@ -58,7 +58,10 @@ export function FarbschemaUmschalter({
   const [schema, setSchema] = useState<Farbschema>('system')
   const [bereit, setBereit] = useState(false)
 
+  // Das Cookie ist beim Rendern auf dem Server nicht lesbar; der Wert wird
+  // deshalb nach dem Einhängen genau einmal nachgezogen.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSchema(ausCookie())
     setBereit(true)
   }, [])
@@ -73,6 +76,9 @@ export function FarbschemaUmschalter({
   }, [schema])
 
   const waehle = (neu: Farbschema) => {
+    // `document.cookie` ist die Schnittstelle des Browsers, kein Zustand der
+    // Komponente – und dies hier ist ein Ereignisbehandler, kein Rendern.
+    // eslint-disable-next-line react-hooks/immutability
     document.cookie = baueFarbschemaCookie(neu)
     setSchema(neu)
     wendeAn(neu)

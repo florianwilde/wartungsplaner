@@ -1,0 +1,28 @@
+# Im Repository stehen Textdateien immer mit LF. Ohne diese Vorgabe legt
+# Git unter Windows CRLF ab, und jeder Wechsel des Arbeitsplatzes erzeugt
+# Änderungen an Dateien, die niemand angefasst hat.
+* text=auto eol=lf
+
+# Skripte, die im Container laufen, vertragen kein CRLF: Die Shell liest das
+# Wagenrücklaufzeichen als Teil des Befehls.
+*.sh   text eol=lf
+*.mjs  text eol=lf
+
+# Windows-Werkzeuge erwarten hier CRLF.
+*.bat  text eol=crlf
+*.ps1  text eol=crlf
+
+# Binärdateien bleiben unangetastet.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.pdf  binary
+*.zip  binary
+*.woff binary
+*.woff2 binary
+
+# Beim Vergleich weniger Rauschen.
+package-lock.json -diff linguist-generated

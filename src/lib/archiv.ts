@@ -6,12 +6,11 @@
  * gehalten – eine prüfende Person kann damit ohne diese Anwendung und ohne
  * Vertrauen in sie belegen, dass die Dateien unverändert sind.
  */
+import { ohneSteuerzeichen } from './sicherheit'
 
 /** Ersetzt alles, was in einem Dateinamen im ZIP Ärger macht. */
 export function sichererName(wert: string, maxLaenge = 80): string {
-  const bereinigt = wert
-    // Steuerzeichen
-    .replace(new RegExp('[\\u0000-\\u001f\\u007f]', 'g'), '')
+  const bereinigt = ohneSteuerzeichen(wert)
     // Pfadtrenner und im Dateisystem heikle Zeichen
     .replace(/[\\/:*?"<>|]/g, '-')
     .replace(/\s+/g, ' ')

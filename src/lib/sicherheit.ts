@@ -100,6 +100,20 @@ export function baueSicherheitsHeader(https: boolean): Record<string, string> {
 }
 
 /**
+ * Entfernt Steuerzeichen (C0-Bereich und DEL) aus einer Zeichenkette.
+ *
+ * Sie sind in Dateinamen, Anzeigenamen und E-Mail-Kopfzeilen gleichermaßen
+ * unerwünscht: Im Dateisystem sind sie teils unzulässig, in Kopfzeilen
+ * erlaubt ein Zeilenumbruch das Einschleusen weiterer Zeilen, und in der
+ * Anzeige sind sie unsichtbar – was sie zum bequemen Versteck macht.
+ */
+export function ohneSteuerzeichen(text: string, ersatz = ''): string {
+  // Absichtlich Steuerzeichen: genau die sollen hier weg.
+  // eslint-disable-next-line no-control-regex
+  return text.replace(/[\u0000-\u001f\u007f]/g, ersatz)
+}
+
+/**
  * Entfernt Steuerzeichen aus einer Zeichenkette und macht sie einzeilig.
  *
  * Wird auf alle Werte angewandt, die in E-Mail-Kopfzeilen landen. Ein
@@ -107,8 +121,7 @@ export function baueSicherheitsHeader(https: boolean): Record<string, string> {
  * (Header Injection).
  */
 export function einzeilig(text: string, maxLaenge = 200): string {
-  return text
-    .replace(new RegExp('[\\u0000-\\u001f\\u007f]', 'g'), ' ')
+  return ohneSteuerzeichen(text, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, maxLaenge)

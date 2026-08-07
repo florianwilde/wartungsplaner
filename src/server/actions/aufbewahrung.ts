@@ -6,12 +6,15 @@ import { schreibeAudit } from '@/lib/audit'
 import { begrenzeFrist, fasseAufbewahrungZusammen } from '@/lib/aufbewahrung'
 import { prisma } from '@/lib/prisma'
 import { canAdminister } from '@/lib/rbac'
-import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
+import { benutzerFuerAktion } from '@/lib/session'
+import { fehlerbehandlung } from '@/lib/fehler'
 import {
   EINSTELLUNGEN_ID,
   STANDARD_AUFBEWAHRUNG,
   fuehreAufbewahrungAus,
 } from '@/server/aufbewahrung'
+
+const fehlertext = fehlerbehandlung('Unerwarteter Fehler bei der Aufbewahrung')
 
 export type AufbewahrungsStatus = { fehler?: string; erfolg?: string }
 
@@ -97,11 +100,4 @@ export async function aufbewahrungAusfuehren(
   } catch (error) {
     return { fehler: fehlertext(error) }
   }
-}
-
-function fehlertext(error: unknown): string {
-  if (error instanceof ZugriffVerweigertError) return error.message
-  if (error instanceof Error) return error.message
-  console.error('Unerwarteter Fehler bei der Aufbewahrung:', error)
-  return 'Die Aktion konnte nicht ausgeführt werden.'
 }

@@ -8,7 +8,10 @@ import { schreibeAudit } from '@/lib/audit'
 import { pruefePasswortStaerke } from '@/lib/passwort'
 import { prisma } from '@/lib/prisma'
 import { canAdminister } from '@/lib/rbac'
-import { ZugriffVerweigertError, benutzerFuerAktion } from '@/lib/session'
+import { fehlerbehandlung } from '@/lib/fehler'
+import { benutzerFuerAktion } from '@/lib/session'
+
+const fehlertext = fehlerbehandlung('Unerwarteter Fehler in einer Benutzer-Aktion')
 
 export type BenutzerStatus = { fehler?: string; erfolg?: string }
 
@@ -283,11 +286,4 @@ export async function passwortZuruecksetzen(
     erfolg:
       'Das Startpasswort wurde gesetzt. Der Benutzer muss es beim nächsten Login ändern.',
   }
-}
-
-function fehlertext(error: unknown): string {
-  if (error instanceof ZugriffVerweigertError) return error.message
-  if (error instanceof Error) return error.message
-  console.error('Unerwarteter Fehler in einer Benutzer-Aktion:', error)
-  return 'Die Aktion konnte nicht ausgeführt werden.'
 }
