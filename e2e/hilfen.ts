@@ -22,8 +22,36 @@ export const KONTEN = {
 
 export const prisma = new PrismaClient()
 
+/**
+ * Stellt sicher, dass Anwendung und Datenbank zusammengehören.
+ *
+ * Die Testkonten entstehen unmittelbar über `DATABASE_URL`, geprüft wird
+ * die Anwendung unter `E2E_BASIS_URL`. Zeigen beide auf verschiedene
+ * Instanzen, legt der Test seine Konten in die eine Datenbank und meldet
+ * sich gegen die andere an – die Fehlermeldung lautet dann „Zeitüberschreitung
+ * beim Warten auf die Navigation“ und sagt über die Ursache nichts.
+ *
+ * Deshalb vorab der Abgleich der Portnummern.
+ */
+function pruefeUmgebung() {
+  const basis = process.env.E2E_BASIS_URL?.trim()
+  if (!basis) return
+
+  const erwartet = process.env.APP_PORT?.trim() || '3000'
+  const tatsaechlich = new URL(basis).port || '80'
+  if (erwartet !== tatsaechlich) {
+    throw new Error(
+      `E2E_BASIS_URL zeigt auf Port ${tatsaechlich}, APP_PORT lautet aber ` +
+        `${erwartet}. Die Testkonten landen dann in einer anderen Datenbank ` +
+        `als die geprüfte Anwendung. Bitte beides auf dieselbe Instanz ` +
+        `richten – oder E2E_BASIS_URL weglassen.`,
+    )
+  }
+}
+
 /** Legt die beiden Testkonten an bzw. setzt sie zurück. */
 export async function legeKontenAn() {
+  pruefeUmgebung()
   const passwordHash = await bcrypt.hash(PASSWORT, 12)
 
   const admin = await prisma.user.upsert({
