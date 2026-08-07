@@ -293,49 +293,102 @@ async function main() {
     angelegt++
   }
 
-  // --- Ein gegengezeichneter Prüfbogen ------------------------------------
-  // Genommen wird die Vorlage aus den Beispieldateien, nicht eine eigens
-  // gebaute: Was auf dem Bild steht, soll auch nach dem Einspielen dastehen.
-  const vorlage = await prisma.pruefbogenVorlage.findFirst({
-    where: { name: { contains: 'Rezertifizierung' } },
-    include: { punkte: { orderBy: { position: 'asc' } } },
-  })
+  // --- Zwei überfällige Termine -------------------------------------------
+  // Ein Bestand, in dem alles im grünen Bereich liegt, zeigt nicht, wofür
+  // die Anwendung da ist. Zwei Fälligkeiten stehen deshalb offen und über
+  // der Karenzfrist.
+  let ueberfaellig = 0
+  for (const aufgabe of aufgaben.slice(0, 2)) {
+    const faellig = addDays(heute, -(aufgabe.graceDays + 9))
+    const vorhanden = await prisma.occurrence.findFirst({
+      where: { taskId: aufgabe.id, dueDate: faellig },
+    })
+    if (vorhanden) continue
 
-  let bogenAngelegt = 0
-  if (vorlage?.taskId) {
+    await prisma.occurrence.create({
+      data: { taskId: aufgabe.id, dueDate: faellig, status: 'OPEN' },
+    })
+    ueberfaellig++
+  }
+
+  // --- Prüfbögen in allen drei Zuständen ----------------------------------
+  // Genommen werden die Vorlagen aus den Beispieldateien, nicht eigens
+  // gebaute: Was auf dem Bild steht, soll auch nach dem Einspielen dastehen.
+  //
+  // Drei Stände, damit die Nachweisseite ihre drei Bereiche zeigt: ein
+  // abgeschlossener Bogen, einer, der auf die Gegenzeichnung wartet, und
+  // ein eigener Entwurf.
+  const staende = [
+    {
+      suche: 'Rezertifizierung',
+      status: 'GEGENGEZEICHNET' as const,
+      erfasstVon: () => zweite.id,
+      bemerkung:
+        'Durchsicht mit dem Auszug vom Monatsersten. Ein Konto zum Entzug vorgemerkt.',
+    },
+    {
+      // Von der Kollegin vorgelegt – erscheint beim Administrator unter
+      // „Zur Gegenzeichnung“.
+      suche: 'Firewall',
+      status: 'VORGELEGT' as const,
+      erfasstVon: () => zweite.id,
+      bemerkung:
+        'Regelwerk vom Wochenanfang durchgesehen. Zwei Regeln ohne Antrag, siehe Abweichung.',
+    },
+    {
+      // Eigener Entwurf – erscheint unter „Meine offenen Nachweise“.
+      suche: 'Privilegierte Konten',
+      status: 'ENTWURF' as const,
+      erfasstVon: () => admin.id,
+      bemerkung: 'Auszug liegt vor, Rückmeldung der Fachbereiche steht noch aus.',
+    },
+  ]
+
+  let boegenAngelegt = 0
+  for (const stand of staende) {
+    const vorlage = await prisma.pruefbogenVorlage.findFirst({
+      where: { name: { contains: stand.suche } },
+      include: { punkte: { orderBy: { position: 'asc' } } },
+    })
+    if (!vorlage?.taskId) continue
+
+    const schonDa = await prisma.nachweis.findFirst({
+      where: { vorlageId: vorlage.id },
+    })
+    if (schonDa) continue
+
     const offene = await prisma.occurrence.findFirst({
       where: { taskId: vorlage.taskId, status: 'OPEN' },
       orderBy: { dueDate: 'asc' },
     })
-    const schonDa = await prisma.nachweis.findFirst({
-      where: { vorlageId: vorlage.id },
-    })
+    if (!offene) continue
 
-    if (offene && !schonDa) {
-      await prisma.nachweis.create({
-        data: {
-          vorlageId: vorlage.id,
-          occurrenceId: offene.id,
-          status: 'GEGENGEZEICHNET',
-          erfasstById: zweite.id,
-          erfasstAm: addDays(heute, -3),
-          vorgelegtAm: addDays(heute, -2),
-          geprueftById: admin.id,
-          geprueftAm: addDays(heute, -1),
-          bemerkung:
-            'Durchsicht mit dem Auszug vom Monatsersten. Ein Konto zum Entzug vorgemerkt.',
-          antworten: {
-            create: vorlage.punkte.map((punkt) => antwortZu(punkt, heute)),
-          },
+    const abgeschlossen = stand.status === 'GEGENGEZEICHNET'
+    const vorgelegt = abgeschlossen || stand.status === 'VORGELEGT'
+
+    await prisma.nachweis.create({
+      data: {
+        vorlageId: vorlage.id,
+        occurrenceId: offene.id,
+        status: stand.status,
+        erfasstById: stand.erfasstVon(),
+        erfasstAm: addDays(heute, -3),
+        vorgelegtAm: vorgelegt ? addDays(heute, -2) : null,
+        geprueftById: abgeschlossen ? admin.id : null,
+        geprueftAm: abgeschlossen ? addDays(heute, -1) : null,
+        bemerkung: stand.bemerkung,
+        antworten: {
+          create: vorlage.punkte.map((punkt) => antwortZu(punkt, heute)),
         },
-      })
-      bogenAngelegt = 1
-    }
+      },
+    })
+    boegenAngelegt++
   }
 
   console.log(
     `Demodaten ergänzt: ${erledigt} Durchführungen, ${angelegt} Abweichungen, ` +
-      `2 weitere Konten, ${bogenAngelegt} ausgefüllter Prüfbogen.`,
+      `${ueberfaellig} überfällige Termine, 2 weitere Konten, ` +
+      `${boegenAngelegt} Prüfbögen.`,
   )
 }
 
