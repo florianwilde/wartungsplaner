@@ -1,0 +1,58 @@
+name: Fehler melden
+description: Etwas verhält sich anders als erwartet.
+labels: ['fehler']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke, dass Sie sich die Zeit nehmen. Bitte hängen Sie **keine
+        echten Nachweise, Protokollauszüge oder personenbezogenen Daten**
+        an – ein Bildschirmfoto mit unkenntlich gemachten Namen genügt.
+
+  - type: textarea
+    id: beschreibung
+    attributes:
+      label: Was ist passiert?
+      description: Was haben Sie erwartet, und was kam stattdessen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: schritte
+    attributes:
+      label: Schritte zum Nachstellen
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Steht in der Fußzeile der Anwendung oder in `package.json`.
+      placeholder: '1.10.0'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: betrieb
+    attributes:
+      label: Betriebsart
+      options:
+        - Docker Compose
+        - Entwicklungsumgebung (npm run dev)
+        - Anders (bitte unten beschreiben)
+    validations:
+      required: true
+
+  - type: textarea
+    id: protokoll
+    attributes:
+      label: Protokollauszug
+      description: >
+        Aus `docker compose logs app`. Bitte vorher auf Zugangsdaten und
+        Namen durchsehen.
+      render: text

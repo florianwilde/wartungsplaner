@@ -1,0 +1,6 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Sicherheitslücke melden
+    url: https://github.com/<konto>/wartungsplaner/security/advisories/new
+    about: >
+      Bitte nicht als öffentliches Issue. Siehe SECURITY.md.

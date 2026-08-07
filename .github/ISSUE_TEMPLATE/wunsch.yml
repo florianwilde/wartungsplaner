@@ -1,0 +1,29 @@
+name: Funktion vorschlagen
+description: Etwas fehlt oder ließe sich besser lösen.
+labels: ['wunsch']
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem lösen Sie damit?
+      description: >
+        Bitte beschreiben Sie die Lage, nicht die Lösung – oft gibt es
+        einen einfacheren Weg als den zuerst gedachten.
+    validations:
+      required: true
+
+  - type: textarea
+    id: vorschlag
+    attributes:
+      label: Wie stellen Sie es sich vor?
+    validations:
+      required: true
+
+  - type: textarea
+    id: umfeld
+    attributes:
+      label: Prüfungsumfeld
+      description: >
+        Nach welcher Norm arbeiten Sie (ISO 27001, TISAX, BSI-Grundschutz,
+        etwas anderes)? Das hilft einzuschätzen, wie verbreitet der Bedarf
+        ist.

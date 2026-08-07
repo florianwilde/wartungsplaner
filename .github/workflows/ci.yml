@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Ein laufender Durchlauf wird abgebrochen, wenn kurz darauf ein neuer
+# Commit auf demselben Zweig landet.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  pruefen:
+    name: Formatierung, Regeln, Typen, Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      # Der Prisma-Client wird erzeugt, bevor irgendetwas ihn importiert.
+      - run: npx prisma generate
+
+      - name: Formatierung
+        run: npm run format:check
+
+      - name: Regeln
+        run: npm run lint
+
+      - name: Typen
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Beispieldateien
+        run: npm run test:beispiele
+
+  bauen:
+    name: Übersetzen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Anwendung übersetzen
+        run: npm run build
+        env:
+          # Für den Bau genügen Platzhalter: Es wird nichts verbunden.
+          DATABASE_URL: postgresql://platzhalter:platzhalter@localhost:5432/platzhalter
+          AUTH_SECRET: platzhalter-nur-fuer-den-bau-nicht-verwenden
+          APP_URL: http://localhost:3007
+
+  einspielen:
+    name: Beispieldaten gegen eine echte Datenbank
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wartung
+          POSTGRES_PASSWORD: wartung
+          POSTGRES_DB: wartung_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wartung"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://wartung:wartung@localhost:5432/wartung_ci
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+      - run: npx prisma migrate deploy
+      - run: npx tsx scripts/einspieltest.ts

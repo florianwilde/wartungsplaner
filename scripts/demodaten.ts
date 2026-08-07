@@ -1,32 +1,138 @@
 /**
- * Füllt eine Demo-Instanz mit Historie – für Bildschirmfotos und Vorführungen.
+ * Füllt eine Demo-Instanz – für Bildschirmfotos und Vorführungen.
  *
- * Der Seed legt Kategorien, Aufgaben und je eine erste Fälligkeit an. Für ein
- * aussagekräftiges Bild fehlt die Vergangenheit: erledigte Prüfungen, offene
- * Abweichungen, ein gegengezeichneter Prüfbogen. Genau das ergänzt dieses
- * Skript.
+ * Zwei Schritte:
  *
- * **Nur für Wegwerf-Instanzen.** Es schreibt Durchführungen und Abweichungen
- * und ist auf einem Produktivbestand fehl am Platz; deshalb verlangt es eine
- * ausdrückliche Bestätigung über `DEMO_BESTAETIGT=ja`.
+ * 1. **Der Ausgangsbestand wird eingespielt** – dieselben Dateien aus
+ *    `beispiele/pruefplan/`, die auch eine echte Installation bekommt, und
+ *    über dieselben Funktionen wie der Import in der Oberfläche. Damit
+ *    zeigen die Bilder genau das, was eine Leserin nach dem Einspielen
+ *    selbst vor sich hat.
+ * 2. **Vergangenheit wird ergänzt** – erledigte Prüfungen, offene
+ *    Abweichungen, ein gegengezeichneter Prüfbogen. Ein Bestand ohne
+ *    Historie sagt über eine Nachweisverwaltung wenig aus.
+ *
+ * **Nur für Wegwerf-Instanzen.** Das Skript schreibt Durchführungen und
+ * Abweichungen und ist auf einem Produktivbestand fehl am Platz; deshalb
+ * verlangt es eine ausdrückliche Bestätigung über `DEMO_BESTAETIGT=ja`.
  *
  * Ausführen:  DEMO_BESTAETIGT=ja npx tsx scripts/demodaten.ts
  */
-import { PrismaClient } from '@prisma/client'
+import { readFileSync } from 'node:fs'
+
+import { Prisma, PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
+import { leseCsv } from '../src/lib/csv'
 import { addDays, todayInBerlin } from '../src/lib/dates'
+import {
+  pruefeAufgaben,
+  pruefeAuditReferenzen,
+  pruefeKategorien,
+  pruefePruefboegen,
+} from '../src/lib/import-export'
+import {
+  schreibeAufgaben,
+  schreibeAuditReferenzen,
+  schreibeKategorien,
+  schreibePruefboegen,
+} from '../src/server/import'
 
 const prisma = new PrismaClient()
 
-/** Zweite Person, damit Gegenzeichnung und Zuständigkeiten glaubhaft wirken. */
-const ZWEITE = {
-  email: 'm.berger@example.com',
-  name: 'Martina Berger',
+const BEISPIELE = 'beispiele/pruefplan'
+const lies = (datei: string) => leseCsv(readFileSync(`${BEISPIELE}/${datei}`, 'utf8'))
+
+/** Zweite und dritte Person, damit Zuständigkeiten glaubhaft wirken. */
+const ZWEITE = { email: 'm.berger@example.com', name: 'Martina Berger' }
+const DRITTE = { email: 'j.kraus@example.com', name: 'Jens Kraus' }
+
+/**
+ * Spielt die vier Beispieldateien ein – in der Reihenfolge, in der sie
+ * aufeinander aufbauen. Bricht ab, sobald eine Datei Fehler enthält: Ein
+ * stiller Teilbestand wäre in den Bildern nicht zu erkennen.
+ */
+async function spieleBeispieldatenEin(adminId: string, adminEmail: string) {
+  const meldeFehler = (
+    bereich: string,
+    fehler: { zeile: number; meldung: string }[],
+  ) => {
+    if (fehler.length === 0) return
+    console.error(`Beispieldatei „${bereich}“ enthält Fehler:`)
+    for (const eintrag of fehler.slice(0, 5)) {
+      console.error(`  Zeile ${eintrag.zeile}: ${eintrag.meldung}`)
+    }
+    throw new Error(`Beispieldatei „${bereich}“ ist nicht einspielbar.`)
+  }
+
+  const kategorien = pruefeKategorien(lies('1-kategorien.csv'), [])
+  meldeFehler('Kategorien', kategorien.fehler)
+  await schreibeKategorien(kategorien, adminId)
+
+  const referenzen = pruefeAuditReferenzen(lies('2-audit-referenzen.csv'), [])
+  meldeFehler('Audit-Referenzen', referenzen.fehler)
+  await schreibeAuditReferenzen(referenzen, adminId)
+
+  const bekannteKategorien = (
+    await prisma.category.findMany({ select: { name: true } })
+  ).map((k) => k.name)
+  const aufgaben = pruefeAufgaben(lies('3-aufgaben.csv'), [], bekannteKategorien, [
+    adminEmail,
+  ])
+  meldeFehler('Aufgaben', aufgaben.fehler)
+  await schreibeAufgaben(aufgaben, adminId)
+
+  const bekannteAufgaben = (
+    await prisma.task.findMany({ select: { title: true } })
+  ).map((a) => a.title)
+  const boegen = pruefePruefboegen(lies('4-pruefboegen.csv'), [], bekannteAufgaben)
+  meldeFehler('Prüfbögen', boegen.fehler)
+  await schreibePruefboegen(boegen, adminId)
+
+  console.log(
+    `  Eingespielt: ${kategorien.anlegen} Kategorien, ${referenzen.anlegen} Referenzen, ` +
+      `${aufgaben.anlegen} Aufgaben, ${boegen.anlegen} Prüfbögen.`,
+  )
 }
-const DRITTE = {
-  email: 'j.kraus@example.com',
-  name: 'Jens Kraus',
+
+/** Erzeugt zu einem Prüfpunkt eine plausible Antwort. */
+function antwortZu(
+  punkt: { id: string; art: string; position: number },
+  heute: Date,
+): Prisma.NachweisAntwortUncheckedCreateWithoutNachweisInput {
+  switch (punkt.art) {
+    case 'BEWERTUNG':
+      // Ein Bogen, in dem alles erfüllt ist, zeigt nicht, wie eine
+      // Feststellung aussieht.
+      return punkt.position === 2
+        ? {
+            punktId: punkt.id,
+            ergebnis: 'NICHT_ERFUELLT',
+            wert: null,
+            bemerkung: 'Ein Konto war noch aktiv, Entzug veranlasst.',
+          }
+        : { punktId: punkt.id, ergebnis: 'ERFUELLT', wert: null, bemerkung: null }
+    case 'ZAHL':
+      return { punktId: punkt.id, ergebnis: null, wert: '148', bemerkung: null }
+    case 'DATUM':
+      return {
+        punktId: punkt.id,
+        ergebnis: null,
+        wert: addDays(heute, -5).toISOString().slice(0, 10),
+        bemerkung: null,
+      }
+    case 'TEXT':
+      return {
+        punktId: punkt.id,
+        ergebnis: null,
+        wert: 'Auszug vom Monatsersten, gemeinsam mit der Fachbereichsleitung durchgesehen.',
+        bemerkung: null,
+      }
+    default:
+      // LISTE: Die Zeilen entstehen erst bei der Durchführung aus dem
+      // Systemauszug – hier bleibt der Punkt leer.
+      return { punktId: punkt.id, ergebnis: null, wert: null, bemerkung: null }
+  }
 }
 
 async function main() {
@@ -42,7 +148,12 @@ async function main() {
   const heute = todayInBerlin()
   const passwordHash = await bcrypt.hash('Demo!12345678', 12)
 
-  const [zweite, dritte] = await Promise.all(
+  const admin = await prisma.user.findFirstOrThrow({
+    where: { role: 'ADMIN' },
+    orderBy: { createdAt: 'asc' },
+  })
+
+  const [zweite] = await Promise.all(
     [ZWEITE, DRITTE].map((person, index) =>
       prisma.user.upsert({
         where: { email: person.email },
@@ -57,10 +168,9 @@ async function main() {
     ),
   )
 
-  const admin = await prisma.user.findFirstOrThrow({
-    where: { role: 'ADMIN' },
-    orderBy: { createdAt: 'asc' },
-  })
+  // --- Ausgangsbestand ----------------------------------------------------
+  console.log('Beispieldaten werden eingespielt …')
+  await spieleBeispieldatenEin(admin.id, admin.email)
 
   // Der erzwungene Wechsel des Startpassworts ist im Betrieb richtig, für
   // eine Wegwerf-Instanz nur ein Umweg vor jeder Ansicht.
@@ -123,7 +233,6 @@ async function main() {
     where: { result: 'DEVIATION' },
     take: 4,
     orderBy: { executedAt: 'desc' },
-    include: { occurrence: { select: { task: { select: { title: true } } } } },
   })
 
   const abweichungen = [
@@ -184,114 +293,25 @@ async function main() {
     angelegt++
   }
 
-  // --- Audit-Referenzen ---------------------------------------------------
-  const referenzen = [
-    {
-      rahmenwerk: 'ISO 27001',
-      kuerzel: 'A.8.13',
-      bezeichnung: 'Sicherung von Informationen',
-    },
-    { rahmenwerk: 'ISO 27001', kuerzel: 'A.5.18', bezeichnung: 'Zugangsrechte' },
-    {
-      rahmenwerk: 'ISO 27001',
-      kuerzel: 'A.8.8',
-      bezeichnung: 'Umgang mit technischen Schwachstellen',
-    },
-    {
-      rahmenwerk: 'ISO 27001',
-      kuerzel: 'A.7.2',
-      bezeichnung: 'Physische Zutrittssteuerung',
-    },
-  ]
-  for (const referenz of referenzen) {
-    const gespeichert = await prisma.auditReferenz.upsert({
-      where: {
-        rahmenwerk_kuerzel: {
-          rahmenwerk: referenz.rahmenwerk,
-          kuerzel: referenz.kuerzel,
-        },
-      },
-      update: {},
-      create: { ...referenz, aktiv: true },
-    })
-
-    // Jeder Referenz ein paar Aufgaben zuordnen, damit der Filter etwas zeigt.
-    for (const aufgabe of aufgaben.filter(
-      (_, i) => i % referenzen.length === referenzen.indexOf(referenz),
-    )) {
-      await prisma.taskAuditReferenz.upsert({
-        where: {
-          taskId_referenzId: { taskId: aufgabe.id, referenzId: gespeichert.id },
-        },
-        update: {},
-        create: { taskId: aufgabe.id, referenzId: gespeichert.id },
-      })
-    }
-  }
-
   // --- Ein gegengezeichneter Prüfbogen ------------------------------------
-  const rezertifizierung = aufgaben.find((a) =>
-    a.title.includes('Zugriffsberechtigungen'),
-  )
-  if (rezertifizierung) {
-    const vorlage = await prisma.pruefbogenVorlage.upsert({
-      where: { name: 'Rezertifizierung Zugriffsberechtigungen' },
-      update: {},
-      create: {
-        name: 'Rezertifizierung Zugriffsberechtigungen',
-        beschreibung:
-          'Prüfpunkte für die halbjährliche Durchsicht der Berechtigungen in AD, Fileserver und ERP.',
-        taskId: rezertifizierung.id,
-        vierAugen: true,
-        aktiv: true,
-        punkte: {
-          create: [
-            {
-              position: 1,
-              frage: 'Sind alle privilegierten Konten begründet?',
-              hinweis: 'Domänen-Admins, Backup-Operatoren, Datenbank-Administratoren',
-              art: 'BEWERTUNG',
-              pflicht: true,
-            },
-            {
-              position: 2,
-              frage: 'Wurden Konten ausgeschiedener Personen entfernt?',
-              art: 'BEWERTUNG',
-              pflicht: true,
-            },
-            {
-              position: 3,
-              frage: 'Anzahl geprüfter Konten',
-              art: 'ZAHL',
-              pflicht: true,
-            },
-            {
-              position: 4,
-              frage: 'Stichtag des Auszugs',
-              art: 'DATUM',
-              pflicht: false,
-            },
-          ],
-        },
-      },
-      include: { punkte: true },
-    })
+  // Genommen wird die Vorlage aus den Beispieldateien, nicht eine eigens
+  // gebaute: Was auf dem Bild steht, soll auch nach dem Einspielen dastehen.
+  const vorlage = await prisma.pruefbogenVorlage.findFirst({
+    where: { name: { contains: 'Rezertifizierung' } },
+    include: { punkte: { orderBy: { position: 'asc' } } },
+  })
 
+  let bogenAngelegt = 0
+  if (vorlage?.taskId) {
     const offene = await prisma.occurrence.findFirst({
-      where: { taskId: rezertifizierung.id, status: 'OPEN' },
+      where: { taskId: vorlage.taskId, status: 'OPEN' },
       orderBy: { dueDate: 'asc' },
     })
-
     const schonDa = await prisma.nachweis.findFirst({
       where: { vorlageId: vorlage.id },
     })
 
     if (offene && !schonDa) {
-      const punkte = await prisma.pruefbogenPunkt.findMany({
-        where: { vorlageId: vorlage.id },
-        orderBy: { position: 'asc' },
-      })
-
       await prisma.nachweis.create({
         data: {
           vorlageId: vorlage.id,
@@ -305,38 +325,18 @@ async function main() {
           bemerkung:
             'Durchsicht mit dem Auszug vom Monatsersten. Ein Konto zum Entzug vorgemerkt.',
           antworten: {
-            create: [
-              {
-                punktId: punkte[0].id,
-                ergebnis: 'ERFUELLT',
-                wert: null,
-                bemerkung: null,
-              },
-              {
-                punktId: punkte[1].id,
-                ergebnis: 'NICHT_ERFUELLT',
-                wert: null,
-                bemerkung: 'Ein Konto war noch aktiv, Entzug veranlasst.',
-              },
-              { punktId: punkte[2].id, ergebnis: null, wert: '148', bemerkung: null },
-              {
-                punktId: punkte[3].id,
-                ergebnis: null,
-                wert: addDays(heute, -5).toISOString().slice(0, 10),
-                bemerkung: null,
-              },
-            ],
+            create: vorlage.punkte.map((punkt) => antwortZu(punkt, heute)),
           },
         },
       })
+      bogenAngelegt = 1
     }
   }
 
   console.log(
     `Demodaten ergänzt: ${erledigt} Durchführungen, ${angelegt} Abweichungen, ` +
-      `${referenzen.length} Audit-Referenzen, 2 weitere Konten, 1 Prüfbogen.`,
+      `2 weitere Konten, ${bogenAngelegt} ausgefüllter Prüfbogen.`,
   )
-  void dritte
 }
 
 main()
