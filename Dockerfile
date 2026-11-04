@@ -13,8 +13,10 @@ RUN npm ci
 
 
 # --- Stufe 2: Produktions-Abhängigkeiten ------------------------------------
-# Ergibt einen vollständigen node_modules-Baum ohne Entwicklungspakete,
-# inklusive erzeugtem Prisma-Client. Er wird im Laufzeit-Image verwendet.
+# Ergibt einen vollständigen node_modules-Baum ohne Entwicklungspakete. Er wird
+# im Laufzeit-Image verwendet. `prisma generate` lädt dabei die Schema-Engine
+# herunter, die `migrate deploy` beim Start des Containers braucht; der Client
+# selbst landet seit Prisma 7 in src/generated und kommt aus der Build-Stufe.
 FROM node:22-alpine AS proddeps
 WORKDIR /app
 
@@ -24,6 +26,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
 
 COPY prisma ./prisma
+COPY prisma.config.ts ./
 RUN npx prisma generate
 
 
@@ -54,7 +57,7 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 
 # tzdata: Zeitzone Europe/Berlin für node-cron und die Datumsformatierung.
-# openssl: wird vom Prisma-Query-Engine benötigt.
+# openssl: wird von der Prisma-Schema-Engine (migrate deploy) benötigt.
 RUN apk add --no-cache tzdata openssl
 
 ENV NODE_ENV=production
@@ -80,6 +83,9 @@ COPY --from=builder --chown=wartungsplaner:nodejs /app/public ./public
 
 # 3. Schema, Migrationen und Seed für den Start des Containers.
 COPY --from=builder --chown=wartungsplaner:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=wartungsplaner:nodejs /app/prisma.config.ts ./prisma.config.ts
+COPY --from=builder --chown=wartungsplaner:nodejs /app/src/generated ./src/generated
+COPY --from=builder --chown=wartungsplaner:nodejs /app/src/lib/prisma-basis.ts ./src/lib/prisma-basis.ts
 COPY --from=builder --chown=wartungsplaner:nodejs /app/src/lib/dates.ts ./src/lib/dates.ts
 COPY --from=builder --chown=wartungsplaner:nodejs /app/tsconfig.json ./tsconfig.json
 

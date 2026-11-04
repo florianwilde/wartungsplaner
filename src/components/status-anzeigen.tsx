@@ -4,7 +4,7 @@ import type {
   FindingStatus,
   OccurrenceStatus,
   Severity,
-} from '@prisma/client'
+} from '@/generated/prisma/client'
 
 import { Badge } from '@/components/ui/badge'
 import {

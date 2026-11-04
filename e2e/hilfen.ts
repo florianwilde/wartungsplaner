@@ -8,7 +8,7 @@
  * Alles Erzeugte trägt ein Präfix und wird danach wieder entfernt – die
  * Tests laufen gegen dieselbe Instanz wie die tägliche Arbeit.
  */
-import { PrismaClient } from '@prisma/client'
+import { erzeugePrismaClient } from '../src/lib/prisma-basis'
 import bcrypt from 'bcryptjs'
 import type { Page } from '@playwright/test'
 
@@ -20,7 +20,7 @@ export const KONTEN = {
   pruefer: `e2e-pruefer@test.local`,
 } as const
 
-export const prisma = new PrismaClient()
+export const prisma = erzeugePrismaClient()
 
 /**
  * Stellt sicher, dass Anwendung und Datenbank zusammengehören.

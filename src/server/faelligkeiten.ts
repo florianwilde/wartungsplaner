@@ -1,4 +1,4 @@
-import type { Prisma } from '@prisma/client'
+import type { Prisma } from '@/generated/prisma/client'
 
 import { schreibeAudit, schreibeAuditLeise } from '@/lib/audit'
 import { compareDates, formatDate, todayInBerlin } from '@/lib/dates'

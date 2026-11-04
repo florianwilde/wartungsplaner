@@ -19,7 +19,7 @@ import { createHash } from 'node:crypto'
 import { access, mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import { PrismaClient } from '@prisma/client'
+import { erzeugePrismaClient } from '../src/lib/prisma-basis'
 
 import { addMonths, dateOnly, todayInBerlin } from '../src/lib/dates'
 import {
@@ -30,7 +30,7 @@ import {
 import { absoluterPfad, uploadVerzeichnis } from '../src/server/dateiablage'
 import { pruefeNachweise } from '../src/server/integritaet'
 
-const prisma = new PrismaClient()
+const prisma = erzeugePrismaClient()
 
 const PRAEFIX = '[Aufbewahrungstest] '
 const TESTORDNER = 'aufbewahrungstest'

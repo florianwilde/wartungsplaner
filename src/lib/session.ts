@@ -3,7 +3,7 @@ import 'server-only'
 import { redirect } from 'next/navigation'
 
 import { brauchtPasskey } from '@/server/sicherheit-einstellungen'
-import type { Role } from '@prisma/client'
+import type { Role } from '@/generated/prisma/client'
 
 import { auth } from '@/auth'
 

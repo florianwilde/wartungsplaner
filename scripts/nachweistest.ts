@@ -8,7 +8,7 @@
  * Ausführen:  npx tsx scripts/nachweistest.ts
  * Voraussetzung: `docker compose up -d db` und angewandte Migrationen.
  */
-import { PrismaClient } from '@prisma/client'
+import { erzeugePrismaClient } from '../src/lib/prisma-basis'
 
 import { addDays, todayInBerlin } from '../src/lib/dates'
 import {
@@ -30,7 +30,7 @@ import {
 import { protokolliereDurchfuehrung } from '../src/server/durchfuehrung-service'
 import { ladeNachweisregister } from '../src/server/reports/daten'
 
-const prisma = new PrismaClient()
+const prisma = erzeugePrismaClient()
 
 const PRAEFIX = '[Nachweistest] '
 let fehlerAnzahl = 0

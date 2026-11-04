@@ -3,6 +3,9 @@ node_modules/
 .pnp
 .pnp.js
 
+# Erzeugter Prisma-Client (npx prisma generate)
+src/generated/
+
 # Next.js
 .next/
 out/

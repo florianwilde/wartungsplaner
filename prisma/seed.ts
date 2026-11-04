@@ -18,10 +18,10 @@
  *
  * Ausführen:  npm run db:seed
  */
-import { PrismaClient } from '@prisma/client'
+import { erzeugePrismaClient } from '../src/lib/prisma-basis'
 import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient()
+const prisma = erzeugePrismaClient()
 
 const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? 'admin@example.com'
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'Start!1234'

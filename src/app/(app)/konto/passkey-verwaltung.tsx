@@ -66,7 +66,7 @@ export function PasskeyVerwaltung({
       if (!start.ok) throw new Error(startDaten.fehler ?? 'Start fehlgeschlagen.')
 
       // 2. Gerät nach dem Schlüssel fragen
-      const antwort = await startRegistration(startDaten.optionen)
+      const antwort = await startRegistration({ optionsJSON: startDaten.optionen })
 
       // 3. Namen erfragen und beim Server hinterlegen
       const name =

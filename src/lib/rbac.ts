@@ -5,7 +5,7 @@
  * EDITOR  – darf Aufgaben erledigen, Nachweise hochladen, Abweichungen bearbeiten
  * AUDITOR – ausschließlich lesend, inklusive Reports
  */
-import type { Role } from '@prisma/client'
+import type { Role } from '@/generated/prisma/client'
 
 export const ROLLEN_BEZEICHNUNG: Record<Role, string> = {
   ADMIN: 'Administrator',

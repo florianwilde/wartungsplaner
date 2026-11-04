@@ -19,12 +19,12 @@ import { createHash } from 'node:crypto'
 import { access, mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import { PrismaClient } from '@prisma/client'
+import { erzeugePrismaClient } from '../src/lib/prisma-basis'
 
 import { todayInBerlin } from '../src/lib/dates'
 import { absoluterPfad, uploadVerzeichnis } from '../src/server/dateiablage'
 
-const prisma = new PrismaClient()
+const prisma = erzeugePrismaClient()
 
 const PRAEFIX = '[Erzwingentest] '
 const TESTORDNER = 'erzwingentest'

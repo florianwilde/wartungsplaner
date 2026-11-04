@@ -5,7 +5,7 @@
  * Excel erfolgt getrennt davon. So verwenden beide Ausgabeformate garantiert
  * dieselben Zahlen.
  */
-import type { Prisma } from '@prisma/client'
+import type { Prisma } from '@/generated/prisma/client'
 
 import { addMonths, compareDates, formatDate, todayInBerlin } from '@/lib/dates'
 import {

@@ -20,7 +20,8 @@
  */
 import { readFileSync } from 'node:fs'
 
-import { Prisma, PrismaClient } from '@prisma/client'
+import type { Prisma } from '../src/generated/prisma/client'
+import { erzeugePrismaClient } from '../src/lib/prisma-basis'
 import bcrypt from 'bcryptjs'
 
 import { leseCsv } from '../src/lib/csv'
@@ -38,7 +39,7 @@ import {
   schreibePruefboegen,
 } from '../src/server/import'
 
-const prisma = new PrismaClient()
+const prisma = erzeugePrismaClient()
 
 const BEISPIELE = 'beispiele/pruefplan'
 const lies = (datei: string) => leseCsv(readFileSync(`${BEISPIELE}/${datei}`, 'utf8'))

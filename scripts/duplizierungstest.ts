@@ -10,12 +10,12 @@
  * Voraussetzung: Datenbank vom Host aus erreichbar:
  *   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
  */
-import { PrismaClient } from '@prisma/client'
+import { erzeugePrismaClient } from '../src/lib/prisma-basis'
 
 import { addDays, todayInBerlin } from '../src/lib/dates'
 import { dupliziereAufgabe } from '../src/server/duplizieren'
 
-const prisma = new PrismaClient()
+const prisma = erzeugePrismaClient()
 
 const PRAEFIX = '[Duplizierungstest] '
 const EMAIL = 'duplizieren@test.local'

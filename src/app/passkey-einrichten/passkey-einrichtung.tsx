@@ -28,7 +28,7 @@ export function PasskeyEinrichtung() {
       const startDaten = await start.json()
       if (!start.ok) throw new Error(startDaten.fehler ?? 'Start fehlgeschlagen.')
 
-      const antwort = await startRegistration(startDaten.optionen)
+      const antwort = await startRegistration({ optionsJSON: startDaten.optionen })
 
       const name =
         window.prompt(

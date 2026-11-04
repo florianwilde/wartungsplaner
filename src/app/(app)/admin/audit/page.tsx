@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import type { Prisma } from '@prisma/client'
+import type { Prisma } from '@/generated/prisma/client'
 import { ChevronLeft, ChevronRight, ShieldCheck } from 'lucide-react'
 
 import { FilterLeiste, type FilterFeld } from '@/app/(app)/tasks/filter-leiste'

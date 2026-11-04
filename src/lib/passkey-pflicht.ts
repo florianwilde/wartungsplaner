@@ -11,7 +11,7 @@
  * Administration selbst aus der eigenen Anwendung aussperrt, richtet mehr
  * Schaden an als sie verhindert. Deshalb die Regeln unten.
  */
-import type { Role } from '@prisma/client'
+import type { Role } from '@/generated/prisma/client'
 
 export type PflichtEinstellung = {
   /** Rollen, für die ein Passkey verlangt wird */

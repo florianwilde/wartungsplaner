@@ -33,7 +33,7 @@ import {
   aufgabenSammelLoeschen,
 } from '@/server/actions/sammelaktionen'
 import type { Ampel } from '@/lib/scheduling'
-import type { Criticality, OccurrenceStatus } from '@prisma/client'
+import type { Criticality, OccurrenceStatus } from '@/generated/prisma/client'
 import { ErzwungenLoeschenDialog } from './erzwungen-loeschen-dialog'
 
 /**
