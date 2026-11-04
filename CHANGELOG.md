@@ -12,6 +12,29 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 
 ---
 
+## [Unveröffentlicht]
+
+### Sicherheit
+
+- **Next.js 16.2.12 → 16.4.2.** Die alte Fassung hatte mehrere kritische
+  Lücken, über die sich ohne Anmeldung Code auf dem Server ausführen ließ
+  (Bild-Optimierung mit SVG und AVIF, `next/og`, `use cache`), dazu
+  Server-Side Request Forgery in der Bild-Optimierung und
+  Cache-Verwechslungen.
+- **nodemailer 8 → 10.1.7.** Unter anderem ließ sich über die
+  `raw`-Option einer Nachricht der Dateizugriff umgehen, und der
+  Adressparser stellte bei präparierten Adressen an eine andere Domain zu.
+  next-auth 5 (Beta) verlangt nodemailer 7 oder 8 als optionale
+  Peer-Abhängigkeit; der Wartungsplaner nutzt den E-Mail-Provider von
+  next-auth nicht, deshalb setzt ein `override` dort die eigene Fassung.
+- **Mitgezogen:** `zod` 4.6.7 (Speichererschöpfung bei großen Sammlungen),
+  `sharp` 0.35.5 (libheif, librsvg), `nanoid`, `source-map-js`,
+  `brace-expansion`.
+- **Offen, mit Begründung:** `deepmerge-ts` über Prisma 6 (betrifft nur
+  das Laden der CLI-Konfiguration; behoben erst mit Prisma 7) und
+  `@simplewebauthn/server` 9 (niedrig; behoben erst in Fassung 13). Beides
+  sind Umstiege auf eine neue Hauptversion und kommen gesondert.
+
 ## [1.11.0] – 2026-08-07
 
 ### Geändert
