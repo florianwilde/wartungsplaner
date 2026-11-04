@@ -23,13 +23,13 @@ import { createHash } from 'node:crypto'
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import { PrismaClient } from '@prisma/client'
+import { erzeugePrismaClient } from '../src/lib/prisma-basis'
 
 import { istUnversehrt } from '../src/lib/integritaet'
 import { absoluterPfad, uploadVerzeichnis } from '../src/server/dateiablage'
 import { pruefeNachweise } from '../src/server/integritaet'
 
-const prisma = new PrismaClient()
+const prisma = erzeugePrismaClient()
 
 const PRAEFIX = '[Integritaetstest] '
 const TESTORDNER = 'integritaetstest'

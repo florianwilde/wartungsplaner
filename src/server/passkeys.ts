@@ -9,12 +9,11 @@ import {
   generateRegistrationOptions,
   verifyAuthenticationResponse,
   verifyRegistrationResponse,
+  type AuthenticationResponseJSON,
+  type AuthenticatorTransportFuture,
+  type RegistrationResponseJSON,
 } from '@simplewebauthn/server'
-import type {
-  AuthenticationResponseJSON,
-  AuthenticatorTransportFuture,
-  RegistrationResponseJSON,
-} from '@simplewebauthn/types'
+import { isoUint8Array } from '@simplewebauthn/server/helpers'
 
 import { prisma } from '@/lib/prisma'
 import {
@@ -130,14 +129,15 @@ export async function starteRegistrierung(
   const optionen = await generateRegistrationOptions({
     rpName: await rpName(),
     rpID: rpId(),
-    // Kennung des Kontos, wie sie im Passkey hinterlegt wird
-    userID: benutzer.id,
+    // Kennung des Kontos, wie sie im Passkey hinterlegt wird. Seit
+    // SimpleWebAuthn 10 als Bytes; UTF-8 ergibt dieselben Bytes, die Version 9
+    // aus der Zeichenkette gemacht hat – bestehende Passkeys passen weiter.
+    userID: isoUint8Array.fromUTF8String(benutzer.id),
     userName: benutzer.email,
     userDisplayName: benutzer.name,
     // Verhindert, dass dasselbe Gerät zweimal registriert wird.
     excludeCredentials: benutzer.passkeys.map((p) => ({
-      id: Buffer.from(p.credentialId, 'base64url'),
-      type: 'public-key' as const,
+      id: p.credentialId,
       transports: p.transports as AuthenticatorTransportFuture[],
     })),
     authenticatorSelection: {
@@ -189,9 +189,10 @@ export async function schliesseRegistrierungAb(
   const passkey = await prisma.passkey.create({
     data: {
       userId: benutzerId,
-      credentialId: Buffer.from(info.credentialID).toString('base64url'),
-      publicKey: Buffer.from(info.credentialPublicKey).toString('base64url'),
-      counter: info.counter,
+      // credential.id ist bereits base64url – dasselbe Format wie bisher.
+      credentialId: info.credential.id,
+      publicKey: Buffer.from(info.credential.publicKey).toString('base64url'),
+      counter: info.credential.counter,
       transports: (antwort.response.transports ?? []) as string[],
       deviceType: info.credentialDeviceType,
       backedUp: info.credentialBackedUp,
@@ -271,9 +272,9 @@ export async function pruefeAnmeldung(
     expectedOrigin: ursprung(),
     expectedRPID: rpId(),
     requireUserVerification: false,
-    authenticator: {
-      credentialID: new Uint8Array(Buffer.from(passkey.credentialId, 'base64url')),
-      credentialPublicKey: new Uint8Array(Buffer.from(passkey.publicKey, 'base64url')),
+    credential: {
+      id: passkey.credentialId,
+      publicKey: new Uint8Array(Buffer.from(passkey.publicKey, 'base64url')),
       counter: passkey.counter,
       transports: passkey.transports as AuthenticatorTransportFuture[],
     },

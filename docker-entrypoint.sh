@@ -12,10 +12,12 @@ set -e
 
 echo "[Wartungsplaner] Warte auf die Datenbank ..."
 VERSUCH=0
+# Direkt über den PostgreSQL-Treiber: Der Prisma-Client ist seit Prisma 7
+# TypeScript-Quelltext und lässt sich hier nicht per require laden.
 until node -e "
-const { PrismaClient } = require('@prisma/client');
-const p = new PrismaClient();
-p.\$queryRaw\`SELECT 1\`.then(() => p.\$disconnect()).then(() => process.exit(0)).catch(() => process.exit(1));
+const { Client } = require('pg');
+const c = new Client({ connectionString: process.env.DATABASE_URL });
+c.connect().then(() => c.query('SELECT 1')).then(() => c.end()).then(() => process.exit(0)).catch(() => process.exit(1));
 " 2>/dev/null; do
   VERSUCH=$((VERSUCH + 1))
   if [ "$VERSUCH" -ge 30 ]; then
@@ -30,9 +32,9 @@ echo "[Wartungsplaner] Wende Migrationen an ..."
 ./node_modules/.bin/prisma migrate deploy
 
 BENUTZER_ANZAHL=$(node -e "
-const { PrismaClient } = require('@prisma/client');
-const p = new PrismaClient();
-p.user.count().then((n) => { console.log(n); return p.\$disconnect(); }).catch(() => { console.log('-1'); process.exit(0); });
+const { Client } = require('pg');
+const c = new Client({ connectionString: process.env.DATABASE_URL });
+c.connect().then(() => c.query('SELECT count(*)::int AS n FROM \"User\"')).then((r) => { console.log(r.rows[0].n); return c.end(); }).catch(() => { console.log('-1'); process.exit(0); });
 " 2>/dev/null | tail -n 1)
 
 if [ "$BENUTZER_ANZAHL" = "0" ]; then

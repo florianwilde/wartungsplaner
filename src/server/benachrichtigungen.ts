@@ -10,7 +10,7 @@
  *    sie nicht nach der ersten Nachricht in Vergessenheit geraten.
  *  - Ein Fehler bei einer Empfängerin bricht den Lauf nicht ab.
  */
-import type { NotificationKind } from '@prisma/client'
+import type { NotificationKind } from '@/generated/prisma/client'
 
 import { schreibeAuditLeise } from '@/lib/audit'
 import {

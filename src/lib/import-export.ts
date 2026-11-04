@@ -11,7 +11,7 @@
  * Aufgabentitel, E-Mail-Adresse), nicht über technische IDs. So bleiben
  * Daten zwischen Installationen übertragbar.
  */
-import type { PruefpunktArt } from '@prisma/client'
+import type { PruefpunktArt } from '@/generated/prisma/client'
 
 import { leseJaNein, type CsvZeile } from '@/lib/csv'
 import { parseISODate, toISODate } from '@/lib/dates'

@@ -4,7 +4,7 @@
  * Getrennt von der Sitzungsprüfung gehalten, damit die Regel an einer Stelle
  * steht und sich prüfen lässt.
  */
-import type { Role } from '@prisma/client'
+import type { Role } from '@/generated/prisma/client'
 
 import { mussEinrichten, type Lage } from '@/lib/passkey-pflicht'
 import { prisma } from '@/lib/prisma'

@@ -1,6 +1,6 @@
 'use server'
 
-import type { Role } from '@prisma/client'
+import type { Role } from '@/generated/prisma/client'
 import { revalidatePath } from 'next/cache'
 
 import { schreibeAudit } from '@/lib/audit'

@@ -56,9 +56,11 @@ fi
 
 echo -e "${BLAU}[Migrationstest]${AUS} Ergebnis wird mit dem Schema verglichen ..."
 ABWEICHUNG=$(
-  npx prisma migrate diff \
-    --from-url "$URL" \
-    --to-schema-datamodel prisma/schema.prisma \
+  # Prisma 7: --from-url heißt --from-config-datasource (Adresse aus
+  # prisma.config.ts, also aus DATABASE_URL), --to-schema-datamodel --to-schema.
+  DATABASE_URL="$URL" npx prisma migrate diff \
+    --from-config-datasource \
+    --to-schema prisma/schema.prisma \
     --script 2>/dev/null
 )
 

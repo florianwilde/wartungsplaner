@@ -10,7 +10,7 @@
  * Voraussetzung: Datenbank vom Host aus erreichbar:
  *   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
  */
-import { PrismaClient } from '@prisma/client'
+import { erzeugePrismaClient } from '../src/lib/prisma-basis'
 
 import { addDays, todayInBerlin } from '../src/lib/dates'
 import { loeseVertretung } from '../src/lib/vertretung'
@@ -23,7 +23,7 @@ import {
   setzeVertretung,
 } from '../src/server/vertretung'
 
-const prisma = new PrismaClient()
+const prisma = erzeugePrismaClient()
 
 const PRAEFIX = '[Vertretungstest] '
 let fehlerAnzahl = 0

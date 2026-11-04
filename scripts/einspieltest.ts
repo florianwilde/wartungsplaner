@@ -5,7 +5,7 @@
  */
 import { readFileSync } from 'node:fs'
 
-import { PrismaClient } from '@prisma/client'
+import { erzeugePrismaClient } from '../src/lib/prisma-basis'
 
 import { leseCsv } from '../src/lib/csv'
 import {
@@ -21,7 +21,7 @@ import {
   schreibePruefboegen,
 } from '../src/server/import'
 
-const prisma = new PrismaClient()
+const prisma = erzeugePrismaClient()
 const ORDNER = 'beispiele/pruefplan'
 
 let fehlerAnzahl = 0

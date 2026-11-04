@@ -6,7 +6,7 @@
  * zusätzlich per Datenbank-Trigger unterbunden
  * (Migration `audit_log_append_only`).
  */
-import type { Prisma, PrismaClient } from '@prisma/client'
+import type { Prisma, PrismaClient } from '@/generated/prisma/client'
 
 import { prisma } from '@/lib/prisma'
 

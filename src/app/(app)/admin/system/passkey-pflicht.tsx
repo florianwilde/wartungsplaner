@@ -3,7 +3,7 @@
 import { useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useRouter } from 'next/navigation'
-import type { Role } from '@prisma/client'
+import type { Role } from '@/generated/prisma/client'
 import { Fingerprint } from 'lucide-react'
 import { toast } from 'sonner'
 

@@ -1,4 +1,4 @@
-import type { Role } from '@prisma/client'
+import type { Role } from '@/generated/prisma/client'
 import type { NextAuthConfig } from 'next-auth'
 
 /** Die Felder, die diese Anwendung im Sitzungs-Token ablegt. */

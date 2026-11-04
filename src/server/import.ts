@@ -10,7 +10,7 @@
  *  - Bestehende Aufgaben werden aktualisiert, ihre Fälligkeiten und
  *    Durchführungen bleiben unangetastet.
  */
-import type { Prisma } from '@prisma/client'
+import type { Prisma } from '@/generated/prisma/client'
 
 import { schreibeAudit } from '@/lib/audit'
 import { parseISODate } from '@/lib/dates'

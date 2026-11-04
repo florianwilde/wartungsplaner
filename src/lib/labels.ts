@@ -9,7 +9,7 @@ import type {
   FindingStatus,
   OccurrenceStatus,
   Severity,
-} from '@prisma/client'
+} from '@/generated/prisma/client'
 
 export const STATUS_BEZEICHNUNG: Record<OccurrenceStatus, string> = {
   OPEN: 'Offen',

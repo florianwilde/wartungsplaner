@@ -12,7 +12,7 @@
  * Voraussetzung: Datenbank vom Host aus erreichbar:
  *   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
  */
-import { PrismaClient } from '@prisma/client'
+import { erzeugePrismaClient } from '../src/lib/prisma-basis'
 
 import { leseCsv } from '../src/lib/csv'
 import { todayInBerlin } from '../src/lib/dates'
@@ -24,7 +24,7 @@ import {
 } from '../src/lib/import-export'
 import { schreibeAuditReferenzen, schreibePruefboegen } from '../src/server/import'
 
-const prisma = new PrismaClient()
+const prisma = erzeugePrismaClient()
 
 const PRAEFIX = '[Importtest] '
 const EMAIL = 'import@test.local'

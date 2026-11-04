@@ -27,7 +27,7 @@ export function PasskeyAnmeldung({ weiter }: { weiter: string }) {
       const daten = await start.json()
       if (!start.ok) throw new Error(daten.fehler ?? 'Start fehlgeschlagen.')
 
-      const antwort = await startAuthentication(daten.optionen)
+      const antwort = await startAuthentication({ optionsJSON: daten.optionen })
 
       const ergebnis = await signIn('passkey', {
         vorgangId: daten.vorgangId,

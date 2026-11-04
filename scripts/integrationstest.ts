@@ -7,7 +7,7 @@
  * Ausführen:  npm run test:integration
  * Voraussetzung: `docker compose up -d db` und angewandte Migrationen.
  */
-import { PrismaClient } from '@prisma/client'
+import { erzeugePrismaClient } from '../src/lib/prisma-basis'
 
 import { addDays, dateOnly, toISODate, todayInBerlin } from '../src/lib/dates'
 import {
@@ -16,7 +16,7 @@ import {
 } from '../src/server/durchfuehrung-service'
 import { fuehreTagesabgleichAus } from '../src/server/faelligkeiten'
 
-const prisma = new PrismaClient()
+const prisma = erzeugePrismaClient()
 
 const PRAEFIX = '[Integrationstest] '
 let fehlerAnzahl = 0

@@ -95,5 +95,7 @@ jobs:
           cache: npm
 
       - run: npm ci
+      # Seit Prisma 7 erzeugt npm ci den Client nicht mehr selbst.
+      - run: npx prisma generate
       - run: npx prisma migrate deploy
       - run: npx tsx scripts/einspieltest.ts

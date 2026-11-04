@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import type { Prisma } from '@prisma/client'
+import type { Prisma } from '@/generated/prisma/client'
 import { Plus } from 'lucide-react'
 
 import { SeitenKopf, LeerHinweis } from '@/components/seiten-kopf'

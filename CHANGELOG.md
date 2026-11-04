@@ -30,10 +30,42 @@ die Versionierung folgt der [Semantischen Versionierung](https://semver.org/lang
 - **Mitgezogen:** `zod` 4.6.7 (Speichererschöpfung bei großen Sammlungen),
   `sharp` 0.35.5 (libheif, librsvg), `nanoid`, `source-map-js`,
   `brace-expansion`.
-- **Offen, mit Begründung:** `deepmerge-ts` über Prisma 6 (betrifft nur
-  das Laden der CLI-Konfiguration; behoben erst mit Prisma 7) und
-  `@simplewebauthn/server` 9 (niedrig; behoben erst in Fassung 13). Beides
-  sind Umstiege auf eine neue Hauptversion und kommen gesondert.
+- **Prisma 6 → 7** schließt die letzte hohe Meldung (`deepmerge-ts`),
+  **SimpleWebAuthn 9 → 13** die Lücke bei der Prüfung von Registrierungen.
+  `npm audit --omit=dev` meldet danach nichts Hohes oder Kritisches mehr;
+  offen bleiben mittlere Meldungen in `glob`/`minimatch` unter `archiver`
+  und `exceljs`, für die es noch keine verträgliche Fassung gibt.
+
+### Geändert
+
+- **Prisma 7.** Der Client wird nach `src/generated/prisma` erzeugt und
+  spricht über den Treiber `@prisma/adapter-pg` mit PostgreSQL – eine
+  eigene Query-Engine gibt es nicht mehr. Die Verbindungsadresse steht in
+  `prisma.config.ts` statt im Schema; dort liegt jetzt auch der Seed-Befehl.
+  - Für Docker ändert sich nichts. Wer ohne Docker betreibt: nach dem
+    Update einmal `npm ci` und `npx prisma generate` ausführen.
+  - Seed und Testskripte erzeugen ihren Client über
+    `src/lib/prisma-basis.ts` und lesen die `.env` wie bisher selbst.
+  - Das Startskript des Containers prüft Datenbank und Benutzerzahl jetzt
+    direkt über `pg`.
+- **SimpleWebAuthn 13** (Server und Browser). Bereits hinterlegte Passkeys
+  funktionieren weiter: Kennung, Schlüssel und Zähler werden im selben
+  Format gespeichert wie bisher, und die Konto-Kennung im Passkey ergibt
+  dieselben Bytes wie unter Version 9.
+- **vitest 5** für die Unit-Tests.
+- **`overrides` ohne `$`-Verweise.** npm 10 bricht bei `$postcss` und
+  ähnlichen Verweisen ab, sobald neue Abhängigkeiten aufzulösen sind; die
+  Angaben stehen jetzt ausgeschrieben. next-auth 5 (Beta) verlangt
+  SimpleWebAuthn 9 und nodemailer 8 als optionale Peer-Abhängigkeiten,
+  nutzt aber keines von beiden – die Overrides setzen dort die eigenen
+  Fassungen.
+
+### Hinzugefügt
+
+- **E2E-Test für Passkeys** (`e2e/passkeys.spec.ts`): hinterlegen, doppeltes
+  Hinterlegen desselben Geräts, abmelden, mit dem Passkey anmelden – gegen
+  den virtuellen Authenticator von Chromium, der die Kryptografie wirklich
+  rechnet.
 
 ## [1.11.0] – 2026-08-07
 

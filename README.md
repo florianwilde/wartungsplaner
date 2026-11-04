@@ -658,6 +658,7 @@ Anwendung werten `X-Forwarded-Host` und `X-Forwarded-Proto` aus.
 
 ```bash
 npm install
+npx prisma generate           # Client nach src/generated/prisma
 cp .env.example .env          # DATABASE_URL auf localhost belassen
 
 # Nur die Datenbank, mit auf 127.0.0.1 veröffentlichtem Port
